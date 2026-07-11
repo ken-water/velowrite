@@ -2,6 +2,12 @@
 
 VeloMD is a Tauri-based Markdown editor concept focused on lightweight startup, a clean Typora-like writing surface, AI-native commands, local Git history, and one-click static publishing.
 
+Repository: <https://github.com/ken-water/velomd>
+
+## Project Status
+
+VeloMD is an early MVP. It is ready for dogfooding Markdown reading/editing workflows, but it is not yet a polished public beta. Feedback on real writing workflows, packaging, file handling, and history recovery is especially valuable.
+
 ## First Version
 
 The current first version includes:
@@ -36,6 +42,13 @@ The current first version includes:
 - Draft autosave through `localStorage`
 - Desktop-only native open/save commands through Tauri
 - Keyboard shortcuts: `Ctrl/Cmd+N`, `Ctrl/Cmd+O`, `Ctrl/Cmd+S`
+
+## Feedback
+
+- Bugs: <https://github.com/ken-water/velomd/issues/new?template=bug_report.yml>
+- Feature requests: <https://github.com/ken-water/velomd/issues/new?template=feature_request.yml>
+- Roadmap: `ROADMAP.md`
+- Contributing: `CONTRIBUTING.md`
 
 ## Development
 

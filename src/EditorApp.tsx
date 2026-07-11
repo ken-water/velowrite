@@ -25,6 +25,7 @@ import {
   Braces,
   Check,
   Download,
+  ExternalLink,
   FileText,
   FolderOpen,
   GitBranch,
@@ -32,6 +33,7 @@ import {
   Save,
   Search,
   Settings,
+  Info,
   Trash2,
   UploadCloud,
 } from "lucide-react";
@@ -558,6 +560,57 @@ function HistoryPanel({
   );
 }
 
+function AboutPanel({ onClose }: { onClose: () => void }) {
+  const links = [
+    ["GitHub", "https://github.com/ken-water/velomd"],
+    ["Issues", "https://github.com/ken-water/velomd/issues"],
+    ["Roadmap", "https://github.com/ken-water/velomd/blob/main/ROADMAP.md"],
+    ["Releases", "https://github.com/ken-water/velomd/releases"],
+  ];
+
+  return (
+    <div className="settings-backdrop" role="presentation" onMouseDown={onClose}>
+      <section
+        className="settings-panel about-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="about-title"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <header>
+          <h2 id="about-title">VeloMD</h2>
+          <button onClick={onClose} aria-label="Close about">
+            Close
+          </button>
+        </header>
+
+        <p>
+          A lightweight, local-first Markdown editor built with Tauri. Current
+          focus: fast editing, clean preview, reliable local files, and
+          recoverable history.
+        </p>
+
+        <div className="about-links">
+          {links.map(([label, href]) => (
+            <a key={href} href={href} target="_blank" rel="noreferrer">
+              <span>{label}</span>
+              <ExternalLink size={14} />
+            </a>
+          ))}
+        </div>
+
+        <div className="about-note">
+          <strong>Feedback wanted</strong>
+          <span>
+            If a Markdown workflow feels slow, fragile, or confusing, please
+            open an issue. Real usage reports will shape the next release.
+          </span>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function formatTimestamp(value: number) {
   return new Intl.DateTimeFormat(undefined, {
     month: "short",
@@ -597,6 +650,7 @@ export default function EditorApp() {
   });
   const [editorFontSize, setEditorFontSize] = React.useState(getStoredEditorFontSize);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [aboutOpen, setAboutOpen] = React.useState(false);
   const [historyOpen, setHistoryOpen] = React.useState(false);
   const [historyEntries, setHistoryEntries] = React.useState<HistoryEntry[]>([]);
   const [selectedHistory, setSelectedHistory] = React.useState<HistorySnapshot | null>(null);
@@ -1284,6 +1338,9 @@ export default function EditorApp() {
             >
               <Settings size={17} />
             </button>
+            <button aria-label="About" title="About" onClick={() => setAboutOpen(true)}>
+              <Info size={17} />
+            </button>
           </div>
         </header>
 
@@ -1345,6 +1402,7 @@ export default function EditorApp() {
             onClose={() => setHistoryOpen(false)}
           />
         )}
+        {aboutOpen && <AboutPanel onClose={() => setAboutOpen(false)} />}
       </section>
     </main>
   );
