@@ -1237,7 +1237,8 @@ article,
   line-height: 1.55;
 }
 
-.download-card a {
+.download-card a,
+.download-card button {
   display: inline-flex;
   min-width: 0;
   min-height: 42px;
@@ -1250,6 +1251,13 @@ article,
   color: #ffffff;
   font-size: 13px;
   font-weight: 800;
+}
+
+.download-card button {
+  border: 1px solid rgba(21, 54, 45, 0.16);
+  background: #e5e0d7;
+  color: #65756f;
+  cursor: default;
 }
 
 .download-notes {

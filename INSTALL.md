@@ -11,6 +11,7 @@ Linux:
 ```text
 src-tauri/target/release/bundle/deb/VeloMD_0.1.1_amd64.deb
 src-tauri/target/release/bundle/rpm/VeloMD-0.1.1-1.x86_64.rpm
+src-tauri/target/release/bundle/appimage/VeloMD_0.1.1_amd64.AppImage
 ```
 
 Windows, cross-built from Linux:
@@ -33,6 +34,13 @@ Fedora, RHEL, or compatible distributions:
 sudo dnf install ./src-tauri/target/release/bundle/rpm/VeloMD-0.1.1-1.x86_64.rpm
 ```
 
+Portable AppImage:
+
+```bash
+chmod +x ./src-tauri/target/release/bundle/appimage/VeloMD_0.1.1_amd64.AppImage
+./src-tauri/target/release/bundle/appimage/VeloMD_0.1.1_amd64.AppImage
+```
+
 ## Windows
 
 Run:
@@ -43,10 +51,16 @@ VeloMD_0.1.1_x64-setup.exe
 
 The current Windows installer is not code-signed. Windows SmartScreen may show a warning until VeloMD has a signing certificate and reputation. For trusted internal testing, choose the advanced option and continue.
 
+## macOS
+
+macOS DMG builds are planned, but they require a macOS build host. A public-quality macOS release should also include Apple Developer signing and notarization.
+
 ## Known MVP Notes
 
 - Native Open, Save, Export HTML, close confirmation, and external links require Tauri ACL permissions. Builds after commit `4eca575` include those permissions.
 - The Windows installer is cross-built from Linux and unsigned.
+- AppImage is available for Linux testing, but the `.deb` and `.rpm` packages remain the primary Linux install targets.
+- macOS DMG is not published yet.
 - History snapshots are local-only and are created before overwriting an existing saved file.
 - Private sync, AI commands, and one-click publishing are planned but not enabled yet.
 
@@ -56,5 +70,6 @@ The current Windows installer is not code-signed. Windows SmartScreen may show a
 npm run release:check
 cargo check --manifest-path src-tauri/Cargo.toml
 npm run package:linux
+npm run package:appimage
 npm run package:windows
 ```

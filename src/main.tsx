@@ -26,6 +26,12 @@ const downloads = [
     note: "Unsigned MVP installer for Windows x64.",
   },
   {
+    platform: "Linux AppImage",
+    format: "Portable package",
+    fileName: `VeloMD_${releaseVersion}_amd64.AppImage`,
+    note: "Portable Linux build. Make it executable before running.",
+  },
+  {
     platform: "Ubuntu / Debian",
     format: "DEB package",
     fileName: `VeloMD_${releaseVersion}_amd64.deb`,
@@ -36,6 +42,12 @@ const downloads = [
     format: "RPM package",
     fileName: `VeloMD-${releaseVersion}-1.x86_64.rpm`,
     note: "For RPM-based Linux distributions.",
+  },
+  {
+    platform: "macOS",
+    format: "DMG",
+    fileName: "",
+    note: "Planned after a macOS host, signing, and notarization path are ready.",
   },
 ];
 
@@ -155,10 +167,14 @@ function DownloadPage() {
                 <span>{item.format}</span>
               </div>
               <p>{item.note}</p>
-              <a href={`${releaseBaseUrl}/${item.fileName}`}>
-                <Download size={16} />
-                {item.fileName}
-              </a>
+              {item.fileName ? (
+                <a href={`${releaseBaseUrl}/${item.fileName}`}>
+                  <Download size={16} />
+                  {item.fileName}
+                </a>
+              ) : (
+                <button disabled>Planned</button>
+              )}
             </article>
           ))}
         </section>
@@ -168,6 +184,7 @@ function DownloadPage() {
           <ul>
             <li>Version {releaseVersion} fixes native Open, Save, and Export dialog permissions.</li>
             <li>The Windows installer is not code-signed yet, so SmartScreen may warn during install.</li>
+            <li>AppImage is available for portable Linux testing; macOS DMG is planned.</li>
             <li>Installers are hosted on GitHub Releases; no VPS or custom download server is required.</li>
           </ul>
         </section>
