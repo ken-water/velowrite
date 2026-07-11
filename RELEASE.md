@@ -40,7 +40,7 @@ Every release must update these together:
 5. Build the desktop app before a public/beta release:
 
    ```bash
-   npm run tauri:build
+   npm run package:linux
    ```
 
    Prefer local builds first. Do not add or trigger GitHub Actions release builds unless the maintainer explicitly asks for it.
@@ -50,7 +50,7 @@ Every release must update these together:
 Linux packages from a Linux host:
 
 ```bash
-npm run tauri -- build --bundles deb,rpm
+npm run package:linux
 ```
 
 Outputs:
@@ -64,7 +64,7 @@ Windows packages from a Linux host require the Windows GNU Rust target and MinGW
 
 ```bash
 rustup target add x86_64-pc-windows-gnu
-npm run tauri -- build --target x86_64-pc-windows-gnu --bundles nsis
+npm run package:windows
 ```
 
 Do not rely on GitHub Actions for Windows packaging until local build attempts have been exhausted or the maintainer explicitly requests CI packaging.

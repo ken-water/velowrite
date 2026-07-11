@@ -12,7 +12,9 @@
     "release:check": "npm run version:sync -- --check && npm test && npm run build",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "package:linux": "tauri build --bundles deb,rpm",
+    "package:windows": "tauri build --target x86_64-pc-windows-gnu --bundles nsis"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",

@@ -75,7 +75,14 @@ cargo check --manifest-path src-tauri/Cargo.toml
 Build local Linux packages:
 
 ```bash
-npm run tauri -- build --bundles deb,rpm
+npm run package:linux
+```
+
+Build a local Windows installer from Linux after installing the Windows GNU Rust target and MinGW toolchain:
+
+```bash
+rustup target add x86_64-pc-windows-gnu
+npm run package:windows
 ```
 
 Run the desktop shell:
