@@ -1168,6 +1168,109 @@ article,
   line-height: 1.6;
 }
 
+.download-page {
+  min-height: 100vh;
+  background: #f4f1eb;
+  color: #17201c;
+}
+
+.download-shell {
+  width: min(1040px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 58px 0 76px;
+}
+
+.download-hero {
+  max-width: 720px;
+  margin-bottom: 34px;
+}
+
+.download-hero h1 {
+  margin-bottom: 16px;
+  color: #0f251f;
+  font-size: 64px;
+  line-height: 0.96;
+  letter-spacing: 0;
+}
+
+.download-hero p {
+  max-width: 660px;
+  color: #4a5a55;
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.download-card {
+  display: grid;
+  gap: 16px;
+  align-content: space-between;
+  min-height: 230px;
+  border: 1px solid rgba(21, 54, 45, 0.16);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: 0 12px 32px rgba(38, 52, 47, 0.08);
+}
+
+.download-card h2 {
+  margin: 0 0 5px;
+  color: #17201c;
+  font-size: 20px;
+}
+
+.download-card span {
+  color: #65756f;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.download-card p {
+  margin: 0;
+  color: #4f5f59;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.download-card a {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 7px;
+  padding: 0 12px;
+  background: #15362d;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.download-notes {
+  margin-top: 26px;
+  border-top: 1px solid rgba(21, 54, 45, 0.16);
+  padding-top: 22px;
+}
+
+.download-notes h2 {
+  margin: 0 0 12px;
+  color: #17201c;
+  font-size: 18px;
+}
+
+.download-notes ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #4f5f59;
+  line-height: 1.75;
+}
+
 @media (max-width: 980px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1179,6 +1282,10 @@ article,
 
   .product-frame .app-shell {
     min-height: 560px;
+  }
+
+  .download-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1203,6 +1310,15 @@ article,
 
   .hero h1 {
     font-size: 60px;
+  }
+
+  .download-shell {
+    width: min(100% - 28px, 1040px);
+    padding-top: 34px;
+  }
+
+  .download-hero h1 {
+    font-size: 48px;
   }
 
   .input-row {

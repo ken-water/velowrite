@@ -15,6 +15,29 @@ import {
 import "./styles.css";
 
 const EditorApp = React.lazy(() => import("./EditorApp"));
+const releaseVersion = "0.1.1";
+const releaseBaseUrl = `https://github.com/ken-water/velomd/releases/download/v${releaseVersion}`;
+
+const downloads = [
+  {
+    platform: "Windows",
+    format: "NSIS installer",
+    fileName: `VeloMD_${releaseVersion}_x64-setup.exe`,
+    note: "Unsigned MVP installer for Windows x64.",
+  },
+  {
+    platform: "Ubuntu / Debian",
+    format: "DEB package",
+    fileName: `VeloMD_${releaseVersion}_amd64.deb`,
+    note: "For Debian-based Linux distributions.",
+  },
+  {
+    platform: "Fedora / RHEL",
+    format: "RPM package",
+    fileName: `VeloMD-${releaseVersion}-1.x86_64.rpm`,
+    note: "For RPM-based Linux distributions.",
+  },
+];
 
 function LandingPage() {
   return (
@@ -25,8 +48,11 @@ function LandingPage() {
           VeloMD
         </a>
         <div className="nav-actions">
-          <a href="https://github.com/" aria-label="GitHub">
+          <a href="https://github.com/ken-water/velomd" aria-label="GitHub">
             <Github size={18} />
+          </a>
+          <a href="/download">
+            Download <Download size={16} />
           </a>
           <a href="/app">
             Open editor <ChevronRight size={16} />
@@ -86,6 +112,66 @@ function LandingPage() {
           <p>Turn Markdown into a fast static site for Vercel or GitHub Pages.</p>
         </div>
       </section>
+    </div>
+  );
+}
+
+function DownloadPage() {
+  return (
+    <div className="download-page">
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloMD
+        </a>
+        <div className="nav-actions">
+          <a href="/app">
+            Open editor <ChevronRight size={16} />
+          </a>
+          <a href="https://github.com/ken-water/velomd/releases" target="_blank" rel="noreferrer">
+            Releases <Github size={16} />
+          </a>
+        </div>
+      </header>
+
+      <main className="download-shell">
+        <section className="download-hero">
+          <div className="eyebrow">
+            <Download size={16} />
+            Desktop MVP
+          </div>
+          <h1>Download VeloMD</h1>
+          <p>
+            Get the current dogfooding build for Markdown reading, editing,
+            preview, HTML export, recent files, and local history snapshots.
+          </p>
+        </section>
+
+        <section className="download-grid" aria-label="Download installers">
+          {downloads.map((item) => (
+            <article className="download-card" key={item.fileName}>
+              <div>
+                <h2>{item.platform}</h2>
+                <span>{item.format}</span>
+              </div>
+              <p>{item.note}</p>
+              <a href={`${releaseBaseUrl}/${item.fileName}`}>
+                <Download size={16} />
+                {item.fileName}
+              </a>
+            </article>
+          ))}
+        </section>
+
+        <section className="download-notes" aria-label="Release notes">
+          <h2>Before Testing</h2>
+          <ul>
+            <li>Version {releaseVersion} fixes native Open, Save, and Export dialog permissions.</li>
+            <li>The Windows installer is not code-signed yet, so SmartScreen may warn during install.</li>
+            <li>Installers are hosted on GitHub Releases; no VPS or custom download server is required.</li>
+          </ul>
+        </section>
+      </main>
     </div>
   );
 }
@@ -152,6 +238,10 @@ function Router() {
         <EditorApp />
       </React.Suspense>
     );
+  }
+
+  if (window.location.pathname.startsWith("/download")) {
+    return <DownloadPage />;
   }
 
   return <LandingPage />;

@@ -9,14 +9,14 @@ After running the local package commands, installers are generated under `src-ta
 Linux:
 
 ```text
-src-tauri/target/release/bundle/deb/VeloMD_0.1.0_amd64.deb
-src-tauri/target/release/bundle/rpm/VeloMD-0.1.0-1.x86_64.rpm
+src-tauri/target/release/bundle/deb/VeloMD_0.1.1_amd64.deb
+src-tauri/target/release/bundle/rpm/VeloMD-0.1.1-1.x86_64.rpm
 ```
 
 Windows, cross-built from Linux:
 
 ```text
-src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/VeloMD_0.1.0_x64-setup.exe
+src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/VeloMD_0.1.1_x64-setup.exe
 ```
 
 ## Linux
@@ -24,13 +24,13 @@ src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/VeloMD_0.1.0_x64-setu
 Debian or Ubuntu:
 
 ```bash
-sudo apt install ./src-tauri/target/release/bundle/deb/VeloMD_0.1.0_amd64.deb
+sudo apt install ./src-tauri/target/release/bundle/deb/VeloMD_0.1.1_amd64.deb
 ```
 
 Fedora, RHEL, or compatible distributions:
 
 ```bash
-sudo dnf install ./src-tauri/target/release/bundle/rpm/VeloMD-0.1.0-1.x86_64.rpm
+sudo dnf install ./src-tauri/target/release/bundle/rpm/VeloMD-0.1.1-1.x86_64.rpm
 ```
 
 ## Windows
@@ -38,7 +38,7 @@ sudo dnf install ./src-tauri/target/release/bundle/rpm/VeloMD-0.1.0-1.x86_64.rpm
 Run:
 
 ```text
-VeloMD_0.1.0_x64-setup.exe
+VeloMD_0.1.1_x64-setup.exe
 ```
 
 The current Windows installer is not code-signed. Windows SmartScreen may show a warning until VeloMD has a signing certificate and reputation. For trusted internal testing, choose the advanced option and continue.

@@ -8,13 +8,31 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ### Added
 
-- Contributor guide, roadmap, security policy, issue templates, and pull request template.
-- In-app About panel with repository, issues, roadmap, and release links.
-- Clearer README project status and feedback links.
+## [0.1.1] - 2026-07-11
+
+### Added
+
+- Download page with direct links to GitHub Release installers.
+- Local install guide for Linux and Windows testers.
+- First-run editor guidance for opening and creating Markdown files.
+- Local Linux and Windows packaging scripts.
+
+### Fixed
+
+- Allowed native Tauri dialog commands so Open, Save, Export HTML, and close confirmations work in desktop builds.
+- Added Windows icon resource required for cross-built NSIS installers.
+
+### Changed
+
+- Rebuilt Linux and Windows local installers for the ACL fix.
 
 ## [0.1.0] - 2026-07-11
 
 ### Added
+
+- Contributor guide, roadmap, security policy, issue templates, and pull request template.
+- In-app About panel with repository, issues, roadmap, and release links.
+- Clearer README project status and feedback links.
 
 - Tauri desktop shell with React/Vite frontend.
 - Markdown editing with CodeMirror 6.

@@ -1,6 +1,6 @@
 [package]
 name = "velomd"
-version = "0.1.0"
+version = "0.1.1"
 description = "A lightweight AI-native Markdown editor."
 authors = ["VeloMD"]
 edition = "2021"
