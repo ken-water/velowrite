@@ -93,7 +93,7 @@ npm run tauri:dev
 
 ## Releases
 
-Versioning and release steps are documented in `RELEASE.md`. User-facing changes are tracked in `CHANGELOG.md`.
+Versioning and release steps are documented in `RELEASE.md`. User-facing changes are tracked in `CHANGELOG.md`. Local install notes are in `INSTALL.md`.
 
 ## Waitlist
 
