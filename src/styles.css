@@ -355,6 +355,56 @@ p {
   min-height: 0;
 }
 
+.welcome-panel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
+.welcome-panel strong,
+.welcome-panel span,
+.welcome-panel p {
+  display: block;
+}
+
+.welcome-panel strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.welcome-panel span,
+.welcome-panel p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.welcome-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.welcome-actions button {
+  display: flex;
+  min-width: 0;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .outline-title {
   margin-bottom: 8px;
   color: var(--muted);
@@ -734,6 +784,14 @@ pre,
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
+}
+
+.statusbar .shortcut-hint {
+  margin-right: auto;
+}
+
+.statusbar .shortcut-hint + .shortcut-hint {
+  margin-right: 0;
 }
 
 .drop-overlay {
@@ -1179,5 +1237,9 @@ article,
   .feature-band {
     grid-template-columns: 1fr;
     margin-top: 0;
+  }
+
+  .statusbar .shortcut-hint {
+    display: none;
   }
 }

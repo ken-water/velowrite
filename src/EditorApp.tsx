@@ -163,17 +163,31 @@ function createEditorExtensions(fontSize: number): Extension[] {
 
 const initialMarkdown = `# VeloMD First Draft
 
-VeloMD is a lightweight Markdown editor built with Tauri.
+Welcome to VeloMD, a lightweight Markdown editor built with Tauri for local-first writing.
 
-## First version scope
+## What you can do now
 
-- Open and save local Markdown files
-- Write with a focused editor
-- Preview rendered Markdown instantly
-- Auto-save drafts locally
-- Keep AI, Git history, and publishing ready for the next iteration
+- Open, edit, and save local Markdown files
+- Preview rendered Markdown instantly while you write
+- Export the current document as a clean HTML file
+- Keep local history snapshots when saving existing files
+- Drag a Markdown file into the window to open it
 
-> Fast first. Beautiful second. Reliable always.
+## Keyboard shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| Ctrl/Cmd + N | New document |
+| Ctrl/Cmd + O | Open Markdown |
+| Ctrl/Cmd + S | Save |
+| Ctrl/Cmd + Shift + E | Export HTML |
+| Ctrl/Cmd + 1/2/3 | Write, Split, Preview |
+
+## Why VeloMD exists
+
+Electron editors are powerful, but many users just want a fast, quiet Markdown workspace that opens quickly and respects local files. VeloMD starts from that promise, then grows toward AI-native writing, private sync, and one-click publishing.
+
+> Fast first. Reliable always. Beautiful where it helps.
 
 \`\`\`mermaid
 flowchart LR
@@ -611,6 +625,43 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
+function WelcomePanel({
+  nativeReady,
+  hasRecentFiles,
+  onNew,
+  onOpen,
+}: {
+  nativeReady: boolean;
+  hasRecentFiles: boolean;
+  onNew: () => void;
+  onOpen: () => void;
+}) {
+  return (
+    <section className="welcome-panel" aria-label="Getting started">
+      <div>
+        <strong>Getting started</strong>
+        <span>
+          Open a Markdown file, create a new note, or drag a document into VeloMD.
+        </span>
+      </div>
+      <div className="welcome-actions">
+        <button onClick={onOpen}>
+          <FolderOpen size={15} />
+          Open
+        </button>
+        <button onClick={onNew}>
+          <FileText size={15} />
+          New
+        </button>
+      </div>
+      {!nativeReady && (
+        <p>Browser preview mode can import and download files. Desktop mode enables native save dialogs and history.</p>
+      )}
+      {nativeReady && !hasRecentFiles && <p>Recent files will appear here after your first desktop save.</p>}
+    </section>
+  );
+}
+
 function formatTimestamp(value: number) {
   return new Intl.DateTimeFormat(undefined, {
     month: "short",
@@ -1022,7 +1073,7 @@ export default function EditorApp() {
   }
 
   function newFile() {
-    const blankDocument = "# Untitled\n\nStart writing...";
+    const blankDocument = "# Untitled\n\nStart writing...\n";
     setMarkdown(blankDocument);
     setSavedMarkdown(blankDocument);
     setFilePath(null);
@@ -1213,6 +1264,15 @@ export default function EditorApp() {
           </section>
         )}
 
+        {recentFiles.length === 0 && (
+          <WelcomePanel
+            nativeReady={Boolean(nativeApi)}
+            hasRecentFiles={recentFiles.length > 0}
+            onNew={() => void newFileWithGuard()}
+            onOpen={() => void openFileWithGuard()}
+          />
+        )}
+
         <section className="outline-panel" aria-label="Document outline">
           <div className="outline-title">Outline</div>
           {headings.length > 0 ? (
@@ -1374,6 +1434,8 @@ export default function EditorApp() {
         </div>
 
         <footer className="statusbar">
+          <span className="shortcut-hint">Ctrl/Cmd O open</span>
+          <span className="shortcut-hint">Ctrl/Cmd S save</span>
           <span>{metrics.words} words</span>
           <span>{metrics.characters} chars</span>
           <span>{metrics.lines} lines</span>
