@@ -72,6 +72,12 @@ npm run release:check
 cargo check --manifest-path src-tauri/Cargo.toml
 ```
 
+Build local Linux packages:
+
+```bash
+npm run tauri -- build --bundles deb,rpm
+```
+
 Run the desktop shell:
 
 ```bash

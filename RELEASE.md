@@ -43,6 +43,32 @@ Every release must update these together:
    npm run tauri:build
    ```
 
+   Prefer local builds first. Do not add or trigger GitHub Actions release builds unless the maintainer explicitly asks for it.
+
+## Local Packaging
+
+Linux packages from a Linux host:
+
+```bash
+npm run tauri -- build --bundles deb,rpm
+```
+
+Outputs:
+
+```text
+src-tauri/target/release/bundle/deb/
+src-tauri/target/release/bundle/rpm/
+```
+
+Windows packages from a Linux host require the Windows GNU Rust target and MinGW toolchain:
+
+```bash
+rustup target add x86_64-pc-windows-gnu
+npm run tauri -- build --target x86_64-pc-windows-gnu --bundles nsis
+```
+
+Do not rely on GitHub Actions for Windows packaging until local build attempts have been exhausted or the maintainer explicitly requests CI packaging.
+
 6. Commit release changes:
 
    ```bash
