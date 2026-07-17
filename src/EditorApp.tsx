@@ -37,6 +37,7 @@ import {
   Trash2,
   UploadCloud,
   MonitorDown,
+  FolderPlus,
 } from "lucide-react";
 import {
   buildHtmlDocument,
@@ -101,6 +102,7 @@ const autoSaveFileKey = "velomd:auto-save-file";
 const themeModeKey = "velomd:theme-mode";
 const editorFontSizeKey = "velomd:editor-font-size";
 const defaultViewModeKey = "velomd:default-view-mode";
+const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 
 function createEditorTheme(fontSize: number) {
   return EditorView.theme({
@@ -1133,6 +1135,11 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
   async function loadDroppedFile(file: File) {
     if (!(await confirmDiscardChanges())) return;
 
+    if (file.type.startsWith("image/")) {
+      setStatus("Image attachments are a desktop feature");
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const contents = String(reader.result ?? "");
@@ -1226,8 +1233,8 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
         {browserMode && (
           <section className="browser-panel" aria-label="Browser mode">
             <strong>{webSurface ? "Web editor" : "Browser mode"}</strong>
-            <span>Your Markdown stays in this browser. Download a copy when you save.</span>
-            <a href="/download">
+            <span>Your Markdown stays in this browser and drafts autosave locally. Desktop adds native folders, direct save, offline work, and history.</span>
+            <a href={desktopDownloadHref}>
               <MonitorDown size={14} />
               Get desktop
             </a>
@@ -1243,6 +1250,17 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
             <Braces size={16} />
             AI commands soon
           </button>
+          {browserMode && (
+            <button
+              className="nav-item muted"
+              onClick={() =>
+                setStatus("Folder vaults need VeloMD Desktop for native file access")
+              }
+            >
+              <FolderPlus size={16} />
+              Open folder
+            </button>
+          )}
           <button
             className={historyEntries.length > 0 ? "nav-item" : "nav-item muted"}
             disabled={!nativeApi || !filePath}
@@ -1342,7 +1360,7 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
           </div>
           <div className="actions">
             {browserMode && (
-              <a className="desktop-cta" href="/download">
+              <a className="desktop-cta" href={desktopDownloadHref}>
                 <MonitorDown size={16} />
                 Desktop
               </a>

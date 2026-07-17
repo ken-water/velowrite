@@ -17,6 +17,8 @@ import "./styles.css";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const releaseVersion = "0.1.1";
 const releaseBaseUrl = `https://github.com/ken-water/velomd/releases/download/v${releaseVersion}`;
+const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
+const downloadHref = "/download?utm_source=landing&utm_medium=cta";
 
 const downloads = [
   {
@@ -63,10 +65,10 @@ function LandingPage() {
           <a href="https://github.com/ken-water/velomd" aria-label="GitHub">
             <Github size={18} />
           </a>
-          <a href="/download">
+          <a href={downloadHref}>
             Download <Download size={16} />
           </a>
-          <a href="/web">
+          <a href={webEditorHref}>
             Try web editor <ChevronRight size={16} />
           </a>
         </div>
@@ -80,15 +82,15 @@ function LandingPage() {
           </div>
           <h1>VeloMD</h1>
           <p>
-            Tired of heavy, slow Electron editors? VeloMD is a lightweight
-            Markdown editor built with Tauri for instant launch, low memory, AI
-            commands, local Git history, and one-click publishing.
+            Try a private online Markdown editor instantly, then move to the
+            lightweight Tauri desktop app when you need native files, offline
+            work, local history, AI commands, and one-click publishing.
           </p>
           <div className="hero-actions">
-            <a className="primary-link" href="/web">
+            <a className="primary-link" href={webEditorHref}>
               Try Web Editor <ChevronRight size={17} />
             </a>
-            <a className="secondary-link" href="/download">
+            <a className="secondary-link" href={downloadHref}>
               Download Desktop <Download size={17} />
             </a>
           </div>
@@ -145,7 +147,7 @@ function DownloadPage() {
           VeloMD
         </a>
         <div className="nav-actions">
-          <a href="/web">
+          <a href="/web?utm_source=download_nav&utm_medium=cta">
             Web editor <ChevronRight size={16} />
           </a>
           <a href="https://github.com/ken-water/velomd/releases" target="_blank" rel="noreferrer">
@@ -162,11 +164,11 @@ function DownloadPage() {
           </div>
           <h1>Download VeloMD</h1>
           <p>
-            Get the current dogfooding build for Markdown reading, editing,
-            preview, HTML export, recent files, and local history snapshots.
+            Get the current dogfooding build for native Markdown reading,
+            editing, preview, HTML export, recent files, and local history snapshots.
           </p>
           <div className="hero-actions">
-            <a className="primary-link" href="/web">
+            <a className="primary-link" href="/web?utm_source=download_hero&utm_medium=cta">
               Try Web Editor <ChevronRight size={17} />
             </a>
           </div>
@@ -181,7 +183,7 @@ function DownloadPage() {
               </div>
               <p>{item.note}</p>
               {item.fileName ? (
-                <a href={`${releaseBaseUrl}/${item.fileName}`}>
+                <a href={`${releaseBaseUrl}/${item.fileName}?utm_source=download_page&utm_medium=installer&utm_campaign=v${releaseVersion}`}>
                   <Download size={16} />
                   {item.fileName}
                 </a>
@@ -198,6 +200,7 @@ function DownloadPage() {
             <li>Version {releaseVersion} fixes native Open, Save, and Export dialog permissions.</li>
             <li>The Windows installer is not code-signed yet, so SmartScreen may warn during install.</li>
             <li>AppImage is available for portable Linux testing; macOS DMG is planned.</li>
+            <li>Temporary read-only sharing is planned for a future web release.</li>
             <li>Installers are hosted on GitHub Releases; no VPS or custom download server is required.</li>
           </ul>
         </section>

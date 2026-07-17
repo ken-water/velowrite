@@ -14,6 +14,7 @@ The current first version includes:
 
 - A real Markdown editing surface at `/app`
 - A browser-based Markdown editor at `/web` for online reading, editing, preview, and download
+- Browser-to-desktop conversion prompts for native folders, direct save, local history, and offline workflows
 - CodeMirror 6 editor with Markdown syntax highlighting
 - Line numbers, active-line highlight, search, history, bracket matching, and tab indentation
 - Live Markdown preview
