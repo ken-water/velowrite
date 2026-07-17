@@ -5,8 +5,10 @@ import {
   Clock3,
   Code2,
   Download,
+  FolderOpen,
   GitBranch,
   Github,
+  HardDrive,
   Mail,
   PanelLeft,
   Sparkles,
@@ -78,61 +80,115 @@ function LandingPage() {
         <div className="hero-copy">
           <div className="eyebrow">
             <Zap size={16} />
-            Rust-speed Markdown for AI-native writers
+            Start writing in the browser
           </div>
-          <h1>VeloWrite</h1>
+          <h1>Online Markdown editor, desktop when it matters.</h1>
           <p>
-            Try a private online Markdown editor instantly, then move to the
-            lightweight Tauri desktop app when you need native files, offline
-            work, local history, AI commands, and one-click publishing.
+            Open the web editor instantly for reading, editing, preview, and
+            HTML export. Move to the lightweight desktop app when you need
+            native folders, direct save, offline work, and recoverable history.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href={webEditorHref}>
-              Try Web Editor <ChevronRight size={17} />
+              Open Web Editor <ChevronRight size={17} />
             </a>
             <a className="secondary-link" href={downloadHref}>
               Download Desktop <Download size={17} />
             </a>
           </div>
-          <WaitlistForm />
           <div className="proof-row" aria-label="Product promises">
             <span>
               <Clock3 size={15} />
-              Instant launch target
+              No install needed
             </span>
             <span>
-              <Download size={15} />
-              Tiny desktop bundle
+              <HardDrive size={15} />
+              Local-first desktop
             </span>
             <span>
               <PanelLeft size={15} />
-              Clean Typora-like flow
+              Clean split preview
             </span>
           </div>
         </div>
-        <div className="product-frame" aria-label="VeloWrite editor preview">
+        <div className="product-frame" aria-label="VeloWrite online editor">
+          <div className="frame-toolbar">
+            <span>Web editor preview</span>
+            <a href={webEditorHref}>
+              Full screen <ChevronRight size={14} />
+            </a>
+          </div>
           <React.Suspense fallback={<div className="loading-preview">Loading editor</div>}>
-            <EditorApp />
+            <EditorApp surface="web" />
           </React.Suspense>
+        </div>
+      </section>
+
+      <section className="mode-compare" aria-label="Web and desktop comparison">
+        <div className="section-heading">
+          <span>Choose the right workspace</span>
+          <h2>Web for a quick draft. Desktop for serious local work.</h2>
+        </div>
+        <div className="compare-grid">
+          <article className="compare-card">
+            <div className="compare-icon">
+              <Code2 size={20} />
+            </div>
+            <h3>Online editor</h3>
+            <p>Best for opening a draft fast, editing Markdown, checking preview, and downloading a copy.</p>
+            <ul>
+              <li>Runs directly in the browser</li>
+              <li>Drafts autosave locally in this browser</li>
+              <li>Export Markdown or HTML without signup</li>
+              <li>Limited by browser file-system access</li>
+            </ul>
+            <a className="text-link" href="/web?utm_source=compare&utm_medium=web">
+              Try online <ChevronRight size={15} />
+            </a>
+          </article>
+          <article className="compare-card desktop-card">
+            <div className="compare-icon">
+              <FolderOpen size={20} />
+            </div>
+            <h3>Desktop app</h3>
+            <p>Best for private writing, local Markdown vaults, offline editing, and native save workflows.</p>
+            <ul>
+              <li>Open and save real files directly</li>
+              <li>Work offline with local-first storage</li>
+              <li>Use local history snapshots for recovery</li>
+              <li>Prepared for AI, sync, and publishing workflows</li>
+            </ul>
+            <a className="primary-link" href="/download?utm_source=compare&utm_medium=desktop">
+              Download desktop <Download size={15} />
+            </a>
+          </article>
         </div>
       </section>
 
       <section className="feature-band" aria-label="Core features">
         <div>
           <Sparkles size={21} />
-          <h2>AI-native writing</h2>
-          <p>Use /ai to continue, polish, summarize, and generate Mermaid diagrams.</p>
+          <h2>Fast first</h2>
+          <p>Use the web editor immediately, then keep a tiny native app for daily local work.</p>
         </div>
         <div>
           <GitBranch size={21} />
-          <h2>Invisible versioning</h2>
-          <p>Local Git snapshots keep rollback and diff history close to the editor.</p>
+          <h2>Recoverable writing</h2>
+          <p>Desktop history snapshots make rollback part of the writing workflow.</p>
         </div>
         <div>
-          <Code2 size={21} />
-          <h2>Publish pipeline</h2>
-          <p>Turn Markdown into a fast static site for Vercel or GitHub Pages.</p>
+          <Download size={21} />
+          <h2>Clear upgrade path</h2>
+          <p>The browser is the first touch; native folders, offline work, and history drive desktop adoption.</p>
         </div>
+      </section>
+
+      <section className="landing-waitlist" aria-label="Private beta signup">
+        <div>
+          <span>Follow the desktop beta</span>
+          <h2>Get updates when sync, AI commands, and publishing land.</h2>
+        </div>
+        <WaitlistForm />
       </section>
     </div>
   );
