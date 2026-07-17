@@ -66,8 +66,8 @@ function LandingPage() {
           <a href="/download">
             Download <Download size={16} />
           </a>
-          <a href="/app">
-            Open editor <ChevronRight size={16} />
+          <a href="/web">
+            Try web editor <ChevronRight size={16} />
           </a>
         </div>
       </header>
@@ -84,6 +84,14 @@ function LandingPage() {
             Markdown editor built with Tauri for instant launch, low memory, AI
             commands, local Git history, and one-click publishing.
           </p>
+          <div className="hero-actions">
+            <a className="primary-link" href="/web">
+              Try Web Editor <ChevronRight size={17} />
+            </a>
+            <a className="secondary-link" href="/download">
+              Download Desktop <Download size={17} />
+            </a>
+          </div>
           <WaitlistForm />
           <div className="proof-row" aria-label="Product promises">
             <span>
@@ -137,8 +145,8 @@ function DownloadPage() {
           VeloMD
         </a>
         <div className="nav-actions">
-          <a href="/app">
-            Open editor <ChevronRight size={16} />
+          <a href="/web">
+            Web editor <ChevronRight size={16} />
           </a>
           <a href="https://github.com/ken-water/velomd/releases" target="_blank" rel="noreferrer">
             Releases <Github size={16} />
@@ -157,6 +165,11 @@ function DownloadPage() {
             Get the current dogfooding build for Markdown reading, editing,
             preview, HTML export, recent files, and local history snapshots.
           </p>
+          <div className="hero-actions">
+            <a className="primary-link" href="/web">
+              Try Web Editor <ChevronRight size={17} />
+            </a>
+          </div>
         </section>
 
         <section className="download-grid" aria-label="Download installers">
@@ -249,10 +262,18 @@ function WaitlistForm() {
 }
 
 function Router() {
+  if (window.location.pathname.startsWith("/web")) {
+    return (
+      <React.Suspense fallback={<div className="loading-screen">Loading web editor</div>}>
+        <EditorApp surface="web" />
+      </React.Suspense>
+    );
+  }
+
   if (window.location.pathname.startsWith("/app")) {
     return (
       <React.Suspense fallback={<div className="loading-screen">Loading editor</div>}>
-        <EditorApp />
+        <EditorApp surface="desktop" />
       </React.Suspense>
     );
   }

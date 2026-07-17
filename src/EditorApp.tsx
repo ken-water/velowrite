@@ -36,6 +36,7 @@ import {
   Info,
   Trash2,
   UploadCloud,
+  MonitorDown,
 } from "lucide-react";
 import {
   buildHtmlDocument,
@@ -46,6 +47,7 @@ import {
 
 type ViewMode = "split" | "write" | "preview";
 type ThemeMode = "light" | "dark" | "system";
+type EditorSurface = "desktop" | "web" | "embedded";
 
 type NativeApi = {
   openMarkdownFile: () => Promise<NativeFile | null>;
@@ -676,7 +678,7 @@ function formatSize(value: number) {
   return `${(value / 1024).toFixed(1)} KB`;
 }
 
-export default function EditorApp() {
+export default function EditorApp({ surface = "desktop" }: { surface?: EditorSurface }) {
   const nativeApi = useNativeApi();
   const fileInput = React.useRef<HTMLInputElement>(null);
   const previewRef = React.useRef<HTMLElement>(null);
@@ -713,6 +715,8 @@ export default function EditorApp() {
   const metrics = React.useMemo(() => getMetrics(markdown), [markdown]);
   const rendered = React.useMemo(() => renderMarkdown(markdown, headings), [headings, markdown]);
   const dirty = markdown !== savedMarkdown;
+  const browserMode = !nativeApi;
+  const webSurface = surface === "web";
   const resolvedTheme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
 
   React.useEffect(() => {
@@ -1005,7 +1009,7 @@ export default function EditorApp() {
 
     downloadMarkdown();
     setSavedMarkdown(markdown);
-    setStatus("Downloaded");
+    setStatus("Downloaded Markdown copy");
   }
 
   function downloadMarkdown() {
@@ -1031,7 +1035,7 @@ export default function EditorApp() {
     }
 
     downloadTextFile(`${baseName}.html`, html, "text/html;charset=utf-8");
-    setStatus("Downloaded HTML");
+    setStatus("Downloaded HTML export");
   }
 
   function downloadTextFile(name: string, contents: string, type: string) {
@@ -1215,9 +1219,20 @@ export default function EditorApp() {
           <div className="brand-mark">V</div>
           <div>
             <strong>VeloMD</strong>
-            <span>{nativeApi ? "Desktop workspace" : "Browser preview"}</span>
+            <span>{nativeApi ? "Desktop workspace" : webSurface ? "Web editor" : "Browser preview"}</span>
           </div>
         </div>
+
+        {browserMode && (
+          <section className="browser-panel" aria-label="Browser mode">
+            <strong>{webSurface ? "Web editor" : "Browser mode"}</strong>
+            <span>Your Markdown stays in this browser. Download a copy when you save.</span>
+            <a href="/download">
+              <MonitorDown size={14} />
+              Get desktop
+            </a>
+          </section>
+        )}
 
         <nav className="nav-list" aria-label="Documents">
           <button className="nav-item active" onClick={() => void newFileWithGuard()}>
@@ -1309,7 +1324,7 @@ export default function EditorApp() {
           </div>
           <div className="sync-row muted">
             <UploadCloud size={16} />
-            <span>Private sync planned</span>
+            <span>{browserMode ? "Native history in desktop" : "Private sync planned"}</span>
           </div>
         </div>
       </aside>
@@ -1326,6 +1341,12 @@ export default function EditorApp() {
             <span>{filePath || fileName}</span>
           </div>
           <div className="actions">
+            {browserMode && (
+              <a className="desktop-cta" href="/download">
+                <MonitorDown size={16} />
+                Desktop
+              </a>
+            )}
             <div className="mode-toggle" aria-label="View mode">
               <button
                 className={viewMode === "write" ? "active" : ""}
@@ -1361,8 +1382,8 @@ export default function EditorApp() {
               <FolderOpen size={17} />
             </button>
             <button
-              aria-label="Save file"
-              title="Save file"
+              aria-label={browserMode ? "Download Markdown copy" : "Save file"}
+              title={browserMode ? "Download Markdown copy" : "Save file"}
               onClick={() => void saveFile()}
             >
               <Save size={17} />
@@ -1423,7 +1444,7 @@ export default function EditorApp() {
           <section className="preview-pane" aria-label="Rendered preview">
             <div className="pane-title">
               <span>Live Preview</span>
-              <kbd>Ctrl/Cmd S</kbd>
+              <kbd>{browserMode ? "Ctrl/Cmd S downloads copy" : "Ctrl/Cmd S"}</kbd>
             </div>
             <article
               ref={previewRef}
@@ -1435,7 +1456,7 @@ export default function EditorApp() {
 
         <footer className="statusbar">
           <span className="shortcut-hint">Ctrl/Cmd O open</span>
-          <span className="shortcut-hint">Ctrl/Cmd S save</span>
+          <span className="shortcut-hint">{browserMode ? "Ctrl/Cmd S download" : "Ctrl/Cmd S save"}</span>
           <span>{metrics.words} words</span>
           <span>{metrics.characters} chars</span>
           <span>{metrics.lines} lines</span>

@@ -13,6 +13,7 @@ VeloMD is an early MVP. It is ready for dogfooding Markdown reading/editing work
 The current first version includes:
 
 - A real Markdown editing surface at `/app`
+- A browser-based Markdown editor at `/web` for online reading, editing, preview, and download
 - CodeMirror 6 editor with Markdown syntax highlighting
 - Line numbers, active-line highlight, search, history, bracket matching, and tab indentation
 - Live Markdown preview
@@ -57,7 +58,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:1420` for the landing page and `http://localhost:1420/app` for the editor preview.
+Open `http://localhost:1420` for the landing page, `http://localhost:1420/web` for the browser editor, and `http://localhost:1420/app` for the desktop-shell preview.
 
 Run unit tests:
 

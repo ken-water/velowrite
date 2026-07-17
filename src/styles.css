@@ -140,6 +140,42 @@ p {
   margin-top: 30px;
 }
 
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.primary-link,
+.secondary-link,
+.desktop-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.primary-link,
+.secondary-link {
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+.primary-link {
+  background: #15362d;
+  color: #ffffff;
+}
+
+.secondary-link {
+  border: 1px solid rgba(21, 54, 45, 0.16);
+  background: rgba(255, 255, 255, 0.64);
+  color: #26342f;
+}
+
 .waitlist label {
   display: block;
   margin-bottom: 10px;
@@ -353,6 +389,44 @@ p {
 
 .recent-panel {
   min-height: 0;
+}
+
+.browser-panel {
+  display: grid;
+  gap: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  border-radius: 8px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.browser-panel strong,
+.browser-panel span {
+  display: block;
+}
+
+.browser-panel strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.browser-panel span {
+  color: var(--muted-strong);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.browser-panel a {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 7px;
+  background: var(--text);
+  color: var(--surface);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .welcome-panel {
@@ -600,6 +674,15 @@ p {
   justify-content: flex-end;
   gap: 8px;
   min-width: max-content;
+}
+
+.desktop-cta {
+  min-height: 34px;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--border));
+  padding: 0 10px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--accent-strong);
+  font-size: 12px;
 }
 
 .actions > button {
@@ -1331,6 +1414,10 @@ article,
 
   .input-row {
     grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .hero-actions {
+    display: grid;
   }
 
   .input-row button {
