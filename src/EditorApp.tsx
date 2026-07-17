@@ -103,29 +103,6 @@ const themeModeKey = "velowrite:theme-mode";
 const editorFontSizeKey = "velowrite:editor-font-size";
 const defaultViewModeKey = "velowrite:default-view-mode";
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
-const legacyStorageKeys = new Map([
-  [draftKey, "velomd:draft"],
-  [draftNameKey, "velomd:draft-name"],
-  [recentFilesKey, "velomd:recent-files"],
-  [autoSaveFileKey, "velomd:auto-save-file"],
-  [themeModeKey, "velomd:theme-mode"],
-  [editorFontSizeKey, "velomd:editor-font-size"],
-  [defaultViewModeKey, "velomd:default-view-mode"],
-]);
-
-function readStoredValue(key: string) {
-  const currentValue = localStorage.getItem(key);
-  if (currentValue !== null) return currentValue;
-
-  const legacyKey = legacyStorageKeys.get(key);
-  if (!legacyKey) return null;
-
-  const legacyValue = localStorage.getItem(legacyKey);
-  if (legacyValue !== null) {
-    localStorage.setItem(key, legacyValue);
-  }
-  return legacyValue;
-}
 
 function createEditorTheme(fontSize: number) {
   return EditorView.theme({
@@ -330,7 +307,7 @@ function useNativeApi(): NativeApi | null {
 
 function getStoredRecentFiles(): RecentFile[] {
   try {
-    const value = readStoredValue(recentFilesKey);
+    const value = localStorage.getItem(recentFilesKey);
     if (!value) return [];
     const parsed = JSON.parse(value);
     if (!Array.isArray(parsed)) return [];
@@ -355,17 +332,17 @@ function storeRecentFiles(files: RecentFile[]) {
 }
 
 function getStoredViewMode(): ViewMode {
-  const value = readStoredValue(defaultViewModeKey);
+  const value = localStorage.getItem(defaultViewModeKey);
   return value === "write" || value === "preview" || value === "split" ? value : "split";
 }
 
 function getStoredThemeMode(): ThemeMode {
-  const value = readStoredValue(themeModeKey);
+  const value = localStorage.getItem(themeModeKey);
   return value === "dark" || value === "system" || value === "light" ? value : "system";
 }
 
 function getStoredEditorFontSize() {
-  const value = Number(readStoredValue(editorFontSizeKey));
+  const value = Number(localStorage.getItem(editorFontSizeKey));
   if (!Number.isFinite(value)) return 15;
   return Math.min(22, Math.max(12, value));
 }
@@ -603,10 +580,10 @@ function HistoryPanel({
 
 function AboutPanel({ onClose }: { onClose: () => void }) {
   const links = [
-    ["GitHub", "https://github.com/ken-water/velomd"],
-    ["Issues", "https://github.com/ken-water/velomd/issues"],
-    ["Roadmap", "https://github.com/ken-water/velomd/blob/main/ROADMAP.md"],
-    ["Releases", "https://github.com/ken-water/velomd/releases"],
+    ["GitHub", "https://github.com/ken-water/velowrite"],
+    ["Issues", "https://github.com/ken-water/velowrite/issues"],
+    ["Roadmap", "https://github.com/ken-water/velowrite/blob/main/ROADMAP.md"],
+    ["Releases", "https://github.com/ken-water/velowrite/releases"],
   ];
 
   return (
@@ -712,11 +689,11 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
   const allowNativeClose = React.useRef(false);
   const [markdown, setMarkdown] = React.useState(() => {
-    return readStoredValue(draftKey) ?? initialMarkdown;
+    return localStorage.getItem(draftKey) ?? initialMarkdown;
   });
   const [filePath, setFilePath] = React.useState<string | null>(null);
   const [fileName, setFileName] = React.useState(() => {
-    return readStoredValue(draftNameKey) ?? "Untitled.md";
+    return localStorage.getItem(draftNameKey) ?? "Untitled.md";
   });
   const [recentFiles, setRecentFiles] = React.useState(getStoredRecentFiles);
   const [savedMarkdown, setSavedMarkdown] = React.useState(markdown);
@@ -733,7 +710,7 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
   const [historyEntries, setHistoryEntries] = React.useState<HistoryEntry[]>([]);
   const [selectedHistory, setSelectedHistory] = React.useState<HistorySnapshot | null>(null);
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
-    return readStoredValue(autoSaveFileKey) === "true";
+    return localStorage.getItem(autoSaveFileKey) === "true";
   });
   const [dragActive, setDragActive] = React.useState(false);
   const headings = React.useMemo(() => extractHeadings(markdown), [markdown]);

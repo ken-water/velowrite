@@ -90,7 +90,7 @@ Do not rely on GitHub Actions for Windows packaging until local build attempts h
 Canonical repository:
 
 ```text
-https://github.com/ken-water/velomd
+https://github.com/ken-water/velowrite
 ```
 
 Suggested branch model:

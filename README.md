@@ -2,7 +2,7 @@
 
 VeloWrite is a Tauri-based Markdown editor concept focused on lightweight startup, a clean Typora-like writing surface, AI-native commands, local Git history, and one-click static publishing.
 
-Repository: <https://github.com/ken-water/velomd>
+Repository: <https://github.com/ken-water/velowrite>
 
 ## Project Status
 
@@ -47,8 +47,8 @@ The current first version includes:
 
 ## Feedback
 
-- Bugs: <https://github.com/ken-water/velomd/issues/new?template=bug_report.yml>
-- Feature requests: <https://github.com/ken-water/velomd/issues/new?template=feature_request.yml>
+- Bugs: <https://github.com/ken-water/velowrite/issues/new?template=bug_report.yml>
+- Feature requests: <https://github.com/ken-water/velowrite/issues/new?template=feature_request.yml>
 - Roadmap: `ROADMAP.md`
 - Contributing: `CONTRIBUTING.md`
 

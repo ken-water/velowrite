@@ -16,7 +16,7 @@ import "./styles.css";
 
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const releaseVersion = "0.1.1";
-const releaseBaseUrl = `https://github.com/ken-water/velomd/releases/download/v${releaseVersion}`;
+const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${releaseVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
 
@@ -24,25 +24,25 @@ const downloads = [
   {
     platform: "Windows",
     format: "NSIS installer",
-    fileName: `VeloMD_${releaseVersion}_x64-setup.exe`,
+    fileName: `VeloWrite_${releaseVersion}_x64-setup.exe`,
     note: "Unsigned MVP installer for Windows x64.",
   },
   {
     platform: "Linux AppImage",
     format: "Portable package",
-    fileName: `VeloMD_${releaseVersion}_amd64.AppImage`,
+    fileName: `VeloWrite_${releaseVersion}_amd64.AppImage`,
     note: "Portable Linux build. Make it executable before running.",
   },
   {
     platform: "Ubuntu / Debian",
     format: "DEB package",
-    fileName: `VeloMD_${releaseVersion}_amd64.deb`,
+    fileName: `VeloWrite_${releaseVersion}_amd64.deb`,
     note: "For Debian-based Linux distributions.",
   },
   {
     platform: "Fedora / RHEL",
     format: "RPM package",
-    fileName: `VeloMD-${releaseVersion}-1.x86_64.rpm`,
+    fileName: `VeloWrite-${releaseVersion}-1.x86_64.rpm`,
     note: "For RPM-based Linux distributions.",
   },
   {
@@ -62,7 +62,7 @@ function LandingPage() {
           VeloWrite
         </a>
         <div className="nav-actions">
-          <a href="https://github.com/ken-water/velomd" aria-label="GitHub">
+          <a href="https://github.com/ken-water/velowrite" aria-label="GitHub">
             <Github size={18} />
           </a>
           <a href={downloadHref}>
@@ -150,7 +150,7 @@ function DownloadPage() {
           <a href="/web?utm_source=download_nav&utm_medium=cta">
             Web editor <ChevronRight size={16} />
           </a>
-          <a href="https://github.com/ken-water/velomd/releases" target="_blank" rel="noreferrer">
+          <a href="https://github.com/ken-water/velowrite/releases" target="_blank" rel="noreferrer">
             Releases <Github size={16} />
           </a>
         </div>
@@ -198,7 +198,6 @@ function DownloadPage() {
           <h2>Before Testing</h2>
           <ul>
             <li>Version {releaseVersion} fixes native Open, Save, and Export dialog permissions.</li>
-            <li>Version {releaseVersion} was built before the VeloWrite rename, so installer filenames still use the legacy VeloMD name.</li>
             <li>The Windows installer is not code-signed yet, so SmartScreen may warn during install.</li>
             <li>AppImage is available for portable Linux testing; macOS DMG is planned.</li>
             <li>Temporary read-only sharing is planned for a future web release.</li>
