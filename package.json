@@ -15,6 +15,7 @@
     "tauri:build": "tauri build",
     "package:linux": "tauri build --bundles deb,rpm",
     "package:appimage": "tauri build --bundles appimage",
+    "package:macos": "tauri build --bundles dmg",
     "package:windows": "tauri build --target x86_64-pc-windows-gnu --bundles nsis"
   },
   "dependencies": {
