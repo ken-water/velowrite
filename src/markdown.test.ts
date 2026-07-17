@@ -10,7 +10,7 @@ import {
 
 describe("markdown utilities", () => {
   it("creates stable heading slugs", () => {
-    expect(slugify("Hello VeloMD!", 0)).toBe("hello-velomd");
+    expect(slugify("Hello VeloWrite!", 0)).toBe("hello-velowrite");
     expect(slugify("   ", 3)).toBe("heading-4");
   });
 

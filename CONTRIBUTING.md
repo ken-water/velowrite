@@ -1,6 +1,6 @@
-# Contributing to VeloMD
+# Contributing to VeloWrite
 
-Thanks for helping make VeloMD better.
+Thanks for helping make VeloWrite better.
 
 ## Development Setup
 

@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-VeloMD is currently pre-1.0. Security fixes are applied to the latest released version.
+VeloWrite is currently pre-1.0. Security fixes are applied to the latest released version.
 
 ## Reporting a Vulnerability
 
@@ -20,7 +20,7 @@ Include:
 
 ## Scope Notes
 
-Current VeloMD is local-first. Core editing does not require a cloud account.
+Current VeloWrite is local-first. Core editing does not require a cloud account.
 
 Areas we treat carefully:
 

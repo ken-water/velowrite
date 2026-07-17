@@ -1,6 +1,6 @@
 # Release Process
 
-VeloMD uses semantic versioning: `MAJOR.MINOR.PATCH`.
+VeloWrite uses semantic versioning: `MAJOR.MINOR.PATCH`.
 
 ## Version Rules
 

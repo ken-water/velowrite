@@ -95,14 +95,37 @@ type HistorySnapshot = {
   contents: string;
 };
 
-const draftKey = "velomd:draft";
-const draftNameKey = "velomd:draft-name";
-const recentFilesKey = "velomd:recent-files";
-const autoSaveFileKey = "velomd:auto-save-file";
-const themeModeKey = "velomd:theme-mode";
-const editorFontSizeKey = "velomd:editor-font-size";
-const defaultViewModeKey = "velomd:default-view-mode";
+const draftKey = "velowrite:draft";
+const draftNameKey = "velowrite:draft-name";
+const recentFilesKey = "velowrite:recent-files";
+const autoSaveFileKey = "velowrite:auto-save-file";
+const themeModeKey = "velowrite:theme-mode";
+const editorFontSizeKey = "velowrite:editor-font-size";
+const defaultViewModeKey = "velowrite:default-view-mode";
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
+const legacyStorageKeys = new Map([
+  [draftKey, "velomd:draft"],
+  [draftNameKey, "velomd:draft-name"],
+  [recentFilesKey, "velomd:recent-files"],
+  [autoSaveFileKey, "velomd:auto-save-file"],
+  [themeModeKey, "velomd:theme-mode"],
+  [editorFontSizeKey, "velomd:editor-font-size"],
+  [defaultViewModeKey, "velomd:default-view-mode"],
+]);
+
+function readStoredValue(key: string) {
+  const currentValue = localStorage.getItem(key);
+  if (currentValue !== null) return currentValue;
+
+  const legacyKey = legacyStorageKeys.get(key);
+  if (!legacyKey) return null;
+
+  const legacyValue = localStorage.getItem(legacyKey);
+  if (legacyValue !== null) {
+    localStorage.setItem(key, legacyValue);
+  }
+  return legacyValue;
+}
 
 function createEditorTheme(fontSize: number) {
   return EditorView.theme({
@@ -165,9 +188,9 @@ function createEditorExtensions(fontSize: number): Extension[] {
   ];
 }
 
-const initialMarkdown = `# VeloMD First Draft
+const initialMarkdown = `# VeloWrite First Draft
 
-Welcome to VeloMD, a lightweight Markdown editor built with Tauri for local-first writing.
+Welcome to VeloWrite, a lightweight Markdown editor built with Tauri for local-first writing.
 
 ## What you can do now
 
@@ -187,9 +210,9 @@ Welcome to VeloMD, a lightweight Markdown editor built with Tauri for local-firs
 | Ctrl/Cmd + Shift + E | Export HTML |
 | Ctrl/Cmd + 1/2/3 | Write, Split, Preview |
 
-## Why VeloMD exists
+## Why VeloWrite exists
 
-Electron editors are powerful, but many users just want a fast, quiet Markdown workspace that opens quickly and respects local files. VeloMD starts from that promise, then grows toward AI-native writing, private sync, and one-click publishing.
+Electron editors are powerful, but many users just want a fast, quiet Markdown workspace that opens quickly and respects local files. VeloWrite starts from that promise, then grows toward AI-native writing, private sync, and one-click publishing.
 
 > Fast first. Reliable always. Beautiful where it helps.
 
@@ -267,7 +290,7 @@ function useNativeApi(): NativeApi | null {
           return invoke<void>("delete_history_snapshot", { id });
         },
         async listenMenuCommand(handler) {
-          const unlisten = await eventApi.listen<string>("velomd-menu", (event) => {
+          const unlisten = await eventApi.listen<string>("velowrite-menu", (event) => {
             handler(event.payload);
           });
           return unlisten;
@@ -307,7 +330,7 @@ function useNativeApi(): NativeApi | null {
 
 function getStoredRecentFiles(): RecentFile[] {
   try {
-    const value = localStorage.getItem(recentFilesKey);
+    const value = readStoredValue(recentFilesKey);
     if (!value) return [];
     const parsed = JSON.parse(value);
     if (!Array.isArray(parsed)) return [];
@@ -332,17 +355,17 @@ function storeRecentFiles(files: RecentFile[]) {
 }
 
 function getStoredViewMode(): ViewMode {
-  const value = localStorage.getItem(defaultViewModeKey);
+  const value = readStoredValue(defaultViewModeKey);
   return value === "write" || value === "preview" || value === "split" ? value : "split";
 }
 
 function getStoredThemeMode(): ThemeMode {
-  const value = localStorage.getItem(themeModeKey);
+  const value = readStoredValue(themeModeKey);
   return value === "dark" || value === "system" || value === "light" ? value : "system";
 }
 
 function getStoredEditorFontSize() {
-  const value = Number(localStorage.getItem(editorFontSizeKey));
+  const value = Number(readStoredValue(editorFontSizeKey));
   if (!Number.isFinite(value)) return 15;
   return Math.min(22, Math.max(12, value));
 }
@@ -596,7 +619,7 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
         onMouseDown={(event) => event.stopPropagation()}
       >
         <header>
-          <h2 id="about-title">VeloMD</h2>
+          <h2 id="about-title">VeloWrite</h2>
           <button onClick={onClose} aria-label="Close about">
             Close
           </button>
@@ -645,7 +668,7 @@ function WelcomePanel({
       <div>
         <strong>Getting started</strong>
         <span>
-          Open a Markdown file, create a new note, or drag a document into VeloMD.
+          Open a Markdown file, create a new note, or drag a document into VeloWrite.
         </span>
       </div>
       <div className="welcome-actions">
@@ -689,11 +712,11 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
   const allowNativeClose = React.useRef(false);
   const [markdown, setMarkdown] = React.useState(() => {
-    return localStorage.getItem(draftKey) ?? initialMarkdown;
+    return readStoredValue(draftKey) ?? initialMarkdown;
   });
   const [filePath, setFilePath] = React.useState<string | null>(null);
   const [fileName, setFileName] = React.useState(() => {
-    return localStorage.getItem(draftNameKey) ?? "Untitled.md";
+    return readStoredValue(draftNameKey) ?? "Untitled.md";
   });
   const [recentFiles, setRecentFiles] = React.useState(getStoredRecentFiles);
   const [savedMarkdown, setSavedMarkdown] = React.useState(markdown);
@@ -710,7 +733,7 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
   const [historyEntries, setHistoryEntries] = React.useState<HistoryEntry[]>([]);
   const [selectedHistory, setSelectedHistory] = React.useState<HistorySnapshot | null>(null);
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
-    return localStorage.getItem(autoSaveFileKey) === "true";
+    return readStoredValue(autoSaveFileKey) === "true";
   });
   const [dragActive, setDragActive] = React.useState(false);
   const headings = React.useMemo(() => extractHeadings(markdown), [markdown]);
@@ -722,8 +745,8 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
   const resolvedTheme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
 
   React.useEffect(() => {
-    document.title = `${dirty ? "*" : ""}${fileName} - VeloMD`;
-    void nativeApi?.setWindowTitle(`${dirty ? "*" : ""}${fileName} - VeloMD`);
+    document.title = `${dirty ? "*" : ""}${fileName} - VeloWrite`;
+    void nativeApi?.setWindowTitle(`${dirty ? "*" : ""}${fileName} - VeloWrite`);
   }, [dirty, fileName, nativeApi]);
 
   React.useEffect(() => {
@@ -1208,7 +1231,7 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
   return (
     <main
       className={`app-shell theme-${resolvedTheme}${dragActive ? " drag-active" : ""}`}
-      aria-label="VeloMD editor"
+      aria-label="VeloWrite editor"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={(event) => void handleDrop(event)}
@@ -1225,7 +1248,7 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
         <div className="brand">
           <div className="brand-mark">V</div>
           <div>
-            <strong>VeloMD</strong>
+            <strong>VeloWrite</strong>
             <span>{nativeApi ? "Desktop workspace" : webSurface ? "Web editor" : "Browser preview"}</span>
           </div>
         </div>
@@ -1254,7 +1277,7 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
             <button
               className="nav-item muted"
               onClick={() =>
-                setStatus("Folder vaults need VeloMD Desktop for native file access")
+                setStatus("Folder vaults need VeloWrite Desktop for native file access")
               }
             >
               <FolderPlus size={16} />

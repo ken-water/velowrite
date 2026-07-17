@@ -59,7 +59,7 @@ function LandingPage() {
       <header className="landing-nav">
         <a className="wordmark" href="/">
           <span className="brand-mark">V</span>
-          VeloMD
+          VeloWrite
         </a>
         <div className="nav-actions">
           <a href="https://github.com/ken-water/velomd" aria-label="GitHub">
@@ -80,7 +80,7 @@ function LandingPage() {
             <Zap size={16} />
             Rust-speed Markdown for AI-native writers
           </div>
-          <h1>VeloMD</h1>
+          <h1>VeloWrite</h1>
           <p>
             Try a private online Markdown editor instantly, then move to the
             lightweight Tauri desktop app when you need native files, offline
@@ -110,7 +110,7 @@ function LandingPage() {
             </span>
           </div>
         </div>
-        <div className="product-frame" aria-label="VeloMD editor preview">
+        <div className="product-frame" aria-label="VeloWrite editor preview">
           <React.Suspense fallback={<div className="loading-preview">Loading editor</div>}>
             <EditorApp />
           </React.Suspense>
@@ -144,7 +144,7 @@ function DownloadPage() {
       <header className="landing-nav">
         <a className="wordmark" href="/">
           <span className="brand-mark">V</span>
-          VeloMD
+          VeloWrite
         </a>
         <div className="nav-actions">
           <a href="/web?utm_source=download_nav&utm_medium=cta">
@@ -162,7 +162,7 @@ function DownloadPage() {
             <Download size={16} />
             Desktop MVP
           </div>
-          <h1>Download VeloMD</h1>
+          <h1>Download VeloWrite</h1>
           <p>
             Get the current dogfooding build for native Markdown reading,
             editing, preview, HTML export, recent files, and local history snapshots.
@@ -198,6 +198,7 @@ function DownloadPage() {
           <h2>Before Testing</h2>
           <ul>
             <li>Version {releaseVersion} fixes native Open, Save, and Export dialog permissions.</li>
+            <li>Version {releaseVersion} was built before the VeloWrite rename, so installer filenames still use the legacy VeloMD name.</li>
             <li>The Windows installer is not code-signed yet, so SmartScreen may warn during install.</li>
             <li>AppImage is available for portable Linux testing; macOS DMG is planned.</li>
             <li>Temporary read-only sharing is planned for a future web release.</li>
@@ -230,7 +231,7 @@ function WaitlistForm() {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, product: "velomd" }),
+        body: JSON.stringify({ email, product: "velowrite" }),
       });
       setState(response.ok ? "done" : "error");
     } catch {

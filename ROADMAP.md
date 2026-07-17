@@ -1,6 +1,6 @@
-# VeloMD Roadmap
+# VeloWrite Roadmap
 
-This roadmap is intentionally practical. VeloMD should become useful for daily Markdown work before growing into AI publishing workflows.
+This roadmap is intentionally practical. VeloWrite should become useful for daily Markdown work before growing into AI publishing workflows.
 
 ## Now: 0.1.x
 

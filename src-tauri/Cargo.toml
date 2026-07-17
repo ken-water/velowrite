@@ -1,12 +1,12 @@
 [package]
-name = "velomd"
+name = "velowrite"
 version = "0.1.1"
 description = "A lightweight AI-native Markdown editor."
-authors = ["VeloMD"]
+authors = ["VeloWrite"]
 edition = "2021"
 
 [lib]
-name = "velomd_lib"
+name = "velowrite_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

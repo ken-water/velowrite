@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "VeloMD",
+  "productName": "VeloWrite",
   "version": "0.1.1",
-  "identifier": "app.velomd.desktop",
+  "identifier": "app.velowrite.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "VeloMD",
+        "title": "VeloWrite",
         "width": 1180,
         "height": 760,
         "minWidth": 920,

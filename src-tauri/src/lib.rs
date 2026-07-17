@@ -32,7 +32,7 @@ struct HistorySnapshot {
 
 #[tauri::command]
 fn app_ready() -> &'static str {
-    "velomd-ready"
+    "velowrite-ready"
 }
 
 #[tauri::command]
@@ -292,7 +292,7 @@ pub fn run() {
                 };
 
                 if let Some(command) = command {
-                    let _ = app.emit("velomd-menu", command);
+                    let _ = app.emit("velowrite-menu", command);
                 }
             });
 
@@ -309,5 +309,5 @@ pub fn run() {
             delete_history_snapshot
         ])
         .run(tauri::generate_context!())
-        .expect("error while running VeloMD");
+        .expect("error while running VeloWrite");
 }

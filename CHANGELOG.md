@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to VeloMD are documented here.
+All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
