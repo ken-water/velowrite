@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import {
   ChevronRight,
   Clock3,
+  Cloud,
   Code2,
   Cookie,
   Download,
@@ -12,16 +13,19 @@ import {
   GitBranch,
   Github,
   HardDrive,
+  LockKeyhole,
   Mail,
   PanelLeft,
+  Rocket,
   ShieldCheck,
   Sparkles,
+  WandSparkles,
   Zap,
 } from "lucide-react";
 import "./styles.css";
 
 const EditorApp = React.lazy(() => import("./EditorApp"));
-const appVersion = "0.1.2";
+const appVersion = "0.1.3";
 const downloadVersion = "0.1.1";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -230,6 +234,9 @@ function LandingPage() {
           <a href={downloadHref}>
             Download <Download size={16} />
           </a>
+          <a href="/pro?utm_source=nav&utm_medium=cta">
+            Pro <Sparkles size={16} />
+          </a>
           <a href={webEditorHref}>
             Try web editor <ChevronRight size={16} />
           </a>
@@ -350,6 +357,125 @@ function LandingPage() {
         </div>
         <WaitlistForm />
       </section>
+      <SiteFooter />
+    </div>
+  );
+}
+
+function ProPage() {
+  return (
+    <div className="pro-page">
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloWrite
+        </a>
+        <div className="nav-actions">
+          <a href="/web?utm_source=pro_nav&utm_medium=cta">
+            Web editor <ChevronRight size={16} />
+          </a>
+          <a href={downloadHref}>
+            Download <Download size={16} />
+          </a>
+        </div>
+      </header>
+
+      <main className="pro-shell">
+        <section className="pro-hero">
+          <div>
+            <div className="eyebrow">
+              <Rocket size={16} />
+              Pro roadmap
+            </div>
+            <h1>Free preview now. Pro workflows when the foundation is ready.</h1>
+            <p>
+              VeloWrite is currently free to test. Pro will focus on the expensive,
+              high-value workflows that go beyond a local Markdown editor: AI,
+              private sync, publishing, and advanced export.
+            </p>
+            <div className="hero-actions">
+              <a className="primary-link" href="/web?utm_source=pro_hero&utm_medium=cta">
+                Try Free Web Editor <ChevronRight size={17} />
+              </a>
+              <a className="secondary-link" href="/download?utm_source=pro_hero&utm_medium=cta">
+                Download Preview <Download size={17} />
+              </a>
+            </div>
+          </div>
+          <div className="pro-panel" aria-label="Planned VeloWrite plans">
+            <div>
+              <span>Preview</span>
+              <strong>Free</strong>
+              <p>Markdown editing, preview, local files, browser drafts, and desktop history snapshots.</p>
+            </div>
+            <div>
+              <span>Future Pro</span>
+              <strong>TBD</strong>
+              <p>AI commands, private sync, one-click publishing, advanced export, and commercial workflows.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="pro-grid" aria-label="Future Pro capabilities">
+          <article>
+            <WandSparkles size={22} />
+            <h2>AI-native writing</h2>
+            <p>Draft, rewrite, summarize, convert outlines, and generate Mermaid diagrams from Markdown context.</p>
+          </article>
+          <article>
+            <Cloud size={22} />
+            <h2>Private sync</h2>
+            <p>Bring local-first notes across machines without forcing users into a heavy hosted workspace.</p>
+          </article>
+          <article>
+            <Rocket size={22} />
+            <h2>One-click publishing</h2>
+            <p>Turn a Markdown file into a GitHub Pages or Vercel-backed static site from the editor workflow.</p>
+          </article>
+          <article>
+            <LockKeyhole size={22} />
+            <h2>Commercial controls</h2>
+            <p>Licensing, export polish, and privacy-first defaults for people writing work documents every day.</p>
+          </article>
+        </section>
+
+        <section className="pro-compare" aria-label="Free preview and future Pro comparison">
+          <div className="section-heading">
+            <span>Clear boundaries</span>
+            <h2>What users can rely on today, and what they can follow next.</h2>
+          </div>
+          <div className="pro-table">
+            <div className="pro-row pro-row-head">
+              <span>Capability</span>
+              <span>Free preview today</span>
+              <span>Future Pro direction</span>
+            </div>
+            {[
+              ["Markdown writing", "Web and desktop editing", "More structured writing workflows"],
+              ["Local files", "Native desktop open/save", "Vault workflows and stronger recovery"],
+              ["AI", "Not active", "Rewrite, summarize, continue, convert"],
+              ["Sync", "Not active", "Private multi-device sync"],
+              ["Publishing", "HTML export today", "Deploy to GitHub Pages or Vercel"],
+              ["Pricing", "Free preview", "Published before checkout opens"],
+            ].map(([capability, preview, pro]) => (
+              <div className="pro-row" key={capability}>
+                <span>{capability}</span>
+                <span>{preview}</span>
+                <span>{pro}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="pro-waitlist" aria-label="Pro interest signup">
+          <div>
+            <span>Shape Pro before pricing</span>
+            <h2>Join the list if AI, sync, or publishing would make VeloWrite worth paying for.</h2>
+          </div>
+          <WaitlistForm source="pro" label="Join the Pro interest list" />
+        </section>
+      </main>
+
       <SiteFooter />
     </div>
   );
@@ -514,6 +640,7 @@ function SiteFooter() {
         <a href="/terms">Terms</a>
         <a href="/refund">Refund</a>
         <a href="/license">License</a>
+        <a href="/pro">Pro</a>
         <a href="/download">Download</a>
         <a href="https://github.com/ken-water/velowrite" target="_blank" rel="noreferrer">
           GitHub
@@ -554,7 +681,13 @@ function CookieConsent({
   );
 }
 
-function WaitlistForm() {
+function WaitlistForm({
+  source = "waitlist",
+  label = "Join the private beta",
+}: {
+  source?: string;
+  label?: string;
+}) {
   const [email, setEmail] = React.useState("");
   const [state, setState] = React.useState<"idle" | "loading" | "done" | "error">(
     "idle",
@@ -571,7 +704,7 @@ function WaitlistForm() {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, product: "velowrite" }),
+        body: JSON.stringify({ email, product: "velowrite", source }),
       });
       setState(response.ok ? "done" : "error");
     } catch {
@@ -581,11 +714,11 @@ function WaitlistForm() {
 
   return (
     <form className="waitlist" onSubmit={submit}>
-      <label htmlFor="email">Join the private beta</label>
+      <label htmlFor={`email-${source}`}>{label}</label>
       <div className="input-row">
         <Mail size={18} />
         <input
-          id="email"
+          id={`email-${source}`}
           type="email"
           required
           autoComplete="email"
@@ -624,6 +757,10 @@ function Router() {
 
   if (window.location.pathname.startsWith("/download")) {
     return <DownloadPage />;
+  }
+
+  if (window.location.pathname.startsWith("/pro")) {
+    return <ProPage />;
   }
 
   if (window.location.pathname.startsWith("/privacy")) {

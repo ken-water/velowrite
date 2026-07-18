@@ -18,6 +18,7 @@ The current first version includes:
 - Legal pages at `/privacy`, `/terms`, `/refund`, and `/license`
 - Cookie/analytics consent banner with Vercel Analytics loaded only after consent
 - Download page preview status for current features, limitations, and planned Pro capabilities
+- Pro roadmap page at `/pro` for future AI, sync, publishing, and commercial workflow interest
 - CodeMirror 6 editor with Markdown syntax highlighting
 - Line numbers, active-line highlight, search, history, bracket matching, and tab indentation
 - Live Markdown preview
@@ -54,6 +55,7 @@ The current first version includes:
 - Feature requests: <https://github.com/ken-water/velowrite/issues/new?template=feature_request.yml>
 - Roadmap: `ROADMAP.md`
 - Contributing: `CONTRIBUTING.md`
+- Product Hunt launch kit: `docs/PRODUCT_HUNT_LAUNCH.md`
 
 ## Development
 
@@ -123,7 +125,7 @@ Optional Vercel environment variables:
 VITE_WAITLIST_ENDPOINT=/api/waitlist
 ```
 
-Contacts are visible in the Loops dashboard under Contacts. Use the `waitlist` user group or the `velowrite.app` source field to filter signups.
+Contacts are visible in the Loops dashboard under Contacts. Use the `waitlist` user group or the `velowrite.app` source field to filter general signups. Pro roadmap signups use `userGroup=pro-interest` and `signupPath=/pro`.
 
 ## Privacy Notes
 
@@ -138,6 +140,7 @@ Contacts are visible in the Loops dashboard under Contacts. Use the `waitlist` u
 - Current public builds are free preview builds for evaluation and feedback.
 - No paid desktop license, subscription, account system, AI service, sync service, or publishing service is active yet.
 - Planned Pro capabilities are directional product signals, not available paid features.
+- The `/pro` page collects product interest before pricing is published; it is not a checkout page.
 - Current installer assets may lag behind the hosted website version when a release only changes the website, legal pages, or conversion copy.
 
 ## Deployment

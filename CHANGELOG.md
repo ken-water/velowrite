@@ -8,6 +8,15 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ### Added
 
+## [0.1.3] - 2026-07-18
+
+### Added
+
+- Pro roadmap page at `/pro` describing free preview boundaries and future paid workflow directions.
+- Pro interest waitlist path that marks signups with `userGroup=pro-interest`.
+- Navigation and footer links to the Pro roadmap page.
+- Product Hunt launch kit with submission copy, maker comment, FAQ, outreach copy, asset plan, and launch checklist.
+
 ## [0.1.2] - 2026-07-18
 
 ### Added

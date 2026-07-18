@@ -1,6 +1,6 @@
 [package]
 name = "velowrite"
-version = "0.1.2"
+version = "0.1.3"
 description = "A lightweight AI-native Markdown editor."
 authors = ["VeloWrite"]
 edition = "2021"

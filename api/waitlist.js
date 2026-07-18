@@ -19,10 +19,13 @@ function getPayload(request) {
   const body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : request.body;
   const email = String(body?.email || "").trim().toLowerCase();
   const product = String(body?.product || "velowrite").trim();
-  return { email, product };
+  const source = String(body?.source || "waitlist").trim();
+  const signupPath = source === "pro" ? "/pro" : "/";
+  const userGroup = source === "pro" ? "pro-interest" : "waitlist";
+  return { email, product, signupPath, userGroup };
 }
 
-async function upsertLoopsContact({ email, product }) {
+async function upsertLoopsContact({ email, product, signupPath, userGroup }) {
   const response = await fetch(loopsContactEndpoint, {
     method: "POST",
     headers: {
@@ -34,9 +37,9 @@ async function upsertLoopsContact({ email, product }) {
       firstName: "",
       lastName: "",
       source: "velowrite.app",
-      userGroup: "waitlist",
+      userGroup,
       product,
-      signupPath: "/",
+      signupPath,
     }),
   });
 
