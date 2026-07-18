@@ -1,0 +1,23 @@
+{
+  "name": "VeloWrite",
+  "short_name": "VeloWrite",
+  "description": "A fast Markdown editor for web and desktop.",
+  "start_url": "/?utm_source=web_app_manifest",
+  "display": "standalone",
+  "background_color": "#f4f1eb",
+  "theme_color": "#15362d",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
