@@ -39,6 +39,18 @@ describe("markdown utilities", () => {
     expect(html).not.toContain("<script>");
   });
 
+  it("renders inline and block math with KaTeX", () => {
+    const html = renderMarkdown(`Inline $E = mc^2$.
+
+$$
+\\int_0^\\infty e^{-x^2}\\,dx
+$$`);
+
+    expect(html).toContain("katex");
+    expect(html).toContain("katex-display");
+    expect(html).not.toContain("$E = mc^2$");
+  });
+
   it("calculates document metrics", () => {
     const metrics = getMetrics("one two\n\n`ignored code`\nthree");
 

@@ -1,3 +1,4 @@
+import { katex } from "@mdit/plugin-katex";
 import MarkdownIt from "markdown-it";
 
 export type Heading = {
@@ -69,6 +70,7 @@ export function renderMarkdown(markdown: string, headings = extractHeadings(mark
     linkify: true,
     typographer: true,
   });
+  renderer.use(katex);
 
   renderer.renderer.rules.heading_open = (tokens, index, options, env, self) => {
     const heading = headings[headingIndex];
@@ -89,6 +91,7 @@ export function buildHtmlDocument(title: string, body: string) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(title)}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css" />
     <style>
       :root { color: #17201c; background: #f7f5f0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
       body { margin: 0; }

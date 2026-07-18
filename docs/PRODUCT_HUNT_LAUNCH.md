@@ -61,7 +61,7 @@ Interactive Demo: VeloWrite in 90 seconds
 
 ### Interactive Demo Description
 
-A guided walkthrough of the VeloWrite workflow: start in the web Markdown editor, write on the left, preview on the right, export Markdown or HTML, then move serious local-first writing to the desktop preview.
+A guided walkthrough of the VeloWrite workflow: open a complex Markdown document with tables, code, Mermaid, and KaTeX math; switch between full-screen write mode, split preview, and full-screen preview; export Markdown or HTML; then move serious local-first writing to the desktop preview.
 
 ### Suggested Topics
 
@@ -199,7 +199,7 @@ Product Hunt accepts an optional YouTube or Loom video URL. Upload the generated
 
 - Landing page loads fast on desktop and mobile.
 - Homepage shows the short demo video below the web/desktop comparison without autoplay.
-- `/demo` presents the guided interactive Product Hunt walkthrough.
+- `/demo` presents the guided interactive Product Hunt walkthrough with complex Markdown, math rendering, and Write/Split/Preview mode switching.
 - `/web` opens directly and lets users edit without signup.
 - `/download` explains unsigned installer warnings clearly.
 - `/pro` says Pro is roadmap/interest, not paid checkout.

@@ -165,7 +165,7 @@ function createEditorExtensions(fontSize: number): Extension[] {
   ];
 }
 
-const initialMarkdown = `# VeloWrite First Draft
+const defaultMarkdown = `# VeloWrite First Draft
 
 Welcome to VeloWrite, a lightweight Markdown editor built with Tauri for local-first writing.
 
@@ -680,7 +680,15 @@ function formatSize(value: number) {
   return `${(value / 1024).toFixed(1)} KB`;
 }
 
-export default function EditorApp({ surface = "desktop" }: { surface?: EditorSurface }) {
+export default function EditorApp({
+  surface = "desktop",
+  initialMarkdown,
+  initialViewMode,
+}: {
+  surface?: EditorSurface;
+  initialMarkdown?: string;
+  initialViewMode?: ViewMode;
+}) {
   const nativeApi = useNativeApi();
   const fileInput = React.useRef<HTMLInputElement>(null);
   const previewRef = React.useRef<HTMLElement>(null);
@@ -689,7 +697,7 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
   const allowNativeClose = React.useRef(false);
   const [markdown, setMarkdown] = React.useState(() => {
-    return localStorage.getItem(draftKey) ?? initialMarkdown;
+    return initialMarkdown ?? localStorage.getItem(draftKey) ?? defaultMarkdown;
   });
   const [filePath, setFilePath] = React.useState<string | null>(null);
   const [fileName, setFileName] = React.useState(() => {
@@ -698,7 +706,9 @@ export default function EditorApp({ surface = "desktop" }: { surface?: EditorSur
   const [recentFiles, setRecentFiles] = React.useState(getStoredRecentFiles);
   const [savedMarkdown, setSavedMarkdown] = React.useState(markdown);
   const [status, setStatus] = React.useState("Draft restored");
-  const [viewMode, setViewMode] = React.useState<ViewMode>(getStoredViewMode);
+  const [viewMode, setViewMode] = React.useState<ViewMode>(() => {
+    return initialViewMode ?? getStoredViewMode();
+  });
   const [themeMode, setThemeMode] = React.useState<ThemeMode>(getStoredThemeMode);
   const [systemDark, setSystemDark] = React.useState(() => {
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;

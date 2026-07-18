@@ -307,6 +307,36 @@ p {
   background: #0f251f;
 }
 
+.demo-product-fullscreen .app-shell {
+  min-height: min(86vh, 980px);
+}
+
+.demo-mode-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demo-mode-tabs button,
+.demo-mode-tabs a {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  border: 1px solid rgba(21, 54, 45, 0.14);
+  border-radius: 7px;
+  padding: 0 10px;
+  background: #ffffff;
+  color: #15362d;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.demo-mode-tabs button.active {
+  border-color: #15362d;
+  background: #15362d;
+  color: #ffffff;
+}
+
 .demo-page {
   min-height: 100vh;
   background:
@@ -1435,6 +1465,16 @@ article,
   border-collapse: collapse;
 }
 
+.markdown-body .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+
+.markdown-body .katex {
+  font-size: 1em;
+}
+
 .markdown-body th,
 .markdown-body td {
   border: 1px solid var(--border-soft);
@@ -2247,6 +2287,10 @@ article,
 
   .demo-product .app-shell {
     min-height: 560px;
+  }
+
+  .demo-product-fullscreen .app-shell {
+    min-height: 72vh;
   }
 
   .mode-compare {

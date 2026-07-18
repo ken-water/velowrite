@@ -24,6 +24,7 @@ import {
   Zap,
 } from "lucide-react";
 import "./styles.css";
+import "katex/dist/katex.min.css";
 
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const appVersion = "0.1.3";
@@ -404,22 +405,22 @@ function LandingPage() {
 
 const demoSteps = [
   {
-    title: "Open the editor",
-    label: "Instant start",
-    copy: "Start with the web editor directly in the browser. No account, no install, no project setup.",
-    focus: "Browser-first Markdown workspace",
+    title: "Write full screen",
+    label: "Focused writing",
+    copy: "Open a dense Markdown document in write mode and edit without losing context.",
+    focus: "Full-screen Markdown editing",
   },
   {
-    title: "Write Markdown",
-    label: "Live editing",
-    copy: "Type Markdown on the left and keep the document readable while you work.",
-    focus: "Clean writing surface",
+    title: "Split view",
+    label: "Edit and preview",
+    copy: "Use split mode to compare complex Markdown with the rendered result in real time.",
+    focus: "Live split preview",
   },
   {
-    title: "Preview side by side",
-    label: "Readable output",
-    copy: "Check headings, tables, quotes, links, and code blocks without leaving the page.",
-    focus: "Rendered preview",
+    title: "Preview full screen",
+    label: "Rendered output",
+    copy: "Switch to preview mode to inspect equations, tables, Mermaid code, and structured writing.",
+    focus: "Full-screen rendered preview",
   },
   {
     title: "Export your work",
@@ -435,8 +436,88 @@ const demoSteps = [
   },
 ] as const;
 
+const demoModes = [
+  { mode: "write", label: "Write" },
+  { mode: "split", label: "Split" },
+  { mode: "preview", label: "Preview" },
+] as const;
+type DemoMode = (typeof demoModes)[number]["mode"];
+
+function getDemoModeForStep(index: number): DemoMode {
+  if (index === 0) return "write";
+  if (index === 2) return "preview";
+  return "split";
+}
+
+const complexDemoMarkdown = `# Research Memo: VeloWrite Launch
+
+This document is intentionally dense so the demo can show real Markdown editing, not just a tiny note.
+
+## Executive Summary
+
+VeloWrite starts as a free online Markdown editor, then converts serious writers to a lightweight Tauri desktop app.
+
+> The web editor is for instant trust. The desktop app is for local-first daily work.
+
+## Mathematical Notes
+
+Inline math works inside normal text: $E = mc^2$, $a^2 + b^2 = c^2$, and $\\Delta G = \\Delta H - T\\Delta S$.
+
+Block equations are rendered cleanly:
+
+$$
+\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}
+$$
+
+$$
+\\nabla \\cdot \\vec{E} = \\frac{\\rho}{\\varepsilon_0}
+\\qquad
+P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)P(\\theta)}{P(D)}
+$$
+
+## Launch Metrics
+
+| Funnel step | Current preview | Desktop conversion |
+| --- | ---: | ---: |
+| Open editor | Instant web page | Native app launch |
+| Save workflow | Download copy | Direct local save |
+| Privacy | Browser storage | Local-first files |
+| Recovery | Browser draft | History snapshots |
+
+## Product Flow
+
+\`\`\`mermaid
+flowchart LR
+  Visitor[Product Hunt visitor] --> Web[Web editor]
+  Web --> Preview[Live preview]
+  Preview --> Export[Markdown / HTML export]
+  Preview --> Desktop[Desktop preview]
+  Desktop --> Pro[Future Pro: AI + Sync + Publish]
+\`\`\`
+
+## Engineering Checklist
+
+- [x] Web editor loads without signup
+- [x] Split preview supports tables, code, and math
+- [x] Desktop preview supports native files
+- [ ] AI-native commands
+- [ ] Private sync
+- [ ] One-click publishing
+
+## Code Sample
+
+\`\`\`ts
+type Workflow = "write" | "preview" | "publish";
+
+function nextStep(step: Workflow) {
+  return step === "write" ? "preview" : "publish";
+}
+\`\`\`
+`;
+
 function InteractiveDemoPage() {
   const [activeStep, setActiveStep] = React.useState(0);
+  const [activeMode, setActiveMode] = React.useState<DemoMode>("split");
   const step = demoSteps[activeStep];
 
   return (
@@ -495,7 +576,10 @@ function InteractiveDemoPage() {
                 className={index === activeStep ? "active" : ""}
                 key={item.title}
                 type="button"
-                onClick={() => setActiveStep(index)}
+                onClick={() => {
+                  setActiveStep(index);
+                  setActiveMode(getDemoModeForStep(index));
+                }}
               >
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <strong>{item.title}</strong>
@@ -504,15 +588,32 @@ function InteractiveDemoPage() {
             ))}
           </aside>
 
-          <div className="demo-product">
+          <div className="demo-product demo-product-fullscreen">
             <div className="frame-toolbar">
               <span>{step.focus}</span>
-              <a href="/web?utm_source=demo_frame&utm_medium=cta">
-                Full screen <ChevronRight size={14} />
-              </a>
+              <div className="demo-mode-tabs" aria-label="Demo view mode">
+                {demoModes.map((item) => (
+                  <button
+                    className={activeMode === item.mode ? "active" : ""}
+                    key={item.mode}
+                    type="button"
+                    onClick={() => setActiveMode(item.mode)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                <a href="/web?utm_source=demo_frame&utm_medium=cta">
+                  Full editor <ChevronRight size={14} />
+                </a>
+              </div>
             </div>
             <React.Suspense fallback={<div className="loading-preview">Loading editor</div>}>
-              <EditorApp surface="web" />
+              <EditorApp
+                key={activeMode}
+                surface="web"
+                initialMarkdown={complexDemoMarkdown}
+                initialViewMode={activeMode}
+              />
             </React.Suspense>
           </div>
         </section>
