@@ -15,6 +15,8 @@ The current first version includes:
 - A real Markdown editing surface at `/app`
 - A browser-based Markdown editor at `/web` for online reading, editing, preview, and download
 - Browser-to-desktop conversion prompts for native folders, direct save, local history, and offline workflows
+- Privacy policy page at `/privacy`
+- Cookie/analytics consent banner with Vercel Analytics loaded only after consent
 - CodeMirror 6 editor with Markdown syntax highlighting
 - Line numbers, active-line highlight, search, history, bracket matching, and tab indentation
 - Live Markdown preview
@@ -121,6 +123,14 @@ VITE_WAITLIST_ENDPOINT=/api/waitlist
 ```
 
 Contacts are visible in the Loops dashboard under Contacts. Use the `waitlist` user group or the `velowrite.app` source field to filter signups.
+
+## Privacy Notes
+
+- Web editor Markdown content is edited and previewed in the browser; normal edit/preview/download actions do not upload document text to VeloWrite servers.
+- Web drafts, editor preferences, and the analytics consent choice use browser localStorage.
+- Vercel Web Analytics is mounted only after the visitor allows analytics in the cookie banner.
+- Waitlist email addresses are sent to Loops.so for beta invitation and update management.
+- Desktop files and local history snapshots stay on the user's device by default.
 
 ## Deployment
 

@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Clock3,
   Code2,
+  Cookie,
   Download,
   FolderOpen,
   GitBranch,
@@ -12,6 +13,7 @@ import {
   HardDrive,
   Mail,
   PanelLeft,
+  ShieldCheck,
   Sparkles,
   Zap,
 } from "lucide-react";
@@ -22,6 +24,7 @@ const releaseVersion = "0.1.1";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${releaseVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
+const analyticsConsentKey = "velowrite:analytics-consent";
 
 const downloads = [
   {
@@ -191,6 +194,7 @@ function LandingPage() {
         </div>
         <WaitlistForm />
       </section>
+      <SiteFooter />
     </div>
   );
 }
@@ -262,7 +266,164 @@ function DownloadPage() {
           </ul>
         </section>
       </main>
+      <SiteFooter />
     </div>
+  );
+}
+
+function PrivacyPage() {
+  return (
+    <div className="legal-page">
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloWrite
+        </a>
+        <div className="nav-actions">
+          <a href="/web?utm_source=privacy_nav&utm_medium=cta">
+            Web editor <ChevronRight size={16} />
+          </a>
+          <a href={downloadHref}>
+            Download <Download size={16} />
+          </a>
+        </div>
+      </header>
+
+      <main className="legal-shell">
+        <div className="eyebrow">
+          <ShieldCheck size={16} />
+          Privacy and cookies
+        </div>
+        <h1>Privacy Policy</h1>
+        <p className="legal-updated">Last updated: July 18, 2026</p>
+
+        <section>
+          <h2>What VeloWrite is</h2>
+          <p>
+            VeloWrite provides a browser-based Markdown preview editor and a
+            downloadable desktop app. The web editor is designed for quick
+            drafting and previewing; the desktop app is designed for local-first
+            file work.
+          </p>
+        </section>
+
+        <section>
+          <h2>Markdown document content</h2>
+          <p>
+            VeloWrite does not upload the Markdown text you type in the web
+            editor to our servers for normal editing, preview, or download. Web
+            drafts and editor preferences may be saved in your own browser using
+            localStorage so your draft can survive a refresh on the same device.
+          </p>
+          <p>
+            The desktop app works with files on your computer through the Tauri
+            runtime. Local history snapshots are stored on your device and are
+            not sent to VeloWrite by default.
+          </p>
+        </section>
+
+        <section>
+          <h2>Waitlist emails</h2>
+          <p>
+            If you join the waitlist, we collect the email address you submit
+            and send it to Loops.so so we can manage beta invitations and product
+            updates. Waitlist records may include simple metadata such as product
+            name, source, and user group.
+          </p>
+          <p>
+            You can ask to be removed from the waitlist by contacting us through
+            the project repository or by using the unsubscribe link in any email
+            we send.
+          </p>
+        </section>
+
+        <section>
+          <h2>Analytics and cookies</h2>
+          <p>
+            We use Vercel Web Analytics to understand basic site usage, such as
+            page views and download-link clicks. On this site, the analytics
+            script is only loaded after you choose “Allow analytics” in the
+            cookie banner.
+          </p>
+          <p>
+            VeloWrite uses localStorage to remember your analytics choice. If
+            you decline analytics, the analytics script is not loaded by this
+            React app. You can clear your browser site data to reset the choice.
+          </p>
+        </section>
+
+        <section>
+          <h2>Third-party services</h2>
+          <p>
+            Downloads are hosted by GitHub Releases. Site hosting is provided by
+            Vercel. Waitlist processing is provided by Loops.so. These services
+            may process technical request data such as IP address, browser, and
+            timestamp according to their own policies.
+          </p>
+        </section>
+
+        <section>
+          <h2>Current preview limitations</h2>
+          <p>
+            VeloWrite is still an early preview. Sync, AI commands, encrypted
+            sharing, accounts, and paid plans are not active in the current
+            public build. We will update this policy before launching features
+            that materially change what data is processed.
+          </p>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <div>
+        <strong>VeloWrite</strong>
+        <span>Local-first Markdown writing, with a web preview path.</span>
+      </div>
+      <nav aria-label="Legal and product links">
+        <a href="/privacy">Privacy</a>
+        <a href="/download">Download</a>
+        <a href="https://github.com/ken-water/velowrite" target="_blank" rel="noreferrer">
+          GitHub
+        </a>
+      </nav>
+    </footer>
+  );
+}
+
+function CookieConsent({
+  value,
+  onChange,
+}: {
+  value: string | null;
+  onChange: (nextValue: "accepted" | "declined") => void;
+}) {
+  if (value) return null;
+
+  return (
+    <aside className="cookie-banner" aria-label="Cookie and analytics consent">
+      <div className="cookie-copy">
+        <Cookie size={19} />
+        <p>
+          We keep drafts in your browser and load analytics only if you allow it.
+          Markdown content is not uploaded for normal web editing.
+        </p>
+      </div>
+      <div className="cookie-actions">
+        <a href="/privacy">Privacy</a>
+        <button type="button" onClick={() => onChange("declined")}>
+          Decline
+        </button>
+        <button type="button" className="allow-button" onClick={() => onChange("accepted")}>
+          Allow analytics
+        </button>
+      </div>
+    </aside>
   );
 }
 
@@ -338,12 +499,34 @@ function Router() {
     return <DownloadPage />;
   }
 
+  if (window.location.pathname.startsWith("/privacy")) {
+    return <PrivacyPage />;
+  }
+
   return <LandingPage />;
+}
+
+function AppRoot() {
+  const [analyticsConsent, setAnalyticsConsent] = React.useState<string | null>(() => {
+    return window.localStorage.getItem(analyticsConsentKey);
+  });
+
+  function updateAnalyticsConsent(nextValue: "accepted" | "declined") {
+    window.localStorage.setItem(analyticsConsentKey, nextValue);
+    setAnalyticsConsent(nextValue);
+  }
+
+  return (
+    <>
+      <Router />
+      {analyticsConsent === "accepted" && <Analytics />}
+      <CookieConsent value={analyticsConsent} onChange={updateAnalyticsConsent} />
+    </>
+  );
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Router />
-    <Analytics />
+    <AppRoot />
   </React.StrictMode>,
 );
