@@ -51,8 +51,8 @@ const downloads = [
   {
     platform: "macOS",
     format: "DMG",
-    fileName: "",
-    note: "Planned after a macOS host, signing, and notarization path are ready.",
+    fileName: `VeloWrite_${releaseVersion}_aarch64.dmg`,
+    note: "Unsigned Apple Silicon test build for macOS.",
   },
 ];
 
@@ -256,7 +256,7 @@ function DownloadPage() {
           <ul>
             <li>Version {releaseVersion} fixes native Open, Save, and Export dialog permissions.</li>
             <li>The Windows installer is not code-signed yet, so SmartScreen may warn during install.</li>
-            <li>AppImage is available for portable Linux testing; macOS DMG is planned.</li>
+            <li>The macOS DMG is an unsigned Apple Silicon build; Gatekeeper may warn until signing and notarization are ready.</li>
             <li>Temporary read-only sharing is planned for a future web release.</li>
             <li>Installers are hosted on GitHub Releases; no VPS or custom download server is required.</li>
           </ul>
