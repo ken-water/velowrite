@@ -29,7 +29,6 @@ const slides = [
     visual: "hero",
     voice:
       "Meet VeloWrite. Open fast. Write Markdown. Preview instantly. Ship clean documents without a heavy editor in your way.",
-    captions: ["Meet VeloWrite.", "Open fast.", "Write Markdown.", "Preview instantly.", "No heavy editor in your way."],
   },
   {
     id: "02",
@@ -44,7 +43,6 @@ const slides = [
     visual: "web",
     voice:
       "Start in the browser. Type Markdown on the left. See the finished page on the right. Import files, then download Markdown or clean HTML.",
-    captions: ["Start in the browser.", "Type Markdown on the left.", "Preview on the right.", "Download Markdown or clean HTML."],
   },
   {
     id: "03",
@@ -59,7 +57,6 @@ const slides = [
     visual: "desktop",
     voice:
       "When the work gets serious, move to desktop. Open real local files. Keep writing offline. Return to recent documents and recover earlier versions.",
-    captions: ["Move serious writing to desktop.", "Open real local files.", "Keep writing offline.", "Recover earlier versions."],
   },
   {
     id: "04",
@@ -74,7 +71,6 @@ const slides = [
     visual: "privacy",
     voice:
       "VeloWrite keeps the privacy boundary clear. Normal web editing does not upload your document text. Drafts stay in browser storage. Analytics loads only after consent.",
-    captions: ["A clear privacy boundary.", "Normal editing does not upload text.", "Drafts stay in browser storage.", "Analytics loads only after consent."],
   },
   {
     id: "05",
@@ -89,7 +85,6 @@ const slides = [
     visual: "pro",
     voice:
       "The current preview is free. Future Pro goes beyond basic editing. AI-native writing. Private sync. One-click publishing to GitHub Pages or Vercel.",
-    captions: ["The preview is free.", "Future Pro goes further.", "AI-native writing.", "Private sync.", "One-click publishing."],
   },
   {
     id: "06",
@@ -104,7 +99,6 @@ const slides = [
     visual: "cta",
     voice:
       "Try VeloWrite today. Tell us what would make you switch. AI, sync, publishing, or simply a Markdown editor that stays out of your way.",
-    captions: ["Try VeloWrite today.", "Tell us what would make you switch.", "AI, sync, publishing.", "Or an editor that stays out of your way."],
   },
 ];
 
@@ -389,7 +383,7 @@ function splitSentences(text) {
   return sentences?.length ? sentences : [text];
 }
 
-function splitLongCaption(text, maxChars = 42) {
+function splitLongCaption(text, maxChars = 60) {
   if (text.length <= maxChars) return [text];
 
   const clauses = text
@@ -430,10 +424,25 @@ function splitLongCaption(text, maxChars = 42) {
   });
 }
 
+function mergeShortCaptions(captions, minChars = 14) {
+  const merged = [];
+
+  for (const caption of captions) {
+    const previous = merged.at(-1);
+    if (previous && caption.length < minChars && `${previous} ${caption}`.length <= 70) {
+      merged[merged.length - 1] = `${previous} ${caption}`;
+    } else {
+      merged.push(caption);
+    }
+  }
+
+  return merged;
+}
+
 function addSentenceCaptions(lines, text, start, duration) {
-  const sentences = Array.isArray(text)
-    ? text
-    : splitSentences(text).flatMap((sentence) => splitLongCaption(sentence));
+  const sentences = mergeShortCaptions(
+    (Array.isArray(text) ? text : splitSentences(text)).flatMap((sentence) => splitLongCaption(sentence)),
+  );
   const usableDuration = Math.max(1, duration - 0.25);
   const totalWeight = sentences.reduce((sum, sentence) => sum + Math.max(sentence.length, 18), 0);
   let sentenceStart = start;
@@ -521,7 +530,7 @@ for (const slide of slides) {
   );
 
   concatLines.push(`file '${join("segments", `${slide.id}.mp4`)}'`);
-  addSentenceCaptions(srtLines, slide.captions || slide.voice, cursor, duration);
+  addSentenceCaptions(srtLines, slide.voice, cursor, duration);
   cursor += duration;
 }
 
@@ -544,7 +553,7 @@ run("ffmpeg", [
   "-i",
   join(outDir, "concat.txt"),
   "-vf",
-  `subtitles=${join(outDir, "captions.srt")}:force_style='FontName=Noto Sans,FontSize=15,PrimaryColour=&H00FFFFFF,BackColour=&HAA000000,BorderStyle=4,Outline=0,Shadow=0,MarginV=24'`,
+  `subtitles=${join(outDir, "captions.srt")}:force_style='FontName=Noto Sans,FontSize=15,Bold=1,PrimaryColour=&H00EB6325,BackColour=&HBBFFFFFF,BorderStyle=4,Outline=0,Shadow=0,MarginV=24'`,
   "-c:v",
   "libx264",
   "-pix_fmt",
