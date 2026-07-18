@@ -10,3 +10,5 @@ src-tauri/target
 .DS_Store
 launch/
 coverage/
+test-results/
+playwright-report/

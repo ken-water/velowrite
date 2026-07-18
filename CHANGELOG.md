@@ -11,6 +11,7 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Feedback page, feedback API endpoint, Loops contact grouping, and product entry points from download, legal, footer, and desktop About surfaces.
 - Privacy policy wording for feedback submissions.
 - Coverage command and preview hardening tests for feedback/waitlist APIs, Loops payload handling, math rendering, and tabbed code previews.
+- Playwright smoke tests for the landing page, web editor modes, complex Markdown rendering, demo code tabs, download page, and feedback form.
 
 ### Changed
 
