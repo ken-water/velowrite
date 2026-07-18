@@ -126,6 +126,50 @@ Product Hunt currently recommends gallery images at 1270x760, and the post needs
    - Show privacy/cookie messaging.
    - Caption: "Markdown content is not uploaded for normal web editing."
 
+## Demo Video
+
+A local Product Hunt demo video generator is available:
+
+```bash
+npm run launch:video
+```
+
+Default output:
+
+```text
+launch/product-hunt-video/velowrite-product-hunt-demo.mp4
+launch/product-hunt-video/voiceover.txt
+launch/product-hunt-video/captions.srt
+launch/product-hunt-video/slides/
+```
+
+The default local voiceover uses ffmpeg's built-in `flite` voice so the video can be generated without paid services. The result is acceptable for an internal draft, but a more natural Product Hunt launch video should use a higher-quality TTS or a real maker voice.
+
+### CatRouter TTS
+
+The generator can use CatRouter's Gemini TTS-compatible API when credentials are available:
+
+```bash
+CATROUTER_API_KEY=... npm run launch:video
+```
+
+Optional settings:
+
+```bash
+CATROUTER_BASE_URL=https://api.catrouter.net
+CATROUTER_TTS_VOICE=Kore
+```
+
+The script calls:
+
+```text
+POST /v1beta/models/gemini-2.5-flash-preview-tts:generateContent
+```
+
+with `responseModalities: ["AUDIO"]` and a `prebuiltVoiceConfig.voiceName`. If `CATROUTER_API_KEY` is not set, the script falls back to local flite audio.
+
+Product Hunt accepts an optional YouTube or Loom video URL. Upload the generated MP4 to Loom or YouTube first, then paste that URL into Product Hunt.
+
 ## Website Checklist Before Launch
 
 - Landing page loads fast on desktop and mobile.

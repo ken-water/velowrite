@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "launch:video": "node scripts/create-product-hunt-video.mjs",
     "version:sync": "node scripts/sync-version.mjs",
     "release:check": "npm run version:sync -- --check && npm test && npm run build",
     "tauri": "tauri",
