@@ -28,7 +28,8 @@ const slides = [
     ],
     visual: "hero",
     voice:
-      "Hi Product Hunt. This is VeloWrite, a lightweight Markdown editor that starts in the browser and moves serious writing to a local-first desktop app.",
+      "Meet VeloWrite. Open fast. Write Markdown. Preview instantly. Ship clean documents without a heavy editor in your way.",
+    captions: ["Meet VeloWrite.", "Open fast.", "Write Markdown.", "Preview instantly.", "No heavy editor in your way."],
   },
   {
     id: "02",
@@ -42,7 +43,8 @@ const slides = [
     ],
     visual: "web",
     voice:
-      "The web editor is the fastest way to try VeloWrite. You can write Markdown, see a live preview, import a file, and download Markdown or HTML without creating an account.",
+      "Start in the browser. Type Markdown on the left. See the finished page on the right. Import files, then download Markdown or clean HTML.",
+    captions: ["Start in the browser.", "Type Markdown on the left.", "Preview on the right.", "Download Markdown or clean HTML."],
   },
   {
     id: "03",
@@ -56,7 +58,8 @@ const slides = [
     ],
     visual: "desktop",
     voice:
-      "When you need real local files, offline work, recent documents, and recoverable history, the Tauri desktop preview gives you the workflow that browsers cannot fully provide.",
+      "When the work gets serious, move to desktop. Open real local files. Keep writing offline. Return to recent documents and recover earlier versions.",
+    captions: ["Move serious writing to desktop.", "Open real local files.", "Keep writing offline.", "Recover earlier versions."],
   },
   {
     id: "04",
@@ -70,7 +73,8 @@ const slides = [
     ],
     visual: "privacy",
     voice:
-      "VeloWrite is designed with a clear privacy boundary. Normal web editing and preview do not upload your Markdown content. Drafts stay in browser storage, and analytics only loads after consent.",
+      "VeloWrite keeps the privacy boundary clear. Normal web editing does not upload your document text. Drafts stay in browser storage. Analytics loads only after consent.",
+    captions: ["A clear privacy boundary.", "Normal editing does not upload text.", "Drafts stay in browser storage.", "Analytics loads only after consent."],
   },
   {
     id: "05",
@@ -84,7 +88,8 @@ const slides = [
     ],
     visual: "pro",
     voice:
-      "The current preview is free. Future Pro work will focus on AI-native writing commands, private sync across machines, and one-click publishing to GitHub Pages or Vercel.",
+      "The current preview is free. Future Pro goes beyond basic editing. AI-native writing. Private sync. One-click publishing to GitHub Pages or Vercel.",
+    captions: ["The preview is free.", "Future Pro goes further.", "AI-native writing.", "Private sync.", "One-click publishing."],
   },
   {
     id: "06",
@@ -98,7 +103,8 @@ const slides = [
     ],
     visual: "cta",
     voice:
-      "I would love your feedback. What would make you move from the web editor to desktop, and which Pro workflow would actually be worth paying for: AI, sync, publishing, or something else?",
+      "Try VeloWrite today. Tell us what would make you switch. AI, sync, publishing, or simply a Markdown editor that stays out of your way.",
+    captions: ["Try VeloWrite today.", "Tell us what would make you switch.", "AI, sync, publishing.", "Or an editor that stays out of your way."],
   },
 ];
 
@@ -306,7 +312,11 @@ async function synthesizeWithCatRouter(text, wavPath, rawPath) {
     body: JSON.stringify({
       contents: [
         {
-          parts: [{ text }],
+          parts: [
+            {
+              text: `Read this like a clear, confident middle-aged male product launch voiceover. Keep it energetic, premium, and natural, not flat. Text: ${text}`,
+            },
+          ],
         },
       ],
       generationConfig: {
@@ -362,11 +372,89 @@ async function synthesizeVoice(text, voicePath, wavPath, rawPath) {
     "-f",
     "lavfi",
     "-i",
-    `flite=textfile=${voicePath}:voice=slt`,
+    `flite=textfile=${voicePath}:voice=${process.env.LOCAL_TTS_VOICE || "awb"}`,
     "-af",
-    "apad=pad_dur=0.7",
+    "highpass=f=80,lowpass=f=12000,acompressor=threshold=-18dB:ratio=2.4:attack=18:release=220,loudnorm=I=-16:TP=-1.5:LRA=11,apad=pad_dur=0.7",
     wavPath,
   ]);
+}
+
+function splitSentences(text) {
+  const sentences = text
+    .replace(/\s+/g, " ")
+    .match(/[^.!?]+[.!?]+|[^.!?]+$/g)
+    ?.map((sentence) => sentence.trim())
+    .filter(Boolean);
+
+  return sentences?.length ? sentences : [text];
+}
+
+function splitLongCaption(text, maxChars = 42) {
+  if (text.length <= maxChars) return [text];
+
+  const clauses = text
+    .split(/(?<=[,:;])\s+/)
+    .map((clause) => clause.trim())
+    .filter(Boolean);
+  const lines = [];
+  let current = "";
+
+  for (const clause of clauses) {
+    const next = current ? `${current} ${clause}` : clause;
+    if (next.length > maxChars && current) {
+      lines.push(current);
+      current = clause;
+    } else {
+      current = next;
+    }
+  }
+  if (current) lines.push(current);
+
+  return lines.flatMap((line) => {
+    if (line.length <= maxChars) return [line];
+
+    const words = line.split(/\s+/);
+    const chunks = [];
+    let chunk = "";
+    for (const word of words) {
+      const next = chunk ? `${chunk} ${word}` : word;
+      if (next.length > maxChars && chunk) {
+        chunks.push(chunk);
+        chunk = word;
+      } else {
+        chunk = next;
+      }
+    }
+    if (chunk) chunks.push(chunk);
+    return chunks;
+  });
+}
+
+function addSentenceCaptions(lines, text, start, duration) {
+  const sentences = Array.isArray(text)
+    ? text
+    : splitSentences(text).flatMap((sentence) => splitLongCaption(sentence));
+  const usableDuration = Math.max(1, duration - 0.25);
+  const totalWeight = sentences.reduce((sum, sentence) => sum + Math.max(sentence.length, 18), 0);
+  let sentenceStart = start;
+
+  sentences.forEach((sentence, index) => {
+    const isLast = index === sentences.length - 1;
+    const weight = Math.max(sentence.length, 18);
+    const sentenceDuration = isLast
+      ? start + usableDuration - sentenceStart
+      : Math.max(1.35, (usableDuration * weight) / totalWeight);
+    const sentenceEnd = Math.min(start + usableDuration, sentenceStart + sentenceDuration);
+
+    lines.push(
+      String(lines.filter((line) => /^\d+$/.test(line)).length + 1),
+      `${secondsToSrtTime(sentenceStart)} --> ${secondsToSrtTime(sentenceEnd)}`,
+      sentence,
+      "",
+    );
+
+    sentenceStart = sentenceEnd;
+  });
 }
 
 function secondsToSrtTime(seconds) {
@@ -433,12 +521,7 @@ for (const slide of slides) {
   );
 
   concatLines.push(`file '${join("segments", `${slide.id}.mp4`)}'`);
-  srtLines.push(
-    String(srtLines.length + 1),
-    `${secondsToSrtTime(cursor)} --> ${secondsToSrtTime(cursor + duration - 0.2)}`,
-    slide.voice,
-    "",
-  );
+  addSentenceCaptions(srtLines, slide.captions || slide.voice, cursor, duration);
   cursor += duration;
 }
 
@@ -461,7 +544,7 @@ run("ffmpeg", [
   "-i",
   join(outDir, "concat.txt"),
   "-vf",
-  `subtitles=${join(outDir, "captions.srt")}:force_style='FontName=Noto Sans,FontSize=22,PrimaryColour=&H00FFFFFF,BackColour=&H99000000,BorderStyle=4,Outline=0,Shadow=0,MarginV=30'`,
+  `subtitles=${join(outDir, "captions.srt")}:force_style='FontName=Noto Sans,FontSize=15,PrimaryColour=&H00FFFFFF,BackColour=&HAA000000,BorderStyle=4,Outline=0,Shadow=0,MarginV=24'`,
   "-c:v",
   "libx264",
   "-pix_fmt",
