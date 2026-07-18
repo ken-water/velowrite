@@ -61,6 +61,53 @@ const answer = 42;
     expect(html).toContain("answer");
   });
 
+  it("groups consecutive supported code fences into a tabset", () => {
+    const html = renderMarkdown(`\`\`\`python
+print("hello")
+\`\`\`
+\`\`\`bash
+echo "hello"
+\`\`\`
+\`\`\`java
+System.out.println("hello");
+\`\`\`
+\`\`\`javascript
+console.log("hello");
+\`\`\``);
+
+    expect(html).toContain('class="code-tabset"');
+    expect(html).toContain('label for="code-tabset-1-python-0"');
+    expect(html).toContain('label for="code-tabset-1-bash-1"');
+    expect(html).toContain('label for="code-tabset-1-java-2"');
+    expect(html).toContain('label for="code-tabset-1-javascript-3"');
+  });
+
+  it("does not group code fences separated by content", () => {
+    const html = renderMarkdown(`\`\`\`python
+print("hello")
+\`\`\`
+
+Separated by prose.
+
+\`\`\`bash
+echo "hello"
+\`\`\``);
+
+    expect(html).not.toContain('class="code-tabset"');
+    expect(html.match(/<pre><code/g)).toHaveLength(2);
+  });
+
+  it("escapes unsupported code languages without tab grouping", () => {
+    const html = renderMarkdown(`\`\`\`ruby
+puts "<unsafe>"
+\`\`\``);
+
+    expect(html).not.toContain('class="code-tabset"');
+    expect(html).toContain("language-ruby");
+    expect(html).toContain("&lt;unsafe&gt;");
+    expect(html).not.toContain("<unsafe>");
+  });
+
   it("calculates document metrics", () => {
     const metrics = getMetrics("one two\n\n`ignored code`\nthree");
 
