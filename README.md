@@ -99,7 +99,7 @@ Versioning and release steps are documented in `RELEASE.md`. User-facing changes
 
 ## Waitlist
 
-Set `VITE_WAITLIST_ENDPOINT` to a serverless endpoint from Vercel, Netlify, Loops, Resend, or your own API. The landing form posts:
+The landing form posts to `/api/waitlist` by default. On Vercel, this endpoint creates or updates a Loops contact with `userGroup=waitlist` and `source=velowrite.app`.
 
 ```json
 {
@@ -108,7 +108,19 @@ Set `VITE_WAITLIST_ENDPOINT` to a serverless endpoint from Vercel, Netlify, Loop
 }
 ```
 
-If the endpoint is empty, the UI runs in demo mode and shows a successful signup state locally.
+Required Vercel environment variable:
+
+```text
+LOOPS_API_KEY=...
+```
+
+Optional Vercel environment variables:
+
+```text
+VITE_WAITLIST_ENDPOINT=/api/waitlist
+```
+
+Contacts are visible in the Loops dashboard under Contacts. Use the `waitlist` user group or the `velowrite.app` source field to filter signups.
 
 ## Deployment
 

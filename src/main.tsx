@@ -276,11 +276,7 @@ function WaitlistForm() {
     event.preventDefault();
     if (!email || state === "loading") return;
 
-    const endpoint = import.meta.env.VITE_WAITLIST_ENDPOINT;
-    if (!endpoint) {
-      setState("done");
-      return;
-    }
+    const endpoint = import.meta.env.VITE_WAITLIST_ENDPOINT || "/api/waitlist";
 
     setState("loading");
     try {
