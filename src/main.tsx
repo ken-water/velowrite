@@ -89,9 +89,10 @@ const legalPages = {
         ],
       },
       {
-        title: "Waitlist emails",
+        title: "Waitlist emails and feedback",
         body: [
           "If you join the waitlist, we collect the email address you submit and send it to Loops.so so we can manage beta invitations and product updates. Waitlist records may include simple metadata such as product name, source, and user group.",
+          "If you submit feedback, we collect the email address, selected context fields, and message you provide. Feedback records are also sent to Loops.so so we can group product feedback and reply when requested.",
           "You can ask to be removed from the waitlist by contacting us through the project repository or by using the unsubscribe link in any email we send.",
         ],
       },
@@ -725,6 +726,9 @@ function DownloadPage() {
           <a href="https://github.com/ken-water/velowrite/releases" target="_blank" rel="noreferrer">
             Releases <Github size={16} />
           </a>
+          <a href="/feedback?utm_source=download_nav&utm_medium=cta">
+            Feedback <Mail size={16} />
+          </a>
         </div>
       </header>
 
@@ -807,6 +811,20 @@ function DownloadPage() {
             <li>Installers are hosted on GitHub Releases; no VPS or custom download server is required.</li>
           </ul>
         </section>
+
+        <section className="download-notes" aria-label="Feedback prompt">
+          <h2>Send Feedback</h2>
+          <ul>
+            <li>Use the feedback form to report friction, missing features, or pricing signal.</li>
+            <li>We group submissions in Loops so we can follow up and separate web from desktop needs.</li>
+            <li>Tell us whether you want the web editor, the desktop app, or a future Pro plan.</li>
+          </ul>
+          <div className="feedback-actions">
+            <a className="primary-link" href="/feedback?utm_source=download_page&utm_medium=cta">
+              Open Feedback Form <ChevronRight size={17} />
+            </a>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </div>
@@ -829,6 +847,9 @@ function LegalPage({ page }: { page: keyof typeof legalPages }) {
           </a>
           <a href={downloadHref}>
             Download <Download size={16} />
+          </a>
+          <a href="/feedback?utm_source=privacy_nav&utm_medium=cta">
+            Feedback <Mail size={16} />
           </a>
         </div>
       </header>
@@ -865,6 +886,7 @@ function SiteFooter() {
         <span>Local-first Markdown writing, with a web preview path.</span>
       </div>
       <nav aria-label="Legal and product links">
+        <a href="/feedback">Feedback</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
         <a href="/refund">Refund</a>
@@ -967,6 +989,197 @@ function WaitlistForm({
   );
 }
 
+function FeedbackPage() {
+  return (
+    <div className="feedback-page">
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloWrite
+        </a>
+        <div className="nav-actions">
+          <a href="/web?utm_source=feedback_nav&utm_medium=cta">
+            Web editor <ChevronRight size={16} />
+          </a>
+          <a href="/download?utm_source=feedback_nav&utm_medium=cta">
+            Download <Download size={16} />
+          </a>
+        </div>
+      </header>
+
+      <main className="feedback-shell">
+        <section className="feedback-hero">
+          <div className="eyebrow">
+            <Mail size={16} />
+            Feedback
+          </div>
+          <h1>Tell us what blocked you.</h1>
+          <p>
+            Use this form to report what felt slow, confusing, missing, or worth paying for.
+            We keep the submission in Loops so we can reply and group the feedback by surface.
+          </p>
+        </section>
+        <FeedbackForm />
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
+function FeedbackForm() {
+  const [state, setState] = React.useState<"idle" | "loading" | "done" | "error">("idle");
+  const [form, setForm] = React.useState({
+    email: "",
+    surface: "web",
+    role: "writer",
+    useCase: "",
+    friction: "",
+    message: "",
+    wantsDesktop: true,
+    wantsPro: false,
+    wantsReply: true,
+  });
+
+  function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (state === "loading") return;
+
+    setState("loading");
+    try {
+      const response = await fetch(import.meta.env.VITE_FEEDBACK_ENDPOINT || "/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          product: "velowrite",
+          source: "feedback",
+          userGroup: "feedback",
+          signupPath: "/feedback",
+        }),
+      });
+      setState(response.ok ? "done" : "error");
+    } catch {
+      setState("error");
+    }
+  }
+
+  return (
+    <form className="feedback-form" onSubmit={submit}>
+      <div className="feedback-grid">
+        <label>
+          Email
+          <input
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={form.email}
+            onChange={(event) => update("email", event.target.value)}
+          />
+        </label>
+        <label>
+          Surface
+          <select
+            value={form.surface}
+            onChange={(event) => update("surface", event.target.value as typeof form.surface)}
+          >
+            <option value="web">Web</option>
+            <option value="desktop">Desktop</option>
+            <option value="download">Download page</option>
+            <option value="demo">Demo</option>
+          </select>
+        </label>
+        <label>
+          Your role
+          <select
+            value={form.role}
+            onChange={(event) => update("role", event.target.value as typeof form.role)}
+          >
+            <option value="writer">Writer</option>
+            <option value="developer">Developer</option>
+            <option value="student">Student</option>
+            <option value="founder">Founder</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>
+          Main use case
+          <input
+            type="text"
+            placeholder="Notes, docs, blog posts, knowledge base..."
+            value={form.useCase}
+            onChange={(event) => update("useCase", event.target.value)}
+          />
+        </label>
+        <label className="feedback-span">
+          What felt rough?
+          <input
+            type="text"
+            placeholder="Layout, save flow, preview, download, onboarding..."
+            value={form.friction}
+            onChange={(event) => update("friction", event.target.value)}
+          />
+        </label>
+        <label className="feedback-span">
+          Your feedback
+          <textarea
+            rows={7}
+            placeholder="Tell us what happened and what you expected instead."
+            value={form.message}
+            onChange={(event) => update("message", event.target.value)}
+          />
+        </label>
+      </div>
+
+      <div className="feedback-toggles">
+        <label>
+          <input
+            type="checkbox"
+            checked={form.wantsDesktop}
+            onChange={(event) => update("wantsDesktop", event.target.checked)}
+          />
+          <span>I want the desktop app</span>
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={form.wantsPro}
+            onChange={(event) => update("wantsPro", event.target.checked)}
+          />
+          <span>I may pay for Pro</span>
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={form.wantsReply}
+            onChange={(event) => update("wantsReply", event.target.checked)}
+          />
+          <span>Reply to me by email</span>
+        </label>
+      </div>
+
+      <div className="feedback-actions">
+        <button type="submit" className="primary-link">
+          {state === "loading" ? "Sending" : "Send feedback"}
+        </button>
+        <a className="secondary-link" href="/web?utm_source=feedback_page&utm_medium=cta">
+          Open Web Editor <ChevronRight size={17} />
+        </a>
+      </div>
+
+      <p className="feedback-status" aria-live="polite">
+        {state === "done" && "Thanks. The feedback is in Loops and grouped for follow-up."}
+        {state === "error" && "Submission failed. Please try again."}
+      </p>
+    </form>
+  );
+}
+
 function Router() {
   const searchParams = new URLSearchParams(window.location.search);
   const demoFrame = searchParams.get("utm_source") === "demo_frame";
@@ -1017,6 +1230,10 @@ function Router() {
 
   if (window.location.pathname.startsWith("/license")) {
     return <LegalPage page="license" />;
+  }
+
+  if (window.location.pathname.startsWith("/feedback")) {
+    return <FeedbackPage />;
   }
 
   return <LandingPage />;

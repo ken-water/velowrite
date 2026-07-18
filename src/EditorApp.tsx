@@ -548,6 +548,7 @@ function HistoryPanel({
 
 function AboutPanel({ onClose }: { onClose: () => void }) {
   const links = [
+    ["Feedback", "https://velowrite.app/feedback?utm_source=desktop_about&utm_medium=cta"],
     ["GitHub", "https://github.com/ken-water/velowrite"],
     ["Issues", "https://github.com/ken-water/velowrite/issues"],
     ["Roadmap", "https://github.com/ken-water/velowrite/blob/main/ROADMAP.md"],
@@ -589,7 +590,7 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
           <strong>Feedback wanted</strong>
           <span>
             If a Markdown workflow feels slow, fragile, or confusing, please
-            open an issue. Real usage reports will shape the next release.
+            send feedback. Real usage reports will shape the next release.
           </span>
         </div>
       </section>

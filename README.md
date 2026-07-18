@@ -123,9 +123,12 @@ Optional Vercel environment variables:
 
 ```text
 VITE_WAITLIST_ENDPOINT=/api/waitlist
+VITE_FEEDBACK_ENDPOINT=/api/feedback
 ```
 
 Contacts are visible in the Loops dashboard under Contacts. Use the `waitlist` user group or the `velowrite.app` source field to filter general signups. Pro roadmap signups use `userGroup=pro-interest` and `signupPath=/pro`.
+
+Feedback submissions are also stored in Loops Contacts. Filter by `userGroup=feedback` or `signupPath=/feedback`; the feedback note includes surface, role, use case, friction, desktop interest, Pro interest, reply preference, and the free-form message.
 
 ## Privacy Notes
 
