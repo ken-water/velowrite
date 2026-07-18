@@ -7,6 +7,8 @@ import python from "highlight.js/lib/languages/python";
 import typescript from "highlight.js/lib/languages/typescript";
 import MarkdownIt from "markdown-it";
 
+const tabLanguages = new Set(["python", "bash", "java", "javascript"]);
+
 hljs.registerLanguage("bash", bash);
 hljs.registerLanguage("java", java);
 hljs.registerLanguage("javascript", javascript);
@@ -96,7 +98,7 @@ export function renderMarkdown(markdown: string, headings = extractHeadings(mark
     return self.renderToken(tokens, index, options);
   };
 
-  return renderer.render(markdown);
+  return wrapCodeTabSets(renderer.render(markdown));
 }
 
 export function highlightCode(value: string, language: string) {
@@ -119,6 +121,102 @@ function renderCodeBlock(value: string, language: string) {
     : "hljs";
 
   return `<pre><code class="${className}">${highlighted}</code></pre>`;
+}
+
+function wrapCodeTabSets(html: string) {
+  const blockRe = /<pre><code class="hljs language-([a-z0-9_-]+)">([\s\S]*?)<\/code><\/pre>\n?/gi;
+  const parts: string[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let tabsetIndex = 0;
+
+  while ((match = blockRe.exec(html))) {
+    const blockStart = match.index;
+    const blocks = [{ language: match[1].toLowerCase(), code: match[2], raw: match[0] }];
+    let endIndex = blockRe.lastIndex;
+
+    if (!tabLanguages.has(blocks[0].language)) {
+      blockRe.lastIndex = blockStart + blocks[0].raw.length;
+      continue;
+    }
+
+    while (true) {
+      const next = blockRe.exec(html);
+      if (!next) {
+        match = null;
+        break;
+      }
+
+      const between = html.slice(endIndex, next.index);
+      if (between.trim()) {
+        blockRe.lastIndex = next.index;
+        match = next;
+        break;
+      }
+
+      if (!tabLanguages.has(next[1].toLowerCase())) {
+        blockRe.lastIndex = next.index;
+        match = next;
+        break;
+      }
+
+      blocks.push({ language: next[1].toLowerCase(), code: next[2], raw: next[0] });
+      endIndex = blockRe.lastIndex;
+    }
+
+    if (blocks.length > 1) {
+      parts.push(html.slice(lastIndex, blockStart));
+      parts.push(buildCodeTabset(blocks, ++tabsetIndex));
+      lastIndex = endIndex;
+      if (!match) break;
+      blockRe.lastIndex = endIndex;
+      continue;
+    }
+
+    blockRe.lastIndex = blockStart + blocks[0].raw.length;
+  }
+
+  if (!tabsetIndex) return html;
+
+  parts.push(html.slice(lastIndex));
+  return parts.join("");
+}
+
+function buildCodeTabset(
+  blocks: Array<{ language: string; code: string }>,
+  index: number,
+) {
+  const groupName = `code-tabset-${index}`;
+  const tabs = blocks
+    .map((block, tabIndex) => {
+      const id = `${groupName}-${block.language}-${tabIndex}`;
+      return `
+        <input type="radio" name="${groupName}" id="${id}"${tabIndex === 0 ? " checked" : ""} />
+        <label for="${id}">${escapeHtml(block.language)}</label>
+      `;
+    })
+    .join("\n");
+
+  const panels = blocks
+    .map(
+      (block) => `
+        <div class="code-tabset-panel code-tabset-panel-${escapeHtml(block.language)}">
+          <pre><code class="hljs language-${escapeHtml(block.language)}">${block.code}</code></pre>
+        </div>
+      `,
+    )
+    .join("\n");
+
+  return `
+    <div class="code-tabset">
+      <div class="code-tabset-tabs">
+        ${tabs}
+      </div>
+      <div class="code-tabset-panels">
+        ${panels}
+      </div>
+    </div>
+  `;
 }
 
 function normalizeLanguage(language: string) {
@@ -157,6 +255,19 @@ export function buildHtmlDocument(title: string, body: string) {
       a { color: #2c6e62; }
       table { width: 100%; border-collapse: collapse; }
       th, td { border: 1px solid #ded9d0; padding: 8px; text-align: left; }
+      .code-tabset { overflow: hidden; margin: 18px 0; border: 1px solid #ded9d0; border-radius: 8px; background: #fff; }
+      .code-tabset-tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #ded9d0; padding: 9px; background: #f8f6f1; }
+      .code-tabset-tabs input { position: absolute; opacity: 0; pointer-events: none; }
+      .code-tabset-tabs label { display: inline-flex; min-height: 32px; align-items: center; border: 1px solid #ded9d0; border-radius: 7px; padding: 0 11px; background: #fff; color: #56635e; cursor: pointer; font-size: 13px; font-weight: 800; text-transform: capitalize; }
+      .code-tabset-tabs input:checked + label { border-color: #15362d; background: #15362d; color: #fff; }
+      .code-tabset-panel { display: none; }
+      .code-tabset:has(.code-tabset-tabs input:nth-of-type(1):checked) .code-tabset-panel:nth-child(1),
+      .code-tabset:has(.code-tabset-tabs input:nth-of-type(2):checked) .code-tabset-panel:nth-child(2),
+      .code-tabset:has(.code-tabset-tabs input:nth-of-type(3):checked) .code-tabset-panel:nth-child(3),
+      .code-tabset:has(.code-tabset-tabs input:nth-of-type(4):checked) .code-tabset-panel:nth-child(4),
+      .code-tabset:has(.code-tabset-tabs input:nth-of-type(5):checked) .code-tabset-panel:nth-child(5),
+      .code-tabset:has(.code-tabset-tabs input:nth-of-type(6):checked) .code-tabset-panel:nth-child(6) { display: block; }
+      .code-tabset-panel pre { margin: 0; border: 0; border-radius: 0; }
     </style>
   </head>
   <body>
