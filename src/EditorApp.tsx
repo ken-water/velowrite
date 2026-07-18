@@ -45,6 +45,7 @@ import {
   getMetrics,
   renderMarkdown,
 } from "./markdown";
+import { complexDemoMarkdown } from "./sampleMarkdown";
 
 type ViewMode = "split" | "write" | "preview";
 type ThemeMode = "light" | "dark" | "system";
@@ -165,41 +166,7 @@ function createEditorExtensions(fontSize: number): Extension[] {
   ];
 }
 
-const defaultMarkdown = `# VeloWrite First Draft
-
-Welcome to VeloWrite, a lightweight Markdown editor built with Tauri for local-first writing.
-
-## What you can do now
-
-- Open, edit, and save local Markdown files
-- Preview rendered Markdown instantly while you write
-- Export the current document as a clean HTML file
-- Keep local history snapshots when saving existing files
-- Drag a Markdown file into the window to open it
-
-## Keyboard shortcuts
-
-| Shortcut | Action |
-| --- | --- |
-| Ctrl/Cmd + N | New document |
-| Ctrl/Cmd + O | Open Markdown |
-| Ctrl/Cmd + S | Save |
-| Ctrl/Cmd + Shift + E | Export HTML |
-| Ctrl/Cmd + 1/2/3 | Write, Split, Preview |
-
-## Why VeloWrite exists
-
-Electron editors are powerful, but many users just want a fast, quiet Markdown workspace that opens quickly and respects local files. VeloWrite starts from that promise, then grows toward AI-native writing, private sync, and one-click publishing.
-
-> Fast first. Reliable always. Beautiful where it helps.
-
-\`\`\`mermaid
-flowchart LR
-  Draft --> Preview
-  Preview --> Save
-  Save --> Publish
-\`\`\`
-`;
+const defaultMarkdown = complexDemoMarkdown;
 
 function useNativeApi(): NativeApi | null {
   const [api, setApi] = React.useState<NativeApi | null>(null);
@@ -1472,7 +1439,9 @@ export default function EditorApp({
           <section className="preview-pane" aria-label="Rendered preview">
             <div className="pane-title">
               <span>Live Preview</span>
-              <kbd>{browserMode ? "Ctrl/Cmd S downloads copy" : "Ctrl/Cmd S"}</kbd>
+              {viewMode !== "preview" && (
+                <kbd>{browserMode ? "Ctrl/Cmd S downloads .md" : "Ctrl/Cmd S saves"}</kbd>
+              )}
             </div>
             <article
               ref={previewRef}
@@ -1484,7 +1453,7 @@ export default function EditorApp({
 
         <footer className="statusbar">
           <span className="shortcut-hint">Ctrl/Cmd O open</span>
-          <span className="shortcut-hint">{browserMode ? "Ctrl/Cmd S download" : "Ctrl/Cmd S save"}</span>
+          <span className="shortcut-hint">{browserMode ? "Ctrl/Cmd S download .md" : "Ctrl/Cmd S save"}</span>
           <span>{metrics.words} words</span>
           <span>{metrics.characters} chars</span>
           <span>{metrics.lines} lines</span>

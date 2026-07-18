@@ -8,6 +8,21 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ### Added
 
+## [0.1.4] - 2026-07-18
+
+### Added
+
+- Shared complex Markdown sample for the web demo and desktop first-run document.
+- KaTeX math, syntax-highlighted code fences, and tabbed multi-language code examples in the preview renderer.
+- Product Hunt demo improvements, including dedicated demo-frame content and homepage video placement.
+- Browser favicon, app icons, and web manifest for stronger product identity.
+
+### Fixed
+
+- Prevented code-tab clicks from shifting the preview scroll position.
+- Expanded preview-only editor mode to use the full workspace instead of leaving an empty side margin.
+- Clarified browser save shortcut wording so web users understand it downloads a Markdown copy.
+
 ## [0.1.3] - 2026-07-18
 
 ### Added

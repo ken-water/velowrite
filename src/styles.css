@@ -1159,9 +1159,9 @@ p {
 }
 
 .editor-grid.mode-preview .preview-pane {
-  max-width: 860px;
+  max-width: none;
   width: 100%;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .editor-pane,
