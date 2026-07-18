@@ -257,9 +257,10 @@ export function buildHtmlDocument(title: string, body: string) {
       th, td { border: 1px solid #ded9d0; padding: 8px; text-align: left; }
       .code-tabset { overflow: hidden; margin: 18px 0; border: 1px solid #ded9d0; border-radius: 8px; background: #fff; }
       .code-tabset-tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #ded9d0; padding: 9px; background: #f8f6f1; }
-      .code-tabset-tabs input { position: absolute; opacity: 0; pointer-events: none; }
+      .code-tabset-tabs input { display: none; }
       .code-tabset-tabs label { display: inline-flex; min-height: 32px; align-items: center; border: 1px solid #ded9d0; border-radius: 7px; padding: 0 11px; background: #fff; color: #56635e; cursor: pointer; font-size: 13px; font-weight: 800; text-transform: capitalize; }
       .code-tabset-tabs input:checked + label { border-color: #15362d; background: #15362d; color: #fff; }
+      .code-tabset-panels { min-height: 280px; }
       .code-tabset-panel { display: none; }
       .code-tabset:has(.code-tabset-tabs input:nth-of-type(1):checked) .code-tabset-panel:nth-child(1),
       .code-tabset:has(.code-tabset-tabs input:nth-of-type(2):checked) .code-tabset-panel:nth-child(2),
@@ -267,7 +268,7 @@ export function buildHtmlDocument(title: string, body: string) {
       .code-tabset:has(.code-tabset-tabs input:nth-of-type(4):checked) .code-tabset-panel:nth-child(4),
       .code-tabset:has(.code-tabset-tabs input:nth-of-type(5):checked) .code-tabset-panel:nth-child(5),
       .code-tabset:has(.code-tabset-tabs input:nth-of-type(6):checked) .code-tabset-panel:nth-child(6) { display: block; }
-      .code-tabset-panel pre { margin: 0; border: 0; border-radius: 0; }
+      .code-tabset-panel pre { min-height: 280px; margin: 0; border: 0; border-radius: 0; }
     </style>
   </head>
   <body>

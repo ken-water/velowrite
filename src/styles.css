@@ -1633,9 +1633,7 @@ article,
 }
 
 .code-tabset-tabs input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 .code-tabset-tabs label {
@@ -1663,6 +1661,10 @@ article,
   display: none;
 }
 
+.code-tabset-panels {
+  min-height: 280px;
+}
+
 .code-tabset:has(.code-tabset-tabs input:nth-of-type(1):checked)
   .code-tabset-panel:nth-child(1),
 .code-tabset:has(.code-tabset-tabs input:nth-of-type(2):checked)
@@ -1679,6 +1681,7 @@ article,
 }
 
 .code-tabset-panel pre {
+  min-height: 280px;
   margin: 0;
   border: 0;
   border-radius: 0;
