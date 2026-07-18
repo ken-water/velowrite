@@ -8,6 +8,19 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ### Added
 
+## [0.1.2] - 2026-07-18
+
+### Added
+
+- Privacy, Terms of Service, Refund Policy, and License pages for the hosted preview.
+- Cookie and analytics consent banner with Vercel Analytics mounted only after consent.
+- Download page preview status sections for current working features, preview limits, and planned Pro capabilities.
+- Footer legal links across the landing, download, and legal pages.
+
+### Changed
+
+- Download page now separates website preview version from the current installer asset version.
+
 ## [0.1.1] - 2026-07-11
 
 ### Added

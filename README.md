@@ -15,8 +15,9 @@ The current first version includes:
 - A real Markdown editing surface at `/app`
 - A browser-based Markdown editor at `/web` for online reading, editing, preview, and download
 - Browser-to-desktop conversion prompts for native folders, direct save, local history, and offline workflows
-- Privacy policy page at `/privacy`
+- Legal pages at `/privacy`, `/terms`, `/refund`, and `/license`
 - Cookie/analytics consent banner with Vercel Analytics loaded only after consent
+- Download page preview status for current features, limitations, and planned Pro capabilities
 - CodeMirror 6 editor with Markdown syntax highlighting
 - Line numbers, active-line highlight, search, history, bracket matching, and tab indentation
 - Live Markdown preview
@@ -131,6 +132,13 @@ Contacts are visible in the Loops dashboard under Contacts. Use the `waitlist` u
 - Vercel Web Analytics is mounted only after the visitor allows analytics in the cookie banner.
 - Waitlist email addresses are sent to Loops.so for beta invitation and update management.
 - Desktop files and local history snapshots stay on the user's device by default.
+
+## Preview and Commercial Boundaries
+
+- Current public builds are free preview builds for evaluation and feedback.
+- No paid desktop license, subscription, account system, AI service, sync service, or publishing service is active yet.
+- Planned Pro capabilities are directional product signals, not available paid features.
+- Current installer assets may lag behind the hosted website version when a release only changes the website, legal pages, or conversion copy.
 
 ## Deployment
 

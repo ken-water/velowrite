@@ -7,6 +7,7 @@ import {
   Code2,
   Cookie,
   Download,
+  FileText,
   FolderOpen,
   GitBranch,
   Github,
@@ -20,8 +21,9 @@ import {
 import "./styles.css";
 
 const EditorApp = React.lazy(() => import("./EditorApp"));
-const releaseVersion = "0.1.1";
-const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${releaseVersion}`;
+const appVersion = "0.1.2";
+const downloadVersion = "0.1.1";
+const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
 const analyticsConsentKey = "velowrite:analytics-consent";
@@ -30,34 +32,188 @@ const downloads = [
   {
     platform: "Windows",
     format: "NSIS installer",
-    fileName: `VeloWrite_${releaseVersion}_x64-setup.exe`,
+    fileName: `VeloWrite_${downloadVersion}_x64-setup.exe`,
     note: "Unsigned MVP installer for Windows x64.",
   },
   {
     platform: "Linux AppImage",
     format: "Portable package",
-    fileName: `VeloWrite_${releaseVersion}_amd64.AppImage`,
+    fileName: `VeloWrite_${downloadVersion}_amd64.AppImage`,
     note: "Portable Linux build. Make it executable before running.",
   },
   {
     platform: "Ubuntu / Debian",
     format: "DEB package",
-    fileName: `VeloWrite_${releaseVersion}_amd64.deb`,
+    fileName: `VeloWrite_${downloadVersion}_amd64.deb`,
     note: "For Debian-based Linux distributions.",
   },
   {
     platform: "Fedora / RHEL",
     format: "RPM package",
-    fileName: `VeloWrite-${releaseVersion}-1.x86_64.rpm`,
+    fileName: `VeloWrite-${downloadVersion}-1.x86_64.rpm`,
     note: "For RPM-based Linux distributions.",
   },
   {
     platform: "macOS",
     format: "DMG",
-    fileName: `VeloWrite_${releaseVersion}_aarch64.dmg`,
+    fileName: `VeloWrite_${downloadVersion}_aarch64.dmg`,
     note: "Unsigned Apple Silicon test build for macOS.",
   },
 ];
+
+const legalPages = {
+  privacy: {
+    eyebrow: "Privacy and cookies",
+    title: "Privacy Policy",
+    intro: "How VeloWrite handles Markdown content, waitlist emails, analytics, and local storage in the current preview.",
+    sections: [
+      {
+        title: "What VeloWrite is",
+        body: [
+          "VeloWrite provides a browser-based Markdown preview editor and a downloadable desktop app. The web editor is designed for quick drafting and previewing; the desktop app is designed for local-first file work.",
+        ],
+      },
+      {
+        title: "Markdown document content",
+        body: [
+          "VeloWrite does not upload the Markdown text you type in the web editor to our servers for normal editing, preview, or download. Web drafts and editor preferences may be saved in your own browser using localStorage so your draft can survive a refresh on the same device.",
+          "The desktop app works with files on your computer through the Tauri runtime. Local history snapshots are stored on your device and are not sent to VeloWrite by default.",
+        ],
+      },
+      {
+        title: "Waitlist emails",
+        body: [
+          "If you join the waitlist, we collect the email address you submit and send it to Loops.so so we can manage beta invitations and product updates. Waitlist records may include simple metadata such as product name, source, and user group.",
+          "You can ask to be removed from the waitlist by contacting us through the project repository or by using the unsubscribe link in any email we send.",
+        ],
+      },
+      {
+        title: "Analytics and cookies",
+        body: [
+          "We use Vercel Web Analytics to understand basic site usage, such as page views and download-link clicks. On this site, the analytics script is only loaded after you choose Allow analytics in the cookie banner.",
+          "VeloWrite uses localStorage to remember your analytics choice. If you decline analytics, the analytics script is not loaded by this React app. You can clear your browser site data to reset the choice.",
+        ],
+      },
+      {
+        title: "Third-party services",
+        body: [
+          "Downloads are hosted by GitHub Releases. Site hosting is provided by Vercel. Waitlist processing is provided by Loops.so. These services may process technical request data such as IP address, browser, and timestamp according to their own policies.",
+        ],
+      },
+      {
+        title: "Current preview limitations",
+        body: [
+          "VeloWrite is still an early preview. Sync, AI commands, encrypted sharing, accounts, and paid plans are not active in the current public build. We will update this policy before launching features that materially change what data is processed.",
+        ],
+      },
+    ],
+  },
+  terms: {
+    eyebrow: "Preview terms",
+    title: "Terms of Service",
+    intro: "The current VeloWrite preview is provided for evaluation, feedback, and early product validation.",
+    sections: [
+      {
+        title: "Preview access",
+        body: [
+          "The web editor and desktop builds are early preview software. You may use them to read, write, preview, export, and test Markdown workflows, but they are not yet guaranteed for production-critical work.",
+        ],
+      },
+      {
+        title: "Your content",
+        body: [
+          "You keep ownership of the Markdown documents and files you create or edit with VeloWrite. You are responsible for keeping backups of important files, especially while testing preview builds.",
+        ],
+      },
+      {
+        title: "Acceptable use",
+        body: [
+          "Do not use VeloWrite or its hosted services to distribute illegal content, abuse infrastructure, interfere with other users, or attempt to reverse engineer hosted waitlist or analytics systems.",
+        ],
+      },
+      {
+        title: "No warranty",
+        body: [
+          "The preview is provided as-is, without warranties of availability, data recovery, compatibility, or fitness for a particular purpose. Features may change as the product moves toward beta and paid plans.",
+        ],
+      },
+      {
+        title: "Future paid features",
+        body: [
+          "AI commands, private sync, publishing automation, team workflows, commercial licensing, and advanced exports may become paid features. We will publish pricing and plan terms before charging users.",
+        ],
+      },
+    ],
+  },
+  refund: {
+    eyebrow: "Purchases and refunds",
+    title: "Refund Policy",
+    intro: "VeloWrite does not currently sell paid licenses. This policy sets expectations before paid plans are introduced.",
+    sections: [
+      {
+        title: "Current status",
+        body: [
+          "There are no paid VeloWrite plans in the current public preview, so there are no active purchases or refunds to process today.",
+        ],
+      },
+      {
+        title: "Future desktop licenses",
+        body: [
+          "When paid desktop licenses are introduced, we plan to offer a clear trial or preview window before purchase. Refund terms will be published before checkout becomes available.",
+        ],
+      },
+      {
+        title: "Future subscriptions",
+        body: [
+          "If sync, AI, publishing, or hosted services are sold as subscriptions, cancellation and renewal rules will be shown at purchase time. Refund eligibility may depend on billing period, usage, and local consumer rules.",
+        ],
+      },
+      {
+        title: "Accidental purchase handling",
+        body: [
+          "After payments launch, users should contact VeloWrite support with the order email, transaction identifier, and purchase date so we can review refund requests.",
+        ],
+      },
+    ],
+  },
+  license: {
+    eyebrow: "Desktop and web license",
+    title: "License",
+    intro: "A simple preview license for testing VeloWrite before the commercial model is finalized.",
+    sections: [
+      {
+        title: "Preview use",
+        body: [
+          "You may download and use current VeloWrite preview builds for personal evaluation, feedback, and non-critical writing workflows.",
+        ],
+      },
+      {
+        title: "Redistribution",
+        body: [
+          "Please link to the official GitHub Releases page or velowrite.app download page instead of redistributing installer files, so users see the latest safety notes and platform limitations.",
+        ],
+      },
+      {
+        title: "Commercial use",
+        body: [
+          "Commercial and team licensing terms are not finalized. If you want to evaluate VeloWrite inside a company, treat the current build as preview software and avoid relying on it as a required production tool.",
+        ],
+      },
+      {
+        title: "Third-party code",
+        body: [
+          "VeloWrite depends on open-source libraries including React, Tauri, CodeMirror, markdown-it, and lucide-react. Their licenses continue to apply to those components.",
+        ],
+      },
+      {
+        title: "Brand and assets",
+        body: [
+          "The VeloWrite name, site copy, product positioning, and visual identity are reserved for the VeloWrite project unless a separate written permission is granted.",
+        ],
+      },
+    ],
+  },
+} as const;
 
 function LandingPage() {
   return (
@@ -225,8 +381,8 @@ function DownloadPage() {
           </div>
           <h1>Download VeloWrite</h1>
           <p>
-            Get the current dogfooding build for native Markdown reading,
-            editing, preview, HTML export, recent files, and local history snapshots.
+            Get the current preview build for native Markdown reading, editing,
+            preview, HTML export, recent files, and local history snapshots.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href="/web?utm_source=download_hero&utm_medium=cta">
@@ -244,7 +400,7 @@ function DownloadPage() {
               </div>
               <p>{item.note}</p>
               {item.fileName ? (
-                <a href={`${releaseBaseUrl}/${item.fileName}?utm_source=download_page&utm_medium=installer&utm_campaign=v${releaseVersion}`}>
+                <a href={`${releaseBaseUrl}/${item.fileName}?utm_source=download_page&utm_medium=installer&utm_campaign=v${downloadVersion}`}>
                   <Download size={16} />
                   {item.fileName}
                 </a>
@@ -255,10 +411,41 @@ function DownloadPage() {
           ))}
         </section>
 
+        <section className="preview-status" aria-label="Preview version status">
+          <article>
+            <h2>Works Today</h2>
+            <ul>
+              <li>Online Markdown editing, preview, and local browser draft autosave</li>
+              <li>Desktop open, save, export HTML, recent files, and local history snapshots</li>
+              <li>Windows, Linux, and unsigned Apple Silicon macOS test packages</li>
+              <li>Privacy policy, cookie consent, and waitlist email handling</li>
+            </ul>
+          </article>
+          <article>
+            <h2>Preview Limits</h2>
+            <ul>
+              <li>No code signing yet on Windows or macOS</li>
+              <li>No account system, cloud sync, encrypted sharing, or team workspace</li>
+              <li>No active AI assistant or publishing automation in the public build</li>
+              <li>Important writing should still be backed up outside the app</li>
+            </ul>
+          </article>
+          <article>
+            <h2>Planned Pro Path</h2>
+            <ul>
+              <li>AI writing commands, rewrite tools, and Mermaid generation</li>
+              <li>Private sync and multi-device workflows</li>
+              <li>One-click publishing to GitHub Pages or Vercel</li>
+              <li>Advanced export, themes, and commercial licensing</li>
+            </ul>
+          </article>
+        </section>
+
         <section className="download-notes" aria-label="Release notes">
           <h2>Before Testing</h2>
           <ul>
-            <li>Version {releaseVersion} fixes native Open, Save, and Export dialog permissions.</li>
+            <li>Website version {appVersion} adds preview legal pages and analytics consent.</li>
+            <li>Current installer assets are version {downloadVersion}; new installers will be built only when requested.</li>
             <li>The Windows installer is not code-signed yet, so SmartScreen may warn during install.</li>
             <li>The macOS DMG is an unsigned Apple Silicon build; Gatekeeper may warn until signing and notarization are ready.</li>
             <li>Temporary read-only sharing is planned for a future web release.</li>
@@ -271,7 +458,9 @@ function DownloadPage() {
   );
 }
 
-function PrivacyPage() {
+function LegalPage({ page }: { page: keyof typeof legalPages }) {
+  const content = legalPages[page];
+
   return (
     <div className="legal-page">
       <header className="landing-nav">
@@ -291,86 +480,21 @@ function PrivacyPage() {
 
       <main className="legal-shell">
         <div className="eyebrow">
-          <ShieldCheck size={16} />
-          Privacy and cookies
+          {page === "privacy" ? <ShieldCheck size={16} /> : <FileText size={16} />}
+          {content.eyebrow}
         </div>
-        <h1>Privacy Policy</h1>
+        <h1>{content.title}</h1>
         <p className="legal-updated">Last updated: July 18, 2026</p>
+        <p className="legal-intro">{content.intro}</p>
 
-        <section>
-          <h2>What VeloWrite is</h2>
-          <p>
-            VeloWrite provides a browser-based Markdown preview editor and a
-            downloadable desktop app. The web editor is designed for quick
-            drafting and previewing; the desktop app is designed for local-first
-            file work.
-          </p>
-        </section>
-
-        <section>
-          <h2>Markdown document content</h2>
-          <p>
-            VeloWrite does not upload the Markdown text you type in the web
-            editor to our servers for normal editing, preview, or download. Web
-            drafts and editor preferences may be saved in your own browser using
-            localStorage so your draft can survive a refresh on the same device.
-          </p>
-          <p>
-            The desktop app works with files on your computer through the Tauri
-            runtime. Local history snapshots are stored on your device and are
-            not sent to VeloWrite by default.
-          </p>
-        </section>
-
-        <section>
-          <h2>Waitlist emails</h2>
-          <p>
-            If you join the waitlist, we collect the email address you submit
-            and send it to Loops.so so we can manage beta invitations and product
-            updates. Waitlist records may include simple metadata such as product
-            name, source, and user group.
-          </p>
-          <p>
-            You can ask to be removed from the waitlist by contacting us through
-            the project repository or by using the unsubscribe link in any email
-            we send.
-          </p>
-        </section>
-
-        <section>
-          <h2>Analytics and cookies</h2>
-          <p>
-            We use Vercel Web Analytics to understand basic site usage, such as
-            page views and download-link clicks. On this site, the analytics
-            script is only loaded after you choose “Allow analytics” in the
-            cookie banner.
-          </p>
-          <p>
-            VeloWrite uses localStorage to remember your analytics choice. If
-            you decline analytics, the analytics script is not loaded by this
-            React app. You can clear your browser site data to reset the choice.
-          </p>
-        </section>
-
-        <section>
-          <h2>Third-party services</h2>
-          <p>
-            Downloads are hosted by GitHub Releases. Site hosting is provided by
-            Vercel. Waitlist processing is provided by Loops.so. These services
-            may process technical request data such as IP address, browser, and
-            timestamp according to their own policies.
-          </p>
-        </section>
-
-        <section>
-          <h2>Current preview limitations</h2>
-          <p>
-            VeloWrite is still an early preview. Sync, AI commands, encrypted
-            sharing, accounts, and paid plans are not active in the current
-            public build. We will update this policy before launching features
-            that materially change what data is processed.
-          </p>
-        </section>
+        {content.sections.map((section) => (
+          <section key={section.title}>
+            <h2>{section.title}</h2>
+            {section.body.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </section>
+        ))}
       </main>
 
       <SiteFooter />
@@ -387,6 +511,9 @@ function SiteFooter() {
       </div>
       <nav aria-label="Legal and product links">
         <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/refund">Refund</a>
+        <a href="/license">License</a>
         <a href="/download">Download</a>
         <a href="https://github.com/ken-water/velowrite" target="_blank" rel="noreferrer">
           GitHub
@@ -500,7 +627,19 @@ function Router() {
   }
 
   if (window.location.pathname.startsWith("/privacy")) {
-    return <PrivacyPage />;
+    return <LegalPage page="privacy" />;
+  }
+
+  if (window.location.pathname.startsWith("/terms")) {
+    return <LegalPage page="terms" />;
+  }
+
+  if (window.location.pathname.startsWith("/refund")) {
+    return <LegalPage page="refund" />;
+  }
+
+  if (window.location.pathname.startsWith("/license")) {
+    return <LegalPage page="license" />;
   }
 
   return <LandingPage />;
