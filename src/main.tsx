@@ -27,6 +27,7 @@ import "./styles.css";
 import "katex/dist/katex.min.css";
 
 const EditorApp = React.lazy(() => import("./EditorApp"));
+const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const appVersion = "0.1.3";
 const downloadVersion = "0.1.1";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
@@ -617,6 +618,10 @@ function InteractiveDemoPage() {
             </React.Suspense>
           </div>
         </section>
+
+        <React.Suspense fallback={<div className="loading-preview">Loading code tabs</div>}>
+          <DemoCodeTabs />
+        </React.Suspense>
 
         <section className="demo-conversion" aria-label="Why desktop conversion matters">
           <article>

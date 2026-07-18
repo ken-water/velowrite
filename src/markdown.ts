@@ -1,5 +1,17 @@
 import { katex } from "@mdit/plugin-katex";
+import hljs from "highlight.js/lib/core";
+import bash from "highlight.js/lib/languages/bash";
+import java from "highlight.js/lib/languages/java";
+import javascript from "highlight.js/lib/languages/javascript";
+import python from "highlight.js/lib/languages/python";
+import typescript from "highlight.js/lib/languages/typescript";
 import MarkdownIt from "markdown-it";
+
+hljs.registerLanguage("bash", bash);
+hljs.registerLanguage("java", java);
+hljs.registerLanguage("javascript", javascript);
+hljs.registerLanguage("python", python);
+hljs.registerLanguage("typescript", typescript);
 
 export type Heading = {
   id: string;
@@ -67,6 +79,9 @@ export function renderMarkdown(markdown: string, headings = extractHeadings(mark
   let headingIndex = 0;
   const renderer = new MarkdownIt({
     html: false,
+    highlight(value, language) {
+      return renderCodeBlock(value, language);
+    },
     linkify: true,
     typographer: true,
   });
@@ -84,6 +99,41 @@ export function renderMarkdown(markdown: string, headings = extractHeadings(mark
   return renderer.render(markdown);
 }
 
+export function highlightCode(value: string, language: string) {
+  const normalizedLanguage = normalizeLanguage(language);
+  if (!normalizedLanguage || !hljs.getLanguage(normalizedLanguage)) {
+    return escapeHtml(value);
+  }
+
+  return hljs.highlight(value, {
+    language: normalizedLanguage,
+    ignoreIllegals: true,
+  }).value;
+}
+
+function renderCodeBlock(value: string, language: string) {
+  const normalizedLanguage = normalizeLanguage(language);
+  const highlighted = highlightCode(value, normalizedLanguage);
+  const className = normalizedLanguage
+    ? `hljs language-${escapeHtml(normalizedLanguage)}`
+    : "hljs";
+
+  return `<pre><code class="${className}">${highlighted}</code></pre>`;
+}
+
+function normalizeLanguage(language: string) {
+  const value = language.trim().toLowerCase();
+  const aliases: Record<string, string> = {
+    js: "javascript",
+    py: "python",
+    sh: "bash",
+    shell: "bash",
+    ts: "typescript",
+  };
+
+  return aliases[value] ?? value;
+}
+
 export function buildHtmlDocument(title: string, body: string) {
   return `<!doctype html>
 <html lang="en">
@@ -92,6 +142,7 @@ export function buildHtmlDocument(title: string, body: string) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(title)}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js/styles/github.min.css" />
     <style>
       :root { color: #17201c; background: #f7f5f0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
       body { margin: 0; }

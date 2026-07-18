@@ -51,6 +51,16 @@ $$`);
     expect(html).not.toContain("$E = mc^2$");
   });
 
+  it("renders fenced code blocks with language highlighting", () => {
+    const html = renderMarkdown(`\`\`\`js
+const answer = 42;
+\`\`\``);
+
+    expect(html).toContain("language-javascript");
+    expect(html).toContain("hljs-keyword");
+    expect(html).toContain("answer");
+  });
+
   it("calculates document metrics", () => {
     const metrics = getMetrics("one two\n\n`ignored code`\nthree");
 
