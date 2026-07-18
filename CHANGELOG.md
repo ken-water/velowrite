@@ -16,6 +16,7 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - KaTeX math, syntax-highlighted code fences, and tabbed multi-language code examples in the preview renderer.
 - Product Hunt demo improvements, including dedicated demo-frame content and homepage video placement.
 - Browser favicon, app icons, and web manifest for stronger product identity.
+- Release downloads now include Windows, Linux AppImage, Linux deb/rpm, and unsigned Apple Silicon DMG assets.
 
 ### Fixed
 

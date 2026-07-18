@@ -53,14 +53,20 @@ The current Windows installer is not code-signed. Windows SmartScreen may show a
 
 ## macOS
 
-macOS DMG builds are planned, but they require a macOS build host. A public-quality macOS release should also include Apple Developer signing and notarization.
+Download the Apple Silicon DMG from the GitHub release:
+
+```text
+VeloWrite_0.1.4_aarch64.dmg
+```
+
+The current macOS DMG is generated on a GitHub macOS runner and is not Apple Developer signed or notarized yet. A public-quality macOS release should add Apple Developer signing and notarization.
 
 ## Known MVP Notes
 
 - Native Open, Save, Export HTML, close confirmation, and external links require Tauri ACL permissions. Builds after commit `4eca575` include those permissions.
 - The Windows installer is cross-built from Linux and unsigned.
 - AppImage is available for Linux testing, but the `.deb` and `.rpm` packages remain the primary Linux install targets.
-- macOS DMG is not published yet.
+- macOS DMG is available for Apple Silicon testing, but it is unsigned and not notarized.
 - History snapshots are local-only and are created before overwriting an existing saved file.
 - Private sync, AI commands, and one-click publishing are planned but not enabled yet.
 
