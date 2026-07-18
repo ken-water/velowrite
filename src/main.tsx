@@ -514,6 +514,39 @@ function nextStep(step: Workflow) {
   return step === "write" ? "preview" : "publish";
 }
 \`\`\`
+
+## Language Gallery
+
+\`\`\`python
+from pathlib import Path
+
+def count_words(text: str) -> int:
+    return len(text.split())
+
+print(count_words(Path("launch.md").read_text()))
+\`\`\`
+
+\`\`\`bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+npm run build
+npm run package:linux
+\`\`\`
+
+\`\`\`java
+public record LaunchStep(String title, boolean done) {
+    public String label() {
+        return done ? "[x] " + title : "[ ] " + title;
+    }
+}
+\`\`\`
+
+\`\`\`javascript
+const steps = ["write", "preview", "publish"];
+const ready = steps.filter(Boolean).length > 0;
+console.log({ ready });
+\`\`\`
 `;
 
 function InteractiveDemoPage() {
@@ -603,7 +636,7 @@ function InteractiveDemoPage() {
                     {item.label}
                   </button>
                 ))}
-                <a href="/web?utm_source=demo_frame&utm_medium=cta">
+                <a href="/web?utm_source=demo_frame&utm_medium=cta&demo=complex">
                   Full editor <ChevronRight size={14} />
                 </a>
               </div>
@@ -1033,10 +1066,17 @@ function WaitlistForm({
 }
 
 function Router() {
+  const searchParams = new URLSearchParams(window.location.search);
+  const demoFrame = searchParams.get("utm_source") === "demo_frame";
+
   if (window.location.pathname.startsWith("/web")) {
     return (
       <React.Suspense fallback={<div className="loading-screen">Loading web editor</div>}>
-        <EditorApp surface="web" />
+        <EditorApp
+          surface="web"
+          initialMarkdown={demoFrame ? complexDemoMarkdown : undefined}
+          initialViewMode={demoFrame ? "split" : undefined}
+        />
       </React.Suspense>
     );
   }
