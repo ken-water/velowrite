@@ -29,7 +29,6 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
-const appVersion = "0.1.4";
 const downloadVersion = "0.1.4";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -41,7 +40,7 @@ const downloads = [
     platform: "Windows",
     format: "NSIS installer",
     fileName: `VeloWrite_${downloadVersion}_x64-setup.exe`,
-    note: "Unsigned MVP installer for Windows x64.",
+    note: "Unsigned preview installer for Windows x64.",
   },
   {
     platform: "Linux AppImage",
@@ -65,7 +64,7 @@ const downloads = [
     platform: "macOS",
     format: "DMG",
     fileName: `VeloWrite_${downloadVersion}_aarch64.dmg`,
-    note: "Unsigned Apple Silicon test build for macOS.",
+    note: "Unsigned preview build for Apple Silicon Macs.",
   },
 ];
 
@@ -91,9 +90,9 @@ const legalPages = {
       {
         title: "Waitlist emails and feedback",
         body: [
-          "If you join the waitlist, we collect the email address you submit and send it to Loops.so so we can manage beta invitations and product updates. Waitlist records may include simple metadata such as product name, source, and user group.",
+          "If you join the waitlist, we collect the email address you submit and send it to Loops.so so we can manage beta invitations and product updates. Waitlist records may include basic context such as which page or form you used.",
           "If you submit feedback, we collect the email address, selected context fields, and message you provide. Feedback records are also sent to Loops.so so we can group product feedback and reply when requested.",
-          "You can ask to be removed from the waitlist by contacting us through the project repository or by using the unsubscribe link in any email we send.",
+          "You can ask to be removed from the waitlist by using the unsubscribe link in any email we send or by sending a feedback request.",
         ],
       },
       {
@@ -355,7 +354,7 @@ function LandingPage() {
             </div>
             <h3>From browser draft to desktop workflow</h3>
             <p>
-              A short Product Hunt demo covering the web editor, live preview,
+              A short product demo covering the web editor, live preview,
               export flow, privacy boundary, desktop preview, and future Pro
               direction.
             </p>
@@ -482,7 +481,7 @@ function InteractiveDemoPage() {
           <div>
             <div className="eyebrow">
               <Rocket size={16} />
-              Interactive Product Hunt demo
+              Interactive demo
             </div>
             <h1>Try the VeloWrite workflow before you download.</h1>
             <p>
@@ -736,7 +735,7 @@ function DownloadPage() {
         <section className="download-hero">
           <div className="eyebrow">
             <Download size={16} />
-            Desktop MVP
+            Desktop preview
           </div>
           <h1>Download VeloWrite</h1>
           <p>
@@ -776,7 +775,7 @@ function DownloadPage() {
             <ul>
               <li>Online Markdown editing, preview, and local browser draft autosave</li>
               <li>Desktop open, save, export HTML, recent files, and local history snapshots</li>
-              <li>Windows, Linux, and unsigned Apple Silicon macOS test packages</li>
+              <li>Windows, Linux, and Apple Silicon macOS preview packages</li>
               <li>Privacy policy, cookie consent, and waitlist email handling</li>
             </ul>
           </article>
@@ -800,24 +799,23 @@ function DownloadPage() {
           </article>
         </section>
 
-        <section className="download-notes" aria-label="Release notes">
-          <h2>Before Testing</h2>
+        <section className="download-notes" aria-label="Preview notes">
+          <h2>Preview Notes</h2>
           <ul>
-            <li>Website version {appVersion} adds preview legal pages and analytics consent.</li>
-            <li>Current installer assets are version {downloadVersion}; new installers will be built only when requested.</li>
-            <li>The Windows installer is not code-signed yet, so SmartScreen may warn during install.</li>
-            <li>The macOS DMG is an unsigned Apple Silicon build; Gatekeeper may warn until signing and notarization are ready.</li>
-            <li>Temporary read-only sharing is planned for a future web release.</li>
-            <li>Installers are hosted on GitHub Releases; no VPS or custom download server is required.</li>
+            <li>VeloWrite is currently a free preview for early testers.</li>
+            <li>Windows and macOS builds are not code-signed yet, so your system may show a security warning during install.</li>
+            <li>The macOS DMG currently supports Apple Silicon. Intel Mac support will be evaluated based on feedback.</li>
+            <li>Keep backups of important Markdown files while testing preview builds.</li>
+            <li>AI commands, private sync, and one-click publishing are planned but not included in this release.</li>
           </ul>
         </section>
 
         <section className="download-notes" aria-label="Feedback prompt">
           <h2>Send Feedback</h2>
           <ul>
-            <li>Use the feedback form to report friction, missing features, or pricing signal.</li>
-            <li>We group submissions in Loops so we can follow up and separate web from desktop needs.</li>
-            <li>Tell us whether you want the web editor, the desktop app, or a future Pro plan.</li>
+            <li>Tell us what felt slow, confusing, missing, or surprisingly useful.</li>
+            <li>Share whether you care most about the web editor, desktop app, or future Pro workflows.</li>
+            <li>Leave your email if you want a reply or want to follow the beta.</li>
           </ul>
           <div className="feedback-actions">
             <a className="primary-link" href="/feedback?utm_source=download_page&utm_medium=cta">
@@ -1016,7 +1014,8 @@ function FeedbackPage() {
           <h1>Tell us what blocked you.</h1>
           <p>
             Use this form to report what felt slow, confusing, missing, or worth paying for.
-            We keep the submission in Loops so we can reply and group the feedback by surface.
+            Your feedback helps us decide what to improve next across the web editor,
+            desktop app, and future Pro workflows.
           </p>
         </section>
         <FeedbackForm />
@@ -1083,7 +1082,7 @@ function FeedbackForm() {
           />
         </label>
         <label>
-          Surface
+          Where did this happen?
           <select
             value={form.surface}
             onChange={(event) => update("surface", event.target.value as typeof form.surface)}
@@ -1173,7 +1172,7 @@ function FeedbackForm() {
       </div>
 
       <p className="feedback-status" aria-live="polite">
-        {state === "done" && "Thanks. The feedback is in Loops and grouped for follow-up."}
+        {state === "done" && "Thanks. Your feedback was sent."}
         {state === "error" && "Submission failed. Please try again."}
       </p>
     </form>

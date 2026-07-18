@@ -1,12 +1,12 @@
-export const complexDemoMarkdown = `# Research Memo: VeloWrite Launch
+export const complexDemoMarkdown = `# Project Notes: Lightweight Writing Stack
 
-This document is intentionally dense so the demo can show real Markdown editing, not just a tiny note.
+This sample document shows how VeloWrite handles real Markdown: notes, tables, equations, diagrams, and multi-language code blocks.
 
-## Executive Summary
+## Summary
 
-VeloWrite starts as a free online Markdown editor, then converts serious writers to a lightweight Tauri desktop app.
+VeloWrite is useful when you want a clean place to draft Markdown quickly, then move important files into a local-first desktop workflow.
 
-> The web editor is for instant trust. The desktop app is for local-first daily work.
+> Start in the browser. Keep serious work on your own machine.
 
 ## Mathematical Notes
 
@@ -24,42 +24,42 @@ $$
 P(\\theta \\mid D) = \\frac{P(D \\mid \\theta)P(\\theta)}{P(D)}
 $$
 
-## Launch Metrics
+## Writing Workflow
 
-| Funnel step | Current preview | Desktop conversion |
-| --- | ---: | ---: |
-| Open editor | Instant web page | Native app launch |
-| Save workflow | Download copy | Direct local save |
-| Privacy | Browser storage | Local-first files |
-| Recovery | Browser draft | History snapshots |
+| Task | Web editor | Desktop app |
+| --- | --- | --- |
+| Quick draft | Instant start | Native app launch |
+| Save | Download Markdown copy | Save directly to local file |
+| Privacy | Browser-local draft | Local files and history |
+| Recovery | Browser autosave | Local history snapshots |
 
-## Product Flow
+## Document Flow
 
 \`\`\`mermaid
 flowchart LR
-  Visitor[Product Hunt visitor] --> Web[Web editor]
-  Web --> Preview[Live preview]
-  Preview --> Export[Markdown / HTML export]
-  Preview --> Desktop[Desktop preview]
-  Desktop --> Pro[Future Pro: AI + Sync + Publish]
+  Draft[Draft notes] --> Preview[Live preview]
+  Preview --> Export[Export Markdown or HTML]
+  Preview --> Desktop[Open in desktop app]
+  Desktop --> Archive[Keep local history]
 \`\`\`
 
-## Engineering Checklist
+## Checklist
 
-- [x] Web editor loads without signup
-- [x] Split preview supports tables, code, and math
-- [x] Desktop preview supports native files
-- [ ] AI-native commands
+- [x] Write Markdown without an account
+- [x] Preview tables, code, and math
+- [x] Download Markdown or HTML
+- [x] Use desktop local files and history
+- [ ] AI writing commands
 - [ ] Private sync
 - [ ] One-click publishing
 
 ## Code Sample
 
 \`\`\`ts
-type Workflow = "write" | "preview" | "publish";
+type WritingMode = "write" | "split" | "preview";
 
-function nextStep(step: Workflow) {
-  return step === "write" ? "preview" : "publish";
+function nextMode(mode: WritingMode) {
+  return mode === "write" ? "split" : "preview";
 }
 \`\`\`
 
@@ -71,19 +71,19 @@ from pathlib import Path
 def count_words(text: str) -> int:
     return len(text.split())
 
-print(count_words(Path("launch.md").read_text()))
+print(count_words(Path("notes.md").read_text()))
 \`\`\`
 
 \`\`\`bash
 #!/usr/bin/env bash
 set -euo pipefail
 
-npm run build
-npm run package:linux
+mkdir -p exports
+cp notes.md exports/notes.backup.md
 \`\`\`
 
 \`\`\`java
-public record LaunchStep(String title, boolean done) {
+public record NoteTask(String title, boolean done) {
     public String label() {
         return done ? "[x] " + title : "[ ] " + title;
     }
@@ -91,8 +91,8 @@ public record LaunchStep(String title, boolean done) {
 \`\`\`
 
 \`\`\`javascript
-const steps = ["write", "preview", "publish"];
-const ready = steps.filter(Boolean).length > 0;
+const tasks = ["draft", "preview", "export"];
+const ready = tasks.every(Boolean);
 console.log({ ready });
 \`\`\`
 `;

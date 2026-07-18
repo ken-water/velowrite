@@ -11,6 +11,10 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Feedback page, feedback API endpoint, Loops contact grouping, and product entry points from download, legal, footer, and desktop About surfaces.
 - Privacy policy wording for feedback submissions.
 
+### Changed
+
+- Cleaned public website copy to remove internal release, hosting, and launch-planning language from user-facing pages.
+
 ## [0.1.4] - 2026-07-18
 
 ### Added
