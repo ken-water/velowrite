@@ -41,7 +41,11 @@ https://velowrite.app/?utm_source=producthunt&utm_medium=launch
 
 ### Direct Demo URL
 
-https://velowrite.app/web?utm_source=producthunt&utm_medium=demo
+https://velowrite.app/demo?utm_source=producthunt&utm_medium=interactive_demo
+
+### Web Editor URL
+
+https://velowrite.app/web?utm_source=producthunt&utm_medium=web_editor
 
 ### Download URL
 
@@ -50,6 +54,14 @@ https://velowrite.app/download?utm_source=producthunt&utm_medium=download
 ### Pro Roadmap URL
 
 https://velowrite.app/pro?utm_source=producthunt&utm_medium=roadmap
+
+### Interactive Demo Title
+
+Interactive Demo: VeloWrite in 90 seconds
+
+### Interactive Demo Description
+
+A guided walkthrough of the VeloWrite workflow: start in the web Markdown editor, write on the left, preview on the right, export Markdown or HTML, then move serious local-first writing to the desktop preview.
 
 ### Suggested Topics
 
@@ -111,17 +123,22 @@ Product Hunt currently recommends gallery images at 1270x760, and the post needs
    - Show split editor and preview.
    - Caption: "Edit, preview, import, and download Markdown without installing anything."
 
-4. Desktop download screenshot
+4. Interactive demo screenshot
+   - URL/state: https://velowrite.app/demo
+   - Show the guided steps and embedded editor.
+   - Caption: "Walk through the VeloWrite workflow before downloading."
+
+5. Desktop download screenshot
    - URL/state: https://velowrite.app/download
    - Show platform installers and Preview Limits.
    - Caption: "Move to desktop for native files, offline work, and local history."
 
-5. Pro roadmap screenshot
+6. Pro roadmap screenshot
    - URL/state: https://velowrite.app/pro
    - Show free preview vs future Pro.
    - Caption: "AI, private sync, and publishing are planned after the local-first foundation."
 
-6. Privacy screenshot
+7. Privacy screenshot
    - URL/state: https://velowrite.app/privacy
    - Show privacy/cookie messaging.
    - Caption: "Markdown content is not uploaded for normal web editing."
@@ -173,6 +190,7 @@ Product Hunt accepts an optional YouTube or Loom video URL. Upload the generated
 ## Website Checklist Before Launch
 
 - Landing page loads fast on desktop and mobile.
+- `/demo` presents the guided interactive Product Hunt walkthrough.
 - `/web` opens directly and lets users edit without signup.
 - `/download` explains unsigned installer warnings clearly.
 - `/pro` says Pro is roadmap/interest, not paid checkout.

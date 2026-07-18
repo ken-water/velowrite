@@ -231,6 +231,9 @@ function LandingPage() {
           <a href="https://github.com/ken-water/velowrite" aria-label="GitHub">
             <Github size={18} />
           </a>
+          <a href="/demo?utm_source=nav&utm_medium=cta">
+            Demo <Rocket size={16} />
+          </a>
           <a href={downloadHref}>
             Download <Download size={16} />
           </a>
@@ -261,6 +264,9 @@ function LandingPage() {
             </a>
             <a className="secondary-link" href={downloadHref}>
               Download Desktop <Download size={17} />
+            </a>
+            <a className="secondary-link" href="/demo?utm_source=hero&utm_medium=cta">
+              Interactive Demo <Rocket size={17} />
             </a>
           </div>
           <div className="proof-row" aria-label="Product promises">
@@ -357,6 +363,154 @@ function LandingPage() {
         </div>
         <WaitlistForm />
       </section>
+      <SiteFooter />
+    </div>
+  );
+}
+
+const demoSteps = [
+  {
+    title: "Open the editor",
+    label: "Instant start",
+    copy: "Start with the web editor directly in the browser. No account, no install, no project setup.",
+    focus: "Browser-first Markdown workspace",
+  },
+  {
+    title: "Write Markdown",
+    label: "Live editing",
+    copy: "Type Markdown on the left and keep the document readable while you work.",
+    focus: "Clean writing surface",
+  },
+  {
+    title: "Preview side by side",
+    label: "Readable output",
+    copy: "Check headings, tables, quotes, links, and code blocks without leaving the page.",
+    focus: "Rendered preview",
+  },
+  {
+    title: "Export your work",
+    label: "Take it with you",
+    copy: "Download Markdown or export clean HTML from the online editor.",
+    focus: "Markdown and HTML export",
+  },
+  {
+    title: "Move to desktop",
+    label: "Local-first upgrade",
+    copy: "When you need real file access, offline work, recent files, and history snapshots, move to the Tauri desktop app.",
+    focus: "Desktop preview path",
+  },
+] as const;
+
+function InteractiveDemoPage() {
+  const [activeStep, setActiveStep] = React.useState(0);
+  const step = demoSteps[activeStep];
+
+  return (
+    <div className="demo-page">
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloWrite
+        </a>
+        <div className="nav-actions">
+          <a href="/web?utm_source=demo_nav&utm_medium=cta">
+            Web editor <ChevronRight size={16} />
+          </a>
+          <a href={downloadHref}>
+            Download <Download size={16} />
+          </a>
+          <a href="/pro?utm_source=demo_nav&utm_medium=cta">
+            Pro <Sparkles size={16} />
+          </a>
+        </div>
+      </header>
+
+      <main className="demo-shell">
+        <section className="demo-hero">
+          <div>
+            <div className="eyebrow">
+              <Rocket size={16} />
+              Interactive Product Hunt demo
+            </div>
+            <h1>Try the VeloWrite workflow before you download.</h1>
+            <p>
+              Walk through the core writing flow: open the web editor, write
+              Markdown, preview the rendered document, export your work, then
+              move serious local files to desktop.
+            </p>
+          </div>
+          <div className="demo-cta-panel">
+            <span>Current step</span>
+            <strong>{step.label}</strong>
+            <p>{step.focus}</p>
+            <div className="hero-actions">
+              <a className="primary-link" href="/web?utm_source=demo_hero&utm_medium=cta">
+                Open Full Editor <ChevronRight size={17} />
+              </a>
+              <a className="secondary-link" href="/download?utm_source=demo_hero&utm_medium=cta">
+                Download Desktop <Download size={17} />
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="demo-workspace" aria-label="Interactive VeloWrite demo">
+          <aside className="demo-steps" aria-label="Demo steps">
+            {demoSteps.map((item, index) => (
+              <button
+                className={index === activeStep ? "active" : ""}
+                key={item.title}
+                type="button"
+                onClick={() => setActiveStep(index)}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{item.title}</strong>
+                <small>{item.copy}</small>
+              </button>
+            ))}
+          </aside>
+
+          <div className="demo-product">
+            <div className="frame-toolbar">
+              <span>{step.focus}</span>
+              <a href="/web?utm_source=demo_frame&utm_medium=cta">
+                Full screen <ChevronRight size={14} />
+              </a>
+            </div>
+            <React.Suspense fallback={<div className="loading-preview">Loading editor</div>}>
+              <EditorApp surface="web" />
+            </React.Suspense>
+          </div>
+        </section>
+
+        <section className="demo-conversion" aria-label="Why desktop conversion matters">
+          <article>
+            <Code2 size={21} />
+            <h2>Free online editor</h2>
+            <p>
+              Perfect for first contact: instant Markdown editing, live preview,
+              import, and export from the browser.
+            </p>
+          </article>
+          <article>
+            <FolderOpen size={21} />
+            <h2>Desktop preview</h2>
+            <p>
+              The natural next step for real files, offline writing, recent
+              documents, and local history snapshots.
+            </p>
+          </article>
+          <article>
+            <Sparkles size={21} />
+            <h2>Future Pro</h2>
+            <p>
+              AI-native writing, private sync, and one-click publishing are the
+              paid workflow direction we want users to help shape.
+            </p>
+          </article>
+        </section>
+      </main>
+
       <SiteFooter />
     </div>
   );
@@ -757,6 +911,10 @@ function Router() {
 
   if (window.location.pathname.startsWith("/download")) {
     return <DownloadPage />;
+  }
+
+  if (window.location.pathname.startsWith("/demo")) {
+    return <InteractiveDemoPage />;
   }
 
   if (window.location.pathname.startsWith("/pro")) {
