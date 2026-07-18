@@ -258,6 +258,55 @@ p {
   min-height: min(650px, calc(100vh - 170px));
 }
 
+.video-showcase {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 14px 0 32px;
+}
+
+.video-shell {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.42fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.video-copy {
+  border: 1px solid rgba(21, 54, 45, 0.12);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.video-copy h3 {
+  margin: 12px 0 8px;
+  color: #17201c;
+  font-size: 22px;
+}
+
+.video-copy p {
+  margin: 0 0 18px;
+  color: #4a5a55;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.video-frame {
+  overflow: hidden;
+  border: 1px solid rgba(21, 54, 45, 0.15);
+  border-radius: 8px;
+  background: #0f251f;
+  box-shadow: 0 24px 80px rgba(30, 42, 37, 0.2);
+}
+
+.video-frame video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0f251f;
+}
+
 .demo-page {
   min-height: 100vh;
   background:
@@ -2070,6 +2119,10 @@ article,
     min-height: 560px;
   }
 
+  .video-shell {
+    grid-template-columns: 1fr;
+  }
+
   .compare-grid,
   .landing-waitlist,
   .pro-hero,
@@ -2107,6 +2160,7 @@ article,
   .demo-shell,
   .feature-band,
   .mode-compare,
+  .video-showcase,
   .landing-waitlist,
   .pro-shell {
     width: min(100% - 28px, 1180px);

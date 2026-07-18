@@ -16,6 +16,7 @@ import {
   LockKeyhole,
   Mail,
   PanelLeft,
+  PlayCircle,
   Rocket,
   ShieldCheck,
   Sparkles,
@@ -335,6 +336,39 @@ function LandingPage() {
               Download desktop <Download size={15} />
             </a>
           </article>
+        </div>
+      </section>
+
+      <section className="video-showcase" aria-label="VeloWrite product video">
+        <div className="section-heading">
+          <span>Watch the workflow</span>
+          <h2>See VeloWrite in about a minute.</h2>
+        </div>
+        <div className="video-shell">
+          <div className="video-copy">
+            <div className="compare-icon">
+              <PlayCircle size={20} />
+            </div>
+            <h3>From browser draft to desktop workflow</h3>
+            <p>
+              A short Product Hunt demo covering the web editor, live preview,
+              export flow, privacy boundary, desktop preview, and future Pro
+              direction.
+            </p>
+            <div className="hero-actions">
+              <a className="primary-link" href="/web?utm_source=homepage_video&utm_medium=cta">
+                Try Web Editor <ChevronRight size={17} />
+              </a>
+              <a className="secondary-link" href="/demo?utm_source=homepage_video&utm_medium=cta">
+                Open Interactive Demo <Rocket size={17} />
+              </a>
+            </div>
+          </div>
+          <div className="video-frame">
+            <video controls preload="metadata" src="/product-hunt-demo.mp4">
+              <a href="/product-hunt-demo.mp4">Watch the VeloWrite demo video</a>
+            </video>
+          </div>
         </div>
       </section>
 

@@ -160,6 +160,14 @@ launch/product-hunt-video/captions.srt
 launch/product-hunt-video/slides/
 ```
 
+The current generated MP4 is also embedded on the homepage from:
+
+```text
+public/product-hunt-demo.mp4
+```
+
+Keep homepage playback manual with native controls. Do not autoplay the video, because the primary landing-page conversion path should remain the embedded web editor.
+
 The default local voiceover uses ffmpeg's built-in `flite` voice so the video can be generated without paid services. The result is acceptable for an internal draft, but a more natural Product Hunt launch video should use a higher-quality TTS or a real maker voice.
 
 ### CatRouter TTS
@@ -190,6 +198,7 @@ Product Hunt accepts an optional YouTube or Loom video URL. Upload the generated
 ## Website Checklist Before Launch
 
 - Landing page loads fast on desktop and mobile.
+- Homepage shows the short demo video below the web/desktop comparison without autoplay.
 - `/demo` presents the guided interactive Product Hunt walkthrough.
 - `/web` opens directly and lets users edit without signup.
 - `/download` explains unsigned installer warnings clearly.
