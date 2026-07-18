@@ -149,6 +149,7 @@ function createEditorExtensions(fontSize: number): Extension[] {
   return [
   lineNumbers(),
   foldGutter(),
+  EditorView.lineWrapping,
   highlightSpecialChars(),
   history(),
   drawSelection(),

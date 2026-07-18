@@ -1,53 +1,11 @@
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const loopsContactEndpoint = "https://app.loops.so/api/v1/contacts/update";
-
-function json(response, status, body) {
-  response.status(status).json(body);
-}
-
-function getOrigin(request) {
-  return request.headers.origin || "https://velowrite.app";
-}
-
-function setCors(request, response) {
-  response.setHeader("Access-Control-Allow-Origin", getOrigin(request));
-  response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  response.setHeader("Access-Control-Allow-Headers", "Content-Type");
-}
-
-function getPayload(request) {
-  const body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : request.body;
-  const email = String(body?.email || "").trim().toLowerCase();
-  const product = String(body?.product || "velowrite").trim();
-  const source = String(body?.source || "waitlist").trim();
-  const signupPath = source === "pro" ? "/pro" : "/";
-  const userGroup = source === "pro" ? "pro-interest" : "waitlist";
-  return { email, product, signupPath, userGroup };
-}
-
-async function upsertLoopsContact({ email, product, signupPath, userGroup }) {
-  const response = await fetch(loopsContactEndpoint, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.LOOPS_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email,
-      firstName: "",
-      lastName: "",
-      source: "velowrite.app",
-      userGroup,
-      product,
-      signupPath,
-    }),
-  });
-
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(`Loops returned ${response.status}: ${message}`);
-  }
-}
+import {
+  json,
+  readContactPayload,
+  requireLoopsApiKey,
+  setCors,
+  upsertLoopsContact,
+  validateEmail,
+} from "./loops.js";
 
 export default async function handler(request, response) {
   setCors(request, response);
@@ -62,23 +20,35 @@ export default async function handler(request, response) {
     return;
   }
 
-  if (!process.env.LOOPS_API_KEY) {
-    json(response, 500, { error: "Waitlist is not configured" });
+  if (!requireLoopsApiKey(response, "Waitlist is not configured")) {
     return;
   }
 
   let payload;
   try {
-    payload = getPayload(request);
+    payload = readContactPayload(request, {
+      source: "waitlist",
+      userGroup: "waitlist",
+      signupPath: "/",
+    });
+    if (payload.source === "pro") {
+      payload.userGroup = "pro-interest";
+      payload.signupPath = "/pro";
+    } else {
+      payload.userGroup = "waitlist";
+      payload.signupPath = "/";
+    }
   } catch {
     json(response, 400, { error: "Invalid JSON body" });
     return;
   }
 
-  if (!emailPattern.test(payload.email)) {
+  if (!validateEmail(payload.email)) {
     json(response, 400, { error: "Invalid email" });
     return;
   }
+
+  payload.source = "velowrite.app";
 
   try {
     await upsertLoopsContact(payload);
