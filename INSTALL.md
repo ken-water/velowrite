@@ -9,15 +9,15 @@ After running the local package commands, installers are generated under `src-ta
 Linux:
 
 ```text
-src-tauri/target/release/bundle/deb/VeloWrite_0.1.1_amd64.deb
-src-tauri/target/release/bundle/rpm/VeloWrite-0.1.1-1.x86_64.rpm
-src-tauri/target/release/bundle/appimage/VeloWrite_0.1.1_amd64.AppImage
+src-tauri/target/release/bundle/deb/VeloWrite_0.1.4_amd64.deb
+src-tauri/target/release/bundle/rpm/VeloWrite-0.1.4-1.x86_64.rpm
+src-tauri/target/release/bundle/appimage/VeloWrite_0.1.4_amd64.AppImage
 ```
 
 Windows, cross-built from Linux:
 
 ```text
-src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/VeloWrite_0.1.1_x64-setup.exe
+src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/VeloWrite_0.1.4_x64-setup.exe
 ```
 
 ## Linux
@@ -25,20 +25,20 @@ src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/VeloWrite_0.1.1_x64-s
 Debian or Ubuntu:
 
 ```bash
-sudo apt install ./src-tauri/target/release/bundle/deb/VeloWrite_0.1.1_amd64.deb
+sudo apt install ./src-tauri/target/release/bundle/deb/VeloWrite_0.1.4_amd64.deb
 ```
 
 Fedora, RHEL, or compatible distributions:
 
 ```bash
-sudo dnf install ./src-tauri/target/release/bundle/rpm/VeloWrite-0.1.1-1.x86_64.rpm
+sudo dnf install ./src-tauri/target/release/bundle/rpm/VeloWrite-0.1.4-1.x86_64.rpm
 ```
 
 Portable AppImage:
 
 ```bash
-chmod +x ./src-tauri/target/release/bundle/appimage/VeloWrite_0.1.1_amd64.AppImage
-./src-tauri/target/release/bundle/appimage/VeloWrite_0.1.1_amd64.AppImage
+chmod +x ./src-tauri/target/release/bundle/appimage/VeloWrite_0.1.4_amd64.AppImage
+./src-tauri/target/release/bundle/appimage/VeloWrite_0.1.4_amd64.AppImage
 ```
 
 ## Windows
@@ -46,7 +46,7 @@ chmod +x ./src-tauri/target/release/bundle/appimage/VeloWrite_0.1.1_amd64.AppIma
 Run:
 
 ```text
-VeloWrite_0.1.1_x64-setup.exe
+VeloWrite_0.1.4_x64-setup.exe
 ```
 
 The current Windows installer is not code-signed. Windows SmartScreen may show a warning until VeloWrite has a signing certificate and reputation. For trusted internal testing, choose the advanced option and continue.
