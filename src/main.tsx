@@ -34,6 +34,158 @@ const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
 const analyticsConsentKey = "velowrite:analytics-consent";
+const siteUrl = "https://velowrite.app";
+const defaultSeoTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
+const defaultSeoDescription =
+  "VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.";
+
+type SeoConfig = {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  robots?: string;
+};
+
+function routeSeo(pathname: string): SeoConfig {
+  if (pathname.startsWith("/web")) {
+    return {
+      title: "VeloWrite Web Editor - Private Online Markdown Editing",
+      description:
+        "Open VeloWrite in the browser to write Markdown, preview rendered output, export HTML, and download .md files without creating an account.",
+      canonicalPath: "/web",
+    };
+  }
+
+  if (pathname.startsWith("/download")) {
+    return {
+      title: "Download VeloWrite - Windows, macOS, and Linux Markdown App",
+      description:
+        "Download the VeloWrite desktop preview for Windows, Apple Silicon macOS, AppImage, Debian, and RPM Linux workflows.",
+      canonicalPath: "/download",
+    };
+  }
+
+  if (pathname.startsWith("/demo")) {
+    return {
+      title: "VeloWrite Demo - Markdown Editing, Preview, Math, and Code Tabs",
+      description:
+        "Try the VeloWrite interactive demo with complex Markdown, live preview, math rendering, tables, and multi-language code tabs.",
+      canonicalPath: "/demo",
+    };
+  }
+
+  if (pathname.startsWith("/pro")) {
+    return {
+      title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
+      description:
+        "Explore the planned VeloWrite Pro path for AI writing commands, private sync, publishing automation, advanced exports, and team workflows.",
+      canonicalPath: "/pro",
+    };
+  }
+
+  if (pathname.startsWith("/privacy")) {
+    return {
+      title: "VeloWrite Privacy Policy",
+      description:
+        "How VeloWrite handles Markdown content, browser drafts, local storage, analytics consent, waitlist emails, and feedback submissions.",
+      canonicalPath: "/privacy",
+    };
+  }
+
+  if (pathname.startsWith("/terms")) {
+    return {
+      title: "VeloWrite Terms of Service",
+      description:
+        "Preview terms for using VeloWrite web editor and desktop builds during early product validation.",
+      canonicalPath: "/terms",
+    };
+  }
+
+  if (pathname.startsWith("/refund")) {
+    return {
+      title: "VeloWrite Refund Policy",
+      description:
+        "Current refund expectations for the free VeloWrite preview and future paid desktop or subscription plans.",
+      canonicalPath: "/refund",
+    };
+  }
+
+  if (pathname.startsWith("/license")) {
+    return {
+      title: "VeloWrite License",
+      description:
+        "Preview license terms for evaluating VeloWrite before commercial licensing and paid plans are finalized.",
+      canonicalPath: "/license",
+    };
+  }
+
+  if (pathname.startsWith("/feedback")) {
+    return {
+      title: "VeloWrite Feedback",
+      description:
+        "Send feedback about VeloWrite web editor, desktop preview builds, Markdown workflows, packaging, and future Pro features.",
+      canonicalPath: "/feedback",
+      robots: "noindex, follow",
+    };
+  }
+
+  if (pathname.startsWith("/app")) {
+    return {
+      title: "VeloWrite Desktop App Shell",
+      description: defaultSeoDescription,
+      canonicalPath: "/app",
+      robots: "noindex, nofollow",
+    };
+  }
+
+  return {
+    title: defaultSeoTitle,
+    description: defaultSeoDescription,
+    canonicalPath: "/",
+  };
+}
+
+function setMeta(name: string, content: string, attribute: "name" | "property" = "name") {
+  let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${name}"]`);
+
+  if (!element) {
+    element = document.createElement("meta");
+    element.setAttribute(attribute, name);
+    document.head.appendChild(element);
+  }
+
+  element.content = content;
+}
+
+function setCanonical(href: string) {
+  let element = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+
+  if (!element) {
+    element = document.createElement("link");
+    element.rel = "canonical";
+    document.head.appendChild(element);
+  }
+
+  element.href = href;
+}
+
+function SeoManager({ config }: { config: SeoConfig }) {
+  React.useEffect(() => {
+    const canonicalUrl = `${siteUrl}${config.canonicalPath}`;
+
+    document.title = config.title;
+    setCanonical(canonicalUrl);
+    setMeta("description", config.description);
+    setMeta("robots", config.robots || "index, follow");
+    setMeta("og:title", config.title, "property");
+    setMeta("og:description", config.description, "property");
+    setMeta("og:url", canonicalUrl, "property");
+    setMeta("twitter:title", config.title);
+    setMeta("twitter:description", config.description);
+  }, [config]);
+
+  return null;
+}
 
 const downloads = [
   {
@@ -1195,9 +1347,11 @@ function FeedbackForm() {
 function Router() {
   const searchParams = new URLSearchParams(window.location.search);
   const demoFrame = searchParams.get("utm_source") === "demo_frame";
+  const seo = routeSeo(window.location.pathname);
+  let page: React.ReactNode;
 
   if (window.location.pathname.startsWith("/web")) {
-    return (
+    page = (
       <React.Suspense fallback={<div className="loading-screen">Loading web editor</div>}>
         <EditorApp
           surface="web"
@@ -1206,49 +1360,38 @@ function Router() {
         />
       </React.Suspense>
     );
-  }
-
-  if (window.location.pathname.startsWith("/app")) {
-    return (
+  } else if (window.location.pathname.startsWith("/app")) {
+    page = (
       <React.Suspense fallback={<div className="loading-screen">Loading editor</div>}>
         <EditorApp surface="desktop" />
       </React.Suspense>
     );
+  } else if (window.location.pathname.startsWith("/download")) {
+    page = <DownloadPage />;
+  } else if (window.location.pathname.startsWith("/demo")) {
+    page = <InteractiveDemoPage />;
+  } else if (window.location.pathname.startsWith("/pro")) {
+    page = <ProPage />;
+  } else if (window.location.pathname.startsWith("/privacy")) {
+    page = <LegalPage page="privacy" />;
+  } else if (window.location.pathname.startsWith("/terms")) {
+    page = <LegalPage page="terms" />;
+  } else if (window.location.pathname.startsWith("/refund")) {
+    page = <LegalPage page="refund" />;
+  } else if (window.location.pathname.startsWith("/license")) {
+    page = <LegalPage page="license" />;
+  } else if (window.location.pathname.startsWith("/feedback")) {
+    page = <FeedbackPage />;
+  } else {
+    page = <LandingPage />;
   }
 
-  if (window.location.pathname.startsWith("/download")) {
-    return <DownloadPage />;
-  }
-
-  if (window.location.pathname.startsWith("/demo")) {
-    return <InteractiveDemoPage />;
-  }
-
-  if (window.location.pathname.startsWith("/pro")) {
-    return <ProPage />;
-  }
-
-  if (window.location.pathname.startsWith("/privacy")) {
-    return <LegalPage page="privacy" />;
-  }
-
-  if (window.location.pathname.startsWith("/terms")) {
-    return <LegalPage page="terms" />;
-  }
-
-  if (window.location.pathname.startsWith("/refund")) {
-    return <LegalPage page="refund" />;
-  }
-
-  if (window.location.pathname.startsWith("/license")) {
-    return <LegalPage page="license" />;
-  }
-
-  if (window.location.pathname.startsWith("/feedback")) {
-    return <FeedbackPage />;
-  }
-
-  return <LandingPage />;
+  return (
+    <>
+      <SeoManager config={seo} />
+      {page}
+    </>
+  );
 }
 
 function AppRoot() {

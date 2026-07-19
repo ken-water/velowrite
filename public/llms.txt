@@ -1,0 +1,42 @@
+# VeloWrite
+
+VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
+
+## Primary URLs
+
+- Website: https://velowrite.app/
+- Online editor: https://velowrite.app/web
+- Desktop downloads: https://velowrite.app/download
+- Interactive demo: https://velowrite.app/demo
+- Pro roadmap: https://velowrite.app/pro
+- GitHub repository: https://github.com/ken-water/velowrite
+- Markdown guide PDF: https://velowrite.app/markdown-guide.pdf
+
+## Product Summary
+
+VeloWrite helps writers, developers, students, and teams draft Markdown quickly in the browser, preview rendered output, export Markdown or HTML, and move serious local files to a lightweight desktop app built with Tauri.
+
+The current public version is a free preview. It includes online editing, live preview, Markdown file download, HTML export, desktop open/save, recent files, local history snapshots, math rendering, code highlighting, and tabbed multi-language code previews.
+
+## Positioning
+
+- Category: Markdown editor, online Markdown editor, local-first writing app, lightweight desktop writing tool.
+- Audience: developers, technical writers, product teams, students, documentation teams, and Markdown users who want a fast Typora-like workflow.
+- Differentiation: fast web trial, local-first desktop workflow, privacy-focused editing, lightweight Tauri packaging, and planned AI, sync, and publishing workflows.
+
+## Current Preview Limits
+
+- Windows and macOS installers are unsigned.
+- macOS DMG currently targets Apple Silicon.
+- AI assistant, private sync, account system, encrypted sharing, and one-click publishing are planned but not active in the current public build.
+- Important files should be backed up while testing preview builds.
+
+## Privacy Notes
+
+Normal browser editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts, preferences, and analytics consent are stored locally in the user's browser. Desktop files and local history snapshots stay on the user's device by default.
+
+Waitlist and feedback forms send submitted contact details and message fields to Loops.so for beta communication and product feedback management.
+
+## Suggested Description
+
+VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.

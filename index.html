@@ -5,14 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, preview, export, local history, and native file workflows."
+      content="VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows."
     />
+    <meta name="robots" content="index, follow" />
+    <meta name="application-name" content="VeloWrite" />
+    <meta name="apple-mobile-web-app-title" content="VeloWrite" />
+    <meta name="keywords" content="Markdown editor, online Markdown editor, Tauri Markdown editor, Typora alternative, lightweight writing app, local-first Markdown" />
     <meta name="theme-color" content="#15362d" />
-    <title>VeloWrite</title>
+    <link rel="canonical" href="https://velowrite.app/" />
+    <link rel="alternate" hreflang="en" href="https://velowrite.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://velowrite.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VeloWrite" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="VeloWrite - Online Markdown Editor and Lightweight Desktop App" />
+    <meta property="og:description" content="Write Markdown in the browser, preview instantly, export clean documents, then move serious local files to the lightweight Tauri desktop app." />
+    <meta property="og:url" content="https://velowrite.app/" />
+    <meta property="og:image" content="https://velowrite.app/icons/icon-512.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="VeloWrite - Online Markdown Editor and Lightweight Desktop App" />
+    <meta name="twitter:description" content="A private Markdown editor for quick browser drafts and local-first desktop writing." />
+    <meta name="twitter:image" content="https://velowrite.app/icons/icon-512.png" />
+    <title>VeloWrite - Online Markdown Editor and Lightweight Desktop App</title>
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://velowrite.app/#organization",
+            "name": "VeloWrite",
+            "url": "https://velowrite.app/",
+            "logo": "https://velowrite.app/icons/icon-512.png",
+            "sameAs": ["https://github.com/ken-water/velowrite"]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://velowrite.app/#website",
+            "name": "VeloWrite",
+            "url": "https://velowrite.app/",
+            "publisher": { "@id": "https://velowrite.app/#organization" },
+            "inLanguage": "en"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://velowrite.app/#software",
+            "name": "VeloWrite",
+            "applicationCategory": "ProductivityApplication",
+            "operatingSystem": "Web, Windows, macOS, Linux",
+            "url": "https://velowrite.app/",
+            "downloadUrl": "https://velowrite.app/download",
+            "softwareVersion": "0.1.6",
+            "description": "VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock"
+            },
+            "publisher": { "@id": "https://velowrite.app/#organization" }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
