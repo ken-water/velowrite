@@ -13,8 +13,10 @@ import {
   GitBranch,
   Github,
   HardDrive,
+  ListChecks,
   LockKeyhole,
   Mail,
+  MessageSquare,
   PanelLeft,
   PlayCircle,
   Rocket,
@@ -43,6 +45,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/download": "Download",
   "/demo": "Demo",
   "/pro": "Pro Roadmap",
+  "/roadmap": "Feedback Roadmap",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -128,6 +131,15 @@ function routeSeo(pathname: string): SeoConfig {
       description:
         "Explore the planned VeloWrite Pro path for AI writing commands, private sync, publishing automation, advanced exports, and team workflows.",
       canonicalPath: "/pro",
+    };
+  }
+
+  if (pathname.startsWith("/roadmap")) {
+    return {
+      title: "VeloWrite Public Roadmap - User Feedback and Planned Improvements",
+      description:
+        "See which VeloWrite user requests have been recorded, what belongs in the free preview, and which future workflows may become Pro features.",
+      canonicalPath: "/roadmap",
     };
   }
 
@@ -300,7 +312,7 @@ function SeoManager({ config }: { config: SeoConfig }) {
       });
     }
 
-    if (config.canonicalPath === "/guide" || config.canonicalPath === "/changelog") {
+    if (config.canonicalPath === "/guide" || config.canonicalPath === "/changelog" || config.canonicalPath === "/roadmap") {
       setStructuredData("content-article", {
         "@context": "https://schema.org",
         "@type": "Article",
@@ -357,6 +369,63 @@ const downloads = [
     format: "DMG",
     fileName: `VeloWrite_${downloadVersion}_aarch64.dmg`,
     note: "Unsigned preview build for Apple Silicon Macs.",
+  },
+];
+
+const publicRoadmapItems = [
+  {
+    title: "Editor and preview sync scrolling",
+    request: "Long Markdown documents should keep the editor and preview aligned while writing.",
+    status: "Planned for Preview",
+    target: "0.2.x",
+    classification: "Free core editor work",
+    decision:
+      "This belongs in the core editor experience. It should not be a Pro-only feature because split editing feels incomplete without it.",
+  },
+  {
+    title: "Better local history recovery",
+    request: "Users want confidence that accidental paste mistakes or rewrites can be recovered.",
+    status: "Planned for Preview",
+    target: "0.2.x",
+    classification: "Free desktop workflow",
+    decision:
+      "Basic local history stays free. The next step is better discoverability and a diff preview before restore.",
+  },
+  {
+    title: "Web to desktop draft handoff",
+    request: "Start quickly in the browser, then continue in the desktop app without manual copy and paste.",
+    status: "Designing",
+    target: "0.2.x",
+    classification: "Free handoff first",
+    decision:
+      "A simple handoff path should be free. Automatic cross-device sync may become Pro only after the local-first workflow is proven.",
+  },
+  {
+    title: "Private, no-account sync",
+    request: "Sync should not force a heavy cloud account or take ownership away from local files.",
+    status: "Researching",
+    target: "0.3.x+",
+    classification: "Pro candidate for managed sync",
+    decision:
+      "Folder-based local workflows should remain lightweight. Managed encrypted sync and conflict handling are stronger Pro candidates.",
+  },
+  {
+    title: "More complete Markdown rendering",
+    request: "Complex documents need reliable math, code tabs, tables, images, and long-form preview behavior.",
+    status: "In progress",
+    target: "0.1.x / 0.2.x",
+    classification: "Free preview quality",
+    decision:
+      "Rendering trust is part of the preview foundation. The work should be backed by tests before broader promotion.",
+  },
+  {
+    title: "AI writing, publishing, and advanced export",
+    request: "Some users want higher-value workflows once the basic editor is stable.",
+    status: "Later",
+    target: "0.3.x+",
+    classification: "Pro candidate",
+    decision:
+      "These features add ongoing value or infrastructure cost, so they are reasonable future Pro workflows after the free editor feels complete.",
   },
 ];
 
@@ -1025,6 +1094,14 @@ function LandingPage() {
               Read changelog <ChevronRight size={15} />
             </a>
           </article>
+          <article className="resource-card">
+            <ListChecks size={21} />
+            <h3>Public Roadmap</h3>
+            <p>See which user requests are recorded, what stays free, and which workflows may become Pro later.</p>
+            <a className="text-link" href="/roadmap?utm_source=homepage_resources&utm_medium=resource">
+              View roadmap <ChevronRight size={15} />
+            </a>
+          </article>
         </div>
       </section>
 
@@ -1345,6 +1422,118 @@ function ProPage() {
   );
 }
 
+function RoadmapPage() {
+  return (
+    <div className="roadmap-page">
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloWrite
+        </a>
+        <div className="nav-actions">
+          <a href="/web?utm_source=roadmap_nav&utm_medium=cta">
+            Web editor <ChevronRight size={16} />
+          </a>
+          <a href="/feedback?utm_source=roadmap_nav&utm_medium=cta">
+            Feedback <Mail size={16} />
+          </a>
+          <a href="/download?utm_source=roadmap_nav&utm_medium=cta">
+            Download <Download size={16} />
+          </a>
+        </div>
+      </header>
+
+      <main className="roadmap-shell">
+        <section className="roadmap-hero">
+          <div className="eyebrow">
+            <ListChecks size={16} />
+            Public roadmap
+          </div>
+          <h1>User feedback we have recorded and what happens next.</h1>
+          <p>
+            VeloWrite is still in preview, so early feedback directly shapes the product.
+            This page shows which requests are core editor work, which stay free, and which
+            high-value workflows may become Pro later.
+          </p>
+          <div className="hero-actions">
+            <a className="primary-link" href="/feedback?utm_source=roadmap_hero&utm_medium=cta">
+              Send Feedback <MessageSquare size={17} />
+            </a>
+            <a className="secondary-link" href="/changelog?utm_source=roadmap_hero&utm_medium=resource">
+              Read Changelog <FileText size={17} />
+            </a>
+          </div>
+        </section>
+
+        <section className="roadmap-summary" aria-label="Roadmap rules">
+          <article>
+            <span>Preview first</span>
+            <strong>Core quality</strong>
+            <p>Editing, preview, rendering trust, file handling, and recovery must feel solid before Pro work expands.</p>
+          </article>
+          <article>
+            <span>Free by default</span>
+            <strong>Basic writing</strong>
+            <p>Markdown editing, preview, import, download, local files, and basic history should remain free.</p>
+          </article>
+          <article>
+            <span>Pro later</span>
+            <strong>High-value workflows</strong>
+            <p>AI, managed private sync, publishing automation, advanced export, and commercial use are Pro candidates.</p>
+          </article>
+        </section>
+
+        <section className="roadmap-list" aria-label="Recorded user requests">
+          {publicRoadmapItems.map((item) => (
+            <article className="roadmap-item" key={item.title}>
+              <div className="roadmap-item-head">
+                <div>
+                  <span>{item.status}</span>
+                  <h2>{item.title}</h2>
+                </div>
+                <strong>{item.target}</strong>
+              </div>
+              <div className="roadmap-item-grid">
+                <div>
+                  <span>User request</span>
+                  <p>{item.request}</p>
+                </div>
+                <div>
+                  <span>Product decision</span>
+                  <p>{item.decision}</p>
+                </div>
+              </div>
+              <div className="roadmap-tag">{item.classification}</div>
+            </article>
+          ))}
+        </section>
+
+        <section className="roadmap-followup" aria-label="How feedback is handled">
+          <div>
+            <span>Follow-up loop</span>
+            <h2>When a request ships, we can reply to the users who asked for it.</h2>
+            <p>
+              If users leave an email through the feedback form, we can group their requests,
+              update the public roadmap, and send a focused reply when the relevant feature is
+              implemented or ready for testing.
+            </p>
+          </div>
+          <div className="hero-actions">
+            <a className="primary-link" href="/feedback?utm_source=roadmap_footer&utm_medium=cta">
+              Add Your Request <ChevronRight size={17} />
+            </a>
+            <a className="secondary-link" href="/pro?utm_source=roadmap_footer&utm_medium=resource">
+              View Pro Direction <Rocket size={17} />
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
 function DownloadPage() {
   return (
     <div className="download-page">
@@ -1474,6 +1663,9 @@ function DownloadPage() {
           <div className="feedback-actions">
             <a className="primary-link" href="/feedback?utm_source=download_page&utm_medium=cta">
               Open Feedback Form <ChevronRight size={17} />
+            </a>
+            <a className="secondary-link" href="/roadmap?utm_source=download_page&utm_medium=resource">
+              View Public Roadmap <ListChecks size={17} />
             </a>
           </div>
         </section>
@@ -1624,6 +1816,9 @@ function FAQPage() {
           <a href="/feedback?utm_source=faq_nav&utm_medium=cta">
             Feedback <Mail size={16} />
           </a>
+          <a href="/roadmap?utm_source=faq_nav&utm_medium=resource">
+            Roadmap <ListChecks size={16} />
+          </a>
         </div>
       </header>
 
@@ -1689,6 +1884,9 @@ function FAQPage() {
             <a className="secondary-link" href="/download?utm_source=faq_footer&utm_medium=cta">
               Download Desktop <Download size={17} />
             </a>
+            <a className="secondary-link" href="/roadmap?utm_source=faq_footer&utm_medium=resource">
+              View Roadmap <ListChecks size={17} />
+            </a>
           </div>
         </section>
       </main>
@@ -1707,6 +1905,7 @@ function SiteFooter() {
       </div>
       <nav aria-label="Legal and product links">
         <a href="/guide">Guide</a>
+        <a href="/roadmap">Roadmap</a>
         <a href="/changelog">Changelog</a>
         <a href="/faq">FAQ</a>
         <a href="/feedback">Feedback</a>
@@ -1827,6 +2026,9 @@ function FeedbackPage() {
           <a href="/download?utm_source=feedback_nav&utm_medium=cta">
             Download <Download size={16} />
           </a>
+          <a href="/roadmap?utm_source=feedback_nav&utm_medium=resource">
+            Roadmap <ListChecks size={16} />
+          </a>
         </div>
       </header>
 
@@ -1842,6 +2044,19 @@ function FeedbackPage() {
             Your feedback helps us decide what to improve next across the web editor,
             desktop app, and future Pro workflows.
           </p>
+        </section>
+        <section className="feedback-roadmap-card">
+          <div>
+            <span>Already recorded</span>
+            <h2>See what early users have asked for.</h2>
+            <p>
+              The public roadmap separates core preview fixes from future Pro candidates,
+              so feedback does not disappear after it is submitted.
+            </p>
+          </div>
+          <a className="secondary-link" href="/roadmap?utm_source=feedback_page&utm_medium=resource">
+            View Roadmap <ListChecks size={17} />
+          </a>
         </section>
         <FeedbackForm />
       </main>
@@ -2032,6 +2247,8 @@ function Router() {
     page = <InteractiveDemoPage />;
   } else if (window.location.pathname.startsWith("/pro")) {
     page = <ProPage />;
+  } else if (window.location.pathname.startsWith("/roadmap")) {
+    page = <RoadmapPage />;
   } else if (window.location.pathname.startsWith("/guide")) {
     page = <ContentPage page="guide" />;
   } else if (window.location.pathname.startsWith("/changelog")) {
