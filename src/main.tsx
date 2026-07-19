@@ -46,6 +46,8 @@ const breadcrumbLabels: Record<string, string> = {
   "/demo": "Demo",
   "/pro": "Pro Roadmap",
   "/roadmap": "Feedback Roadmap",
+  "/docs": "Markdown Library",
+  "/docs/online-markdown-editor": "Online Markdown Editor",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -131,6 +133,24 @@ function routeSeo(pathname: string): SeoConfig {
       description:
         "Explore the planned VeloWrite Pro path for AI writing commands, private sync, publishing automation, advanced exports, and team workflows.",
       canonicalPath: "/pro",
+    };
+  }
+
+  if (pathname.startsWith("/docs/online-markdown-editor")) {
+    return {
+      title: "Online Markdown Editor - Write, Preview, and Download Markdown",
+      description:
+        "Use VeloWrite as a free online Markdown editor for quick drafts, live preview, Markdown download, HTML export, and a desktop path for local files.",
+      canonicalPath: "/docs/online-markdown-editor",
+    };
+  }
+
+  if (pathname === "/docs" || pathname.startsWith("/docs/")) {
+    return {
+      title: "VeloWrite Markdown Library - Guides, Workflows, and Advanced Markdown",
+      description:
+        "Explore VeloWrite Markdown articles covering basics, history, writing workflows, code blocks, math, local-first editing, and editor comparisons.",
+      canonicalPath: "/docs",
     };
   }
 
@@ -312,7 +332,12 @@ function SeoManager({ config }: { config: SeoConfig }) {
       });
     }
 
-    if (config.canonicalPath === "/guide" || config.canonicalPath === "/changelog" || config.canonicalPath === "/roadmap") {
+    if (
+      config.canonicalPath === "/guide" ||
+      config.canonicalPath === "/changelog" ||
+      config.canonicalPath === "/roadmap" ||
+      config.canonicalPath === "/docs/online-markdown-editor"
+    ) {
       setStructuredData("content-article", {
         "@context": "https://schema.org",
         "@type": "Article",
@@ -428,6 +453,49 @@ const publicRoadmapItems = [
       "These features add ongoing value or infrastructure cost, so they are reasonable future Pro workflows after the free editor feels complete.",
   },
 ];
+
+const docGroups = [
+  {
+    title: "Understand Markdown",
+    description: "Foundational articles for people comparing writing formats and editor workflows.",
+    items: [
+      { title: "What Is Markdown?", href: "/docs/markdown", status: "Planned" },
+      { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Planned" },
+      { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Planned" },
+    ],
+  },
+  {
+    title: "Use Markdown Better",
+    description: "Practical guides for daily writing, documentation, notes, and technical drafts.",
+    items: [
+      { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Planned" },
+      { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Planned" },
+      { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Planned" },
+    ],
+  },
+  {
+    title: "Advanced Markdown",
+    description: "Deep dives for complex documents with math, code, tables, tabs, and local-first workflows.",
+    items: [
+      { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Planned" },
+      { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Planned" },
+      { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Planned" },
+      { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Planned" },
+    ],
+  },
+  {
+    title: "Choose a Markdown Editor",
+    description: "Conversion-focused pages for users searching by platform, workflow, or alternative.",
+    items: [
+      { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Planned" },
+      { title: "Online Markdown Editor", href: "/docs/online-markdown-editor", status: "Published" },
+      { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Planned" },
+      { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Planned" },
+      { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Planned" },
+      { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Planned" },
+    ],
+  },
+] as const;
 
 const faqGroups: readonly FaqGroup[] = [
   {
@@ -574,7 +642,7 @@ const faqSchemaItems = faqItems.map((item: FaqItem) => ({
   },
 }));
 
-const contentPages: Record<"guide" | "changelog", ContentPage> = {
+const contentPages: Record<"guide" | "changelog" | "onlineMarkdownEditor", ContentPage> = {
   guide: {
     eyebrow: "Practical Markdown guide",
     title: "Markdown Starter Guide",
@@ -619,6 +687,74 @@ const contentPages: Record<"guide" | "changelog", ContentPage> = {
     cta: {
       primary: { href: "/web?utm_source=guide_cta&utm_medium=cta", label: "Open Web Editor" },
       secondary: { href: "/download?utm_source=guide_cta&utm_medium=cta", label: "Download Desktop" },
+    },
+  },
+  onlineMarkdownEditor: {
+    eyebrow: "Online Markdown editor",
+    title: "Online Markdown Editor for Fast Drafts and Live Preview",
+    intro:
+      "An online Markdown editor should be fast enough for a quick note, clear enough for a technical document, and honest about when a desktop app is the better tool. VeloWrite starts in the browser so you can write immediately, then gives you a desktop path when local files, offline work, and recovery history matter.",
+    updated: "July 19, 2026",
+    directory: [
+      { label: "Why online", href: "#why-online" },
+      { label: "Core workflow", href: "#core-workflow" },
+      { label: "Privacy", href: "#privacy" },
+      { label: "Desktop handoff", href: "#desktop-handoff" },
+      { label: "FAQ", href: "#faq" },
+    ],
+    sections: [
+      {
+        id: "why-online",
+        title: "Why use an online Markdown editor?",
+        body: [
+          "The main reason is speed. You can open a browser page, paste a rough draft, check the rendered result, and download a clean Markdown file without installing another app or creating an account.",
+          "This is useful for temporary notes, README drafts, documentation snippets, support replies, launch copy, and technical writing that needs structure before it needs a full workspace.",
+        ],
+      },
+      {
+        id: "core-workflow",
+        title: "The basic workflow",
+        body: [
+          "A practical online Markdown editor should support three actions immediately: write on the left, preview on the right, and export when the document is ready.",
+          "VeloWrite supports live preview, Markdown download, HTML export, local browser drafts, tables, math rendering, highlighted code blocks, and tabbed code examples for multi-language documentation.",
+        ],
+        example: {
+          label: "Markdown example",
+          markdown:
+            "# Release Plan\n\n## Goals\n\n- Keep the editor fast\n- Make preview trustworthy\n- Move serious files to desktop\n\n```bash\nnpm run build\n```\n\n$$a^2 + b^2 = c^2$$",
+          note: "A browser editor is best when you want to shape content quickly and verify the rendered output.",
+        },
+      },
+      {
+        id: "privacy",
+        title: "What happens to your Markdown content?",
+        body: [
+          "Normal VeloWrite web editing does not upload Markdown document content to VeloWrite servers. Browser drafts are kept in localStorage on the same device so a refresh can recover the current draft.",
+          "That makes the web editor a good place for quick work, but sensitive long-term files still belong in a local workflow you control.",
+        ],
+      },
+      {
+        id: "desktop-handoff",
+        title: "When should you move to desktop?",
+        body: [
+          "Move to the VeloWrite desktop preview when the document becomes a real file you want to keep, reopen, save directly, edit offline, or recover through local history snapshots.",
+          "This is the intended product path: use the web editor to try the workflow quickly, then use the desktop app for serious local-first Markdown writing.",
+        ],
+      },
+      {
+        id: "faq",
+        title: "Online Markdown editor FAQ",
+        body: [
+          "Can I use VeloWrite without signing in? Yes. The current web editor is available without an account.",
+          "Can I download my file? Yes. You can download a Markdown copy and export HTML from the browser.",
+          "Is the desktop app required? No. It is recommended when you need native files, offline work, recent files, and local history snapshots.",
+          "Will AI and sync be free? Basic writing stays free in the preview. AI, managed private sync, publishing automation, and advanced export are future Pro candidates.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=online_markdown_editor_cta&utm_medium=cta", label: "Open Web Editor" },
+      secondary: { href: "/download?utm_source=online_markdown_editor_cta&utm_medium=cta", label: "Download Desktop" },
     },
   },
   changelog: {
@@ -1080,10 +1216,18 @@ function LandingPage() {
         <div className="resource-grid">
           <article className="resource-card">
             <FileText size={21} />
-            <h3>Markdown Starter Guide</h3>
-            <p>Practical examples for headings, lists, tables, math, code blocks, export, and local-first desktop work.</p>
-            <a className="text-link" href="/guide?utm_source=homepage_resources&utm_medium=resource">
-              Read guide <ChevronRight size={15} />
+            <h3>Markdown Library</h3>
+            <p>See the full article list: basics, advanced writing, editor comparisons, and today&apos;s published piece.</p>
+            <a className="text-link" href="/docs?utm_source=homepage_resources&utm_medium=resource">
+              Open library <ChevronRight size={15} />
+            </a>
+          </article>
+          <article className="resource-card">
+            <Code2 size={21} />
+            <h3>Online Markdown Editor</h3>
+            <p>Learn when a browser Markdown editor is enough and when to move serious files to desktop.</p>
+            <a className="text-link" href="/docs/online-markdown-editor?utm_source=homepage_resources&utm_medium=resource">
+              Read article <ChevronRight size={15} />
             </a>
           </article>
           <article className="resource-card">
@@ -1755,8 +1899,8 @@ function ContentPage({ page }: { page: keyof typeof contentPages }) {
         <p className="legal-intro">{content.intro}</p>
 
         {content.directory && (
-          <nav className="content-directory" aria-label="Changelog directory">
-            <span>Versions</span>
+          <nav className="content-directory" aria-label="Page directory">
+            <span>{page === "changelog" ? "Versions" : "On this page"}</span>
             <div>
               {content.directory.map((item) => (
                 <a href={item.href} key={item.href}>
@@ -1789,6 +1933,82 @@ function ContentPage({ page }: { page: keyof typeof contentPages }) {
           </a>
           <a className="secondary-link" href={content.cta.secondary.href}>
             {content.cta.secondary.label} <FileText size={17} />
+          </a>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
+function DocsIndexPage() {
+  return (
+    <div className="content-page">
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloWrite
+        </a>
+        <div className="nav-actions">
+          <a href="/web?utm_source=docs_nav&utm_medium=cta">
+            Web editor <ChevronRight size={16} />
+          </a>
+          <a href="/roadmap?utm_source=docs_nav&utm_medium=resource">
+            Roadmap <ListChecks size={16} />
+          </a>
+          <a href="/download?utm_source=docs_nav&utm_medium=cta">
+            Download <Download size={16} />
+          </a>
+        </div>
+      </header>
+
+      <main className="content-shell docs-shell">
+        <div className="eyebrow">
+          <FileText size={16} />
+          Markdown library
+        </div>
+        <h1>Markdown articles we are building for VeloWrite users.</h1>
+        <p className="legal-updated">Last updated: July 19, 2026</p>
+        <p className="legal-intro">
+          This library is the public version of the VeloWrite content plan. Published
+          articles are available now; planned articles show what we will write next
+          for Markdown users, search visitors, and AI answer engines.
+        </p>
+
+        <section className="docs-grid" aria-label="Markdown article plan">
+          {docGroups.map((group) => (
+            <article className="docs-group" key={group.title}>
+              <div>
+                <span>Article group</span>
+                <h2>{group.title}</h2>
+                <p>{group.description}</p>
+              </div>
+              <div className="docs-list">
+                {group.items.map((item) =>
+                  item.status === "Published" ? (
+                    <a href={item.href} key={item.href}>
+                      <span>{item.title}</span>
+                      <strong>{item.status}</strong>
+                    </a>
+                  ) : (
+                    <div key={item.href}>
+                      <span>{item.title}</span>
+                      <strong>{item.status}</strong>
+                    </div>
+                  ),
+                )}
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <section className="content-cta" aria-label="Next action">
+          <a className="primary-link" href="/docs/online-markdown-editor?utm_source=docs_cta&utm_medium=resource">
+            Read Today's Article <ChevronRight size={17} />
+          </a>
+          <a className="secondary-link" href="/guide?utm_source=docs_cta&utm_medium=resource">
+            Open Starter Guide <FileText size={17} />
           </a>
         </section>
       </main>
@@ -1904,6 +2124,7 @@ function SiteFooter() {
         <span>Local-first Markdown writing, with a web preview path.</span>
       </div>
       <nav aria-label="Legal and product links">
+        <a href="/docs">Docs</a>
         <a href="/guide">Guide</a>
         <a href="/roadmap">Roadmap</a>
         <a href="/changelog">Changelog</a>
@@ -2249,6 +2470,10 @@ function Router() {
     page = <ProPage />;
   } else if (window.location.pathname.startsWith("/roadmap")) {
     page = <RoadmapPage />;
+  } else if (window.location.pathname.startsWith("/docs/online-markdown-editor")) {
+    page = <ContentPage page="onlineMarkdownEditor" />;
+  } else if (window.location.pathname === "/docs" || window.location.pathname === "/docs/" || window.location.pathname.startsWith("/docs/")) {
+    page = <DocsIndexPage />;
   } else if (window.location.pathname.startsWith("/guide")) {
     page = <ContentPage page="guide" />;
   } else if (window.location.pathname.startsWith("/changelog")) {

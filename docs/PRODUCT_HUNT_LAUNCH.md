@@ -101,6 +101,40 @@ You can try the web editor now, download the desktop preview, or join the Pro in
 
 Thanks for taking a look.
 
+## Roadmap Update Comment
+
+Use this as a public follow-up after early comments start shaping the product:
+
+```text
+Quick update from today's feedback:
+
+I turned the most useful comments here into a public roadmap so people can see what has been recorded instead of sending feedback into a black box:
+
+https://velowrite.app/roadmap?utm_source=producthunt&utm_medium=comment
+
+The strongest signals so far:
+
+- Sync scrolling between editor and preview should be part of the free core editor, not a Pro feature.
+- Local history is valuable when a paste mistake or rewrite damages a draft, so basic recovery should stay free.
+- Browser-to-desktop handoff matters: people want to start quickly online, then move serious files into the desktop app.
+- Sync should be private-first. I do not want to rush into a heavy account system just because sync is on the roadmap.
+- AI, managed private sync, publishing automation, advanced export, and commercial workflows are better Pro candidates after the preview editor feels solid.
+
+Thanks to everyone who left specific feedback. When a request ships, I plan to follow up with the people who asked for it.
+```
+
+Shorter version:
+
+```text
+I turned today's Product Hunt feedback into a public roadmap:
+
+https://velowrite.app/roadmap?utm_source=producthunt&utm_medium=comment
+
+The main decision: core editing quality stays free. Sync scroll, basic local history, and browser-to-desktop handoff are preview/free work. AI, managed private sync, publishing automation, advanced export, and commercial workflows are future Pro candidates.
+
+Thanks for the specific suggestions. When a request ships, I will follow up with the people who asked for it.
+```
+
 ## Gallery Asset Plan
 
 Product Hunt launches perform better when the gallery explains the product visually in a few seconds. Prepare 4-6 images.

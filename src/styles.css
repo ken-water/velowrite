@@ -2939,6 +2939,89 @@ pre,
   font-weight: 800;
 }
 
+.docs-shell {
+  width: min(1040px, calc(100% - 40px));
+}
+
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.docs-group {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  border: 1px solid rgba(21, 54, 45, 0.14);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 14px 34px rgba(38, 52, 47, 0.07);
+}
+
+.docs-group > div:first-child span {
+  color: #47635b;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.docs-group h2 {
+  margin: 8px 0 8px;
+  color: #17201c;
+  font-size: 24px;
+  line-height: 1.16;
+}
+
+.docs-group p {
+  margin: 0;
+  color: #4f5f59;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.docs-list {
+  display: grid;
+  gap: 8px;
+}
+
+.docs-list a,
+.docs-list div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 42px;
+  border: 1px solid rgba(21, 54, 45, 0.12);
+  border-radius: 7px;
+  padding: 0 11px;
+  background: #ffffff;
+}
+
+.docs-list a {
+  color: #15362d;
+}
+
+.docs-list span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.docs-list strong {
+  color: #65756f;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.docs-list a strong {
+  color: #d84f2a;
+}
+
 .cookie-banner {
   position: fixed;
   right: 18px;
@@ -3039,6 +3122,7 @@ pre,
   .roadmap-summary,
   .roadmap-item-grid,
   .roadmap-followup,
+  .docs-grid,
   .pro-hero,
   .pro-waitlist,
   .faq-note,
@@ -3082,6 +3166,7 @@ pre,
   .feedback-shell,
   .faq-shell,
   .roadmap-shell,
+  .docs-shell,
   .pro-shell {
     width: min(100% - 28px, 1180px);
   }

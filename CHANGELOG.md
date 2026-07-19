@@ -6,7 +6,11 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ## Unreleased
 
-No unreleased changes yet.
+### Added
+
+- Public Markdown library index at `/docs` with the planned long-tail article structure.
+- First long-tail article at `/docs/online-markdown-editor`.
+- Product Hunt roadmap update copy for sharing recorded user feedback publicly.
 
 ## [0.1.5] - 2026-07-19
 
