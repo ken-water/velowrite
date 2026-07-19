@@ -6,6 +6,10 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ## Unreleased
 
+No unreleased changes yet.
+
+## [0.1.5] - 2026-07-19
+
 ### Added
 
 - Feedback page, feedback API endpoint, Loops contact grouping, and product entry points from download, legal, footer, and desktop About surfaces.
