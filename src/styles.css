@@ -684,18 +684,18 @@ p {
 }
 
 .app-shell {
-  --app-bg: #f7f5f0;
-  --panel-bg: #ebe6dc;
-  --surface: #ffffff;
-  --surface-soft: #efebe3;
-  --editor-bg: #f8f6f1;
-  --preview-bg: #ffffff;
+  --app-bg: #f3f0e8;
+  --panel-bg: #e7e2d8;
+  --surface: #fbfaf7;
+  --surface-soft: #eee9df;
+  --editor-bg: #f7f4ee;
+  --preview-bg: #f7f4ee;
   --text: #17201c;
   --editor-text: #26342f;
   --muted: #7a837f;
   --muted-strong: #56635e;
-  --border: #ddd8cf;
-  --border-soft: #e5e0d7;
+  --border: #d8d1c5;
+  --border-soft: #e2dbcf;
   --accent: #d84f2a;
   --accent-strong: #8a3a22;
   --active-line: rgba(216, 79, 42, 0.06);
@@ -1053,7 +1053,7 @@ p {
   min-height: 58px;
   border-bottom: 1px solid var(--border);
   padding: 0 18px;
-  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
   backdrop-filter: blur(18px);
 }
 
@@ -1086,6 +1086,7 @@ p {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0 10px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
   color: var(--muted);
   font-size: 13px;
 }
@@ -1108,7 +1109,7 @@ p {
   min-height: 34px;
   border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--border));
   padding: 0 10px;
-  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
   color: var(--accent-strong);
   font-size: 12px;
 }
@@ -1118,9 +1119,22 @@ p {
   width: 34px;
   height: 34px;
   place-items: center;
+  border: 1px solid transparent;
   border-radius: 8px;
-  background: var(--surface-soft);
+  background: color-mix(in srgb, var(--surface) 72%, var(--surface-soft));
   color: var(--editor-text);
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.actions > button:hover:not(:disabled),
+.desktop-cta:hover {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  background: var(--surface);
+  color: var(--text);
 }
 
 .mode-toggle {
@@ -1130,7 +1144,7 @@ p {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 3px;
-  background: var(--app-bg);
+  background: color-mix(in srgb, var(--panel-bg) 55%, var(--surface));
 }
 
 .mode-toggle button {
@@ -1148,7 +1162,9 @@ p {
 .mode-toggle button.active {
   background: var(--surface);
   color: var(--text);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.04),
+    0 8px 20px rgba(38, 52, 47, 0.06);
 }
 
 .editor-grid {
@@ -1187,7 +1203,7 @@ p {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: 22px;
+  padding: 22px 24px;
 }
 
 .editor-pane {
@@ -1278,9 +1294,13 @@ pre,
 .markdown-body {
   flex: 1;
   max-width: none;
+  width: 100%;
   min-height: 0;
   overflow: auto;
-  padding-right: 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 26px clamp(22px, 3vw, 42px) 34px;
+  background: color-mix(in srgb, var(--surface) 82%, var(--preview-bg));
 }
 
 .statusbar {
@@ -1291,7 +1311,7 @@ pre,
   min-height: 32px;
   border-top: 1px solid var(--border);
   padding: 0 18px;
-  background: color-mix(in srgb, var(--surface) 65%, transparent);
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
@@ -1563,34 +1583,37 @@ pre,
   font-size: 13px;
 }
 
-article,
 .markdown-body {
-  max-width: 650px;
   color: var(--text);
 }
 
 .markdown-body h1 {
   margin-bottom: 14px;
+  max-width: 920px;
   font-size: 38px;
   line-height: 1.1;
 }
 
 .markdown-body h2 {
+  max-width: 920px;
   margin-top: 28px;
   font-size: 20px;
 }
 
 .markdown-body h3 {
+  max-width: 920px;
   margin-top: 24px;
 }
 
 .markdown-body p,
 .markdown-body li {
+  max-width: 920px;
   color: var(--muted-strong);
   line-height: 1.7;
 }
 
 .markdown-body blockquote {
+  max-width: 920px;
   margin: 18px 0;
   border-left: 3px solid var(--accent);
   padding-left: 14px;
@@ -1606,10 +1629,11 @@ article,
 }
 
 .markdown-body pre {
+  max-width: 100%;
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   padding: 14px;
-  background: var(--editor-bg);
+  background: color-mix(in srgb, var(--editor-bg) 76%, var(--surface-soft));
   overflow: auto;
 }
 
@@ -1628,7 +1652,9 @@ article,
 
 .markdown-body table {
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
 }
 
 .markdown-body .code-tabset,
@@ -2646,6 +2672,26 @@ article,
 
   .editor-grid {
     grid-template-columns: 1fr;
+  }
+
+  .editor-grid.mode-split,
+  .editor-grid.mode-write,
+  .editor-grid.mode-preview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .editor-grid.mode-split {
+    grid-template-rows: minmax(340px, 1fr) minmax(340px, 1fr);
+    overflow: auto;
+  }
+
+  .editor-pane,
+  .preview-pane {
+    padding: 18px;
+  }
+
+  .markdown-body {
+    padding: 22px;
   }
 
   .feature-band {
