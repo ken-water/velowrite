@@ -10,8 +10,10 @@ const sourcePath = path.join(repoRoot, "docs", "MARKDOWN_GUIDE.md");
 const outputPath = path.join(repoRoot, "public", "markdown-guide.pdf");
 const tempDir = path.join(repoRoot, "launch", "markdown-guide");
 const tempHtmlPath = path.join(tempDir, "markdown-guide.html");
+const guideImagePath = path.join(repoRoot, "public", "icons", "icon-192.png");
 
 const rawMarkdown = await fs.readFile(sourcePath, "utf8");
+const guideImageData = await fs.readFile(guideImagePath, "base64");
 const katexCss = await fs.readFile(
   path.join(repoRoot, "node_modules", "katex", "dist", "katex.min.css"),
   "utf8",
@@ -38,7 +40,9 @@ const renderMath = (expression, displayMode) =>
 const prepareGuideMarkdown = (value) =>
   value
     .replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (_match, code) => {
-      const escapedCode = escapeHtml(code).replaceAll("```", "&#96;&#96;&#96;");
+      const escapedCode = escapeHtml(code)
+        .replaceAll("```", "&#96;&#96;&#96;")
+        .replaceAll("\n", "&#10;");
       return `<pre><code>${escapedCode}</code></pre>`;
     })
     .replace(/\[\[MATHINLINE:([\s\S]*?)\]\]/g, (_match, expression) => {
@@ -49,7 +53,12 @@ const prepareGuideMarkdown = (value) =>
     });
 
 const markdown = prepareGuideMarkdown(rawMarkdown);
-const body = renderer.render(markdown);
+const body = renderer
+  .render(markdown)
+  .replaceAll(
+    "{{guide-image}}",
+    `data:image/png;base64,${guideImageData}`,
+  );
 const html = `<!doctype html>
 <html lang="en">
   <head>
@@ -157,12 +166,21 @@ const html = `<!doctype html>
         list-style: none;
         padding-left: 0;
       }
-      .mini-preview .image-placeholder {
+      .mini-preview .image-preview {
         display: grid;
         min-height: 72px;
         place-items: center;
-        border: 1px dashed #cfc8bc;
+        border: 1px solid #d9d2c6;
         border-radius: 7px;
+        background: linear-gradient(135deg, #f8f6f1, #ffffff);
+      }
+      .mini-preview .image-preview img {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+      }
+      .mini-preview .image-caption {
+        margin: 6px 0 0;
         color: #73807a;
         font-size: 11px;
       }

@@ -103,7 +103,10 @@ Links are rendered as clickable text. Image syntax stays portable across Markdow
     <div class="example-title">VeloWrite preview</div>
     <div class="mini-preview">
       <p><a href="https://velowrite.app">Open VeloWrite</a></p>
-      <div class="image-placeholder">Editor screenshot</div>
+      <div class="image-preview">
+        <img src="{{guide-image}}" alt="VeloWrite app icon" />
+      </div>
+      <p class="image-caption">VeloWrite app icon</p>
     </div>
   </div>
 </div>
