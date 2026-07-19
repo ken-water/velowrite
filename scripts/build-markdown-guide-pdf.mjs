@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { katex } from "@mdit/plugin-katex";
+import katex from "katex";
 import MarkdownIt from "markdown-it";
 import { chromium } from "playwright";
 
@@ -11,18 +11,44 @@ const outputPath = path.join(repoRoot, "public", "markdown-guide.pdf");
 const tempDir = path.join(repoRoot, "launch", "markdown-guide");
 const tempHtmlPath = path.join(tempDir, "markdown-guide.html");
 
-const markdown = await fs.readFile(sourcePath, "utf8");
+const rawMarkdown = await fs.readFile(sourcePath, "utf8");
 const katexCss = await fs.readFile(
   path.join(repoRoot, "node_modules", "katex", "dist", "katex.min.css"),
   "utf8",
 );
 const renderer = new MarkdownIt({
-  html: false,
+  html: true,
   linkify: true,
   typographer: true,
 });
-renderer.use(katex);
 
+const escapeHtml = (value) =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+
+const renderMath = (expression, displayMode) =>
+  katex.renderToString(expression, {
+    displayMode,
+    throwOnError: false,
+    strict: false,
+  });
+
+const prepareGuideMarkdown = (value) =>
+  value
+    .replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/g, (_match, code) => {
+      const escapedCode = escapeHtml(code).replaceAll("```", "&#96;&#96;&#96;");
+      return `<pre><code>${escapedCode}</code></pre>`;
+    })
+    .replace(/\[\[MATHINLINE:([\s\S]*?)\]\]/g, (_match, expression) => {
+      return renderMath(expression.trim(), false);
+    })
+    .replace(/\[\[MATHDISPLAY:([\s\S]*?)\]\]/g, (_match, expression) => {
+      return renderMath(expression.trim(), true);
+    });
+
+const markdown = prepareGuideMarkdown(rawMarkdown);
 const body = renderer.render(markdown);
 const html = `<!doctype html>
 <html lang="en">
@@ -39,7 +65,7 @@ const html = `<!doctype html>
       }
       body { margin: 0; }
       main { max-width: 760px; margin: 0 auto; }
-      h1 { margin: 0 0 14px; color: #102720; font-size: 32px; line-height: 1.12; }
+      h1 { margin: 0 0 10px; color: #102720; font-size: 26px; line-height: 1.15; }
       h2 { break-after: avoid; margin: 28px 0 10px; color: #15362d; font-size: 20px; }
       h3 { break-after: avoid; margin: 18px 0 8px; color: #1b3d33; font-size: 15px; }
       p, li { color: #384a44; font-size: 12.5px; line-height: 1.58; }
@@ -75,12 +101,129 @@ const html = `<!doctype html>
         color: #52615c;
       }
       .cover-note {
-        margin: 0 0 24px;
+        margin: 0 0 18px;
         border: 1px solid #ded9d0;
         border-radius: 8px;
         padding: 12px 14px;
         background: #f8f6f1;
         color: #4a5a55;
+      }
+      .example-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin: 12px 0 20px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .example-card,
+      .workflow-preview {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #ded9d0;
+        border-radius: 8px;
+        padding: 12px;
+        background: #fbfaf7;
+      }
+      .example-title {
+        margin-bottom: 8px;
+        color: #15362d;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .mini-preview {
+        color: #33423d;
+      }
+      .mini-preview h1,
+      .mini-preview h2,
+      .mini-preview h3,
+      .mini-preview p,
+      .mini-preview ul,
+      .mini-preview ol,
+      .mini-preview blockquote {
+        margin: 0 0 8px;
+      }
+      .mini-preview h1 { font-size: 22px; }
+      .mini-preview h2 { font-size: 18px; }
+      .mini-preview h3 { font-size: 14px; }
+      .mini-preview code {
+        padding: 1px 4px;
+        border-radius: 4px;
+        background: #ece7df;
+      }
+      .mini-preview .task-list {
+        list-style: none;
+        padding-left: 0;
+      }
+      .mini-preview .image-placeholder {
+        display: grid;
+        min-height: 72px;
+        place-items: center;
+        border: 1px dashed #cfc8bc;
+        border-radius: 7px;
+        color: #73807a;
+        font-size: 11px;
+      }
+      .tab-preview {
+        display: grid;
+        gap: 8px;
+      }
+      .tab-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .tab-row span {
+        border: 1px solid #d6cec0;
+        border-radius: 999px;
+        padding: 4px 10px;
+        background: #ffffff;
+        color: #516059;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .tab-row .active-tab {
+        border-color: #15362d;
+        background: #15362d;
+        color: #ffffff;
+      }
+      .small-note {
+        margin: 6px 0 0;
+        color: #66726c;
+        font-size: 11px;
+      }
+      .workflow-preview {
+        display: grid;
+        grid-template-columns: 150px 1fr 1fr;
+        gap: 10px;
+        align-items: start;
+        margin: 12px 0 20px;
+      }
+      .outline-mini,
+      .editor-mini,
+      .preview-mini {
+        display: grid;
+        gap: 6px;
+      }
+      .outline-mini strong,
+      .editor-mini strong,
+      .preview-mini strong {
+        color: #15362d;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+      .outline-mini span {
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: #f1eee8;
+        color: #55635d;
+        font-size: 11px;
+      }
+      .outline-mini .selected {
+        background: #15362d;
+        color: #fff;
       }
       .katex-display { break-inside: avoid; margin: 12px 0; }
       .katex { font-size: 1em; }
@@ -88,7 +231,7 @@ const html = `<!doctype html>
   </head>
   <body>
     <main>
-      <p class="cover-note">A practical Markdown guide for writers, developers, students, and teams using VeloWrite.</p>
+      <p class="cover-note">Use the browser for quick drafting. Use the desktop app when local files and history matter.</p>
       ${body}
     </main>
   </body>

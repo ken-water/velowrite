@@ -1,315 +1,308 @@
-# Markdown Quick Start for VeloWrite
+# Markdown in VeloWrite
 
-Markdown is a lightweight writing format. You type plain text with a few simple symbols, and VeloWrite turns it into a clean preview that is easy to read, export, and share.
+Use this guide as a quick visual reference. Each section shows what you type on the Markdown side and what VeloWrite turns it into in the preview.
 
-This guide is for people who want to write notes, technical documents, README files, product specs, blog drafts, meeting notes, or learning material without fighting a heavy word processor.
+## Beginner
 
-## Why Use Markdown
+### 1. Headings Create Structure
 
-Markdown works well because the source text stays readable. Your document is not locked inside one editor, and the same file can be opened by VeloWrite, GitHub, documentation tools, static site generators, and many developer workflows.
+Headings make long documents easy to scan. VeloWrite also uses them to build the outline in the left sidebar.
 
-Use Markdown when you want:
-
-- Fast writing with very little formatting overhead
-- Notes that are easy to keep in Git or local folders
-- Technical documents with code blocks, tables, links, and math
-- Exports to HTML or other publishing formats
-- Files that stay portable for years
-
-VeloWrite is built around this workflow: start quickly in the browser, then use the desktop app when you need direct local file access, offline writing, recent files, and local history snapshots.
-
-## Basic Structure
-
-Use headings to organize your document.
-
-```markdown
-# Project Plan
-
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code># Product Notes
 ## Goals
+### This Week</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview</div>
+    <div class="mini-preview">
+      <h1>Product Notes</h1>
+      <h2>Goals</h2>
+      <h3>This Week</h3>
+    </div>
+  </div>
+</div>
 
-## Timeline
+### 2. Paragraphs, Bold, Italic, And Inline Code
 
-### Week 1
-```
+Plain text stays readable. Add emphasis only when it helps the reader.
 
-VeloWrite uses headings to build the document outline. Click a heading in the outline to jump through both the rendered preview and the Markdown editor.
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code>This is a normal paragraph.
 
-## Paragraphs And Emphasis
+This is **important**.
+This is *subtle emphasis*.
+Use `inline code` for commands or values.</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview</div>
+    <div class="mini-preview">
+      <p>This is a normal paragraph.</p>
+      <p>This is <strong>important</strong>.</p>
+      <p>This is <em>subtle emphasis</em>.</p>
+      <p>Use <code>inline code</code> for commands or values.</p>
+    </div>
+  </div>
+</div>
 
-Write normal paragraphs as plain text. Leave a blank line between paragraphs.
+### 3. Lists And Checklists
 
-```markdown
-This is the first paragraph.
+Lists are ideal for notes, todos, meeting summaries, and release checklists.
 
-This is the second paragraph.
-```
-
-Use emphasis when needed.
-
-```markdown
-This is **bold**.
-This is *italic*.
-This is `inline code`.
-```
-
-Keep formatting intentional. Markdown is strongest when the document stays readable even before rendering.
-
-## What VeloWrite Shows
-
-These examples are written so you can see both the Markdown source and the rendered result.
-
-### Headings
-
-Type this:
-
-```markdown
-# Project Plan
-## Goals
-### Week 1
-```
-
-You will see:
-
-# Project Plan
-## Goals
-### Week 1
-
-### Lists
-
-Type this:
-
-```markdown
-- Draft the outline
-- Review the examples
-- Export the final document
-```
-
-You will see:
-
-- Draft the outline
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code>- Draft the outline
 - Review the examples
 - Export the final document
 
-### Table
+1. Open VeloWrite
+2. Write in split mode
+3. Save or export
 
-Type this:
+- [x] First draft
+- [ ] Final review</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview</div>
+    <div class="mini-preview">
+      <ul>
+        <li>Draft the outline</li>
+        <li>Review the examples</li>
+        <li>Export the final document</li>
+      </ul>
+      <ol>
+        <li>Open VeloWrite</li>
+        <li>Write in split mode</li>
+        <li>Save or export</li>
+      </ol>
+      <ul class="task-list">
+        <li>[x] First draft</li>
+        <li>[ ] Final review</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-```markdown
-| Task | Web Editor | Desktop App |
+### 4. Links And Images
+
+Links are rendered as clickable text. Image syntax stays portable across Markdown tools.
+
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code>[Open VeloWrite](https://velowrite.app)
+
+![Editor screenshot](./images/editor.png)</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview</div>
+    <div class="mini-preview">
+      <p><a href="https://velowrite.app">Open VeloWrite</a></p>
+      <div class="image-placeholder">Editor screenshot</div>
+    </div>
+  </div>
+</div>
+
+## Intermediate
+
+### 5. Tables
+
+Tables help with product specs, comparison notes, plans, and release decisions.
+
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code>| Task | Web Editor | Desktop App |
 | --- | --- | --- |
-| Quick draft | Instant start | Native app launch |
-| Save | Download Markdown copy | Save directly to local file |
-| Recovery | Browser draft only | Local history snapshots |
-```
+| Quick draft | Instant start | Native app |
+| Save | Download copy | Direct local save |
+| Recovery | Browser draft | Local history |</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview</div>
+    <table>
+      <thead>
+        <tr><th>Task</th><th>Web Editor</th><th>Desktop App</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Quick draft</td><td>Instant start</td><td>Native app</td></tr>
+        <tr><td>Save</td><td>Download copy</td><td>Direct local save</td></tr>
+        <tr><td>Recovery</td><td>Browser draft</td><td>Local history</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-You will see:
+### 6. Quotes And Callouts
 
-| Task | Web Editor | Desktop App |
-| --- | --- | --- |
-| Quick draft | Instant start | Native app launch |
-| Save | Download Markdown copy | Save directly to local file |
-| Recovery | Browser draft only | Local history snapshots |
+Blockquotes are useful for decisions, references, and comments.
 
-### Code
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code>> Keep quick drafts in the browser.
+> Move serious files to desktop.</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview</div>
+    <blockquote>
+      <p>Keep quick drafts in the browser.<br />Move serious files to desktop.</p>
+    </blockquote>
+  </div>
+</div>
 
-Type this:
+### 7. Code Blocks
 
-````markdown
-```python
-def greet(name):
-    return f"Hello, {name}"
-```
-````
+Add a language name after the opening fence for syntax highlighting.
 
-You will see:
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code>```python
+def summarize(items):
+    return len(items)
 
-```python
-def greet(name):
-    return f"Hello, {name}"
-```
+print(summarize(["draft", "review"]))
+```</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview</div>
+    <pre><code>def summarize(items):
+    return len(items)
 
-### Math
+print(summarize(["draft", "review"]))</code></pre>
+  </div>
+</div>
 
-Type this:
+### 8. Math
 
-```markdown
-Inline math: $E = mc^2$.
+VeloWrite renders inline and block math with KaTeX.
+
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code>Inline math: $E = mc^2$.
 
 $$
 \int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}
-$$
+$$</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview</div>
+    <p>Inline math: [[MATHINLINE:E = mc^2]].</p>
+    <div>[[MATHDISPLAY:\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}]]</div>
+  </div>
+</div>
+
+## Advanced
+
+### 9. Multi-Language Code Tabs
+
+When VeloWrite sees consecutive Python, Bash, Java, and JavaScript code fences, it groups them into a tabbed preview. This is useful for API docs, tutorials, and release notes that compare languages.
+
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code>```python
+print("hello")
 ```
-
-You will see:
-
-Inline math: $E = mc^2$.
-
-$$
-\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}
-$$
-
-## Lists
-
-Use bullets for unordered ideas.
-
-```markdown
-- Draft the outline
-- Review the examples
-- Export the final document
+```bash
+echo "hello"
 ```
-
-Use numbers for steps.
-
-```markdown
-1. Open VeloWrite.
-2. Create or open a Markdown file.
-3. Write in split mode.
-4. Export or save when finished.
+```java
+System.out.println("hello");
 ```
+```javascript
+console.log("hello");
+```</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview</div>
+    <div class="tab-preview">
+      <div class="tab-row">
+        <span class="active-tab">Python</span>
+        <span>Bash</span>
+        <span>Java</span>
+        <span>JavaScript</span>
+      </div>
+      <pre><code>print("hello")</code></pre>
+    </div>
+    <p class="small-note">Click a tab in VeloWrite to switch language without scrolling through four separate code blocks.</p>
+  </div>
+</div>
 
-Use task lists for progress tracking.
+### 10. Mermaid Diagram Source
 
-```markdown
-- [x] Write the draft
-- [x] Review the preview
-- [ ] Publish the final version
-```
+Mermaid source stays readable in Markdown. Diagram rendering is planned, and VeloWrite currently keeps the source visible and portable.
 
-## Links And Images
-
-Links use square brackets for the label and parentheses for the destination.
-
-```markdown
-[Visit VeloWrite](https://velowrite.app)
-```
-
-Images use the same pattern with an exclamation mark.
-
-```markdown
-![Screenshot of VeloWrite](./images/velowrite-editor.png)
-```
-
-For local image-heavy workflows, the desktop app is a better long-term fit because browsers are limited by sandbox rules.
-
-## Tables
-
-Tables are useful for comparison and planning.
-
-```markdown
-| Task | Web Editor | Desktop App |
-| --- | --- | --- |
-| Quick draft | Excellent | Good |
-| Direct local save | Browser download | Native save |
-| Offline work | Limited | Strong |
-| History snapshots | Browser draft only | Local snapshots |
-```
-
-VeloWrite renders tables in the preview so you can keep the source simple and still present the result clearly.
-
-## Code Blocks
-
-Use fenced code blocks for technical notes.
-
-````markdown
-```python
-def greet(name):
-    return f"Hello, {name}"
-```
-````
-
-Add the language name after the opening fence to enable syntax highlighting.
-
-VeloWrite supports highlighted code previews for common languages such as JavaScript, TypeScript, Python, Bash, and Java. Consecutive Python, Bash, Java, and JavaScript examples can be displayed as tabbed code previews, which is useful for documentation that compares the same idea across languages.
-
-## Math
-
-Use inline math inside a paragraph:
-
-```markdown
-Energy can be written as $E = mc^2$.
-```
-
-Use block math for larger equations:
-
-```markdown
-$$
-\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}
-$$
-```
-
-VeloWrite renders math with KaTeX, which makes it useful for engineering notes, learning material, and technical writing.
-
-## Diagrams
-
-You can write Mermaid diagram code blocks as Markdown source.
-
-````markdown
-```mermaid
+<div class="example-grid">
+  <div class="example-card source-card">
+    <div class="example-title">Type this</div>
+    <pre><code>```mermaid
 flowchart LR
   Draft --> Preview
   Preview --> Export
   Export --> Share
-```
-````
+```</code></pre>
+  </div>
+  <div class="example-card preview-card">
+    <div class="example-title">VeloWrite preview today</div>
+    <pre><code>flowchart LR
+  Draft --> Preview
+  Preview --> Export
+  Export --> Share</code></pre>
+    <p class="small-note">Future versions will focus on richer diagram rendering.</p>
+  </div>
+</div>
 
-Mermaid rendering is on the roadmap. For now, VeloWrite keeps Mermaid blocks readable as code, so the document remains portable.
+### 11. Outline Navigation
 
-## A Practical Writing Workflow
+Use headings for long documents. The outline lets you jump to a section, and VeloWrite keeps the editor and preview aligned.
 
-1. Start in the VeloWrite web editor when you want to draft immediately.
-2. Use split mode to write on the left and preview on the right.
-3. Use the outline to jump between sections.
-4. Export HTML when you need a clean rendered document.
-5. Download the desktop app when the document becomes important enough to keep in a local folder.
-6. Use desktop save and local history snapshots for serious writing.
+<div class="workflow-preview">
+  <div class="outline-mini">
+    <strong>Outline</strong>
+    <span>Product Notes</span>
+    <span>Goals</span>
+    <span class="selected">This Week</span>
+    <span>Launch Checklist</span>
+  </div>
+  <div class="editor-mini">
+    <strong>Markdown editor</strong>
+    <pre><code>## Goals
 
-This is the reason VeloWrite provides both a web editor and a desktop app. The web editor lowers friction. The desktop app is for privacy, local files, offline work, and recoverable writing.
+### This Week
 
-## Recommended VeloWrite Features
+- Fix close behavior
+- Improve PDF guide
+- Ship preview build</code></pre>
+  </div>
+  <div class="preview-mini">
+    <strong>Rendered preview</strong>
+    <h3>This Week</h3>
+    <ul>
+      <li>Fix close behavior</li>
+      <li>Improve PDF guide</li>
+      <li>Ship preview build</li>
+    </ul>
+  </div>
+</div>
 
-Use these features first:
+### 12. Recommended VeloWrite Workflow
 
-- **Split mode** for writing and previewing at the same time
-- **Preview mode** for reading the final rendered document
-- **Outline navigation** for long documents
-- **HTML export** for sharing polished output
-- **Desktop save** for direct local file workflows
-- **Local history snapshots** for safer editing
+Use the browser editor for quick drafts. Use the desktop app for real local files, offline work, recent documents, and recoverable local history.
 
-If you write Markdown every day, the desktop app is the better default. It keeps your documents on your own machine and avoids browser file-system limitations.
+1. Start in split mode so source and preview stay visible.
+2. Use headings early so the outline becomes useful.
+3. Use tables for decisions and code blocks for technical details.
+4. Export HTML or download Markdown when sharing from the web editor.
+5. Move important files to the desktop app for native save and history snapshots.
 
-## Starter Template
+Try it online: https://velowrite.app/web
 
-Copy this structure for your next document:
-
-```markdown
-# Document Title
-
-## Summary
-
-Write the short version first.
-
-## Background
-
-Explain why this document exists.
-
-## Details
-
-Add lists, tables, code, links, and math as needed.
-
-## Next Steps
-
-- [ ] First action
-- [ ] Second action
-- [ ] Third action
-```
-
-## Try VeloWrite
-
-Use the online editor when you want to try Markdown immediately:
-
-https://velowrite.app/web
-
-Download the desktop preview when you need native local files, offline writing, recent documents, and recoverable history:
-
-https://velowrite.app/download
+Download desktop preview: https://velowrite.app/download
