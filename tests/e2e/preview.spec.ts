@@ -41,6 +41,17 @@ test("web editor switches between writing, split, and preview modes", async ({ p
   await expect(page.locator(".editor-grid")).toHaveClass(/mode-split/);
 });
 
+test("outline navigation syncs the editor and rendered preview", async ({ page }) => {
+  await page.goto("/web?utm_source=demo_frame&utm_medium=cta&demo=complex");
+
+  await page.getByRole("button", { name: "Mathematical Notes" }).evaluate((el) => {
+    (el as HTMLButtonElement).click();
+  });
+
+  await expect(page.locator(".cm-activeLine")).toContainText("## Mathematical Notes");
+  await expect(page.locator(".markdown-body #mathematical-notes")).toBeVisible();
+});
+
 test("complex Markdown demo renders math and tabbed code previews", async ({ page }) => {
   await page.goto("/web?utm_source=demo_frame&utm_medium=cta&demo=complex");
 
@@ -78,6 +89,10 @@ test("download page presents user-facing preview information", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Planned Pro Path" })).toBeVisible();
   await expect(page.getByText("Windows and macOS builds are not code-signed yet")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Download PDF Guide" })).toHaveAttribute(
+    "href",
+    "/markdown-guide.pdf",
+  );
   await expect(page.getByText("Current installer assets")).toHaveCount(0);
   await expect(page.getByText("GitHub Actions")).toHaveCount(0);
 });

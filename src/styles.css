@@ -702,7 +702,9 @@ p {
   --selection: rgba(61, 138, 104, 0.24);
   display: grid;
   grid-template-columns: 245px minmax(0, 1fr);
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
   background: var(--app-bg);
   color: var(--text);
 }
@@ -734,6 +736,9 @@ p {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
   border-right: 1px solid var(--border);
   padding: 18px;
   background: var(--panel-bg);
@@ -790,15 +795,20 @@ p {
 
 .sync-panel {
   display: grid;
+  flex: 0 0 auto;
   gap: 8px;
-  margin-top: auto;
 }
 
 .outline-panel {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 
 .recent-panel {
+  flex: 0 1 auto;
   min-height: 0;
 }
 
@@ -941,13 +951,17 @@ p {
 }
 
 .outline-list {
-  display: grid;
-  max-height: 280px;
+  display: block;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
   overflow: auto;
   padding-right: 2px;
 }
 
 .outline-item {
+  display: block;
+  width: 100%;
   overflow: hidden;
   min-height: 30px;
   border: 0;
@@ -1024,8 +1038,11 @@ p {
 
 .workspace {
   position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 .topbar {
@@ -1137,8 +1154,8 @@ p {
 .editor-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  height: calc(100vh - 90px);
-  min-height: 520px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .editor-grid.mode-write {

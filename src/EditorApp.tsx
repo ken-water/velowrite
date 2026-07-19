@@ -44,6 +44,7 @@ import {
   extractHeadings,
   getMetrics,
   renderMarkdown,
+  slugify,
 } from "./markdown";
 import { complexDemoMarkdown } from "./sampleMarkdown";
 
@@ -320,11 +321,13 @@ function MarkdownEditor({
   onChange,
   onScroll,
   fontSize,
+  scrollTarget,
 }: {
   value: string;
   onChange: (value: string) => void;
   onScroll: (ratio: number) => void;
   fontSize: number;
+  scrollTarget: { line: number; nonce: number } | null;
 }) {
   const container = React.useRef<HTMLDivElement>(null);
   const view = React.useRef<EditorView | null>(null);
@@ -388,6 +391,19 @@ function MarkdownEditor({
       },
     });
   }, [value]);
+
+  React.useEffect(() => {
+    const currentView = view.current;
+    if (!currentView || !scrollTarget) return;
+
+    const targetLine = Math.min(scrollTarget.line, currentView.state.doc.lines);
+    const line = currentView.state.doc.line(targetLine);
+    currentView.dispatch({
+      selection: { anchor: line.from },
+      effects: EditorView.scrollIntoView(line.from, { y: "start" }),
+    });
+    currentView.focus();
+  }, [scrollTarget]);
 
   return <div ref={container} className="code-editor" aria-label="Markdown content" />;
 }
@@ -649,6 +665,26 @@ function formatSize(value: number) {
   return `${(value / 1024).toFixed(1)} KB`;
 }
 
+function findHeadingLine(markdown: string, id: string) {
+  const seen = new Map<string, number>();
+  const lines = markdown.split("\n");
+
+  for (const [index, line] of lines.entries()) {
+    const match = /^(#{1,3})\s+(.+?)\s*#*$/.exec(line);
+    if (!match) continue;
+
+    const baseId = slugify(match[2].trim(), index);
+    const count = seen.get(baseId) ?? 0;
+    seen.set(baseId, count + 1);
+    const currentId = count > 0 ? `${baseId}-${count + 1}` : baseId;
+    if (currentId === id) {
+      return index + 1;
+    }
+  }
+
+  return null;
+}
+
 export default function EditorApp({
   surface = "desktop",
   initialMarkdown,
@@ -688,6 +724,7 @@ export default function EditorApp({
   const [historyOpen, setHistoryOpen] = React.useState(false);
   const [historyEntries, setHistoryEntries] = React.useState<HistoryEntry[]>([]);
   const [selectedHistory, setSelectedHistory] = React.useState<HistorySnapshot | null>(null);
+  const [editorScrollTarget, setEditorScrollTarget] = React.useState<{ line: number; nonce: number } | null>(null);
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
     return localStorage.getItem(autoSaveFileKey) === "true";
   });
@@ -826,6 +863,7 @@ export default function EditorApp({
       if (command === "view-write") setViewMode("write");
       if (command === "view-split") setViewMode("split");
       if (command === "view-preview") setViewMode("preview");
+      if (command === "exit") void closeAppWithGuard();
   };
 
   React.useEffect(() => {
@@ -851,12 +889,7 @@ export default function EditorApp({
 
     void nativeApi.listenCloseRequested(async () => {
       if (allowNativeClose.current) return true;
-      const shouldClose = await confirmDiscardChanges();
-      if (shouldClose) {
-        allowNativeClose.current = true;
-        await nativeApi.closeWindow();
-      }
-      return false;
+      return confirmDiscardChanges();
     }).then((cleanup) => {
       unlistenClose = cleanup;
     });
@@ -933,6 +966,13 @@ export default function EditorApp({
     }
 
     return window.confirm("Discard unsaved changes?");
+  }
+
+  async function closeAppWithGuard() {
+    if (!nativeApi) return;
+    if (!(await confirmDiscardChanges())) return;
+    allowNativeClose.current = true;
+    await nativeApi.closeWindow();
   }
 
   async function openFileWithGuard() {
@@ -1182,6 +1222,17 @@ export default function EditorApp({
     const preview = previewRef.current;
     const target = preview?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
     target?.scrollIntoView({ block: "start", behavior: "smooth" });
+
+    const line = findHeadingLine(markdown, id);
+    if (line) {
+      setEditorScrollTarget((current) => ({
+        line,
+        nonce: (current?.nonce ?? 0) + 1,
+      }));
+      if (viewMode === "preview") {
+        setViewMode("split");
+      }
+    }
   }
 
   return (
@@ -1435,6 +1486,7 @@ export default function EditorApp({
               onChange={setMarkdown}
               onScroll={syncPreviewScroll}
               fontSize={editorFontSize}
+              scrollTarget={editorScrollTarget}
             />
           </section>
 

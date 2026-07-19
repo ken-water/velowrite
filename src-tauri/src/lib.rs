@@ -217,6 +217,9 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
         .build(manager)?;
     let clear_recent = MenuItemBuilder::with_id("clear_recent", "Clear Recent")
         .build(manager)?;
+    let exit_app = MenuItemBuilder::with_id("exit_app", "Exit")
+        .accelerator("CmdOrCtrl+Q")
+        .build(manager)?;
 
     let write_mode = MenuItemBuilder::with_id("view_write", "Writing Mode")
         .accelerator("CmdOrCtrl+1")
@@ -236,6 +239,8 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
         .item(&export_html)
         .separator()
         .item(&clear_recent)
+        .separator()
+        .item(&exit_app)
         .build()?;
 
     let edit_menu = SubmenuBuilder::new(manager, "Edit")
@@ -282,6 +287,7 @@ pub fn run() {
                     "view_write" => Some("view-write"),
                     "view_split" => Some("view-split"),
                     "view_preview" => Some("view-preview"),
+                    "exit_app" => Some("exit"),
                     "reload" => {
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.eval("window.location.reload()");

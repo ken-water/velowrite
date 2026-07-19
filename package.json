@@ -10,6 +10,7 @@
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "e2e": "playwright test",
+    "guide:pdf": "node scripts/build-markdown-guide-pdf.mjs",
     "launch:video": "node scripts/create-product-hunt-video.mjs",
     "version:sync": "node scripts/sync-version.mjs",
     "release:check": "npm run version:sync -- --check && npm test && npm run build",

@@ -810,6 +810,19 @@ function DownloadPage() {
           </ul>
         </section>
 
+        <section className="download-notes" aria-label="Markdown guide">
+          <h2>Markdown Starter Guide</h2>
+          <ul>
+            <li>Learn headings, lists, tables, links, code blocks, math, and practical writing workflows.</li>
+            <li>The guide is written for people who want to use Markdown productively with VeloWrite.</li>
+          </ul>
+          <div className="feedback-actions">
+            <a className="primary-link" href="/markdown-guide.pdf">
+              Download PDF Guide <Download size={17} />
+            </a>
+          </div>
+        </section>
+
         <section className="download-notes" aria-label="Feedback prompt">
           <h2>Send Feedback</h2>
           <ul>
