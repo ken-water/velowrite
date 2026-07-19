@@ -249,7 +249,7 @@ p {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
-  height: clamp(560px, 68vh, 690px);
+  height: clamp(700px, 74vh, 760px);
   overflow: hidden;
   border: 1px solid rgba(21, 54, 45, 0.15);
   border-radius: 8px;
@@ -342,8 +342,8 @@ p {
 }
 
 .demo-product.demo-product-fullscreen {
-  height: min(86vh, 980px);
-  min-height: 680px;
+  height: min(90vh, 1040px);
+  min-height: 760px;
 }
 
 .demo-product-fullscreen .app-shell {
@@ -643,7 +643,7 @@ p {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
-  height: clamp(640px, 74vh, 820px);
+  height: clamp(760px, 80vh, 900px);
   overflow: hidden;
   border: 1px solid rgba(21, 54, 45, 0.15);
   border-radius: 8px;
@@ -2735,7 +2735,7 @@ pre,
   }
 
   .product-frame {
-    height: 650px;
+    height: 760px;
   }
 
   .product-frame .app-shell {
@@ -2904,7 +2904,7 @@ pre,
   }
 
   .demo-product {
-    height: 680px;
+    height: 860px;
   }
 
   .demo-product .app-shell {
