@@ -246,7 +246,10 @@ p {
 }
 
 .product-frame {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
+  height: clamp(560px, 68vh, 690px);
   overflow: hidden;
   border: 1px solid rgba(21, 54, 45, 0.15);
   border-radius: 8px;
@@ -255,7 +258,38 @@ p {
 }
 
 .product-frame .app-shell {
-  min-height: min(650px, calc(100vh - 170px));
+  grid-row: 2;
+  height: 100%;
+  min-height: 0;
+}
+
+.product-frame .sidebar,
+.demo-product .sidebar {
+  display: none;
+}
+
+.product-frame .app-shell,
+.demo-product .app-shell {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.product-frame .desktop-cta,
+.demo-product .desktop-cta,
+.product-frame .actions > button[aria-label="New file"],
+.product-frame .actions > button[aria-label="Open file"],
+.product-frame .actions > button[aria-label="AI assist"],
+.product-frame .actions > button[aria-label="History"],
+.product-frame .actions > button[aria-label="Publish"],
+.product-frame .actions > button[aria-label="Settings"],
+.product-frame .actions > button[aria-label="About"],
+.demo-product .actions > button[aria-label="New file"],
+.demo-product .actions > button[aria-label="Open file"],
+.demo-product .actions > button[aria-label="AI assist"],
+.demo-product .actions > button[aria-label="History"],
+.demo-product .actions > button[aria-label="Publish"],
+.demo-product .actions > button[aria-label="Settings"],
+.demo-product .actions > button[aria-label="About"] {
+  display: none;
 }
 
 .video-showcase {
@@ -307,8 +341,15 @@ p {
   background: #0f251f;
 }
 
+.demo-product.demo-product-fullscreen {
+  height: min(86vh, 980px);
+  min-height: 680px;
+}
+
 .demo-product-fullscreen .app-shell {
-  min-height: min(86vh, 980px);
+  grid-row: 2;
+  height: 100%;
+  min-height: 0;
 }
 
 .demo-code-block {
@@ -599,7 +640,10 @@ p {
 }
 
 .demo-product {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
+  height: clamp(640px, 74vh, 820px);
   overflow: hidden;
   border: 1px solid rgba(21, 54, 45, 0.15);
   border-radius: 8px;
@@ -608,7 +652,9 @@ p {
 }
 
 .demo-product .app-shell {
-  min-height: min(720px, calc(100vh - 250px));
+  grid-row: 2;
+  height: 100%;
+  min-height: 0;
 }
 
 .demo-conversion {
@@ -2688,8 +2734,12 @@ pre,
     max-width: none;
   }
 
+  .product-frame {
+    height: 650px;
+  }
+
   .product-frame .app-shell {
-    min-height: 560px;
+    min-height: 0;
   }
 
   .video-shell {
@@ -2853,12 +2903,16 @@ pre,
     margin-top: 0;
   }
 
+  .demo-product {
+    height: 680px;
+  }
+
   .demo-product .app-shell {
-    min-height: 560px;
+    min-height: 0;
   }
 
   .demo-product-fullscreen .app-shell {
-    min-height: 72vh;
+    min-height: 0;
   }
 
   .code-card-body {
