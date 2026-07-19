@@ -738,9 +738,14 @@ export default function EditorApp({
   const resolvedTheme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
 
   React.useEffect(() => {
-    document.title = `${dirty ? "*" : ""}${fileName} - VeloWrite`;
-    void nativeApi?.setWindowTitle(`${dirty ? "*" : ""}${fileName} - VeloWrite`);
-  }, [dirty, fileName, nativeApi]);
+    const windowTitle = `${dirty ? "*" : ""}${fileName} - VeloWrite`;
+
+    if (nativeApi || surface === "desktop") {
+      document.title = windowTitle;
+    }
+
+    void nativeApi?.setWindowTitle(windowTitle);
+  }, [dirty, fileName, nativeApi, surface]);
 
   React.useEffect(() => {
     const media = window.matchMedia?.("(prefers-color-scheme: dark)");
