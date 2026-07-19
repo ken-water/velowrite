@@ -43,6 +43,8 @@ const breadcrumbLabels: Record<string, string> = {
   "/download": "Download",
   "/demo": "Demo",
   "/pro": "Pro Roadmap",
+  "/guide": "Markdown Guide",
+  "/changelog": "Changelog",
   "/faq": "FAQ",
   "/privacy": "Privacy Policy",
   "/terms": "Terms of Service",
@@ -66,6 +68,28 @@ type FaqItem = {
 type FaqGroup = {
   title: string;
   items: readonly FaqItem[];
+};
+
+type ContentSection = {
+  title: string;
+  body: readonly string[];
+  example?: {
+    label: string;
+    markdown: string;
+    note: string;
+  };
+};
+
+type ContentPage = {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  updated: string;
+  sections: readonly ContentSection[];
+  cta: {
+    primary: { href: string; label: string };
+    secondary: { href: string; label: string };
+  };
 };
 
 function routeSeo(pathname: string): SeoConfig {
@@ -102,6 +126,24 @@ function routeSeo(pathname: string): SeoConfig {
       description:
         "Explore the planned VeloWrite Pro path for AI writing commands, private sync, publishing automation, advanced exports, and team workflows.",
       canonicalPath: "/pro",
+    };
+  }
+
+  if (pathname.startsWith("/guide")) {
+    return {
+      title: "VeloWrite Markdown Guide - Practical Writing Examples",
+      description:
+        "A practical Markdown guide showing headings, lists, tables, math, code tabs, and desktop workflows for VeloWrite users.",
+      canonicalPath: "/guide",
+    };
+  }
+
+  if (pathname.startsWith("/changelog")) {
+    return {
+      title: "VeloWrite Changelog - Release Notes and Preview Updates",
+      description:
+        "Read the VeloWrite changelog for preview release notes, UI updates, SEO changes, guide improvements, and future roadmap notes.",
+      canonicalPath: "/changelog",
     };
   }
 
@@ -256,6 +298,20 @@ function SeoManager({ config }: { config: SeoConfig }) {
       });
     }
 
+    if (config.canonicalPath === "/guide" || config.canonicalPath === "/changelog") {
+      setStructuredData("content-article", {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "@id": `${siteUrl}${config.canonicalPath}#article`,
+        headline: config.title,
+        description: config.description,
+        dateModified: "2026-07-19",
+        mainEntityOfPage: `${siteUrl}${config.canonicalPath}`,
+        author: { "@id": `${siteUrl}/#organization` },
+        publisher: { "@id": `${siteUrl}/#organization` },
+      });
+    }
+
     if (config.canonicalPath === "/" || config.canonicalPath === "/faq") {
       setStructuredData(config.canonicalPath === "/" ? "homepage-faq" : "faq-page", {
         "@context": "https://schema.org",
@@ -344,7 +400,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Do I need an account to use it?",
         answer:
-          "Yes. The current web editor can be used without an account, and browser drafts are saved locally in the same browser. Desktop preview builds also work without a cloud account.",
+          "No. The current web editor can be used without an account, and browser drafts are saved locally in the same browser. Desktop preview builds also work without a cloud account.",
       },
       {
         question: "Which platforms can I download right now?",
@@ -446,6 +502,91 @@ const faqSchemaItems = faqItems.map((item: FaqItem) => ({
     text: item.answer,
   },
 }));
+
+const contentPages: Record<"guide" | "changelog", ContentPage> = {
+  guide: {
+    eyebrow: "Practical Markdown guide",
+    title: "Markdown Starter Guide",
+    intro:
+      "This guide is written for people who want a usable Markdown workflow, not a wall of theory. Start with the web editor, try the examples, then move to desktop when local files and offline work matter.",
+    updated: "July 19, 2026",
+    sections: [
+      {
+        title: "Start with a simple draft",
+        body: [
+          "Open the web editor if you want the fastest path from blank page to rendered output. You can write without signing in, preview instantly, and download Markdown or HTML when you are done.",
+          "A useful first draft usually needs only a title, a short summary, and one or two structured sections. That is enough for notes, docs, blog posts, and release summaries.",
+        ],
+        example: {
+          label: "Example draft",
+          markdown:
+            "# Project Notes\n\n## Summary\n\nWrite a short paragraph.\n\n- Keep it readable\n- Keep it local\n- Export when ready",
+          note: "Use short headings and short lists first. Structure beats decoration.",
+        },
+      },
+      {
+        title: "Use the parts Markdown is good at",
+        body: [
+          "Headings help readers skim. Lists help them scan actions. Tables help compare options. Code blocks help explain commands. Math helps when you write formulas or technical notes.",
+          "VeloWrite also supports tabbed code examples, so you can show Python, Bash, JavaScript, or Java in one place without turning the page into a long stack of blocks.",
+        ],
+        example: {
+          label: "Example structure",
+          markdown:
+            "| Field | Value |\n| --- | --- |\n| Status | Preview |\n| Export | Markdown / HTML |\n\n```bash\nnpm run build\n```\n\n$$E = mc^2$$",
+          note: "Tables, code fences, and math are often enough for technical writing.",
+        },
+      },
+      {
+        title: "Move to desktop when the file matters",
+        body: [
+          "The browser is best for quick drafts and public sharing. The desktop app is the better home for real files, local folders, offline work, recent files, and local history snapshots.",
+          "If you care about keeping a Markdown vault on your own machine, the desktop app is the one that fits that workflow better than a browser tab.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=guide_cta&utm_medium=cta", label: "Open Web Editor" },
+      secondary: { href: "/download?utm_source=guide_cta&utm_medium=cta", label: "Download Desktop" },
+    },
+  },
+  changelog: {
+    eyebrow: "Release notes",
+    title: "VeloWrite Changelog",
+    intro:
+      "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete.",
+    updated: "July 19, 2026",
+    sections: [
+      {
+        title: "0.1.6 preview",
+        body: [
+          "Added a dedicated FAQ page for natural search and AI retrieval.",
+          "Added SEO and GEO support with canonical metadata, FAQPage schema, llms.txt, sitemap entries, and breadcrumb data.",
+          "Improved the homepage and interactive demo so the embedded editor is easier to scan and no longer clips the right edge.",
+          "Kept the free preview focused on browser editing, desktop downloads, guide links, and feedback collection.",
+        ],
+      },
+      {
+        title: "What this release means",
+        body: [
+          "This release is about making the product explain itself better. A visitor should understand what VeloWrite is, what the browser can do, what the desktop app adds, and why a download is worth trying.",
+          "For search engines and AI tools, the site now has enough structure to describe the product without guessing.",
+        ],
+      },
+      {
+        title: "Still planned",
+        body: [
+          "AI commands, private sync, publishing automation, commercial licensing, signed installers, and richer examples are still roadmap items.",
+          "Release notes will keep growing as the preview matures, so users can see both progress and deliberate limits.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/download?utm_source=changelog_cta&utm_medium=cta", label: "Download Preview" },
+      secondary: { href: "/faq?utm_source=changelog_cta&utm_medium=cta", label: "Read FAQ" },
+    },
+  },
+};
 
 const legalPages = {
   privacy: {
@@ -789,6 +930,31 @@ function LandingPage() {
           <a className="text-link" href="/faq?utm_source=homepage_faq&utm_medium=cta">
             View all FAQ <ChevronRight size={15} />
           </a>
+        </div>
+      </section>
+
+      <section className="resource-band" aria-label="Guides and release notes">
+        <div className="section-heading">
+          <span>Resources</span>
+          <h2>Learn the workflow and track what changed.</h2>
+        </div>
+        <div className="resource-grid">
+          <article className="resource-card">
+            <FileText size={21} />
+            <h3>Markdown Starter Guide</h3>
+            <p>Practical examples for headings, lists, tables, math, code blocks, export, and local-first desktop work.</p>
+            <a className="text-link" href="/guide?utm_source=homepage_resources&utm_medium=resource">
+              Read guide <ChevronRight size={15} />
+            </a>
+          </article>
+          <article className="resource-card">
+            <GitBranch size={21} />
+            <h3>Release Notes</h3>
+            <p>See what changed in the current preview, what is stable today, and which Pro workflows are still planned.</p>
+            <a className="text-link" href="/changelog?utm_source=homepage_resources&utm_medium=resource">
+              Read changelog <ChevronRight size={15} />
+            </a>
+          </article>
         </div>
       </section>
 
@@ -1216,8 +1382,14 @@ function DownloadPage() {
             <li>The guide is written for people who want to use Markdown productively with VeloWrite.</li>
           </ul>
           <div className="feedback-actions">
+            <a className="primary-link" href="/guide?utm_source=download_page&utm_medium=resource">
+              Read Online Guide <ChevronRight size={17} />
+            </a>
             <a className="primary-link" href="/markdown-guide.pdf">
               Download PDF Guide <Download size={17} />
+            </a>
+            <a className="secondary-link" href="/changelog?utm_source=download_page&utm_medium=resource">
+              Read Changelog <FileText size={17} />
             </a>
           </div>
         </section>
@@ -1281,6 +1453,69 @@ function LegalPage({ page }: { page: keyof typeof legalPages }) {
             ))}
           </section>
         ))}
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
+function ContentPage({ page }: { page: keyof typeof contentPages }) {
+  const content = contentPages[page];
+
+  return (
+    <div className="content-page">
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloWrite
+        </a>
+        <div className="nav-actions">
+          <a href="/web?utm_source=content_nav&utm_medium=cta">
+            Web editor <ChevronRight size={16} />
+          </a>
+          <a href="/download?utm_source=content_nav&utm_medium=cta">
+            Download <Download size={16} />
+          </a>
+          <a href="/faq?utm_source=content_nav&utm_medium=cta">
+            FAQ <FileText size={16} />
+          </a>
+        </div>
+      </header>
+
+      <main className="content-shell">
+        <div className="eyebrow">
+          <FileText size={16} />
+          {content.eyebrow}
+        </div>
+        <h1>{content.title}</h1>
+        <p className="legal-updated">Last updated: {content.updated}</p>
+        <p className="legal-intro">{content.intro}</p>
+
+        {content.sections.map((section) => (
+          <section key={section.title}>
+            <h2>{section.title}</h2>
+            {section.body.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            {section.example && (
+              <div className="content-example">
+                <span>{section.example.label}</span>
+                <pre>{section.example.markdown}</pre>
+                <p>{section.example.note}</p>
+              </div>
+            )}
+          </section>
+        ))}
+
+        <section className="content-cta" aria-label="Next action">
+          <a className="primary-link" href={content.cta.primary.href}>
+            {content.cta.primary.label} <ChevronRight size={17} />
+          </a>
+          <a className="secondary-link" href={content.cta.secondary.href}>
+            {content.cta.secondary.label} <FileText size={17} />
+          </a>
+        </section>
       </main>
 
       <SiteFooter />
@@ -1388,6 +1623,8 @@ function SiteFooter() {
         <span>Local-first Markdown writing, with a web preview path.</span>
       </div>
       <nav aria-label="Legal and product links">
+        <a href="/guide">Guide</a>
+        <a href="/changelog">Changelog</a>
         <a href="/faq">FAQ</a>
         <a href="/feedback">Feedback</a>
         <a href="/privacy">Privacy</a>
@@ -1712,6 +1949,10 @@ function Router() {
     page = <InteractiveDemoPage />;
   } else if (window.location.pathname.startsWith("/pro")) {
     page = <ProPage />;
+  } else if (window.location.pathname.startsWith("/guide")) {
+    page = <ContentPage page="guide" />;
+  } else if (window.location.pathname.startsWith("/changelog")) {
+    page = <ContentPage page="changelog" />;
   } else if (window.location.pathname.startsWith("/faq")) {
     page = <FAQPage />;
   } else if (window.location.pathname.startsWith("/privacy")) {
