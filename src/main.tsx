@@ -1890,7 +1890,7 @@ function ContentPage({ page }: { page: keyof typeof contentPages }) {
         </div>
       </header>
 
-      <main className="content-shell">
+      <main className={content.directory ? "content-shell content-shell-wide" : "content-shell"}>
         <div className="eyebrow">
           <FileText size={16} />
           {content.eyebrow}
@@ -1899,43 +1899,49 @@ function ContentPage({ page }: { page: keyof typeof contentPages }) {
         <p className="legal-updated">Last updated: {content.updated}</p>
         <p className="legal-intro">{content.intro}</p>
 
-        {content.directory && (
-          <nav className="content-directory" aria-label="Page directory">
-            <span>{page === "changelog" ? "Versions" : "On this page"}</span>
-            <div>
-              {content.directory.map((item) => (
-                <a href={item.href} key={item.href}>
-                  {item.label}
-                </a>
-              ))}
-            </div>
-          </nav>
-        )}
+        <div className={content.directory ? "content-layout" : "content-layout content-layout-simple"}>
+          {content.directory && (
+            <aside className="content-sidebar">
+              <nav className="content-directory" aria-label="Page directory">
+                <span>{page === "changelog" ? "Versions" : "On this page"}</span>
+                <div>
+                  {content.directory.map((item) => (
+                    <a href={item.href} key={item.href}>
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+              </nav>
+            </aside>
+          )}
 
-        {content.sections.map((section) => (
-          <section id={section.id} key={section.title}>
-            <h2>{section.title}</h2>
-            {section.body.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+          <article className="content-article">
+            {content.sections.map((section) => (
+              <section id={section.id} key={section.title}>
+                <h2>{section.title}</h2>
+                {section.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+                {section.example && (
+                  <div className="content-example">
+                    <span>{section.example.label}</span>
+                    <pre>{section.example.markdown}</pre>
+                    <p>{section.example.note}</p>
+                  </div>
+                )}
+              </section>
             ))}
-            {section.example && (
-              <div className="content-example">
-                <span>{section.example.label}</span>
-                <pre>{section.example.markdown}</pre>
-                <p>{section.example.note}</p>
-              </div>
-            )}
-          </section>
-        ))}
 
-        <section className="content-cta" aria-label="Next action">
-          <a className="primary-link" href={content.cta.primary.href}>
-            {content.cta.primary.label} <ChevronRight size={17} />
-          </a>
-          <a className="secondary-link" href={content.cta.secondary.href}>
-            {content.cta.secondary.label} <FileText size={17} />
-          </a>
-        </section>
+            <section className="content-cta" aria-label="Next action">
+              <a className="primary-link" href={content.cta.primary.href}>
+                {content.cta.primary.label} <ChevronRight size={17} />
+              </a>
+              <a className="secondary-link" href={content.cta.secondary.href}>
+                {content.cta.secondary.label} <FileText size={17} />
+              </a>
+            </section>
+          </article>
+        </div>
       </main>
 
       <SiteFooter />
@@ -2118,28 +2124,64 @@ function FAQPage() {
 }
 
 function SiteFooter() {
+  const footerGroups = [
+    {
+      title: "Product",
+      links: [
+        { label: "Web Editor", href: "/web" },
+        { label: "Download", href: "/download" },
+        { label: "Pro", href: "/pro" },
+      ],
+    },
+    {
+      title: "Resources",
+      links: [
+        { label: "Docs", href: "/docs" },
+        { label: "Guide", href: "/guide" },
+        { label: "Changelog", href: "/changelog" },
+        { label: "Roadmap", href: "/roadmap" },
+      ],
+    },
+    {
+      title: "Community",
+      links: [
+        { label: "Feedback", href: "/feedback" },
+        { label: "FAQ", href: "/faq" },
+        { label: "GitHub", href: "https://github.com/ken-water/velowrite", external: true },
+      ],
+    },
+    {
+      title: "Legal",
+      links: [
+        { label: "Privacy", href: "/privacy" },
+        { label: "Terms", href: "/terms" },
+        { label: "Refund", href: "/refund" },
+        { label: "License", href: "/license" },
+      ],
+    },
+  ];
+
   return (
     <footer className="site-footer">
-      <div>
+      <div className="footer-brand">
         <strong>VeloWrite</strong>
         <span>Local-first Markdown writing, with a web preview path.</span>
       </div>
-      <nav aria-label="Legal and product links">
-        <a href="/docs">Docs</a>
-        <a href="/guide">Guide</a>
-        <a href="/roadmap">Roadmap</a>
-        <a href="/changelog">Changelog</a>
-        <a href="/faq">FAQ</a>
-        <a href="/feedback">Feedback</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
-        <a href="/refund">Refund</a>
-        <a href="/license">License</a>
-        <a href="/pro">Pro</a>
-        <a href="/download">Download</a>
-        <a href="https://github.com/ken-water/velowrite" target="_blank" rel="noreferrer">
-          GitHub
-        </a>
+      <nav className="footer-links" aria-label="Footer links">
+        {footerGroups.map((group) => (
+          <div className="footer-group" key={group.title}>
+            <span>{group.title}</span>
+            {group.links.map((link) => (
+              <a
+                href={link.href}
+                key={link.href}
+                {...(link.external ? { target: "_blank", rel: "noreferrer" } : {})}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+        ))}
       </nav>
     </footer>
   );

@@ -12,6 +12,8 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - First long-tail article at `/docs/online-markdown-editor`.
 - Product Hunt roadmap update copy for sharing recorded user feedback publicly.
 - Vercel Speed Insights integration behind the existing analytics consent gate.
+- Documentation article layout now uses a left-side table of contents with the article content on the right.
+- Footer links are grouped into Product, Resources, Community, and Legal columns.
 
 ## [0.1.5] - 2026-07-19
 
