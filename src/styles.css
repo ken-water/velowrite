@@ -2735,6 +2735,42 @@ pre,
   gap: 10px;
 }
 
+.content-directory {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0 18px;
+  border: 1px solid rgba(21, 54, 45, 0.14);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.content-directory span {
+  color: #47635b;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.content-directory div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.content-directory a {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  border: 1px solid rgba(21, 54, 45, 0.15);
+  border-radius: 7px;
+  padding: 0 10px;
+  background: #ffffff;
+  color: #15362d;
+  font-size: 13px;
+  font-weight: 800;
+}
+
 .cookie-banner {
   position: fixed;
   right: 18px;

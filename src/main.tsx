@@ -71,6 +71,7 @@ type FaqGroup = {
 };
 
 type ContentSection = {
+  id?: string;
   title: string;
   body: readonly string[];
   example?: {
@@ -85,6 +86,7 @@ type ContentPage = {
   title: string;
   intro: string;
   updated: string;
+  directory?: readonly { label: string; href: string }[];
   sections: readonly ContentSection[];
   cta: {
     primary: { href: string; label: string };
@@ -554,10 +556,20 @@ const contentPages: Record<"guide" | "changelog", ContentPage> = {
     eyebrow: "Release notes",
     title: "VeloWrite Changelog",
     intro:
-      "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete.",
+      "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
     updated: "July 19, 2026",
+    directory: [
+      { label: "0.1.6", href: "#v016" },
+      { label: "0.1.5", href: "#v015" },
+      { label: "0.1.4", href: "#v014" },
+      { label: "0.1.3", href: "#v013" },
+      { label: "0.1.2", href: "#v012" },
+      { label: "0.1.1", href: "#v011" },
+      { label: "0.1.0", href: "#v010" },
+    ],
     sections: [
       {
+        id: "v016",
         title: "0.1.6 preview",
         body: [
           "Added a dedicated FAQ page for natural search and AI retrieval.",
@@ -567,6 +579,63 @@ const contentPages: Record<"guide" | "changelog", ContentPage> = {
         ],
       },
       {
+        id: "v015",
+        title: "0.1.5 preview",
+        body: [
+          "Added the feedback loop with Loops so visitors can report friction or join the beta.",
+          "Published privacy language for feedback submissions and installed the public feedback page across the site.",
+          "Expanded preview hardening with smoke checks for the landing page, web editor modes, demo tabs, download page, and feedback form.",
+          "Added the first Markdown quick start guide for new users in both source and PDF form.",
+        ],
+      },
+      {
+        id: "v014",
+        title: "0.1.4 preview",
+        body: [
+          "Shared a complex Markdown sample across the web demo and desktop first-run document.",
+          "Added KaTeX math, highlighted code fences, and tabbed multi-language code examples to the preview renderer.",
+          "Improved the Product Hunt demo with dedicated frame content, homepage video placement, and a stronger browser-first story.",
+          "Added browser favicon, app icons, and download assets for Windows, Linux, and Apple Silicon macOS.",
+        ],
+      },
+      {
+        id: "v013",
+        title: "0.1.3 preview",
+        body: [
+          "Launched the Pro roadmap page and the Pro interest waitlist path.",
+          "Defined the first product-launch kit for the Product Hunt rollout.",
+          "Started separating current preview behavior from the future paid workflow direction.",
+        ],
+      },
+      {
+        id: "v012",
+        title: "0.1.2 preview",
+        body: [
+          "Added privacy, terms, refund, and license pages.",
+          "Mounted the cookie and analytics consent banner before loading Vercel Analytics.",
+          "Expanded the download page with preview status sections and clearer limits.",
+        ],
+      },
+      {
+        id: "v011",
+        title: "0.1.1 preview",
+        body: [
+          "Added the download page with direct GitHub Release installer links.",
+          "Documented the local install guide for Linux and Windows testers.",
+          "Prepared local packaging scripts and fixed native dialog permissions for Tauri builds.",
+        ],
+      },
+      {
+        id: "v010",
+        title: "0.1.0 baseline",
+        body: [
+          "Shipped the first Tauri desktop shell, React/Vite frontend, and Markdown editing core.",
+          "Added split, writing-only, and preview-only modes with document outline, stats, and local file workflows.",
+          "Laid the foundation for recent files, history snapshots, HTML export, and browser fallback imports.",
+        ],
+      },
+      {
+        id: "meaning",
         title: "What this release means",
         body: [
           "This release is about making the product explain itself better. A visitor should understand what VeloWrite is, what the browser can do, what the desktop app adds, and why a download is worth trying.",
@@ -574,6 +643,7 @@ const contentPages: Record<"guide" | "changelog", ContentPage> = {
         ],
       },
       {
+        id: "planned",
         title: "Still planned",
         body: [
           "AI commands, private sync, publishing automation, commercial licensing, signed installers, and richer examples are still roadmap items.",
@@ -1492,8 +1562,21 @@ function ContentPage({ page }: { page: keyof typeof contentPages }) {
         <p className="legal-updated">Last updated: {content.updated}</p>
         <p className="legal-intro">{content.intro}</p>
 
+        {content.directory && (
+          <nav className="content-directory" aria-label="Changelog directory">
+            <span>Versions</span>
+            <div>
+              {content.directory.map((item) => (
+                <a href={item.href} key={item.href}>
+                  {item.label}
+                </a>
+              ))}
+            </div>
+          </nav>
+        )}
+
         {content.sections.map((section) => (
-          <section key={section.title}>
+          <section id={section.id} key={section.title}>
             <h2>{section.title}</h2>
             {section.body.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
