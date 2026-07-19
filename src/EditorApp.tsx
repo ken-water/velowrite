@@ -1493,9 +1493,6 @@ export default function EditorApp({
           <section className="preview-pane" aria-label="Rendered preview">
             <div className="pane-title">
               <span>Live Preview</span>
-              {viewMode !== "preview" && (
-                <kbd>{browserMode ? "Ctrl/Cmd S downloads .md" : "Ctrl/Cmd S saves"}</kbd>
-              )}
             </div>
             <article
               ref={previewRef}
