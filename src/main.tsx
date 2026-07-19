@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import {
   ChevronRight,
   Clock3,
@@ -893,8 +894,8 @@ const legalPages = {
       {
         title: "Analytics and cookies",
         body: [
-          "We use Vercel Web Analytics to understand basic site usage, such as page views and download-link clicks. On this site, the analytics script is only loaded after you choose Allow analytics in the cookie banner.",
-          "VeloWrite uses localStorage to remember your analytics choice. If you decline analytics, the analytics script is not loaded by this React app. You can clear your browser site data to reset the choice.",
+          "We use Vercel Web Analytics and Speed Insights to understand basic site usage and page performance, such as page views, download-link clicks, loading behavior, and interaction responsiveness. On this site, analytics and speed scripts are only loaded after you choose Allow analytics in the cookie banner.",
+          "VeloWrite uses localStorage to remember your analytics choice. If you decline analytics, the analytics and speed scripts are not loaded by this React app. You can clear your browser site data to reset the choice.",
         ],
       },
       {
@@ -2515,7 +2516,12 @@ function AppRoot() {
   return (
     <>
       <Router />
-      {analyticsConsent === "accepted" && <Analytics />}
+      {analyticsConsent === "accepted" && (
+        <>
+          <Analytics />
+          <SpeedInsights />
+        </>
+      )}
       <CookieConsent value={analyticsConsent} onChange={updateAnalyticsConsent} />
     </>
   );
