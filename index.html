@@ -68,6 +68,76 @@
               "availability": "https://schema.org/InStock"
             },
             "publisher": { "@id": "https://velowrite.app/#organization" }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://velowrite.app/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is VeloWrite?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is VeloWrite free to use today?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The current public build is a free preview for early testers. Future AI, private sync, publishing automation, advanced exports, and team workflows may become Pro features."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is VeloWrite a Typora alternative?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "VeloWrite is built for users who want a clean Typora-like Markdown workflow with a browser trial, lightweight desktop packaging, local-first files, and a planned AI-native path."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does VeloWrite upload my Markdown documents?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Normal web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage, and desktop files and history snapshots stay on your device by default."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I try VeloWrite without installing anything?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Open the web editor in your browser and start writing immediately. It is the fastest way to test the Markdown workflow before deciding whether the desktop app is worth installing."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is the difference between the web editor and desktop app?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The web editor is best for quick drafts, preview, Markdown download, and HTML export. The desktop app is better for real local files, native open and save, offline work, recent files, and local history snapshots."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does VeloWrite handle math, tables, and code highlighting?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. The preview supports Markdown tables, KaTeX math rendering, syntax-highlighted code blocks, and tabbed previews for multi-language code examples."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Will the desktop installer trigger a warning?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Not yet. The current Windows and macOS preview installers are unsigned, so SmartScreen or Gatekeeper may show security warnings until code signing and notarization are ready."
+                }
+              }
+            ]
           }
         ]
       }

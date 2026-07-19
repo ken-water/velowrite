@@ -38,12 +38,34 @@ const siteUrl = "https://velowrite.app";
 const defaultSeoTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultSeoDescription =
   "VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.";
+const breadcrumbLabels: Record<string, string> = {
+  "/web": "Web Editor",
+  "/download": "Download",
+  "/demo": "Demo",
+  "/pro": "Pro Roadmap",
+  "/faq": "FAQ",
+  "/privacy": "Privacy Policy",
+  "/terms": "Terms of Service",
+  "/refund": "Refund Policy",
+  "/license": "License",
+  "/feedback": "Feedback",
+};
 
 type SeoConfig = {
   title: string;
   description: string;
   canonicalPath: string;
   robots?: string;
+};
+
+type FaqItem = {
+  question: string;
+  answer: string;
+};
+
+type FaqGroup = {
+  title: string;
+  items: readonly FaqItem[];
 };
 
 function routeSeo(pathname: string): SeoConfig {
@@ -80,6 +102,15 @@ function routeSeo(pathname: string): SeoConfig {
       description:
         "Explore the planned VeloWrite Pro path for AI writing commands, private sync, publishing automation, advanced exports, and team workflows.",
       canonicalPath: "/pro",
+    };
+  }
+
+  if (pathname.startsWith("/faq")) {
+    return {
+      title: "VeloWrite FAQ - Markdown Editor, Privacy, Desktop, and Pro",
+      description:
+        "Answers about VeloWrite's online Markdown editor, Tauri desktop app, privacy model, platform support, preview limits, and future Pro workflows.",
+      canonicalPath: "/faq",
     };
   }
 
@@ -169,6 +200,27 @@ function setCanonical(href: string) {
   element.href = href;
 }
 
+function setStructuredData(id: string, data: unknown) {
+  const existingFaqGraph = Array.from(
+    document.head.querySelectorAll<HTMLScriptElement>('script[type="application/ld+json"]'),
+  ).some((script) => script.textContent?.includes("https://velowrite.app/#faq"));
+
+  if (id === "homepage-faq" && existingFaqGraph) {
+    return;
+  }
+
+  let element = document.head.querySelector<HTMLScriptElement>(`script[data-structured-id="${id}"]`);
+
+  if (!element) {
+    element = document.createElement("script");
+    element.type = "application/ld+json";
+    element.dataset.structuredId = id;
+    document.head.appendChild(element);
+  }
+
+  element.textContent = JSON.stringify(data);
+}
+
 function SeoManager({ config }: { config: SeoConfig }) {
   React.useEffect(() => {
     const canonicalUrl = `${siteUrl}${config.canonicalPath}`;
@@ -182,6 +234,36 @@ function SeoManager({ config }: { config: SeoConfig }) {
     setMeta("og:url", canonicalUrl, "property");
     setMeta("twitter:title", config.title);
     setMeta("twitter:description", config.description);
+
+    if (config.canonicalPath !== "/" && breadcrumbLabels[config.canonicalPath]) {
+      setStructuredData("breadcrumbs", {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "VeloWrite",
+            item: `${siteUrl}/`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: breadcrumbLabels[config.canonicalPath],
+            item: canonicalUrl,
+          },
+        ],
+      });
+    }
+
+    if (config.canonicalPath === "/" || config.canonicalPath === "/faq") {
+      setStructuredData(config.canonicalPath === "/" ? "homepage-faq" : "faq-page", {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "@id": `${siteUrl}${config.canonicalPath}#faq`,
+        mainEntity: faqSchemaItems,
+      });
+    }
   }, [config]);
 
   return null;
@@ -219,6 +301,151 @@ const downloads = [
     note: "Unsigned preview build for Apple Silicon Macs.",
   },
 ];
+
+const faqGroups: readonly FaqGroup[] = [
+  {
+    title: "Product Basics",
+    items: [
+      {
+        question: "What is VeloWrite?",
+        answer:
+          "VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.",
+      },
+      {
+        question: "Is VeloWrite a Typora alternative?",
+        answer:
+          "VeloWrite is built for users who want a clean Typora-like Markdown workflow with a browser trial, lightweight desktop packaging, local-first files, and a planned AI-native path.",
+      },
+      {
+        question: "Who is VeloWrite for?",
+        answer:
+          "VeloWrite is for developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.",
+      },
+    ],
+  },
+  {
+    title: "Web Editor and Desktop App",
+    items: [
+      {
+        question: "Can I try VeloWrite without installing anything?",
+        answer:
+          "Yes. Open the web editor in your browser and start writing immediately. It is the fastest way to test the Markdown workflow before deciding whether the desktop app is worth installing.",
+      },
+      {
+        question: "What happens if I refresh the browser while editing?",
+        answer:
+          "Your draft stays in localStorage in the same browser, so a refresh on the same device can bring it back. That is useful for a quick trial, but it is not a substitute for real local files or backups.",
+      },
+      {
+        question: "What is the difference between the web editor and desktop app?",
+        answer:
+          "The web editor is best for quick drafts, preview, Markdown download, and HTML export. The desktop app is better for real local files, native open and save, offline work, recent files, and local history snapshots.",
+      },
+      {
+        question: "Do I need an account to use it?",
+        answer:
+          "Yes. The current web editor can be used without an account, and browser drafts are saved locally in the same browser. Desktop preview builds also work without a cloud account.",
+      },
+      {
+        question: "Which platforms can I download right now?",
+        answer:
+          "VeloWrite currently offers a web editor plus preview desktop installers for Windows x64, Apple Silicon macOS, Linux AppImage, Debian, and RPM-based Linux distributions.",
+      },
+      {
+        question: "Will the desktop installer trigger a warning?",
+        answer:
+          "Not yet. The current Windows and macOS preview installers are unsigned, so SmartScreen or Gatekeeper may show security warnings until code signing and notarization are ready.",
+      },
+    ],
+  },
+  {
+    title: "Markdown Features",
+    items: [
+      {
+        question: "Does VeloWrite handle math, tables, and code highlighting?",
+        answer:
+          "Yes. The preview supports Markdown tables, KaTeX math rendering, syntax-highlighted code blocks, and tabbed previews for multi-language code examples.",
+      },
+      {
+        question: "Can I download my work as Markdown or HTML?",
+        answer:
+          "Yes. The web editor can download Markdown files and export clean HTML. The desktop app also supports local files and HTML export in the current preview.",
+      },
+      {
+        question: "Can the desktop app help me recover older versions?",
+        answer:
+          "The desktop preview includes local history snapshots so writers can recover prior versions while working with local Markdown files.",
+      },
+    ],
+  },
+  {
+    title: "Privacy, Preview, and Pro",
+    items: [
+      {
+        question: "Does VeloWrite upload my Markdown documents?",
+        answer:
+          "Normal web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage, and desktop files and history snapshots stay on your device by default.",
+      },
+      {
+        question: "Is VeloWrite free to use today?",
+        answer:
+          "The current public build is a free preview for early testers. Future AI, private sync, publishing automation, advanced exports, and team workflows may become Pro features.",
+      },
+      {
+        question: "What will VeloWrite Pro include?",
+        answer:
+          "The planned Pro direction includes AI writing commands, private sync, one-click publishing, advanced exports, themes, and commercial workflows. Pricing will be published before checkout opens.",
+      },
+      {
+        question: "Where do I send feedback if something feels off?",
+        answer:
+          "Use the feedback page to report rough edges, missing workflows, download problems, or features that would make VeloWrite worth paying for.",
+      },
+    ],
+  },
+] as const;
+
+const faqItems: readonly FaqItem[] = faqGroups.flatMap((group) => group.items);
+function faqByQuestion(question: string) {
+  const item = faqItems.find((candidate) => candidate.question === question);
+  if (!item) throw new Error(`Missing FAQ item: ${question}`);
+  return item;
+}
+
+const landingFaqs = [
+  faqByQuestion("What is VeloWrite?"),
+  faqByQuestion("Is VeloWrite free to use today?"),
+  faqByQuestion("Is VeloWrite a Typora alternative?"),
+  faqByQuestion("Does VeloWrite upload my Markdown documents?"),
+  faqByQuestion("Can I try VeloWrite without installing anything?"),
+  faqByQuestion("What is the difference between the web editor and desktop app?"),
+  faqByQuestion("Does VeloWrite handle math, tables, and code highlighting?"),
+  faqByQuestion("Will the desktop installer trigger a warning?"),
+] as const;
+
+const conversationalFaqCards = [
+  {
+    prompt: "I just need to edit a Markdown file quickly.",
+    answer: "Use the web editor first. It opens instantly, previews Markdown, and lets you download a .md or HTML copy without signing in.",
+  },
+  {
+    prompt: "I care about private local notes.",
+    answer: "Use the desktop app when you need native open and save, offline work, recent files, and local history snapshots on your own machine.",
+  },
+  {
+    prompt: "I want to know what is not ready yet.",
+    answer: "AI commands, private sync, publishing automation, account-based sharing, and signed installers are still preview or roadmap items.",
+  },
+] as const;
+
+const faqSchemaItems = faqItems.map((item: FaqItem) => ({
+  "@type": "Question",
+  name: item.question,
+  acceptedAnswer: {
+    "@type": "Answer",
+    text: item.answer,
+  },
+}));
 
 const legalPages = {
   privacy: {
@@ -542,6 +769,26 @@ function LandingPage() {
           <Download size={21} />
           <h2>Clear upgrade path</h2>
           <p>The browser is the first touch; native folders, offline work, and history drive desktop adoption.</p>
+        </div>
+      </section>
+
+      <section className="landing-faq" aria-label="VeloWrite FAQ">
+        <div className="section-heading">
+          <span>FAQ</span>
+          <h2>Questions people ask before trying VeloWrite.</h2>
+        </div>
+        <div className="faq-grid">
+          {landingFaqs.map((item) => (
+            <article className="faq-item" key={item.question}>
+              <h3>{item.question}</h3>
+              <p>{item.answer}</p>
+            </article>
+          ))}
+        </div>
+        <div className="faq-cta-bar">
+          <a className="text-link" href="/faq?utm_source=homepage_faq&utm_medium=cta">
+            View all FAQ <ChevronRight size={15} />
+          </a>
         </div>
       </section>
 
@@ -1041,6 +1288,98 @@ function LegalPage({ page }: { page: keyof typeof legalPages }) {
   );
 }
 
+function FAQPage() {
+  return (
+    <div className="faq-page">
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloWrite
+        </a>
+        <div className="nav-actions">
+          <a href="/web?utm_source=faq_nav&utm_medium=cta">
+            Web editor <ChevronRight size={16} />
+          </a>
+          <a href="/download?utm_source=faq_nav&utm_medium=cta">
+            Download <Download size={16} />
+          </a>
+          <a href="/feedback?utm_source=faq_nav&utm_medium=cta">
+            Feedback <Mail size={16} />
+          </a>
+        </div>
+      </header>
+
+      <main className="faq-shell">
+        <section className="faq-hero">
+          <div className="eyebrow">
+            <Sparkles size={16} />
+            FAQ
+          </div>
+          <h1>Answers about the web editor, desktop app, privacy, and Pro path.</h1>
+          <p>
+            This page collects the questions people usually ask before trying VeloWrite.
+            Use it to understand the preview boundaries, installation notes, and how the
+            browser and desktop workflows fit together.
+          </p>
+          <div className="hero-actions">
+            <a className="primary-link" href="/web?utm_source=faq_hero&utm_medium=cta">
+              Open Web Editor <ChevronRight size={17} />
+            </a>
+            <a className="secondary-link" href="/download?utm_source=faq_hero&utm_medium=cta">
+              Download Desktop <Download size={17} />
+            </a>
+          </div>
+        </section>
+
+        <section className="faq-conversation" aria-label="Quick answers">
+          {conversationalFaqCards.map((item) => (
+            <article key={item.prompt}>
+              <span>{item.prompt}</span>
+              <p>{item.answer}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="faq-outline" aria-label="FAQ topics">
+          {faqGroups.map((group) => (
+            <article className="faq-group" key={group.title}>
+              <div className="section-heading">
+                <span>Topic</span>
+                <h2>{group.title}</h2>
+              </div>
+              <div className="faq-grid faq-grid-large">
+                {group.items.map((item) => (
+                  <article className="faq-item" key={item.question}>
+                    <h3>{item.question}</h3>
+                    <p>{item.answer}</p>
+                  </article>
+                ))}
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <section className="faq-note">
+          <div>
+            <span>Next step</span>
+            <h2>Try the browser editor first, then move to desktop when local files matter.</h2>
+          </div>
+          <div className="hero-actions">
+            <a className="primary-link" href="/web?utm_source=faq_footer&utm_medium=cta">
+              Try Web Editor <ChevronRight size={17} />
+            </a>
+            <a className="secondary-link" href="/download?utm_source=faq_footer&utm_medium=cta">
+              Download Desktop <Download size={17} />
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
 function SiteFooter() {
   return (
     <footer className="site-footer">
@@ -1049,6 +1388,7 @@ function SiteFooter() {
         <span>Local-first Markdown writing, with a web preview path.</span>
       </div>
       <nav aria-label="Legal and product links">
+        <a href="/faq">FAQ</a>
         <a href="/feedback">Feedback</a>
         <a href="/privacy">Privacy</a>
         <a href="/terms">Terms</a>
@@ -1372,6 +1712,8 @@ function Router() {
     page = <InteractiveDemoPage />;
   } else if (window.location.pathname.startsWith("/pro")) {
     page = <ProPage />;
+  } else if (window.location.pathname.startsWith("/faq")) {
+    page = <FAQPage />;
   } else if (window.location.pathname.startsWith("/privacy")) {
     page = <LegalPage page="privacy" />;
   } else if (window.location.pathname.startsWith("/terms")) {

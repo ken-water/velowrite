@@ -31,6 +31,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://velowrite.app/faq</loc>
+    <lastmod>2026-07-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://velowrite.app/privacy</loc>
     <lastmod>2026-07-19</lastmod>
     <changefreq>monthly</changefreq>

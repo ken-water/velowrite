@@ -1791,6 +1791,148 @@ pre,
   line-height: 1.6;
 }
 
+.landing-faq {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 4px 0 52px;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.faq-item {
+  border: 1px solid rgba(21, 54, 45, 0.14);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 14px 34px rgba(38, 52, 47, 0.07);
+}
+
+.faq-item h3 {
+  margin: 0 0 10px;
+  color: #17201c;
+  font-size: 17px;
+  line-height: 1.28;
+}
+
+.faq-item p {
+  margin: 0;
+  color: #4f5f59;
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+.faq-cta-bar {
+  display: flex;
+  margin-top: 18px;
+}
+
+.faq-page {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(244, 241, 235, 0.98), rgba(230, 235, 226, 0.92)),
+    url("data:image/svg+xml,%3Csvg width='1600' height='900' viewBox='0 0 1600 900' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='1600' height='900' filter='url(%23noise)' opacity='.06'/%3E%3C/svg%3E");
+  color: #17201c;
+}
+
+.faq-shell {
+  width: min(1000px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 54px 0 72px;
+}
+
+.faq-hero {
+  max-width: 780px;
+  margin-bottom: 40px;
+}
+
+.faq-hero h1 {
+  margin: 0 0 16px;
+  color: #0f251f;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.faq-hero p {
+  margin: 0;
+  color: #4a5a55;
+  font-size: 18px;
+  line-height: 1.66;
+}
+
+.faq-outline {
+  display: grid;
+  gap: 34px;
+}
+
+.faq-conversation {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 34px;
+}
+
+.faq-conversation article {
+  border: 1px solid rgba(21, 54, 45, 0.14);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.faq-conversation span {
+  display: block;
+  margin-bottom: 10px;
+  color: #0f251f;
+  font-size: 15px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.faq-conversation p {
+  margin: 0;
+  color: #4f5f59;
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+.faq-group {
+  border-top: 1px solid rgba(21, 54, 45, 0.14);
+  padding-top: 24px;
+}
+
+.faq-grid-large {
+  grid-template-columns: 1fr;
+}
+
+.faq-note {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin-top: 42px;
+  border-top: 1px solid rgba(21, 54, 45, 0.16);
+  padding-top: 28px;
+}
+
+.faq-note span {
+  color: #47635b;
+  font-size: 13px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.faq-note h2 {
+  max-width: 660px;
+  margin: 8px 0 0;
+  color: #0f251f;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
 .mode-compare {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
@@ -2555,10 +2697,12 @@ pre,
   }
 
   .compare-grid,
+  .faq-grid,
   .landing-waitlist,
   .feedback-shell,
   .pro-hero,
   .pro-waitlist,
+  .faq-note,
   .demo-hero,
   .demo-workspace,
   .demo-conversion {
@@ -2593,8 +2737,10 @@ pre,
   .feature-band,
   .mode-compare,
   .video-showcase,
+  .landing-faq,
   .landing-waitlist,
   .feedback-shell,
+  .faq-shell,
   .pro-shell {
     width: min(100% - 28px, 1180px);
   }
@@ -2620,6 +2766,14 @@ pre,
   }
 
   .pro-hero h1 {
+    font-size: 42px;
+  }
+
+  .faq-shell {
+    padding-top: 34px;
+  }
+
+  .faq-hero h1 {
     font-size: 42px;
   }
 
@@ -2722,6 +2876,14 @@ pre,
 
   .compare-card {
     padding: 16px;
+  }
+
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .faq-conversation {
+    grid-template-columns: 1fr;
   }
 
   .landing-waitlist {
