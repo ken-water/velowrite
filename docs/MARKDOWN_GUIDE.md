@@ -54,6 +54,100 @@ This is `inline code`.
 
 Keep formatting intentional. Markdown is strongest when the document stays readable even before rendering.
 
+## What VeloWrite Shows
+
+These examples are written so you can see both the Markdown source and the rendered result.
+
+### Headings
+
+Type this:
+
+```markdown
+# Project Plan
+## Goals
+### Week 1
+```
+
+You will see:
+
+# Project Plan
+## Goals
+### Week 1
+
+### Lists
+
+Type this:
+
+```markdown
+- Draft the outline
+- Review the examples
+- Export the final document
+```
+
+You will see:
+
+- Draft the outline
+- Review the examples
+- Export the final document
+
+### Table
+
+Type this:
+
+```markdown
+| Task | Web Editor | Desktop App |
+| --- | --- | --- |
+| Quick draft | Instant start | Native app launch |
+| Save | Download Markdown copy | Save directly to local file |
+| Recovery | Browser draft only | Local history snapshots |
+```
+
+You will see:
+
+| Task | Web Editor | Desktop App |
+| --- | --- | --- |
+| Quick draft | Instant start | Native app launch |
+| Save | Download Markdown copy | Save directly to local file |
+| Recovery | Browser draft only | Local history snapshots |
+
+### Code
+
+Type this:
+
+````markdown
+```python
+def greet(name):
+    return f"Hello, {name}"
+```
+````
+
+You will see:
+
+```python
+def greet(name):
+    return f"Hello, {name}"
+```
+
+### Math
+
+Type this:
+
+```markdown
+Inline math: $E = mc^2$.
+
+$$
+\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}
+$$
+```
+
+You will see:
+
+Inline math: $E = mc^2$.
+
+$$
+\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}
+$$
+
 ## Lists
 
 Use bullets for unordered ideas.

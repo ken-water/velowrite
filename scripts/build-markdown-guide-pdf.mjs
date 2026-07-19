@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { katex } from "@mdit/plugin-katex";
 import MarkdownIt from "markdown-it";
 import { chromium } from "playwright";
 
@@ -11,11 +12,16 @@ const tempDir = path.join(repoRoot, "launch", "markdown-guide");
 const tempHtmlPath = path.join(tempDir, "markdown-guide.html");
 
 const markdown = await fs.readFile(sourcePath, "utf8");
+const katexCss = await fs.readFile(
+  path.join(repoRoot, "node_modules", "katex", "dist", "katex.min.css"),
+  "utf8",
+);
 const renderer = new MarkdownIt({
   html: false,
   linkify: true,
   typographer: true,
 });
+renderer.use(katex);
 
 const body = renderer.render(markdown);
 const html = `<!doctype html>
@@ -24,6 +30,7 @@ const html = `<!doctype html>
     <meta charset="utf-8" />
     <title>Markdown Quick Start for VeloWrite</title>
     <style>
+      ${katexCss}
       @page { size: A4; margin: 18mm 16mm; }
       :root {
         color: #17201c;
@@ -34,6 +41,7 @@ const html = `<!doctype html>
       main { max-width: 760px; margin: 0 auto; }
       h1 { margin: 0 0 14px; color: #102720; font-size: 32px; line-height: 1.12; }
       h2 { break-after: avoid; margin: 28px 0 10px; color: #15362d; font-size: 20px; }
+      h3 { break-after: avoid; margin: 18px 0 8px; color: #1b3d33; font-size: 15px; }
       p, li { color: #384a44; font-size: 12.5px; line-height: 1.58; }
       a { color: #235f54; font-weight: 700; }
       code {
@@ -74,6 +82,8 @@ const html = `<!doctype html>
         background: #f8f6f1;
         color: #4a5a55;
       }
+      .katex-display { break-inside: avoid; margin: 12px 0; }
+      .katex { font-size: 1em; }
     </style>
   </head>
   <body>
