@@ -100,8 +100,12 @@ type ContentPage = {
   };
 };
 
+function matchesRoute(pathname: string, route: string) {
+  return pathname === route || pathname.startsWith(`${route}/`);
+}
+
 function routeSeo(pathname: string): SeoConfig {
-  if (pathname.startsWith("/web")) {
+  if (matchesRoute(pathname, "/web")) {
     return {
       title: "VeloWrite Web Editor - Private Online Markdown Editing",
       description:
@@ -110,7 +114,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/download")) {
+  if (matchesRoute(pathname, "/download")) {
     return {
       title: "Download VeloWrite - Windows and Linux Markdown App",
       description:
@@ -119,7 +123,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/demo")) {
+  if (matchesRoute(pathname, "/demo")) {
     return {
       title: "VeloWrite Demo - Markdown Editing, Preview, Math, and Code Tabs",
       description:
@@ -128,7 +132,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/pro")) {
+  if (matchesRoute(pathname, "/pro")) {
     return {
       title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
       description:
@@ -137,7 +141,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/docs/online-markdown-editor")) {
+  if (matchesRoute(pathname, "/docs/online-markdown-editor")) {
     return {
       title: "Online Markdown Editor - Write, Preview, and Download Markdown",
       description:
@@ -146,7 +150,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname === "/docs" || pathname.startsWith("/docs/")) {
+  if (matchesRoute(pathname, "/docs")) {
     return {
       title: "VeloWrite Markdown Library - Guides, Workflows, and Advanced Markdown",
       description:
@@ -155,7 +159,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/roadmap")) {
+  if (matchesRoute(pathname, "/roadmap")) {
     return {
       title: "VeloWrite Public Roadmap - User Feedback and Planned Improvements",
       description:
@@ -164,7 +168,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/guide")) {
+  if (matchesRoute(pathname, "/guide")) {
     return {
       title: "VeloWrite Markdown Guide - Practical Writing Examples",
       description:
@@ -173,7 +177,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/changelog")) {
+  if (matchesRoute(pathname, "/changelog")) {
     return {
       title: "VeloWrite Changelog - Release Notes and Preview Updates",
       description:
@@ -182,7 +186,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/faq")) {
+  if (matchesRoute(pathname, "/faq")) {
     return {
       title: "VeloWrite FAQ - Markdown Editor, Privacy, Desktop, and Pro",
       description:
@@ -191,7 +195,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/privacy")) {
+  if (matchesRoute(pathname, "/privacy")) {
     return {
       title: "VeloWrite Privacy Policy",
       description:
@@ -200,7 +204,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/terms")) {
+  if (matchesRoute(pathname, "/terms")) {
     return {
       title: "VeloWrite Terms of Service",
       description:
@@ -209,7 +213,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/refund")) {
+  if (matchesRoute(pathname, "/refund")) {
     return {
       title: "VeloWrite Refund Policy",
       description:
@@ -218,7 +222,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/license")) {
+  if (matchesRoute(pathname, "/license")) {
     return {
       title: "VeloWrite License",
       description:
@@ -227,7 +231,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/feedback")) {
+  if (matchesRoute(pathname, "/feedback")) {
     return {
       title: "VeloWrite Feedback",
       description:
@@ -237,7 +241,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (pathname.startsWith("/app")) {
+  if (matchesRoute(pathname, "/app")) {
     return {
       title: "VeloWrite Desktop App Shell",
       description: defaultSeoDescription,
@@ -2560,7 +2564,7 @@ function Router() {
   const seo = routeSeo(window.location.pathname);
   let page: React.ReactNode;
 
-  if (window.location.pathname.startsWith("/web")) {
+  if (matchesRoute(window.location.pathname, "/web")) {
     page = (
       <React.Suspense fallback={<div className="loading-screen">Loading web editor</div>}>
         <EditorApp
@@ -2570,39 +2574,39 @@ function Router() {
         />
       </React.Suspense>
     );
-  } else if (window.location.pathname.startsWith("/app")) {
+  } else if (matchesRoute(window.location.pathname, "/app")) {
     page = (
       <React.Suspense fallback={<div className="loading-screen">Loading editor</div>}>
         <EditorApp surface="desktop" initialViewMode="write" />
       </React.Suspense>
     );
-  } else if (window.location.pathname.startsWith("/download")) {
+  } else if (matchesRoute(window.location.pathname, "/download")) {
     page = <DownloadPage />;
-  } else if (window.location.pathname.startsWith("/demo")) {
+  } else if (matchesRoute(window.location.pathname, "/demo")) {
     page = <InteractiveDemoPage />;
-  } else if (window.location.pathname.startsWith("/pro")) {
+  } else if (matchesRoute(window.location.pathname, "/pro")) {
     page = <ProPage />;
-  } else if (window.location.pathname.startsWith("/roadmap")) {
+  } else if (matchesRoute(window.location.pathname, "/roadmap")) {
     page = <RoadmapPage />;
-  } else if (window.location.pathname.startsWith("/docs/online-markdown-editor")) {
+  } else if (matchesRoute(window.location.pathname, "/docs/online-markdown-editor")) {
     page = <ContentPage page="onlineMarkdownEditor" />;
-  } else if (window.location.pathname === "/docs" || window.location.pathname === "/docs/" || window.location.pathname.startsWith("/docs/")) {
+  } else if (matchesRoute(window.location.pathname, "/docs")) {
     page = <DocsIndexPage />;
-  } else if (window.location.pathname.startsWith("/guide")) {
+  } else if (matchesRoute(window.location.pathname, "/guide")) {
     page = <ContentPage page="guide" />;
-  } else if (window.location.pathname.startsWith("/changelog")) {
+  } else if (matchesRoute(window.location.pathname, "/changelog")) {
     page = <ContentPage page="changelog" />;
-  } else if (window.location.pathname.startsWith("/faq")) {
+  } else if (matchesRoute(window.location.pathname, "/faq")) {
     page = <FAQPage />;
-  } else if (window.location.pathname.startsWith("/privacy")) {
+  } else if (matchesRoute(window.location.pathname, "/privacy")) {
     page = <LegalPage page="privacy" />;
-  } else if (window.location.pathname.startsWith("/terms")) {
+  } else if (matchesRoute(window.location.pathname, "/terms")) {
     page = <LegalPage page="terms" />;
-  } else if (window.location.pathname.startsWith("/refund")) {
+  } else if (matchesRoute(window.location.pathname, "/refund")) {
     page = <LegalPage page="refund" />;
-  } else if (window.location.pathname.startsWith("/license")) {
+  } else if (matchesRoute(window.location.pathname, "/license")) {
     page = <LegalPage page="license" />;
-  } else if (window.location.pathname.startsWith("/feedback")) {
+  } else if (matchesRoute(window.location.pathname, "/feedback")) {
     page = <FeedbackPage />;
   } else if (window.location.pathname === "/" || window.location.pathname === "") {
     page = <LandingPage />;
@@ -2619,7 +2623,7 @@ function Router() {
 }
 
 function AppRoot() {
-  const isDesktopShell = window.location.pathname.startsWith("/app") || "__TAURI_INTERNALS__" in window;
+  const isDesktopShell = matchesRoute(window.location.pathname, "/app") || "__TAURI_INTERNALS__" in window;
   const [analyticsConsent, setAnalyticsConsent] = React.useState<string | null>(() => {
     if (isDesktopShell) return "declined";
     return window.localStorage.getItem(analyticsConsentKey);
