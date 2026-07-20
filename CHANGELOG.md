@@ -16,6 +16,8 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Footer links are grouped into Product, Resources, Community, and Legal columns.
 - Desktop close handling now exits reliably after the unsaved-changes guard, including File > Exit.
 - Document outline clicks now synchronize both the editor and preview panes.
+- Desktop shell no longer shows website analytics consent UI.
+- Desktop shell opens in focused writing mode by default.
 
 ## [0.1.5] - 2026-07-19
 

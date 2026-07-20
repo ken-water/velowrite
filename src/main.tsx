@@ -2502,7 +2502,7 @@ function Router() {
   } else if (window.location.pathname.startsWith("/app")) {
     page = (
       <React.Suspense fallback={<div className="loading-screen">Loading editor</div>}>
-        <EditorApp surface="desktop" />
+        <EditorApp surface="desktop" initialViewMode="write" />
       </React.Suspense>
     );
   } else if (window.location.pathname.startsWith("/download")) {
@@ -2546,7 +2546,9 @@ function Router() {
 }
 
 function AppRoot() {
+  const isDesktopShell = window.location.pathname.startsWith("/app") || "__TAURI_INTERNALS__" in window;
   const [analyticsConsent, setAnalyticsConsent] = React.useState<string | null>(() => {
+    if (isDesktopShell) return "declined";
     return window.localStorage.getItem(analyticsConsentKey);
   });
 
@@ -2558,13 +2560,13 @@ function AppRoot() {
   return (
     <>
       <Router />
-      {analyticsConsent === "accepted" && (
+      {!isDesktopShell && analyticsConsent === "accepted" && (
         <>
           <Analytics />
           <SpeedInsights />
         </>
       )}
-      <CookieConsent value={analyticsConsent} onChange={updateAnalyticsConsent} />
+      {!isDesktopShell && <CookieConsent value={analyticsConsent} onChange={updateAnalyticsConsent} />}
     </>
   );
 }

@@ -707,6 +707,7 @@ export default function EditorApp({
   const fileInput = React.useRef<HTMLInputElement>(null);
   const previewRef = React.useRef<HTMLElement>(null);
   const previewScrollFrame = React.useRef<number | null>(null);
+  const suppressPreviewSync = React.useRef(false);
   const autoSaveTimer = React.useRef<number | null>(null);
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
   const [markdown, setMarkdown] = React.useState(() => {
@@ -720,7 +721,7 @@ export default function EditorApp({
   const [savedMarkdown, setSavedMarkdown] = React.useState(markdown);
   const [status, setStatus] = React.useState("Draft restored");
   const [viewMode, setViewMode] = React.useState<ViewMode>(() => {
-    return initialViewMode ?? getStoredViewMode();
+    return initialViewMode ?? (surface === "desktop" ? "write" : getStoredViewMode());
   });
   const [themeMode, setThemeMode] = React.useState<ThemeMode>(getStoredThemeMode);
   const [systemDark, setSystemDark] = React.useState(() => {
@@ -1216,6 +1217,8 @@ export default function EditorApp({
   }
 
   function syncPreviewScroll(ratio: number) {
+    if (suppressPreviewSync.current) return;
+
     if (previewScrollFrame.current) {
       window.cancelAnimationFrame(previewScrollFrame.current);
     }
@@ -1231,6 +1234,7 @@ export default function EditorApp({
 
   function scrollToHeading(id: string) {
     const line = findHeadingLine(markdown, id);
+    suppressPreviewSync.current = true;
     if (viewMode !== "split") {
       setViewMode("split");
     }
@@ -1239,7 +1243,11 @@ export default function EditorApp({
       window.requestAnimationFrame(() => {
         const preview = previewRef.current;
         const target = preview?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
-        target?.scrollIntoView({ block: "start", behavior: "auto" });
+        if (preview && target) {
+          const previewRect = preview.getBoundingClientRect();
+          const targetRect = target.getBoundingClientRect();
+          preview.scrollTop = Math.max(0, preview.scrollTop + targetRect.top - previewRect.top - 12);
+        }
 
         if (line) {
           setEditorScrollTarget((current) => ({
@@ -1247,6 +1255,10 @@ export default function EditorApp({
             nonce: (current?.nonce ?? 0) + 1,
           }));
         }
+
+        window.setTimeout(() => {
+          suppressPreviewSync.current = false;
+        }, 160);
       });
     });
   }
