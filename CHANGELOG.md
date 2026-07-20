@@ -14,6 +14,8 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Vercel Speed Insights integration behind the existing analytics consent gate.
 - Documentation article layout now uses a left-side table of contents with the article content on the right.
 - Footer links are grouped into Product, Resources, Community, and Legal columns.
+- Desktop close handling now exits reliably after the unsaved-changes guard, including File > Exit.
+- Document outline clicks now synchronize both the editor and preview panes.
 
 ## [0.1.5] - 2026-07-19
 

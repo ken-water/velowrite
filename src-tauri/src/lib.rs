@@ -36,6 +36,11 @@ fn app_ready() -> &'static str {
 }
 
 #[tauri::command]
+fn force_close_app(app: AppHandle) {
+    app.exit(0);
+}
+
+#[tauri::command]
 fn read_markdown_file(path: String) -> Result<MarkdownFile, String> {
     read_markdown_file_from_path(path)
 }
@@ -306,6 +311,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             app_ready,
+            force_close_app,
             read_markdown_file,
             read_recent_markdown_file,
             write_markdown_file,

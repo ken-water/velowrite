@@ -242,11 +242,16 @@ function useNativeApi(): NativeApi | null {
           return unlisten;
         },
         async listenCloseRequested(handler) {
-          return appWindow.onCloseRequested(async (event) => {
-            const shouldClose = await handler();
-            if (!shouldClose) {
-              event.preventDefault();
-            }
+          return appWindow.onCloseRequested((event) => {
+            event.preventDefault();
+            void handler()
+              .then((shouldClose) => {
+                if (shouldClose) {
+                  return invoke<void>("force_close_app");
+                }
+                return undefined;
+              })
+              .catch(console.error);
           });
         },
         async listenPathDrop(handler) {
@@ -257,7 +262,7 @@ function useNativeApi(): NativeApi | null {
           });
         },
         async closeWindow() {
-          await appWindow.close();
+          await invoke<void>("force_close_app");
         },
         async setWindowTitle(title) {
           await appWindow.setTitle(title);
@@ -402,7 +407,11 @@ function MarkdownEditor({
       selection: { anchor: line.from },
       effects: EditorView.scrollIntoView(line.from, { y: "start" }),
     });
-    currentView.focus();
+    window.requestAnimationFrame(() => {
+      const block = currentView.lineBlockAt(line.from);
+      currentView.scrollDOM.scrollTop = Math.max(0, block.top - 12);
+      currentView.focus();
+    });
   }, [scrollTarget]);
 
   return <div ref={container} className="code-editor" aria-label="Markdown content" />;
@@ -700,7 +709,6 @@ export default function EditorApp({
   const previewScrollFrame = React.useRef<number | null>(null);
   const autoSaveTimer = React.useRef<number | null>(null);
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
-  const allowNativeClose = React.useRef(false);
   const [markdown, setMarkdown] = React.useState(() => {
     return initialMarkdown ?? localStorage.getItem(draftKey) ?? defaultMarkdown;
   });
@@ -893,7 +901,6 @@ export default function EditorApp({
     let unlistenDrop: (() => void) | undefined;
 
     void nativeApi.listenCloseRequested(async () => {
-      if (allowNativeClose.current) return true;
       return confirmDiscardChanges();
     }).then((cleanup) => {
       unlistenClose = cleanup;
@@ -976,7 +983,6 @@ export default function EditorApp({
   async function closeAppWithGuard() {
     if (!nativeApi) return;
     if (!(await confirmDiscardChanges())) return;
-    allowNativeClose.current = true;
     await nativeApi.closeWindow();
   }
 
@@ -1224,20 +1230,25 @@ export default function EditorApp({
   }
 
   function scrollToHeading(id: string) {
-    const preview = previewRef.current;
-    const target = preview?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
-    target?.scrollIntoView({ block: "start", behavior: "smooth" });
-
     const line = findHeadingLine(markdown, id);
-    if (line) {
-      setEditorScrollTarget((current) => ({
-        line,
-        nonce: (current?.nonce ?? 0) + 1,
-      }));
-      if (viewMode === "preview") {
-        setViewMode("split");
-      }
+    if (viewMode !== "split") {
+      setViewMode("split");
     }
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const preview = previewRef.current;
+        const target = preview?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+        target?.scrollIntoView({ block: "start", behavior: "auto" });
+
+        if (line) {
+          setEditorScrollTarget((current) => ({
+            line,
+            nonce: (current?.nonce ?? 0) + 1,
+          }));
+        }
+      });
+    });
   }
 
   return (
