@@ -2515,7 +2515,8 @@ function NotFoundPage() {
 
       <main className="not-found-shell">
         <section className="not-found-hero">
-          <span>404</span>
+          <span>404 error</span>
+          <strong aria-hidden="true">404</strong>
           <h1>This page is not available.</h1>
           <p>
             The link may be outdated, the file may not be published yet, or the

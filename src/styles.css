@@ -2630,13 +2630,19 @@ pre,
 }
 
 .not-found-shell {
-  width: min(960px, calc(100% - 40px));
+  width: min(1080px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 68px 0 76px;
+  padding: 72px 0 86px;
 }
 
 .not-found-hero {
-  max-width: 680px;
+  position: relative;
+  min-height: 470px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 860px;
+  padding: 42px 0;
 }
 
 .not-found-hero span {
@@ -2648,33 +2654,54 @@ pre,
   text-transform: uppercase;
 }
 
+.not-found-hero strong {
+  position: absolute;
+  top: -16px;
+  right: 0;
+  z-index: 0;
+  color: rgba(31, 94, 77, 0.08);
+  font-size: clamp(128px, 20vw, 280px);
+  font-weight: 900;
+  line-height: 0.8;
+  pointer-events: none;
+}
+
 .not-found-hero h1 {
+  position: relative;
+  z-index: 1;
   margin-bottom: 16px;
   color: #0f251f;
-  font-size: clamp(44px, 7vw, 76px);
+  font-size: clamp(56px, 8vw, 96px);
   line-height: 0.96;
   letter-spacing: 0;
 }
 
 .not-found-hero p {
+  position: relative;
+  z-index: 1;
   max-width: 580px;
   color: #4a5a55;
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.65;
+}
+
+.not-found-hero .hero-actions {
+  position: relative;
+  z-index: 1;
 }
 
 .not-found-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 42px;
+  gap: 16px;
+  margin-top: 10px;
 }
 
 .not-found-grid article {
   border: 1px solid rgba(21, 54, 45, 0.12);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.5);
-  padding: 18px;
+  padding: 22px;
 }
 
 .not-found-grid svg {
@@ -3310,13 +3337,37 @@ pre,
   .section-heading h2,
   .landing-waitlist h2,
   .feedback-hero h1,
-  .not-found-hero h1,
   .pro-waitlist h2 {
     font-size: 28px;
   }
 
+  .not-found-shell {
+    padding-top: 46px;
+  }
+
+  .not-found-hero {
+    min-height: 420px;
+    padding: 24px 0 34px;
+  }
+
+  .not-found-hero strong {
+    top: 8px;
+    right: -4px;
+    font-size: 132px;
+  }
+
+  .not-found-hero h1 {
+    max-width: 340px;
+    font-size: 48px;
+  }
+
+  .not-found-hero p {
+    font-size: 17px;
+  }
+
   .not-found-grid {
     grid-template-columns: 1fr;
+    margin-top: 0;
   }
 
   .pro-shell {
