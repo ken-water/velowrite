@@ -112,9 +112,9 @@ function routeSeo(pathname: string): SeoConfig {
 
   if (pathname.startsWith("/download")) {
     return {
-      title: "Download VeloWrite - Windows, macOS, and Linux Markdown App",
+      title: "Download VeloWrite - Windows and Linux Markdown App",
       description:
-        "Download the VeloWrite desktop preview for Windows, Apple Silicon macOS, AppImage, Debian, and RPM Linux workflows.",
+        "Download the VeloWrite desktop preview for Windows, AppImage, Debian, and RPM Linux workflows. The macOS DMG is added after the GitHub build finishes.",
       canonicalPath: "/download",
     };
   }
@@ -390,12 +390,6 @@ const downloads = [
     fileName: `VeloWrite-${downloadVersion}-1.x86_64.rpm`,
     note: "For RPM-based Linux distributions.",
   },
-  {
-    platform: "macOS",
-    format: "Apple Silicon DMG",
-    fileName: "",
-    note: "The 0.1.7 macOS build is running now and will appear here after the DMG asset is uploaded.",
-  },
 ];
 
 const publicRoadmapItems = [
@@ -545,7 +539,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Which platforms can I download right now?",
         answer:
-          "VeloWrite currently offers a web editor plus preview desktop installers for Windows x64, Apple Silicon macOS, Linux AppImage, Debian, and RPM-based Linux distributions.",
+          "VeloWrite currently offers a web editor plus preview desktop installers for Windows x64, Linux AppImage, Debian, and RPM-based Linux distributions. The macOS DMG is published after the GitHub macOS build succeeds.",
       },
       {
         question: "Will the desktop installer trigger a warning?",
@@ -1756,7 +1750,7 @@ function DownloadPage() {
             <ul>
               <li>Online Markdown editing, preview, and local browser draft autosave</li>
               <li>Desktop open, save, export HTML, recent files, and local history snapshots</li>
-              <li>Windows, Linux, and Apple Silicon macOS preview packages</li>
+              <li>Windows and Linux preview packages</li>
               <li>Privacy policy, cookie consent, and waitlist email handling</li>
             </ul>
           </article>
@@ -1784,8 +1778,8 @@ function DownloadPage() {
           <h2>Preview Notes</h2>
           <ul>
             <li>VeloWrite is currently a free preview for early testers.</li>
-            <li>Windows and macOS builds are not code-signed yet, so your system may show a security warning during install.</li>
-            <li>The macOS DMG currently supports Apple Silicon. Intel Mac support will be evaluated based on feedback.</li>
+            <li>Windows builds are not code-signed yet, so your system may show a security warning during install.</li>
+            <li>The macOS DMG is built on GitHub Actions and will be added after the current Apple Silicon build succeeds.</li>
             <li>Keep backups of important Markdown files while testing preview builds.</li>
             <li>AI commands, private sync, and one-click publishing are planned but not included in this release.</li>
           </ul>
