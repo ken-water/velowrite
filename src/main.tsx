@@ -392,9 +392,9 @@ const downloads = [
   },
   {
     platform: "macOS",
-    format: "DMG",
-    fileName: `VeloWrite_${downloadVersion}_aarch64.dmg`,
-    note: "Unsigned preview build for Apple Silicon Macs.",
+    format: "Apple Silicon DMG",
+    fileName: "",
+    note: "The 0.1.7 macOS build is running now and will appear here after the DMG asset is uploaded.",
   },
 ];
 
@@ -1744,7 +1744,7 @@ function DownloadPage() {
                   {item.fileName}
                 </a>
               ) : (
-                <button disabled>Planned</button>
+                <button disabled>Building</button>
               )}
             </article>
           ))}
