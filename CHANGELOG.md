@@ -4,7 +4,7 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
-## Unreleased
+## [0.1.7] - 2026-07-20
 
 ### Added
 
@@ -19,6 +19,15 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Desktop shell no longer shows website analytics consent UI.
 - Desktop shell opens in focused writing mode by default.
 - Public roadmap now reflects shipped preview polish without marking unfinished sync-scroll work as complete.
+
+## [0.1.6] - 2026-07-19
+
+### Added
+
+- Dedicated FAQ page for natural search and AI retrieval.
+- SEO and GEO support with canonical metadata, FAQPage schema, `llms.txt`, sitemap entries, and breadcrumb data.
+- Homepage and interactive demo improvements so the embedded editor is easier to scan and no longer clips the right edge.
+- Free preview positioning focused on browser editing, desktop downloads, guide links, and feedback collection.
 
 ## [0.1.5] - 2026-07-19
 

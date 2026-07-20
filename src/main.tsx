@@ -32,7 +32,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
-const downloadVersion = "0.1.6";
+const downloadVersion = "0.1.7";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -763,8 +763,9 @@ const contentPages: Record<"guide" | "changelog" | "onlineMarkdownEditor", Conte
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "July 19, 2026",
+    updated: "July 20, 2026",
     directory: [
+      { label: "0.1.7", href: "#v017" },
       { label: "0.1.6", href: "#v016" },
       { label: "0.1.5", href: "#v015" },
       { label: "0.1.4", href: "#v014" },
@@ -774,6 +775,17 @@ const contentPages: Record<"guide" | "changelog" | "onlineMarkdownEditor", Conte
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v017",
+        title: "0.1.7 preview",
+        body: [
+          "Added the public Markdown library index and the first long-tail article for online Markdown editing.",
+          "Added Product Hunt feedback follow-up copy, Speed Insights support, and grouped footer navigation.",
+          "Improved the desktop shell so it opens in a focused writing surface without website analytics prompts.",
+          "Fixed desktop close handling and improved outline clicks so the editor and preview panes align from the document outline.",
+          "Updated the public roadmap to show shipped preview polish while keeping continuous sync scrolling marked as in progress.",
+        ],
+      },
       {
         id: "v016",
         title: "0.1.6 preview",
