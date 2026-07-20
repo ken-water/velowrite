@@ -246,6 +246,16 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
+  if (pathname !== "/" && pathname !== "") {
+    return {
+      title: "Page Not Found - VeloWrite",
+      description:
+        "This VeloWrite page could not be found. Open the web editor, download the desktop preview, read the Markdown library, or send feedback.",
+      canonicalPath: "/404",
+      robots: "noindex, follow",
+    };
+  }
+
   return {
     title: defaultSeoTitle,
     description: defaultSeoDescription,
@@ -2489,6 +2499,61 @@ function FeedbackForm() {
   );
 }
 
+function NotFoundPage() {
+  return (
+    <div className="not-found-page">
+      <nav className="download-nav" aria-label="Not found navigation">
+        <a href="/">VeloWrite</a>
+        <a href="/web?utm_source=not_found_nav&utm_medium=cta">
+          Open Web Editor <ChevronRight size={16} />
+        </a>
+      </nav>
+
+      <main className="not-found-shell">
+        <section className="not-found-hero">
+          <span>404</span>
+          <h1>This page is not available.</h1>
+          <p>
+            The link may be outdated, the file may not be published yet, or the
+            address may have been typed incorrectly.
+          </p>
+          <div className="hero-actions">
+            <a className="primary-link" href="/web?utm_source=not_found_hero&utm_medium=cta">
+              Open Web Editor <ChevronRight size={17} />
+            </a>
+            <a className="secondary-link" href="/download?utm_source=not_found_hero&utm_medium=cta">
+              Download Desktop <Download size={17} />
+            </a>
+          </div>
+        </section>
+
+        <section className="not-found-grid" aria-label="Helpful links">
+          <article>
+            <FileText size={20} />
+            <h2>Read Markdown guides</h2>
+            <p>Browse practical Markdown articles and examples for writing, preview, math, tables, and code.</p>
+            <a href="/docs?utm_source=not_found_card&utm_medium=resource">Open docs</a>
+          </article>
+          <article>
+            <ListChecks size={20} />
+            <h2>Check the roadmap</h2>
+            <p>See which preview fixes have shipped and which feedback items are still in progress.</p>
+            <a href="/roadmap?utm_source=not_found_card&utm_medium=resource">View roadmap</a>
+          </article>
+          <article>
+            <MessageSquare size={20} />
+            <h2>Report a broken link</h2>
+            <p>Send the missing URL and what you expected to find so the preview site can be corrected.</p>
+            <a href="/feedback?utm_source=not_found_card&utm_medium=cta">Send feedback</a>
+          </article>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
+
 function Router() {
   const searchParams = new URLSearchParams(window.location.search);
   const demoFrame = searchParams.get("utm_source") === "demo_frame";
@@ -2539,8 +2604,10 @@ function Router() {
     page = <LegalPage page="license" />;
   } else if (window.location.pathname.startsWith("/feedback")) {
     page = <FeedbackPage />;
-  } else {
+  } else if (window.location.pathname === "/" || window.location.pathname === "") {
     page = <LandingPage />;
+  } else {
+    page = <NotFoundPage />;
   }
 
   return (

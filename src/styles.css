@@ -2623,6 +2623,84 @@ pre,
   color: #17201c;
 }
 
+.not-found-page {
+  min-height: 100vh;
+  background: #f4f1eb;
+  color: #17201c;
+}
+
+.not-found-shell {
+  width: min(960px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 68px 0 76px;
+}
+
+.not-found-hero {
+  max-width: 680px;
+}
+
+.not-found-hero span {
+  display: inline-flex;
+  margin-bottom: 14px;
+  color: #587167;
+  font-size: 13px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.not-found-hero h1 {
+  margin-bottom: 16px;
+  color: #0f251f;
+  font-size: clamp(44px, 7vw, 76px);
+  line-height: 0.96;
+  letter-spacing: 0;
+}
+
+.not-found-hero p {
+  max-width: 580px;
+  color: #4a5a55;
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.not-found-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 42px;
+}
+
+.not-found-grid article {
+  border: 1px solid rgba(21, 54, 45, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 18px;
+}
+
+.not-found-grid svg {
+  color: #1f5e4d;
+}
+
+.not-found-grid h2 {
+  margin: 12px 0 8px;
+  color: #0f251f;
+  font-size: 19px;
+  line-height: 1.2;
+}
+
+.not-found-grid p {
+  margin-bottom: 14px;
+  color: #58675f;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.not-found-grid a {
+  color: #15362d;
+  font-size: 14px;
+  font-weight: 850;
+}
+
 .download-shell {
   width: min(1040px, calc(100% - 40px));
   margin: 0 auto;
@@ -3214,6 +3292,7 @@ pre,
   .faq-shell,
   .roadmap-shell,
   .docs-shell,
+  .not-found-shell,
   .content-shell-wide,
   .pro-shell {
     width: min(100% - 28px, 1180px);
@@ -3231,8 +3310,13 @@ pre,
   .section-heading h2,
   .landing-waitlist h2,
   .feedback-hero h1,
+  .not-found-hero h1,
   .pro-waitlist h2 {
     font-size: 28px;
+  }
+
+  .not-found-grid {
+    grid-template-columns: 1fr;
   }
 
   .pro-shell {
