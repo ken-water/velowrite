@@ -20,6 +20,7 @@ Signal:
 Decision:
 - Keep this as the main product funnel.
 - Improve the handoff copy and first-run desktop experience before adding heavier features.
+- The desktop shell now opens directly into a focused writing surface and no longer shows website analytics consent UI.
 
 Version target:
 - Preview / Free: continue improving in `0.1.x` and `0.2.x`.
@@ -54,6 +55,7 @@ Decision:
 - Treat sync scrolling as a preview-completion feature, not a Pro feature.
 - Implement carefully to avoid jumpy behavior.
 - Support editor-to-preview first; evaluate two-way sync after testing.
+- Outline clicks now synchronize both the editor and preview panes. Continuous long-document scroll matching remains in progress.
 
 Version target:
 - Preview / Free: `0.2.x`, high priority.
@@ -175,7 +177,7 @@ Examples:
 
 ## Near-Term Priorities
 
-1. Implement sync scrolling for editor and preview.
+1. Finish stable continuous sync scrolling for editor and preview.
 2. Improve local history discoverability and add diff preview.
 3. Design a lightweight web-to-desktop handoff flow.
 4. Add tests around long Markdown documents with headings, math, code tabs, images, and tables.

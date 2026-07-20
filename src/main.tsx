@@ -402,11 +402,11 @@ const publicRoadmapItems = [
   {
     title: "Editor and preview sync scrolling",
     request: "Long Markdown documents should keep the editor and preview aligned while writing.",
-    status: "Planned for Preview",
-    target: "0.2.x",
+    status: "In progress",
+    target: "0.1.x / 0.2.x",
     classification: "Free core editor work",
     decision:
-      "This belongs in the core editor experience. It should not be a Pro-only feature because split editing feels incomplete without it.",
+      "Outline clicks now align both panes in the preview build. Continuous stable scroll matching for long documents remains core editor work and should not become Pro-only.",
   },
   {
     title: "Better local history recovery",
@@ -424,7 +424,7 @@ const publicRoadmapItems = [
     target: "0.2.x",
     classification: "Free handoff first",
     decision:
-      "A simple handoff path should be free. Automatic cross-device sync may become Pro only after the local-first workflow is proven.",
+      "The desktop shell now starts in a focused writing surface without website analytics prompts. A simple handoff path should be free; automatic cross-device sync may become Pro only after the local-first workflow is proven.",
   },
   {
     title: "Private, no-account sync",
