@@ -129,6 +129,7 @@ const docPageRoutes = {
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
+  "/docs/markdown-basics",
   "/docs/online-markdown-editor",
 ]);
 
@@ -151,7 +152,7 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
   "/docs/markdown-basics": {
     title: "Markdown Basics - Headings, Lists, Links, Tables, Code, and Math",
     description:
-      "A practical Markdown basics guide for headings, lists, links, images, tables, code fences, math blocks, and clean document structure.",
+      "A plain Markdown basics guide for headings, lists, links, images, tables, code fences, math blocks, and simple document structure.",
   },
   "/docs/markdown-for-writers": {
     title: "Markdown for Writers - Clean Drafts Without Formatting Drag",
@@ -537,7 +538,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "The first staged article is now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor while leaving the rest for a slower release cadence.",
+      "Two staged articles are now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor while leaving the rest for a slower release cadence.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -609,7 +610,7 @@ const docGroups = [
     title: "Use Markdown Better",
     description: "Practical guides for daily writing, documentation, notes, and technical drafts.",
     items: [
-      { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Planned" },
+      { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Published" },
       { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Planned" },
       { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Planned" },
     ],
@@ -904,13 +905,13 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Markdown basics",
     title: "Markdown Basics",
     intro:
-      "You can write useful Markdown with a small set of patterns: headings, paragraphs, lists, links, images, tables, code blocks, and math. This guide gives you the practical set first.",
+      "You can write useful Markdown with a small set of patterns: headings, paragraphs, lists, links, images, tables, code blocks, and math. This guide keeps to those basics.",
     updated: "July 21, 2026",
     sections: [
       {
         title: "Headings, lists, and links",
         body: [
-          "Use headings to create structure, lists to make actions scannable, and links to connect readers to related material. Most useful Markdown documents are built from these three parts.",
+          "Use headings to create structure, lists to make actions easy to scan, and links to connect readers to related material. Most useful Markdown documents are built from these three parts.",
         ],
         example: {
           label: "Basic Markdown",
@@ -934,7 +935,7 @@ const contentPages: Record<string, ContentPage> = {
       {
         title: "Keep documents easy to scan",
         body: [
-          "Short sections beat giant paragraphs. Consistent heading levels beat visual decoration. If a document needs to be maintained, readable source is as important as rendered output.",
+          "Short sections are easier to scan than long paragraphs. Consistent heading levels are easier to follow than visual decoration. If a document needs to be maintained, readable source matters as much as rendered output.",
         ],
       },
     ],
@@ -1384,8 +1385,8 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Online Markdown editor",
     title: "Online Markdown Editor for Fast Drafts and Live Preview",
     intro:
-      "An online Markdown editor should be fast enough for a quick note, clear enough for a technical document, and honest about when a desktop app is the better tool. VeloWrite starts in the browser so you can write immediately, then gives you a desktop path when local files, offline work, and recovery history matter.",
-    updated: "July 19, 2026",
+      "An online Markdown editor should open quickly, keep the layout easy to read, and get out of the way. VeloWrite starts in the browser so you can write right away, then gives you a desktop path when local files, offline work, and saved history matter.",
+    updated: "July 21, 2026",
     directory: [
       { label: "Why online", href: "#why-online" },
       { label: "Core workflow", href: "#core-workflow" },
@@ -1398,16 +1399,16 @@ const contentPages: Record<string, ContentPage> = {
         id: "why-online",
         title: "Why use an online Markdown editor?",
         body: [
-          "The main reason is speed. You can open a browser page, paste a rough draft, check the rendered result, and download a clean Markdown file without installing another app or creating an account.",
-          "This is useful for temporary notes, README drafts, documentation snippets, support replies, launch copy, and technical writing that needs structure before it needs a full workspace.",
+          "The main reason is speed. You can open a browser page, paste a rough draft, check the rendered result, and download a Markdown file without installing anything or creating an account.",
+          "That makes it useful for short notes, README drafts, documentation snippets, support replies, launch copy, and technical writing that needs structure before it needs a full workspace.",
         ],
       },
       {
         id: "core-workflow",
         title: "The basic workflow",
         body: [
-          "A practical online Markdown editor should support three actions immediately: write on the left, preview on the right, and export when the document is ready.",
-          "VeloWrite supports live preview, Markdown download, HTML export, local browser drafts, tables, math rendering, highlighted code blocks, and tabbed code examples for multi-language documentation.",
+          "A useful online Markdown editor needs three things right away: write on the left, preview on the right, and export when the document is ready.",
+          "VeloWrite supports live preview, Markdown download, HTML export, local browser drafts, tables, math rendering, highlighted code blocks, and tabbed examples for multi-language documentation.",
         ],
         example: {
           label: "Markdown example",
@@ -1420,8 +1421,8 @@ const contentPages: Record<string, ContentPage> = {
         id: "privacy",
         title: "What happens to your Markdown content?",
         body: [
-          "Normal VeloWrite web editing does not upload Markdown document content to VeloWrite servers. Browser drafts are kept in localStorage on the same device so a refresh can recover the current draft.",
-          "That makes the web editor a good place for quick work, but sensitive long-term files still belong in a local workflow you control.",
+          "Normal VeloWrite web editing does not upload Markdown content to VeloWrite servers. Browser drafts are kept in localStorage on the same device so a refresh can recover the current draft.",
+          "That makes the web editor handy for quick work, while sensitive long-term files still belong in a local workflow you control.",
         ],
       },
       {
@@ -1429,7 +1430,7 @@ const contentPages: Record<string, ContentPage> = {
         title: "When should you move to desktop?",
         body: [
           "Move to the VeloWrite desktop preview when the document becomes a real file you want to keep, reopen, save directly, edit offline, or recover through local history snapshots.",
-          "This is the intended product path: use the web editor to try the workflow quickly, then use the desktop app for serious local-first Markdown writing.",
+          "The product path is simple: use the web editor to try the workflow quickly, then use the desktop app for local-first Markdown writing.",
         ],
       },
       {
@@ -1470,9 +1471,10 @@ const contentPages: Record<string, ContentPage> = {
         id: "unreleased",
         title: "Unreleased",
         body: [
-          "Published the first staged Markdown library article under /docs.",
-          "Added article-specific SEO metadata and a sitemap entry for the online Markdown editor page while keeping the remaining article queue planned.",
+          "Published Markdown Basics as the second staged Markdown library article under /docs.",
+          "Added article-specific SEO metadata and sitemap entries for the two public articles while keeping the remaining article queue planned.",
           "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
+          "Revised the first two public Markdown articles with plainer wording.",
         ],
       },
       {
@@ -2688,7 +2690,7 @@ function DocsIndexPage() {
           Markdown library
         </div>
         <h1>Markdown articles we are building for VeloWrite users.</h1>
-        <p className="legal-updated">Last updated: July 19, 2026</p>
+        <p className="legal-updated">Last updated: July 21, 2026</p>
         <p className="legal-intro">
           This library is the public version of the VeloWrite content plan. Published
           articles are available now; planned articles show what we will write next
@@ -2723,11 +2725,11 @@ function DocsIndexPage() {
         </section>
 
         <section className="content-cta" aria-label="Next action">
-          <a className="primary-link" href="/docs/online-markdown-editor?utm_source=docs_cta&utm_medium=resource">
-            Read Today's Article <ChevronRight size={17} />
+          <a className="primary-link" href="/docs/markdown-basics?utm_source=docs_cta&utm_medium=resource">
+            Read Markdown Basics <ChevronRight size={17} />
           </a>
-          <a className="secondary-link" href="/guide?utm_source=docs_cta&utm_medium=resource">
-            Open Starter Guide <FileText size={17} />
+          <a className="secondary-link" href="/docs/online-markdown-editor?utm_source=docs_cta&utm_medium=resource">
+            Read Online Editor <FileText size={17} />
           </a>
         </section>
       </main>
