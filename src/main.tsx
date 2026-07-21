@@ -913,7 +913,7 @@ const contentPages: Record<string, ContentPage> = {
       { label: "Paragraphs", href: "#paragraphs" },
       { label: "Lists", href: "#lists" },
       { label: "Links and images", href: "#links-images" },
-      { label: "Tables and code", href: "#tables-code" },
+      { label: "Tables and code blocks", href: "#tables-code" },
       { label: "Preview habits", href: "#preview-habits" },
     ],
     sections: [
@@ -975,16 +975,16 @@ const contentPages: Record<string, ContentPage> = {
       },
       {
         id: "tables-code",
-        title: "Use tables, code, and math when they help",
+        title: "Use simple tables and code blocks",
         body: [
-          "Tables are good for comparison, but they are awkward for long prose. Keep table cells short. If the table becomes hard to edit, convert it into headings and paragraphs.",
-          "Code fences preserve formatting and can include a language label for highlighting. Math blocks are useful for formulas, but they should be surrounded by enough explanation for readers who are scanning.",
+          "Tables are useful for short comparisons, status lists, and small sets of facts. Keep table cells short. If the table becomes hard to edit, convert it into headings and paragraphs.",
+          "Code fences preserve spacing and can include a language label for highlighting. For a basics page, it is enough to know the three-backtick shape and where the language name goes.",
         ],
         example: {
-          label: "Technical basics",
+          label: "Tables and code blocks",
           markdown:
-            "| Feature | Status |\n| --- | --- |\n| Preview | Ready |\n| Export | Ready |\n\n```bash\nnpm run build\n```\n\nInline math also works: $a^2 + b^2 = c^2$.",
-          note: "Use preview mode to confirm complex Markdown renders as expected.",
+            "| Feature | Status |\n| --- | --- |\n| Preview | Ready |\n| Export | Ready |\n\n```bash\nnpm run build\n```",
+          note: "Math, diagrams, and tabbed code examples belong in the advanced guides.",
         },
       },
       {
