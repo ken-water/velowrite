@@ -11,10 +11,6 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 - Pro roadmap: https://velowrite.app/pro
 - Public feedback roadmap: https://velowrite.app/roadmap
 - Markdown library: https://velowrite.app/docs
-- What Is Markdown: https://velowrite.app/docs/markdown
-- Markdown basics: https://velowrite.app/docs/markdown-basics
-- Markdown code blocks and tabs: https://velowrite.app/docs/markdown-code-blocks
-- Local-first Markdown editing: https://velowrite.app/docs/local-first-markdown
 - Online Markdown Editor article: https://velowrite.app/docs/online-markdown-editor
 - Markdown guide: https://velowrite.app/guide
 - Changelog: https://velowrite.app/changelog includes the version directory for 0.1.0 through 0.1.7.
@@ -44,7 +40,7 @@ The current public version is a free preview. It includes online editing, live p
 ## FAQ
 
 - What is VeloWrite? A private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.
-- What can I read first? The Markdown library at https://velowrite.app/docs lists the currently published article batch and the planned article queue. Start with What Is Markdown, Markdown Basics, Online Markdown Editor, Markdown Code Blocks and Tabs, and Local-First Markdown Editing. The changelog explains what changed across preview versions 0.1.0 through 0.1.7.
+- What can I read first? The Markdown library at https://velowrite.app/docs lists the currently published article and the planned article queue. Start with the Online Markdown Editor article, then use the Markdown guide for headings, lists, tables, math, code tabs, and desktop handoff. The changelog explains what changed across preview versions 0.1.0 through 0.1.7.
 - Can I try VeloWrite without installing anything? Yes. Open the web editor in your browser and start writing immediately.
 - What happens if I refresh the browser while editing? Your draft stays in localStorage in the same browser, so a refresh on the same device can bring it back.
 - Who is VeloWrite for? Developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.

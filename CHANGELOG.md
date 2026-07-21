@@ -8,8 +8,8 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ### Added
 
-- Published a first staged batch of Markdown library articles under `/docs`.
-- Added article-specific SEO metadata and sitemap entries for the published Markdown basics, Markdown reference, code blocks, local-first editing, and online editor pages.
+- Published the first staged Markdown library article under `/docs`.
+- Added article-specific SEO metadata and a sitemap entry for the online Markdown editor page while keeping the remaining article queue planned.
 - Added stricter docs routing so unknown `/docs/*` paths use the friendly 404 page.
 
 ## [0.1.7] - 2026-07-20

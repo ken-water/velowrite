@@ -129,11 +129,7 @@ const docPageRoutes = {
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
-  "/docs/markdown",
-  "/docs/markdown-basics",
   "/docs/online-markdown-editor",
-  "/docs/markdown-code-blocks",
-  "/docs/local-first-markdown",
 ]);
 
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
@@ -541,7 +537,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "A first staged batch is now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor while leaving the rest for a slower release cadence.",
+      "The first staged article is now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor while leaving the rest for a slower release cadence.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -604,7 +600,7 @@ const docGroups = [
     title: "Understand Markdown",
     description: "Foundational articles for people comparing writing formats and editor workflows.",
     items: [
-      { title: "What Is Markdown?", href: "/docs/markdown", status: "Published" },
+      { title: "What Is Markdown?", href: "/docs/markdown", status: "Planned" },
       { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Planned" },
       { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Planned" },
     ],
@@ -613,7 +609,7 @@ const docGroups = [
     title: "Use Markdown Better",
     description: "Practical guides for daily writing, documentation, notes, and technical drafts.",
     items: [
-      { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Published" },
+      { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Planned" },
       { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Planned" },
       { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Planned" },
     ],
@@ -622,8 +618,8 @@ const docGroups = [
     title: "Advanced Markdown",
     description: "Deep dives for complex documents with math, code, tables, tabs, and local-first workflows.",
     items: [
-      { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Published" },
-      { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Published" },
+      { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Planned" },
+      { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Planned" },
       { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Planned" },
       { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Planned" },
     ],
@@ -1474,8 +1470,8 @@ const contentPages: Record<string, ContentPage> = {
         id: "unreleased",
         title: "Unreleased",
         body: [
-          "Published a first staged batch of Markdown library articles under /docs.",
-          "Added article-specific SEO metadata and sitemap entries for the published Markdown basics, Markdown reference, code blocks, local-first editing, and online editor pages.",
+          "Published the first staged Markdown library article under /docs.",
+          "Added article-specific SEO metadata and a sitemap entry for the online Markdown editor page while keeping the remaining article queue planned.",
           "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
         ],
       },
