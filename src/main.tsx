@@ -3198,12 +3198,23 @@ function FeedbackForm() {
 function NotFoundPage() {
   return (
     <div className="not-found-page">
-      <nav className="download-nav" aria-label="Not found navigation">
-        <a href="/">VeloWrite</a>
-        <a href="/web?utm_source=not_found_nav&utm_medium=cta">
-          Open Web Editor <ChevronRight size={16} />
+      <header className="landing-nav">
+        <a className="wordmark" href="/">
+          <span className="brand-mark">V</span>
+          VeloWrite
         </a>
-      </nav>
+        <div className="nav-actions">
+          <a href="/docs?utm_source=not_found_nav&utm_medium=resource">
+            Docs <FileText size={16} />
+          </a>
+          <a href="/web?utm_source=not_found_nav&utm_medium=cta">
+            Web editor <ChevronRight size={16} />
+          </a>
+          <a href="/download?utm_source=not_found_nav&utm_medium=cta">
+            Download <Download size={16} />
+          </a>
+        </div>
+      </header>
 
       <main className="not-found-shell">
         <section className="not-found-hero">
