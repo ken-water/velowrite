@@ -128,6 +128,14 @@ const docPageRoutes = {
   "/docs/markdown-editor-for-linux": "markdownEditorForLinux",
 } as const;
 
+const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
+  "/docs/markdown",
+  "/docs/markdown-basics",
+  "/docs/online-markdown-editor",
+  "/docs/markdown-code-blocks",
+  "/docs/local-first-markdown",
+]);
+
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
   "/docs/markdown": {
     title: "What Is Markdown? Plain Text Writing for Notes, Docs, and Blogs",
@@ -213,7 +221,9 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
 
 function routeSeo(pathname: string): SeoConfig {
   const normalizedPath = normalizePath(pathname);
-  const articleSeo = docArticleSeo[normalizedPath as keyof typeof docArticleSeo];
+  const articleSeo = publishedDocPageRoutes.has(normalizedPath as keyof typeof docPageRoutes)
+    ? docArticleSeo[normalizedPath as keyof typeof docArticleSeo]
+    : undefined;
   if (articleSeo) {
     return {
       title: articleSeo.title,
@@ -531,7 +541,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "The planned Markdown article set is now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor.",
+      "A first staged batch is now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor while leaving the rest for a slower release cadence.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -595,8 +605,8 @@ const docGroups = [
     description: "Foundational articles for people comparing writing formats and editor workflows.",
     items: [
       { title: "What Is Markdown?", href: "/docs/markdown", status: "Published" },
-      { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Published" },
-      { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Published" },
+      { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Planned" },
+      { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Planned" },
     ],
   },
   {
@@ -604,30 +614,30 @@ const docGroups = [
     description: "Practical guides for daily writing, documentation, notes, and technical drafts.",
     items: [
       { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Published" },
-      { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Published" },
-      { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Published" },
+      { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Planned" },
+      { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Planned" },
     ],
   },
   {
     title: "Advanced Markdown",
     description: "Deep dives for complex documents with math, code, tables, tabs, and local-first workflows.",
     items: [
-      { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Published" },
-      { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Published" },
       { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Published" },
       { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Published" },
+      { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Planned" },
+      { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Planned" },
     ],
   },
   {
     title: "Choose a Markdown Editor",
     description: "Conversion-focused pages for users searching by platform, workflow, or alternative.",
     items: [
-      { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Published" },
       { title: "Online Markdown Editor", href: "/docs/online-markdown-editor", status: "Published" },
-      { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Published" },
-      { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Published" },
-      { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Published" },
-      { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Published" },
+      { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Planned" },
+      { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Planned" },
+      { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Planned" },
+      { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Planned" },
+      { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Planned" },
     ],
   },
 ] as const;
@@ -1464,8 +1474,8 @@ const contentPages: Record<string, ContentPage> = {
         id: "unreleased",
         title: "Unreleased",
         body: [
-          "Published all planned Markdown library articles under /docs.",
-          "Added article-specific SEO metadata and sitemap entries for Markdown basics, history, writers, developers, math, code blocks, local-first editing, Typora alternative, publishing, and platform pages.",
+          "Published a first staged batch of Markdown library articles under /docs.",
+          "Added article-specific SEO metadata and sitemap entries for the published Markdown basics, Markdown reference, code blocks, local-first editing, and online editor pages.",
           "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
         ],
       },
@@ -3277,7 +3287,7 @@ function Router() {
     page = <ProPage />;
   } else if (matchesRoute(window.location.pathname, "/roadmap")) {
     page = <RoadmapPage />;
-  } else if (docPage) {
+  } else if (docPage && publishedDocPageRoutes.has(normalizedPath as keyof typeof docPageRoutes)) {
     page = <ContentPage page={docPage} />;
   } else if (normalizedPath === "/docs") {
     page = <DocsIndexPage />;
