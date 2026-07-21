@@ -104,7 +104,124 @@ function matchesRoute(pathname: string, route: string) {
   return pathname === route || pathname.startsWith(`${route}/`);
 }
 
+function normalizePath(pathname: string) {
+  if (pathname.length > 1 && pathname.endsWith("/")) return pathname.slice(0, -1);
+  return pathname;
+}
+
+const docPageRoutes = {
+  "/docs/markdown": "markdown",
+  "/docs/markdown-history": "markdownHistory",
+  "/docs/future-of-markdown": "futureOfMarkdown",
+  "/docs/markdown-basics": "markdownBasics",
+  "/docs/markdown-for-writers": "markdownForWriters",
+  "/docs/markdown-for-developers": "markdownForDevelopers",
+  "/docs/advanced-markdown": "advancedMarkdown",
+  "/docs/markdown-math": "markdownMath",
+  "/docs/markdown-code-blocks": "markdownCodeBlocks",
+  "/docs/local-first-markdown": "localFirstMarkdown",
+  "/docs/typora-alternative": "typoraAlternative",
+  "/docs/online-markdown-editor": "onlineMarkdownEditor",
+  "/docs/markdown-to-blog": "markdownToBlog",
+  "/docs/markdown-editor-for-windows": "markdownEditorForWindows",
+  "/docs/markdown-editor-for-mac": "markdownEditorForMac",
+  "/docs/markdown-editor-for-linux": "markdownEditorForLinux",
+} as const;
+
+const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
+  "/docs/markdown": {
+    title: "What Is Markdown? Plain Text Writing for Notes, Docs, and Blogs",
+    description:
+      "Learn what Markdown is, why plain text writing still matters, and how VeloWrite helps you write, preview, and export Markdown quickly.",
+  },
+  "/docs/markdown-history": {
+    title: "A Short History of Markdown - From Plain Text to Modern Writing",
+    description:
+      "A practical history of Markdown, why it became popular with writers and developers, and where modern Markdown editors are heading.",
+  },
+  "/docs/future-of-markdown": {
+    title: "The Future of Markdown Writing - Local Files, AI, and Publishing",
+    description:
+      "Explore how Markdown writing is evolving around local-first files, AI assistance, publishing workflows, and cross-platform editors.",
+  },
+  "/docs/markdown-basics": {
+    title: "Markdown Basics - Headings, Lists, Links, Tables, Code, and Math",
+    description:
+      "A practical Markdown basics guide for headings, lists, links, images, tables, code fences, math blocks, and clean document structure.",
+  },
+  "/docs/markdown-for-writers": {
+    title: "Markdown for Writers - Clean Drafts Without Formatting Drag",
+    description:
+      "How writers can use Markdown for essays, articles, notes, outlines, and publishable drafts without fighting a heavy word processor.",
+  },
+  "/docs/markdown-for-developers": {
+    title: "Markdown for Developers - READMEs, Specs, Docs, and Release Notes",
+    description:
+      "A developer-focused Markdown guide for README files, technical specs, API notes, code examples, changelogs, and documentation workflows.",
+  },
+  "/docs/advanced-markdown": {
+    title: "Advanced Markdown - Complex Documents, Tables, Math, and Code Tabs",
+    description:
+      "Advanced Markdown patterns for complex documents with tables, math, callouts, code tabs, local files, and long-form preview behavior.",
+  },
+  "/docs/markdown-math": {
+    title: "Markdown Math with KaTeX - Inline and Block Formula Examples",
+    description:
+      "Use Markdown math with KaTeX for inline formulas, block equations, technical notes, study guides, and engineering documentation.",
+  },
+  "/docs/markdown-code-blocks": {
+    title: "Markdown Code Blocks and Tabs - Multi-Language Documentation",
+    description:
+      "Write better Markdown code examples with fenced code blocks, syntax highlighting, language labels, and tabbed multi-language snippets.",
+  },
+  "/docs/local-first-markdown": {
+    title: "Local-First Markdown Editing - Private Files and Offline Writing",
+    description:
+      "Understand local-first Markdown editing, why user-owned files matter, and when to move from a browser editor to a desktop app.",
+  },
+  "/docs/typora-alternative": {
+    title: "Typora Alternative - A Lightweight Markdown Workflow with VeloWrite",
+    description:
+      "Compare VeloWrite with Typora-style Markdown editing for browser trials, local-first desktop work, preview builds, and future AI workflows.",
+  },
+  "/docs/online-markdown-editor": {
+    title: "Online Markdown Editor - Write, Preview, and Download Markdown",
+    description:
+      "Use VeloWrite as a free online Markdown editor for quick drafts, live preview, Markdown download, HTML export, and a desktop path for local files.",
+  },
+  "/docs/markdown-to-blog": {
+    title: "Markdown to Blog - Draft Locally, Preview Clearly, Publish Later",
+    description:
+      "A practical Markdown-to-blog workflow for drafting, previewing, exporting HTML, and preparing future static publishing automation.",
+  },
+  "/docs/markdown-editor-for-windows": {
+    title: "Markdown Editor for Windows - Fast Local Writing with VeloWrite",
+    description:
+      "Use VeloWrite as a lightweight Markdown editor for Windows with browser preview, desktop files, local history, and HTML export.",
+  },
+  "/docs/markdown-editor-for-mac": {
+    title: "Markdown Editor for Mac - Local-First Markdown Writing",
+    description:
+      "What Mac users should expect from VeloWrite's Markdown workflow, Apple Silicon DMG status, local-first editing, and future signing plans.",
+  },
+  "/docs/markdown-editor-for-linux": {
+    title: "Markdown Editor for Linux - AppImage, DEB, RPM, and Local Files",
+    description:
+      "Use VeloWrite as a Linux Markdown editor with AppImage, DEB, RPM, browser editing, local files, and a lightweight Tauri desktop workflow.",
+  },
+};
+
 function routeSeo(pathname: string): SeoConfig {
+  const normalizedPath = normalizePath(pathname);
+  const articleSeo = docArticleSeo[normalizedPath as keyof typeof docArticleSeo];
+  if (articleSeo) {
+    return {
+      title: articleSeo.title,
+      description: articleSeo.description,
+      canonicalPath: normalizedPath,
+    };
+  }
+
   if (matchesRoute(pathname, "/web")) {
     return {
       title: "VeloWrite Web Editor - Private Online Markdown Editing",
@@ -150,7 +267,7 @@ function routeSeo(pathname: string): SeoConfig {
     };
   }
 
-  if (matchesRoute(pathname, "/docs")) {
+  if (normalizedPath === "/docs") {
     return {
       title: "VeloWrite Markdown Library - Guides, Workflows, and Advanced Markdown",
       description:
@@ -408,6 +525,15 @@ const downloads = [
 
 const publicRoadmapItems = [
   {
+    title: "Markdown learning library",
+    request: "Users should understand Markdown basics, advanced syntax, platform support, and where VeloWrite fits before downloading the desktop app.",
+    status: "Shipped",
+    target: "0.1.x",
+    classification: "Free education and discovery",
+    decision:
+      "The planned Markdown article set is now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor.",
+  },
+  {
     title: "Editor and preview sync scrolling",
     request: "Long Markdown documents should keep the editor and preview aligned while writing.",
     status: "In progress",
@@ -468,40 +594,40 @@ const docGroups = [
     title: "Understand Markdown",
     description: "Foundational articles for people comparing writing formats and editor workflows.",
     items: [
-      { title: "What Is Markdown?", href: "/docs/markdown", status: "Planned" },
-      { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Planned" },
-      { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Planned" },
+      { title: "What Is Markdown?", href: "/docs/markdown", status: "Published" },
+      { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Published" },
+      { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Published" },
     ],
   },
   {
     title: "Use Markdown Better",
     description: "Practical guides for daily writing, documentation, notes, and technical drafts.",
     items: [
-      { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Planned" },
-      { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Planned" },
-      { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Planned" },
+      { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Published" },
+      { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Published" },
+      { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Published" },
     ],
   },
   {
     title: "Advanced Markdown",
     description: "Deep dives for complex documents with math, code, tables, tabs, and local-first workflows.",
     items: [
-      { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Planned" },
-      { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Planned" },
-      { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Planned" },
-      { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Planned" },
+      { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Published" },
+      { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Published" },
+      { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Published" },
+      { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Published" },
     ],
   },
   {
     title: "Choose a Markdown Editor",
     description: "Conversion-focused pages for users searching by platform, workflow, or alternative.",
     items: [
-      { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Planned" },
+      { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Published" },
       { title: "Online Markdown Editor", href: "/docs/online-markdown-editor", status: "Published" },
-      { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Planned" },
-      { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Planned" },
-      { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Planned" },
-      { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Planned" },
+      { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Published" },
+      { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Published" },
+      { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Published" },
+      { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Published" },
     ],
   },
 ] as const;
@@ -558,7 +684,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Will the desktop installer trigger a warning?",
         answer:
-          "Not yet. The current Windows and macOS preview installers are unsigned, so SmartScreen or Gatekeeper may show security warnings until code signing and notarization are ready.",
+          "Yes. The current Windows preview installer is unsigned, so SmartScreen may warn. The macOS DMG will also be treated as an unsigned preview build until Apple signing and notarization are ready.",
       },
     ],
   },
@@ -651,7 +777,557 @@ const faqSchemaItems = faqItems.map((item: FaqItem) => ({
   },
 }));
 
-const contentPages: Record<"guide" | "changelog" | "onlineMarkdownEditor", ContentPage> = {
+const contentPages: Record<string, ContentPage> = {
+  markdown: {
+    eyebrow: "Markdown fundamentals",
+    title: "What Is Markdown?",
+    intro:
+      "Markdown is a plain text writing format that lets you create readable documents with simple symbols instead of heavy formatting controls. It is popular because the source stays clean, portable, and easy to edit in almost any tool.",
+    updated: "July 21, 2026",
+    directory: [
+      { label: "Definition", href: "#definition" },
+      { label: "Why it works", href: "#why-it-works" },
+      { label: "Where it fits", href: "#where-it-fits" },
+    ],
+    sections: [
+      {
+        id: "definition",
+        title: "Markdown is readable source plus structured output",
+        body: [
+          "A Markdown document is still plain text. A heading starts with #, a list starts with - or a number, links use brackets and parentheses, and code blocks use fences. The same file can be read directly or rendered into HTML, PDF, documentation, or a blog post.",
+          "That balance is the reason Markdown survived. It is simple enough for notes and powerful enough for technical documentation.",
+        ],
+        example: {
+          label: "Readable Markdown source",
+          markdown:
+            "# Product Notes\n\n## Goals\n\n- Write quickly\n- Preview clearly\n- Keep files portable\n\n[Open VeloWrite](https://velowrite.app)",
+          note: "The source is readable even before it is rendered.",
+        },
+      },
+      {
+        id: "why-it-works",
+        title: "Why plain text still matters",
+        body: [
+          "Plain text files are easy to back up, compare, search, version, and move between tools. Developers like Markdown because it fits Git. Writers like it because the formatting does not interrupt the draft.",
+          "VeloWrite keeps that idea intact: try the workflow in the browser, then move serious files into the desktop app when local storage and history matter.",
+        ],
+      },
+      {
+        id: "where-it-fits",
+        title: "Where Markdown fits best",
+        body: [
+          "Markdown works well for notes, READMEs, specs, changelogs, study guides, knowledge-base articles, product docs, launch copy, and blog drafts.",
+          "It is less ideal when the document needs page-perfect print layout from the first minute. In that case, Markdown is still useful as a clean drafting format before final design.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=markdown_article&utm_medium=cta", label: "Open Web Editor" },
+      secondary: { href: "/guide?utm_source=markdown_article&utm_medium=resource", label: "Read Guide" },
+    },
+  },
+  markdownHistory: {
+    eyebrow: "Markdown fundamentals",
+    title: "A Short History of Markdown",
+    intro:
+      "Markdown became popular because it solved a practical problem: people wanted to write for the web without writing raw HTML all day. Its best ideas are still useful in modern editors.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "The original need was web writing",
+        body: [
+          "Markdown was created to make structured writing easier to read as plain text and easier to convert to HTML. That origin still shapes the format: headings, links, lists, quotes, and code all map naturally to web content.",
+          "The format spread because it was easy to type in email, text editors, issue trackers, READMEs, and documentation sites.",
+        ],
+      },
+      {
+        title: "Developers made Markdown a documentation standard",
+        body: [
+          "GitHub, static site generators, documentation platforms, and code hosting pushed Markdown into daily developer work. READMEs, release notes, API docs, design notes, and runbooks all became natural Markdown documents.",
+          "This is why modern Markdown editors need strong code blocks, tables, math, and preview behavior, not only basic headings.",
+        ],
+      },
+      {
+        title: "The next step is local-first and workflow-aware",
+        body: [
+          "The future is not just another syntax variant. The useful direction is better writing flow: instant preview, local files, history recovery, export, publishing, and eventually AI commands that respect user-owned content.",
+          "VeloWrite is built around that path: fast web trial first, then a lightweight desktop app for serious local Markdown work.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/docs/future-of-markdown?utm_source=markdown_history_cta&utm_medium=resource", label: "Read Future" },
+      secondary: { href: "/web?utm_source=markdown_history_cta&utm_medium=cta", label: "Try Markdown" },
+    },
+  },
+  futureOfMarkdown: {
+    eyebrow: "Markdown direction",
+    title: "The Future of Markdown Writing",
+    intro:
+      "Markdown will stay useful because it is portable, but the editor around it is changing. The next wave is local-first, AI-assisted, and publishing-aware without hiding files behind a heavy cloud workspace.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Local files remain the source of truth",
+        body: [
+          "People trust Markdown because the file is inspectable. You can open it in another editor, store it in Git, copy it to a folder, or keep it in a private vault. Future editors should preserve that trust instead of forcing every note through an account system.",
+          "For VeloWrite, that means desktop local files, recent documents, and local history stay part of the free core workflow.",
+        ],
+      },
+      {
+        title: "AI should work inside the document flow",
+        body: [
+          "AI is useful when it can polish a paragraph, summarize a section, continue a draft, explain code, or generate Mermaid diagrams from context. It is less useful when it feels like a separate chat window pasted onto the side.",
+          "That is why AI commands are on the VeloWrite Pro roadmap only after the basic editor feels trustworthy.",
+        ],
+      },
+      {
+        title: "Publishing should become a natural last step",
+        body: [
+          "Many Markdown documents eventually become blog posts, docs pages, release notes, or knowledge-base articles. The future editor should help export and publish without making the writing surface heavier.",
+          "VeloWrite's roadmap keeps this as a later workflow: write and preview first, then add publishing automation when the core editor is stable.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/roadmap?utm_source=future_markdown_cta&utm_medium=resource", label: "View Roadmap" },
+      secondary: { href: "/pro?utm_source=future_markdown_cta&utm_medium=resource", label: "View Pro Path" },
+    },
+  },
+  markdownBasics: {
+    eyebrow: "Markdown basics",
+    title: "Markdown Basics",
+    intro:
+      "You can write useful Markdown with a small set of patterns: headings, paragraphs, lists, links, images, tables, code blocks, and math. This guide gives you the practical set first.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Headings, lists, and links",
+        body: [
+          "Use headings to create structure, lists to make actions scannable, and links to connect readers to related material. Most useful Markdown documents are built from these three parts.",
+        ],
+        example: {
+          label: "Basic Markdown",
+          markdown:
+            "# Project Plan\n\n## Tasks\n\n1. Draft the outline\n2. Review the preview\n3. Export the file\n\nRead the [VeloWrite guide](/guide).",
+          note: "Start with structure before adding advanced formatting.",
+        },
+      },
+      {
+        title: "Tables, code, and math",
+        body: [
+          "Tables compare information, code fences preserve formatting, and math blocks help technical documents stay precise. VeloWrite supports all three in the current preview.",
+        ],
+        example: {
+          label: "Technical Markdown",
+          markdown:
+            "| Feature | Status |\n| --- | --- |\n| Preview | Ready |\n| Sync scroll | In progress |\n\n```bash\nnpm run build\n```\n\n$$a^2 + b^2 = c^2$$",
+          note: "Use preview mode to confirm complex Markdown renders as expected.",
+        },
+      },
+      {
+        title: "Keep documents easy to scan",
+        body: [
+          "Short sections beat giant paragraphs. Consistent heading levels beat visual decoration. If a document needs to be maintained, readable source is as important as rendered output.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=markdown_basics_cta&utm_medium=cta", label: "Practice Online" },
+      secondary: { href: "/docs/advanced-markdown?utm_source=markdown_basics_cta&utm_medium=resource", label: "Advanced Markdown" },
+    },
+  },
+  markdownForWriters: {
+    eyebrow: "Writing workflow",
+    title: "Markdown for Writers",
+    intro:
+      "Markdown helps writers draft without formatting drag. It keeps outlines, notes, essays, articles, newsletters, and blog posts readable while leaving room for export or publishing later.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Write the shape before the style",
+        body: [
+          "A good draft starts with structure: title, sections, notes, and open questions. Markdown lets you shape that without choosing fonts, margins, or page layout too early.",
+          "This is especially useful for long-form writing because headings and lists make the source easy to scan.",
+        ],
+      },
+      {
+        title: "Use Markdown as a clean drafting layer",
+        body: [
+          "Writers can use Markdown for outlines, research notes, first drafts, editorial comments, and publishable copy. The same text can become HTML, a static site page, or a final document after editing.",
+        ],
+        example: {
+          label: "Writer-friendly outline",
+          markdown:
+            "# Essay Draft\n\n## Thesis\n\nOne clear argument in two sentences.\n\n## Evidence\n\n- Source note one\n- Source note two\n\n## Revision notes\n\n> Tighten the introduction after the first full draft.",
+          note: "Blockquotes are useful for revision notes and pulled references.",
+        },
+      },
+      {
+        title: "Move important drafts to desktop",
+        body: [
+          "The browser editor is useful for quick starts. When a draft becomes important, move to desktop so the file lives locally, can be reopened, and can benefit from local history snapshots.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=markdown_writers_cta&utm_medium=cta", label: "Start a Draft" },
+      secondary: { href: "/download?utm_source=markdown_writers_cta&utm_medium=cta", label: "Download Desktop" },
+    },
+  },
+  markdownForDevelopers: {
+    eyebrow: "Developer workflow",
+    title: "Markdown for Developers",
+    intro:
+      "Developers use Markdown because it works with code, Git, issue trackers, documentation systems, and release workflows. The best Markdown setup makes technical writing feel close to the tools developers already use.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Use Markdown for repeatable technical documents",
+        body: [
+          "READMEs, architecture notes, API drafts, runbooks, changelogs, release plans, and onboarding guides all benefit from Markdown because the source is diffable and reviewable.",
+        ],
+        example: {
+          label: "Developer document",
+          markdown:
+            "# API Change\n\n## Migration\n\n```bash\nnpm run test\nnpm run build\n```\n\n## Compatibility\n\n| Runtime | Status |\n| --- | --- |\n| Node 22 | Supported |",
+          note: "Code fences and tables make technical context easier to review.",
+        },
+      },
+      {
+        title: "Keep examples close to explanation",
+        body: [
+          "Good developer docs explain the intent, then show the command, request, or code block. VeloWrite supports highlighted code and tabbed examples so multi-language docs stay compact.",
+        ],
+      },
+      {
+        title: "Why local history matters",
+        body: [
+          "Developers already understand version control, but not every draft belongs in Git immediately. Local history snapshots help recover accidental edits before the document is committed or shared.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/docs/markdown-code-blocks?utm_source=markdown_developers_cta&utm_medium=resource", label: "Code Blocks" },
+      secondary: { href: "/web?utm_source=markdown_developers_cta&utm_medium=cta", label: "Try Editor" },
+    },
+  },
+  advancedMarkdown: {
+    eyebrow: "Advanced Markdown",
+    title: "Advanced Markdown",
+    intro:
+      "Advanced Markdown is less about rare syntax and more about complex documents: tables, math, code examples, images, navigation, and long-form preview behavior.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Complex documents need predictable structure",
+        body: [
+          "Use stable heading levels, short sections, and consistent examples. Long documents become hard to edit when the source has visual tricks but no outline discipline.",
+          "VeloWrite's document outline and split preview are designed around that structure.",
+        ],
+      },
+      {
+        title: "Use tables, math, and code carefully",
+        body: [
+          "Tables should compare a small number of fields. Math should be isolated when it needs attention. Code examples should be labeled by language and kept close to the explanation.",
+        ],
+        example: {
+          label: "Advanced block set",
+          markdown:
+            "## Model Notes\n\n| Symbol | Meaning |\n| --- | --- |\n| x | Input |\n| y | Output |\n\n$$y = f(x) + \\epsilon$$\n\n```python\nprint('preview first')\n```",
+          note: "A clear preview makes advanced Markdown easier to trust.",
+        },
+      },
+      {
+        title: "Preview behavior is part of the feature",
+        body: [
+          "Advanced Markdown is only useful if the editor renders it reliably. That is why math, code tabs, tables, images, and long-document sync are tracked as preview-completion work rather than Pro-only work.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/docs/markdown-math?utm_source=advanced_markdown_cta&utm_medium=resource", label: "Markdown Math" },
+      secondary: { href: "/docs/markdown-code-blocks?utm_source=advanced_markdown_cta&utm_medium=resource", label: "Code Blocks" },
+    },
+  },
+  markdownMath: {
+    eyebrow: "Technical writing",
+    title: "Markdown Math with KaTeX",
+    intro:
+      "Math support turns Markdown into a better format for study notes, engineering docs, product analysis, and research drafts. VeloWrite renders math with KaTeX in the preview.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Use inline math for small expressions",
+        body: [
+          "Inline math belongs inside a sentence, where the formula is short enough not to interrupt reading. Use it for symbols, variables, and compact expressions.",
+        ],
+        example: {
+          label: "Inline math",
+          markdown: "The term $x_i$ represents one input sample, and $n$ is the total number of samples.",
+          note: "Inline math is best when it supports the sentence instead of replacing it.",
+        },
+      },
+      {
+        title: "Use block math when the formula is the point",
+        body: [
+          "Block math should stand on its own. It is better for equations that readers need to inspect, copy, or compare.",
+        ],
+        example: {
+          label: "Block math",
+          markdown: "$$\\bar{x} = \\frac{1}{n}\\sum_{i=1}^{n}x_i$$",
+          note: "Preview the rendered result before sharing technical documents.",
+        },
+      },
+      {
+        title: "Keep surrounding explanation clear",
+        body: [
+          "A formula without context is hard to use. Explain what each variable means, then show the equation, then describe how it affects the document's conclusion.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=markdown_math_cta&utm_medium=cta", label: "Try Math Preview" },
+      secondary: { href: "/docs/advanced-markdown?utm_source=markdown_math_cta&utm_medium=resource", label: "Advanced Markdown" },
+    },
+  },
+  markdownCodeBlocks: {
+    eyebrow: "Technical writing",
+    title: "Markdown Code Blocks and Tabs",
+    intro:
+      "Code blocks are one of the main reasons Markdown works so well for technical writing. Language labels, syntax highlighting, and tabbed examples make docs easier to scan.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Use fenced code blocks",
+        body: [
+          "A fenced code block starts and ends with three backticks. Add a language name after the first fence so the preview can highlight syntax correctly.",
+        ],
+        example: {
+          label: "Fenced code",
+          markdown:
+            "```js\nconst message = 'Write, preview, export';\nconsole.log(message);\n```",
+          note: "Language labels improve readability for readers and renderers.",
+        },
+      },
+      {
+        title: "Use tabs for multi-language examples",
+        body: [
+          "When the same idea needs Python, Bash, JavaScript, and Java versions, tabs are easier to read than four stacked blocks. VeloWrite's demo uses this pattern for compact technical examples.",
+        ],
+        example: {
+          label: "Tabbed examples",
+          markdown:
+            "```python\nprint('VeloWrite')\n```\n\n```bash\necho VeloWrite\n```\n\n```java\nSystem.out.println(\"VeloWrite\");\n```",
+          note: "Tabbed code is best when each block explains the same action in a different language.",
+        },
+      },
+      {
+        title: "Keep code blocks focused",
+        body: [
+          "A code example should prove one idea. If a block grows too long, split it into smaller examples and explain the transition between them.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/demo?utm_source=code_blocks_cta&utm_medium=resource", label: "Open Demo" },
+      secondary: { href: "/web?utm_source=code_blocks_cta&utm_medium=cta", label: "Try Editor" },
+    },
+  },
+  localFirstMarkdown: {
+    eyebrow: "Local-first workflow",
+    title: "Local-First Markdown Editing",
+    intro:
+      "Local-first Markdown editing means your files stay usable on your machine first. Cloud, sync, and AI can add value later, but the core document should not depend on a remote account.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Why local-first matters",
+        body: [
+          "Markdown users often care about ownership. A local file can be backed up, searched, versioned, copied, and opened in another editor. That makes it safer for notes, documentation, and long-lived writing.",
+          "VeloWrite's desktop preview is designed around native open and save, recent files, and local history snapshots.",
+        ],
+      },
+      {
+        title: "Use the browser for trials, desktop for durable work",
+        body: [
+          "The web editor is useful when you want to start immediately. The desktop app is better when the document needs a real path on disk, offline access, or repeated editing.",
+        ],
+      },
+      {
+        title: "Sync should not take ownership away",
+        body: [
+          "Private sync is on the roadmap, but it should be designed after the local workflow is proven. Folder-based workflows should remain simple; managed encrypted sync is a stronger Pro candidate later.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/download?utm_source=local_first_cta&utm_medium=cta", label: "Download Desktop" },
+      secondary: { href: "/roadmap?utm_source=local_first_cta&utm_medium=resource", label: "View Roadmap" },
+    },
+  },
+  typoraAlternative: {
+    eyebrow: "Editor comparison",
+    title: "Typora Alternative",
+    intro:
+      "Typora helped make focused Markdown editing feel mainstream. VeloWrite takes a different early path: browser trial first, lightweight Tauri desktop builds, local-first files, and a roadmap for AI-native workflows.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "What VeloWrite is trying to improve",
+        body: [
+          "The goal is not to copy every mature Typora feature immediately. The early goal is a fast preview editor that feels honest: try it online, download desktop when local files matter, and see public roadmap status before expecting Pro workflows.",
+        ],
+      },
+      {
+        title: "Where VeloWrite is already useful",
+        body: [
+          "The current preview supports browser editing, live preview, Markdown download, HTML export, desktop open and save, recent files, local history snapshots, math rendering, code highlighting, and tabbed examples.",
+        ],
+      },
+      {
+        title: "Where Typora is still ahead",
+        body: [
+          "VeloWrite is still preview software. Continuous sync scrolling, history diff preview, richer image handling, Mermaid, PDF export, signed installers, and advanced polish are still on the roadmap.",
+          "That transparency matters: users should know what is ready before depending on a new editor.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=typora_alternative_cta&utm_medium=cta", label: "Try VeloWrite" },
+      secondary: { href: "/roadmap?utm_source=typora_alternative_cta&utm_medium=resource", label: "Check Roadmap" },
+    },
+  },
+  markdownToBlog: {
+    eyebrow: "Publishing workflow",
+    title: "Markdown to Blog",
+    intro:
+      "Markdown is a strong drafting format for blog posts because it keeps writing portable. The practical workflow is draft, preview, export, then publish through the platform you trust.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Draft in Markdown first",
+        body: [
+          "Start with the article title, a short promise, section headings, and examples. Markdown keeps the draft readable while you focus on the argument instead of the publishing tool.",
+        ],
+      },
+      {
+        title: "Preview before publishing",
+        body: [
+          "Preview catches broken structure, awkward tables, long code blocks, and math that does not render as expected. VeloWrite is built to make that check fast.",
+        ],
+        example: {
+          label: "Blog draft structure",
+          markdown:
+            "# How to Write Better Markdown\n\n## Problem\n\nExplain the pain.\n\n## Workflow\n\n1. Draft\n2. Preview\n3. Export\n4. Publish",
+          note: "A simple outline is enough to start a useful blog draft.",
+        },
+      },
+      {
+        title: "Publishing automation belongs later",
+        body: [
+          "One-click publishing to GitHub Pages, Vercel, CMS tools, or static blogs is a strong future Pro workflow. It should be added after editing and export feel stable.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=markdown_to_blog_cta&utm_medium=cta", label: "Draft Online" },
+      secondary: { href: "/pro?utm_source=markdown_to_blog_cta&utm_medium=resource", label: "Publishing Roadmap" },
+    },
+  },
+  markdownEditorForWindows: {
+    eyebrow: "Platform guide",
+    title: "Markdown Editor for Windows",
+    intro:
+      "Windows users can try VeloWrite in the browser first, then install the desktop preview for native local files, recent documents, local history, and offline writing.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Use the web editor for a quick test",
+        body: [
+          "If you only need to paste Markdown, preview it, and download a copy, the browser editor is the fastest starting point. No account is required.",
+        ],
+      },
+      {
+        title: "Use desktop for real files",
+        body: [
+          "The Windows preview adds native open and save, recent files, HTML export, and local history snapshots. It is better for documents you plan to keep editing.",
+        ],
+      },
+      {
+        title: "Installer status",
+        body: [
+          "The current Windows installer is unsigned, so SmartScreen may warn during install. That is expected for the preview stage and will be revisited before broader stable promotion.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/download?utm_source=windows_article_cta&utm_medium=cta", label: "Download Windows" },
+      secondary: { href: "/web?utm_source=windows_article_cta&utm_medium=cta", label: "Try Web Editor" },
+    },
+  },
+  markdownEditorForMac: {
+    eyebrow: "Platform guide",
+    title: "Markdown Editor for Mac",
+    intro:
+      "VeloWrite is designed to support Mac users with a lightweight local-first Markdown workflow. The Apple Silicon DMG is built through GitHub Actions and appears on the download page after a successful build.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Start in the browser today",
+        body: [
+          "Mac users can use the web editor immediately for writing, preview, Markdown download, and HTML export. It is the safest way to evaluate the workflow before installing anything.",
+        ],
+      },
+      {
+        title: "Desktop expectations",
+        body: [
+          "The desktop direction is the same as other platforms: local files, offline writing, recent documents, and local history snapshots. The preview is not code-signed or notarized yet.",
+        ],
+      },
+      {
+        title: "DMG status",
+        body: [
+          "The macOS DMG is intentionally only shown on the download page after the release asset exists. That avoids broken links and keeps the public download page honest.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=mac_article_cta&utm_medium=cta", label: "Try Web Editor" },
+      secondary: { href: "/download?utm_source=mac_article_cta&utm_medium=resource", label: "Check Downloads" },
+    },
+  },
+  markdownEditorForLinux: {
+    eyebrow: "Platform guide",
+    title: "Markdown Editor for Linux",
+    intro:
+      "Linux users are a natural fit for a lightweight Markdown editor because they often value portable files, local-first workflows, and low-overhead desktop software.",
+    updated: "July 21, 2026",
+    sections: [
+      {
+        title: "Choose the package that fits your system",
+        body: [
+          "VeloWrite publishes Linux preview builds as AppImage, DEB, and RPM assets. AppImage is portable, DEB fits Debian and Ubuntu families, and RPM fits Fedora, RHEL, and similar distributions.",
+        ],
+      },
+      {
+        title: "Why Tauri matters on Linux",
+        body: [
+          "A Tauri desktop app can keep the package smaller than many Electron-style tools while still offering a modern interface. The goal is a fast Markdown surface without a heavy runtime feel.",
+        ],
+      },
+      {
+        title: "Use local files as the foundation",
+        body: [
+          "Linux users often already have strong backup, Git, and folder workflows. VeloWrite should fit those habits instead of hiding documents behind a cloud-only account model.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/download?utm_source=linux_article_cta&utm_medium=cta", label: "Download Linux" },
+      secondary: { href: "/docs/local-first-markdown?utm_source=linux_article_cta&utm_medium=resource", label: "Local-First Workflow" },
+    },
+  },
   guide: {
     eyebrow: "Practical Markdown guide",
     title: "Markdown Starter Guide",
@@ -771,8 +1447,9 @@ const contentPages: Record<"guide" | "changelog" | "onlineMarkdownEditor", Conte
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "July 20, 2026",
+    updated: "July 21, 2026",
     directory: [
+      { label: "Unreleased", href: "#unreleased" },
       { label: "0.1.7", href: "#v017" },
       { label: "0.1.6", href: "#v016" },
       { label: "0.1.5", href: "#v015" },
@@ -783,6 +1460,15 @@ const contentPages: Record<"guide" | "changelog" | "onlineMarkdownEditor", Conte
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "unreleased",
+        title: "Unreleased",
+        body: [
+          "Published all planned Markdown library articles under /docs.",
+          "Added article-specific SEO metadata and sitemap entries for Markdown basics, history, writers, developers, math, code blocks, local-first editing, Typora alternative, publishing, and platform pages.",
+          "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
+        ],
+      },
       {
         id: "v017",
         title: "0.1.7 preview",
@@ -1771,7 +2457,7 @@ function DownloadPage() {
           <article>
             <h2>Preview Limits</h2>
             <ul>
-              <li>No code signing yet on Windows or macOS</li>
+              <li>No code signing yet for Windows, and future macOS preview DMGs will also require signing and notarization work</li>
               <li>No account system, cloud sync, encrypted sharing, or team workspace</li>
               <li>No active AI assistant or publishing automation in the public build</li>
               <li>Important writing should still be backed up outside the app</li>
@@ -2562,6 +3248,8 @@ function NotFoundPage() {
 function Router() {
   const searchParams = new URLSearchParams(window.location.search);
   const demoFrame = searchParams.get("utm_source") === "demo_frame";
+  const normalizedPath = normalizePath(window.location.pathname);
+  const docPage = docPageRoutes[normalizedPath as keyof typeof docPageRoutes];
   const seo = routeSeo(window.location.pathname);
   let page: React.ReactNode;
 
@@ -2589,9 +3277,9 @@ function Router() {
     page = <ProPage />;
   } else if (matchesRoute(window.location.pathname, "/roadmap")) {
     page = <RoadmapPage />;
-  } else if (matchesRoute(window.location.pathname, "/docs/online-markdown-editor")) {
-    page = <ContentPage page="onlineMarkdownEditor" />;
-  } else if (matchesRoute(window.location.pathname, "/docs")) {
+  } else if (docPage) {
+    page = <ContentPage page={docPage} />;
+  } else if (normalizedPath === "/docs") {
     page = <DocsIndexPage />;
   } else if (matchesRoute(window.location.pathname, "/guide")) {
     page = <ContentPage page="guide" />;

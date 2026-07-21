@@ -4,6 +4,14 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
+## Unreleased
+
+### Added
+
+- Published all planned Markdown library articles under `/docs`.
+- Added article-specific SEO metadata and sitemap entries for Markdown basics, history, writers, developers, math, code blocks, local-first editing, Typora alternative, publishing, and platform pages.
+- Added stricter docs routing so unknown `/docs/*` paths use the friendly 404 page.
+
 ## [0.1.7] - 2026-07-20
 
 ### Added

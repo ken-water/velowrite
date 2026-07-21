@@ -11,7 +11,22 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 - Pro roadmap: https://velowrite.app/pro
 - Public feedback roadmap: https://velowrite.app/roadmap
 - Markdown library: https://velowrite.app/docs
+- What Is Markdown: https://velowrite.app/docs/markdown
+- Markdown history: https://velowrite.app/docs/markdown-history
+- Future of Markdown: https://velowrite.app/docs/future-of-markdown
+- Markdown basics: https://velowrite.app/docs/markdown-basics
+- Markdown for writers: https://velowrite.app/docs/markdown-for-writers
+- Markdown for developers: https://velowrite.app/docs/markdown-for-developers
+- Advanced Markdown: https://velowrite.app/docs/advanced-markdown
+- Markdown math: https://velowrite.app/docs/markdown-math
+- Markdown code blocks and tabs: https://velowrite.app/docs/markdown-code-blocks
+- Local-first Markdown editing: https://velowrite.app/docs/local-first-markdown
+- Typora alternative: https://velowrite.app/docs/typora-alternative
 - Online Markdown Editor article: https://velowrite.app/docs/online-markdown-editor
+- Markdown to blog: https://velowrite.app/docs/markdown-to-blog
+- Markdown editor for Windows: https://velowrite.app/docs/markdown-editor-for-windows
+- Markdown editor for Mac: https://velowrite.app/docs/markdown-editor-for-mac
+- Markdown editor for Linux: https://velowrite.app/docs/markdown-editor-for-linux
 - Markdown guide: https://velowrite.app/guide
 - Changelog: https://velowrite.app/changelog includes the version directory for 0.1.0 through 0.1.7.
 - FAQ: https://velowrite.app/faq
@@ -20,7 +35,7 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 
 ## Product Summary
 
-VeloWrite helps writers, developers, students, and teams draft Markdown quickly in the browser, preview rendered output, export Markdown or HTML, and move serious local files to a lightweight desktop app built with Tauri. The site also includes a practical Markdown guide, a Markdown article library, changelog, and public feedback roadmap for preview updates.
+VeloWrite helps writers, developers, students, and teams draft Markdown quickly in the browser, preview rendered output, export Markdown or HTML, and move serious local files to a lightweight desktop app built with Tauri. The site also includes a practical Markdown guide, a published Markdown article library, changelog, and public feedback roadmap for preview updates.
 
 The current public version is a free preview. It includes online editing, live preview, Markdown file download, HTML export, desktop open/save, recent files, local history snapshots, math rendering, code highlighting, and tabbed multi-language code previews.
 
@@ -32,15 +47,15 @@ The current public version is a free preview. It includes online editing, live p
 
 ## Current Preview Limits
 
-- Windows and macOS installers are unsigned.
-- macOS DMG currently targets Apple Silicon.
+- Windows installers are unsigned.
+- The macOS DMG is built separately and appears on the download page only after the GitHub release asset exists.
 - AI assistant, private sync, account system, encrypted sharing, and one-click publishing are planned but not active in the current public build.
 - Important files should be backed up while testing preview builds.
 
 ## FAQ
 
 - What is VeloWrite? A private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.
-- What can I read first? The Markdown library at https://velowrite.app/docs lists published and planned articles. The Markdown guide explains headings, lists, tables, math, code tabs, and when to move to desktop. The changelog explains what changed across preview versions 0.1.0 through 0.1.7.
+- What can I read first? The Markdown library at https://velowrite.app/docs lists published articles about Markdown basics, history, writers, developers, math, code blocks, local-first editing, Typora alternatives, platform-specific editors, and publishing workflows. The Markdown guide explains headings, lists, tables, math, code tabs, and when to move to desktop. The changelog explains what changed across preview versions 0.1.0 through 0.1.7.
 - Can I try VeloWrite without installing anything? Yes. Open the web editor in your browser and start writing immediately.
 - What happens if I refresh the browser while editing? Your draft stays in localStorage in the same browser, so a refresh on the same device can bring it back.
 - Who is VeloWrite for? Developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.
