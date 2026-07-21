@@ -12,6 +12,7 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Added article-specific SEO metadata and sitemap entries for the two public articles while keeping the remaining article queue planned.
 - Added stricter docs routing so unknown `/docs/*` paths use the friendly 404 page.
 - Expanded Markdown Basics with a table of contents, more examples, and plainer wording across the first two public articles.
+- Added rendered Markdown previews beside article example input blocks.
 
 ### Fixed
 

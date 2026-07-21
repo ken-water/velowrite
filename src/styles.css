@@ -3018,25 +3018,111 @@ pre,
   background: rgba(255, 255, 255, 0.62);
 }
 
-.content-example span {
+.content-example-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.content-example span,
+.content-example-panel strong {
   display: block;
-  margin-bottom: 10px;
   color: #47635b;
   font-size: 12px;
   font-weight: 850;
   text-transform: uppercase;
 }
 
+.content-example-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.content-example-panel {
+  min-width: 0;
+}
+
+.content-example-panel strong {
+  margin-bottom: 8px;
+}
+
 .content-example pre {
+  min-height: 100%;
+  margin: 0;
   border: 1px solid rgba(21, 54, 45, 0.12);
   border-radius: 8px;
   padding: 14px;
   background: #f7f5f0;
   color: #17201c;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .content-example p {
   margin: 10px 0 0;
+  font-size: 14px;
+}
+
+.content-example-preview {
+  --accent: #15362d;
+  --border-soft: rgba(21, 54, 45, 0.14);
+  --editor-bg: #f7f5f0;
+  --muted-strong: #45564f;
+  --preview-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: #f7f5f0;
+  --text: #17201c;
+  min-height: 100%;
+  border: 1px solid rgba(21, 54, 45, 0.12);
+  border-radius: 8px;
+  padding: 14px;
+  background: #ffffff;
+  overflow: auto;
+}
+
+.content-example-preview h1 {
+  margin: 0 0 12px;
+  font-size: 26px;
+}
+
+.content-example-preview h2 {
+  margin: 18px 0 8px;
+  font-size: 18px;
+}
+
+.content-example-preview p,
+.content-example-preview li {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.content-example-preview p:first-child {
+  margin-top: 0;
+}
+
+.content-example-preview img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid rgba(21, 54, 45, 0.1);
+  border-radius: 8px;
+}
+
+.content-example-preview .katex-display {
+  text-align: left;
+}
+
+.content-example-loading {
+  margin-top: 10px;
+  border: 1px solid rgba(21, 54, 45, 0.12);
+  border-radius: 8px;
+  padding: 14px;
+  background: #f7f5f0;
+  color: #58675f;
   font-size: 14px;
 }
 
@@ -3293,6 +3379,10 @@ pre,
 
   .content-sidebar {
     position: static;
+  }
+
+  .content-example-grid {
+    grid-template-columns: 1fr;
   }
 
   .footer-links {

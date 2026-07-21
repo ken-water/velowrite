@@ -32,6 +32,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
+const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
 const downloadVersion = "0.1.7";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -982,7 +983,7 @@ const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Technical basics",
           markdown:
-            "| Feature | Status |\n| --- | --- |\n| Preview | Ready |\n| Export | Ready |\n\n```bash\nnpm run build\n```\n\nThe formula below is rendered in preview:\n\n$$a^2 + b^2 = c^2$$",
+            "| Feature | Status |\n| --- | --- |\n| Preview | Ready |\n| Export | Ready |\n\n```bash\nnpm run build\n```\n\nInline math also works: $a^2 + b^2 = c^2$.",
           note: "Use preview mode to confirm complex Markdown renders as expected.",
         },
       },
@@ -2694,11 +2695,18 @@ function ContentPage({ page }: { page: keyof typeof contentPages }) {
                   <p key={paragraph}>{paragraph}</p>
                 ))}
                 {section.example && (
-                  <div className="content-example">
-                    <span>{section.example.label}</span>
-                    <pre>{section.example.markdown}</pre>
-                    <p>{section.example.note}</p>
-                  </div>
+                  <React.Suspense
+                    fallback={
+                      <div className="content-example">
+                        <div className="content-example-header">
+                          <span>{section.example.label}</span>
+                        </div>
+                        <div className="content-example-loading">Loading rendered preview</div>
+                      </div>
+                    }
+                  >
+                    <RenderedMarkdownExample example={section.example} />
+                  </React.Suspense>
                 )}
               </section>
             ))}
