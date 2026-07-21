@@ -3204,14 +3204,20 @@ function NotFoundPage() {
           VeloWrite
         </a>
         <div className="nav-actions">
-          <a href="/docs?utm_source=not_found_nav&utm_medium=resource">
-            Docs <FileText size={16} />
+          <a href="https://github.com/ken-water/velowrite" aria-label="GitHub">
+            <Github size={18} />
           </a>
-          <a href="/web?utm_source=not_found_nav&utm_medium=cta">
-            Web editor <ChevronRight size={16} />
+          <a href="/demo?utm_source=not_found_nav&utm_medium=cta">
+            Demo <Rocket size={16} />
           </a>
           <a href="/download?utm_source=not_found_nav&utm_medium=cta">
             Download <Download size={16} />
+          </a>
+          <a href="/pro?utm_source=not_found_nav&utm_medium=cta">
+            Pro <Sparkles size={16} />
+          </a>
+          <a href="/web?utm_source=not_found_nav&utm_medium=cta">
+            Try web editor <ChevronRight size={16} />
           </a>
         </div>
       </header>

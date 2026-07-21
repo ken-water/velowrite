@@ -12,6 +12,10 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Added article-specific SEO metadata and a sitemap entry for the online Markdown editor page while keeping the remaining article queue planned.
 - Added stricter docs routing so unknown `/docs/*` paths use the friendly 404 page.
 
+### Fixed
+
+- Aligned the 404 page navigation and background with the main website style.
+
 ## [0.1.7] - 2026-07-20
 
 ### Added
