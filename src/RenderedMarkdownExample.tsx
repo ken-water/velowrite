@@ -25,7 +25,10 @@ export default function RenderedMarkdownExample({ example }: { example: Markdown
           />
         </div>
       </div>
-      <p>{example.note}</p>
+      <p className="content-example-note">
+        <strong>Note</strong>
+        {example.note}
+      </p>
     </div>
   );
 }

@@ -3067,6 +3067,22 @@ pre,
   font-size: 14px;
 }
 
+.content-example-note {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  border-top: 1px solid rgba(21, 54, 45, 0.1);
+  padding-top: 10px;
+  color: #58675f;
+}
+
+.content-example-note strong {
+  color: #15362d;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
 .content-example-preview {
   --accent: #15362d;
   --border-soft: rgba(21, 54, 45, 0.14);
