@@ -905,37 +905,94 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Markdown basics",
     title: "Markdown Basics",
     intro:
-      "You can write useful Markdown with a small set of patterns: headings, paragraphs, lists, links, images, tables, code blocks, and math. This guide keeps to those basics.",
+      "Markdown is easiest to learn when you start with the few patterns you will use every day: headings, paragraphs, lists, links, images, tables, code blocks, and the occasional math block. This guide keeps the examples small so you can copy them into the editor and see the result immediately.",
     updated: "July 21, 2026",
+    directory: [
+      { label: "Document shape", href: "#document-shape" },
+      { label: "Paragraphs", href: "#paragraphs" },
+      { label: "Lists", href: "#lists" },
+      { label: "Links and images", href: "#links-images" },
+      { label: "Tables and code", href: "#tables-code" },
+      { label: "Preview habits", href: "#preview-habits" },
+    ],
     sections: [
       {
-        title: "Headings, lists, and links",
+        id: "document-shape",
+        title: "Start with the document shape",
         body: [
-          "Use headings to create structure, lists to make actions easy to scan, and links to connect readers to related material. Most useful Markdown documents are built from these three parts.",
+          "A readable Markdown file usually starts with one title, a few section headings, and short paragraphs below each heading. You do not need to decide final styling before the document has a useful shape.",
+          "Use one top-level heading for the page title. Use second-level headings for the main sections. If you need a third level, make sure the document is long enough to justify it.",
         ],
         example: {
-          label: "Basic Markdown",
+          label: "Simple document shape",
           markdown:
-            "# Project Plan\n\n## Tasks\n\n1. Draft the outline\n2. Review the preview\n3. Export the file\n\nRead the [VeloWrite guide](/guide).",
-          note: "Start with structure before adding advanced formatting.",
+            "# Project Plan\n\n## Goal\n\nWrite the goal in one short paragraph.\n\n## Tasks\n\n- Draft the outline\n- Review the preview\n- Export the file\n\n## Notes\n\nKeep decisions and open questions here.",
+          note: "Headings give the document a map before you add detail.",
         },
       },
       {
-        title: "Tables, code, and math",
+        id: "paragraphs",
+        title: "Use blank lines for paragraphs",
         body: [
-          "Tables compare information, code fences preserve formatting, and math blocks help technical documents stay precise. VeloWrite supports all three in the current preview.",
+          "Markdown treats blank lines as real structure. If two thoughts belong in separate paragraphs, leave an empty line between them. This makes the source easier to read and gives the preview a clean rhythm.",
+          "Line breaks inside the same paragraph are usually less important than blank lines. For most writing, keep paragraphs short and let the preview wrap lines naturally.",
         ],
         example: {
-          label: "Technical Markdown",
+          label: "Paragraph spacing",
           markdown:
-            "| Feature | Status |\n| --- | --- |\n| Preview | Ready |\n| Sync scroll | In progress |\n\n```bash\nnpm run build\n```\n\n$$a^2 + b^2 = c^2$$",
+            "This is the first paragraph. It can be one sentence or a few short sentences.\n\nThis is the second paragraph. The blank line between them matters.\n\n> A quote also reads better when it is separated from nearby text.",
+          note: "When the source is easy to read, editing later is easier too.",
+        },
+      },
+      {
+        id: "lists",
+        title: "Choose the right list",
+        body: [
+          "Use bullet lists when order does not matter. Use numbered lists when the reader should follow steps in sequence. Avoid deep nesting unless the structure really helps.",
+          "A list is most useful when every item has the same shape. If one item turns into a long paragraph, it may deserve its own section instead.",
+        ],
+        example: {
+          label: "Bullet and numbered lists",
+          markdown:
+            "Things to check:\n\n- Title is clear\n- Links work\n- Preview looks right\n\nSteps to publish:\n\n1. Finish the draft\n2. Export HTML\n3. Review the final page",
+          note: "Lists are for scanning. Keep them tight.",
+        },
+      },
+      {
+        id: "links-images",
+        title: "Add links and images plainly",
+        body: [
+          "A Markdown link has readable text in brackets and the URL in parentheses. The link text should explain where the reader is going instead of saying only \"click here\".",
+          "Images use almost the same shape, but start with an exclamation mark. The text in brackets becomes alt text, so write a short description that would still help if the image does not load.",
+        ],
+        example: {
+          label: "Links and images",
+          markdown:
+            "Read the [VeloWrite Markdown guide](/guide) for a longer walkthrough.\n\n![A Markdown editor showing source and preview](/icons/icon-512.png)",
+          note: "Good link text and useful alt text help both readers and search engines.",
+        },
+      },
+      {
+        id: "tables-code",
+        title: "Use tables, code, and math when they help",
+        body: [
+          "Tables are good for comparison, but they are awkward for long prose. Keep table cells short. If the table becomes hard to edit, convert it into headings and paragraphs.",
+          "Code fences preserve formatting and can include a language label for highlighting. Math blocks are useful for formulas, but they should be surrounded by enough explanation for readers who are scanning.",
+        ],
+        example: {
+          label: "Technical basics",
+          markdown:
+            "| Feature | Status |\n| --- | --- |\n| Preview | Ready |\n| Export | Ready |\n\n```bash\nnpm run build\n```\n\nThe formula below is rendered in preview:\n\n$$a^2 + b^2 = c^2$$",
           note: "Use preview mode to confirm complex Markdown renders as expected.",
         },
       },
       {
+        id: "preview-habits",
         title: "Keep documents easy to scan",
         body: [
           "Short sections are easier to scan than long paragraphs. Consistent heading levels are easier to follow than visual decoration. If a document needs to be maintained, readable source matters as much as rendered output.",
+          "A practical habit is to write a section, check the preview, then continue. This catches broken tables, missing blank lines, awkward links, and code fences that were not closed.",
+          "When a document becomes something you want to keep, move it from a temporary browser draft to a local file. That is where the desktop app is more useful than a tab.",
         ],
       },
     ],
