@@ -50,6 +50,8 @@ const breadcrumbLabels: Record<string, string> = {
   "/roadmap": "Feedback Roadmap",
   "/docs": "Markdown Library",
   "/docs/online-markdown-editor": "Online Markdown Editor",
+  "/docs/markdown-basics": "Markdown Basics",
+  "/docs/markdown-for-writers": "Markdown for Writers",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -131,6 +133,7 @@ const docPageRoutes = {
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-basics",
+  "/docs/markdown-for-writers",
   "/docs/online-markdown-editor",
 ]);
 
@@ -539,7 +542,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "Two staged articles are now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor while leaving the rest for a slower release cadence.",
+      "Three staged articles are now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor while leaving the rest for a slower release cadence.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -612,7 +615,7 @@ const docGroups = [
     description: "Practical guides for daily writing, documentation, notes, and technical drafts.",
     items: [
       { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Published" },
-      { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Planned" },
+      { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Published" },
       { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Planned" },
     ],
   },
@@ -1006,32 +1009,87 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Writing workflow",
     title: "Markdown for Writers",
     intro:
-      "Markdown helps writers draft without formatting drag. It keeps outlines, notes, essays, articles, newsletters, and blog posts readable while leaving room for export or publishing later.",
-    updated: "July 21, 2026",
+      "Markdown helps writers keep a draft readable before it becomes a finished page. It is useful for outlines, notes, essays, articles, newsletters, and blog posts because the source stays simple while the preview gives enough structure to review the work.",
+    updated: "July 22, 2026",
+    directory: [
+      { label: "Draft shape", href: "#draft-shape" },
+      { label: "Research notes", href: "#research-notes" },
+      { label: "Revision passes", href: "#revision-passes" },
+      { label: "Publishable copy", href: "#publishable-copy" },
+      { label: "Browser or desktop", href: "#browser-desktop" },
+      { label: "Writer habits", href: "#writer-habits" },
+    ],
     sections: [
       {
+        id: "draft-shape",
         title: "Write the shape before the style",
         body: [
           "A good draft starts with structure: title, sections, notes, and open questions. Markdown lets you shape that without choosing fonts, margins, or page layout too early.",
           "This is especially useful for long-form writing because headings and lists make the source easy to scan.",
         ],
-      },
-      {
-        title: "Use Markdown as a clean drafting layer",
-        body: [
-          "Writers can use Markdown for outlines, research notes, first drafts, editorial comments, and publishable copy. The same text can become HTML, a static site page, or a final document after editing.",
-        ],
         example: {
-          label: "Writer-friendly outline",
+          label: "Article skeleton",
           markdown:
-            "# Essay Draft\n\n## Thesis\n\nOne clear argument in two sentences.\n\n## Evidence\n\n- Source note one\n- Source note two\n\n## Revision notes\n\n> Tighten the introduction after the first full draft.",
-          note: "Blockquotes are useful for revision notes and pulled references.",
+            "# Article Draft\n\n## Working idea\n\nState the argument in one plain paragraph.\n\n## Reader problem\n\n- What is confusing today?\n- What does the reader want to finish?\n\n## Draft notes\n\nKeep rough notes here until they become sections.",
+          note: "A skeleton keeps the draft moving before the final wording is ready.",
         },
       },
       {
+        id: "research-notes",
+        title: "Keep research notes close to the draft",
+        body: [
+          "Research notes are easier to use when they live near the paragraph they support. Use lists for source notes, blockquotes for copied excerpts you still need to rewrite, and links for material you will revisit.",
+          "Keep rough notes visibly rough. That makes it easier to separate finished copy from supporting material during revision.",
+        ],
+        example: {
+          label: "Research notes",
+          markdown:
+            "## Evidence\n\n- Interview note: users want fewer formatting choices.\n- Product note: preview should make structure obvious.\n- Link: [Markdown guide](/guide)\n\n> Rewrite this quote before publishing.",
+          note: "Blockquotes are useful for temporary notes, but rewrite them before final copy.",
+        },
+      },
+      {
+        id: "revision-passes",
+        title: "Use small revision passes",
+        body: [
+          "A full rewrite is hard to manage in one pass. It is usually easier to revise structure first, then clarity, then examples, then final wording.",
+          "Markdown helps because the source stays visible. You can move sections, split paragraphs, and keep a small checklist without fighting layout.",
+        ],
+        example: {
+          label: "Revision checklist",
+          markdown:
+            "## Revision pass\n\n- [ ] Does the title match the draft?\n- [ ] Does each section answer one question?\n- [ ] Are examples close to the claims they support?\n- [ ] Can one paragraph be removed?",
+          note: "Checkboxes make editing tasks visible without turning the draft into a project tracker.",
+        },
+      },
+      {
+        id: "publishable-copy",
+        title: "Move from rough notes to publishable copy",
+        body: [
+          "When the draft starts to settle, remove notes that only helped you think. Keep headings, short paragraphs, useful links, and examples that support the reader.",
+          "Markdown works well as a publishing handoff because the same source can become HTML, documentation, a newsletter draft, or a blog post.",
+        ],
+        example: {
+          label: "Clean publishable section",
+          markdown:
+            "## Why the preview matters\n\nA preview catches structure problems before readers see them. Long paragraphs, broken lists, and missing links are easier to fix while the draft is still in Markdown.\n\nRead the [Markdown Basics](/docs/markdown-basics) guide if the source format is new to you.",
+          note: "Finished sections should read naturally even before final styling.",
+        },
+      },
+      {
+        id: "browser-desktop",
         title: "Move important drafts to desktop",
         body: [
           "The browser editor is useful for quick starts. When a draft becomes important, move to desktop so the file lives locally, can be reopened, and can benefit from local history snapshots.",
+          "This matters for essays, client drafts, product copy, and long articles. A local file is easier to back up, compare, and keep under your own control.",
+        ],
+      },
+      {
+        id: "writer-habits",
+        title: "Keep the writing surface quiet",
+        body: [
+          "A quiet writing surface does not mean an empty one. It means the editor gives you headings, preview, export, and recovery without pulling attention away from the draft.",
+          "A practical habit is to write in small sections, preview often, and move stable drafts into local files. That keeps the browser useful for starting and the desktop app useful for finishing.",
         ],
       },
     ],
@@ -1529,8 +1587,10 @@ const contentPages: Record<string, ContentPage> = {
         id: "unreleased",
         title: "Unreleased",
         body: [
+          "Published Markdown for Writers as the third staged Markdown library article under /docs.",
           "Published Markdown Basics as the second staged Markdown library article under /docs.",
-          "Added article-specific SEO metadata and sitemap entries for the two public articles while keeping the remaining article queue planned.",
+          "Added article-specific SEO metadata and sitemap entries for the three public articles while keeping the remaining article queue planned.",
+          "Updated the public roadmap to show three staged learning articles are now published.",
           "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
           "Revised the first two public Markdown articles with plainer wording.",
         ],
@@ -2755,7 +2815,7 @@ function DocsIndexPage() {
           Markdown library
         </div>
         <h1>Markdown articles we are building for VeloWrite users.</h1>
-        <p className="legal-updated">Last updated: July 21, 2026</p>
+        <p className="legal-updated">Last updated: July 22, 2026</p>
         <p className="legal-intro">
           This library is the public version of the VeloWrite content plan. Published
           articles are available now; planned articles show what we will write next
@@ -2790,11 +2850,11 @@ function DocsIndexPage() {
         </section>
 
         <section className="content-cta" aria-label="Next action">
-          <a className="primary-link" href="/docs/markdown-basics?utm_source=docs_cta&utm_medium=resource">
-            Read Markdown Basics <ChevronRight size={17} />
+          <a className="primary-link" href="/docs/markdown-for-writers?utm_source=docs_cta&utm_medium=resource">
+            Read Markdown for Writers <ChevronRight size={17} />
           </a>
-          <a className="secondary-link" href="/docs/online-markdown-editor?utm_source=docs_cta&utm_medium=resource">
-            Read Online Editor <FileText size={17} />
+          <a className="secondary-link" href="/docs/markdown-basics?utm_source=docs_cta&utm_medium=resource">
+            Read Markdown Basics <FileText size={17} />
           </a>
         </section>
       </main>

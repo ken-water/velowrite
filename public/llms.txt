@@ -13,6 +13,7 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 - Markdown library: https://velowrite.app/docs
 - Online Markdown Editor article: https://velowrite.app/docs/online-markdown-editor
 - Markdown Basics article: https://velowrite.app/docs/markdown-basics
+- Markdown for Writers article: https://velowrite.app/docs/markdown-for-writers
 - Markdown guide: https://velowrite.app/guide
 - Changelog: https://velowrite.app/changelog includes the version directory for 0.1.0 through 0.1.7.
 - FAQ: https://velowrite.app/faq
@@ -41,7 +42,7 @@ The current public version is a free preview. It includes online editing, live p
 ## FAQ
 
 - What is VeloWrite? A private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.
-- What can I read first? The Markdown library at https://velowrite.app/docs lists the currently published articles and the planned article queue. Start with Online Markdown Editor for the browser workflow, then read Markdown Basics for headings, lists, links, images, simple tables, and code blocks. The changelog explains what changed across preview versions 0.1.0 through 0.1.7.
+- What can I read first? The Markdown library at https://velowrite.app/docs lists the currently published articles and the planned article queue. Start with Online Markdown Editor for the browser workflow, read Markdown Basics for source structure, then read Markdown for Writers for outlines, research notes, revision passes, and moving important drafts to desktop. The changelog explains what changed across preview versions 0.1.0 through 0.1.7.
 - Can I try VeloWrite without installing anything? Yes. Open the web editor in your browser and start writing immediately.
 - What happens if I refresh the browser while editing? Your draft stays in localStorage in the same browser, so a refresh on the same device can bring it back.
 - Who is VeloWrite for? Developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.
