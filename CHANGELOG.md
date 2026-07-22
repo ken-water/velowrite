@@ -16,6 +16,7 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Expanded Markdown Basics with a table of contents, more examples, and plainer wording across the first two public articles.
 - Added rendered Markdown previews beside article example input blocks.
 - Refined Markdown Basics so math stays in advanced guides instead of the basics article.
+- Added editor toolbar actions to copy Markdown source and rendered HTML.
 
 ### Fixed
 

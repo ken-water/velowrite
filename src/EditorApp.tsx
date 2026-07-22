@@ -24,6 +24,8 @@ import {
   Bot,
   Braces,
   Check,
+  ClipboardCopy,
+  Code2,
   Download,
   ExternalLink,
   FileText,
@@ -1071,6 +1073,28 @@ export default function EditorApp({
     setStatus("Downloaded HTML export");
   }
 
+  async function copyText(label: string, contents: string) {
+    if (!navigator.clipboard?.writeText) {
+      setStatus(`${label} copy is not available in this browser`);
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(contents);
+      setStatus(`${label} copied`);
+    } catch (error) {
+      setErrorStatus(`Copy ${label}`, error);
+    }
+  }
+
+  function copyMarkdown() {
+    void copyText("Markdown", markdown);
+  }
+
+  function copyRenderedHtml() {
+    void copyText("Rendered HTML", rendered);
+  }
+
   function downloadTextFile(name: string, contents: string, type: string) {
     const blob = new Blob([contents], { type });
     const url = URL.createObjectURL(blob);
@@ -1470,6 +1494,20 @@ export default function EditorApp({
               onClick={() => void exportHtml()}
             >
               <Download size={17} />
+            </button>
+            <button
+              aria-label="Copy Markdown"
+              title="Copy Markdown"
+              onClick={copyMarkdown}
+            >
+              <ClipboardCopy size={17} />
+            </button>
+            <button
+              aria-label="Copy rendered HTML"
+              title="Copy rendered HTML"
+              onClick={copyRenderedHtml}
+            >
+              <Code2 size={17} />
             </button>
             <button aria-label="AI assist" title="AI assist coming soon" disabled>
               <Bot size={17} />
