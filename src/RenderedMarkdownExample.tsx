@@ -6,11 +6,21 @@ type MarkdownExample = {
   note: string;
 };
 
+const exampleMarkdownKey = "velowrite:example-markdown";
+
 export default function RenderedMarkdownExample({ example }: { example: MarkdownExample }) {
+  function openInEditor() {
+    window.sessionStorage.setItem(exampleMarkdownKey, example.markdown);
+    window.location.href = "/web?utm_source=docs_example&utm_medium=cta&example=docs";
+  }
+
   return (
     <div className="content-example">
       <div className="content-example-header">
         <span>{example.label}</span>
+        <button type="button" onClick={openInEditor}>
+          Open in Web Editor
+        </button>
       </div>
       <div className="content-example-grid">
         <div className="content-example-panel">

@@ -10,13 +10,15 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 - Published the first two staged Markdown library articles under `/docs`: Online Markdown Editor and Markdown Basics.
 - Published `/docs/markdown-for-writers` as the third staged Markdown library article.
-- Added article-specific SEO metadata and sitemap entries for the three public articles while keeping the remaining article queue planned.
-- Updated the public roadmap to show three staged learning articles are now published.
+- Published `/docs/markdown-for-developers` as the fourth staged Markdown library article.
+- Added article-specific SEO metadata and sitemap entries for the four public articles while keeping the remaining article queue planned.
+- Updated the public roadmap to show four staged learning articles and docs examples that open in the web editor.
 - Added stricter docs routing so unknown `/docs/*` paths use the friendly 404 page.
 - Expanded Markdown Basics with a table of contents, more examples, and plainer wording across the first two public articles.
 - Added rendered Markdown previews beside article example input blocks.
 - Refined Markdown Basics so math stays in advanced guides instead of the basics article.
 - Added editor toolbar actions to copy Markdown source and rendered HTML.
+- Added an `Open in Web Editor` action to documentation examples.
 
 ### Fixed
 

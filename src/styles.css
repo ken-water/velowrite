@@ -3034,6 +3034,27 @@ pre,
   text-transform: uppercase;
 }
 
+.content-example-header button {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(21, 54, 45, 0.16);
+  border-radius: 7px;
+  padding: 0 10px;
+  background: #ffffff;
+  color: #15362d;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.content-example-header button:hover {
+  border-color: rgba(21, 54, 45, 0.28);
+  background: #f7f5f0;
+}
+
 .content-example-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -3399,6 +3420,11 @@ pre,
 
   .content-example-grid {
     grid-template-columns: 1fr;
+  }
+
+  .content-example-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .footer-links {

@@ -38,6 +38,7 @@ const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
 const analyticsConsentKey = "velowrite:analytics-consent";
+const exampleMarkdownKey = "velowrite:example-markdown";
 const siteUrl = "https://velowrite.app";
 const defaultSeoTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultSeoDescription =
@@ -52,6 +53,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/online-markdown-editor": "Online Markdown Editor",
   "/docs/markdown-basics": "Markdown Basics",
   "/docs/markdown-for-writers": "Markdown for Writers",
+  "/docs/markdown-for-developers": "Markdown for Developers",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -133,6 +135,7 @@ const docPageRoutes = {
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-basics",
+  "/docs/markdown-for-developers",
   "/docs/markdown-for-writers",
   "/docs/online-markdown-editor",
 ]);
@@ -542,7 +545,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "Three staged articles are now published under /docs. This supports SEO, GEO, onboarding, and honest conversion from learning to trying the editor while leaving the rest for a slower release cadence.",
+      "Four staged articles are now published under /docs. Example blocks can now open directly in the web editor, so readers can move from learning to trying without copying text manually.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -616,7 +619,7 @@ const docGroups = [
     items: [
       { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Published" },
       { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Published" },
-      { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Planned" },
+      { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Published" },
     ],
   },
   {
@@ -1102,31 +1105,93 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Developer workflow",
     title: "Markdown for Developers",
     intro:
-      "Developers use Markdown because it works with code, Git, issue trackers, documentation systems, and release workflows. The best Markdown setup makes technical writing feel close to the tools developers already use.",
-    updated: "July 21, 2026",
+      "Developers use Markdown because it works with code, Git, issue trackers, documentation systems, and release workflows. A good Markdown workflow keeps technical notes close to the commands, examples, and decisions they explain.",
+    updated: "July 23, 2026",
+    directory: [
+      { label: "Repeatable docs", href: "#repeatable-docs" },
+      { label: "Code examples", href: "#code-examples" },
+      { label: "Technical decisions", href: "#technical-decisions" },
+      { label: "Runbooks", href: "#runbooks" },
+      { label: "Release notes", href: "#release-notes" },
+      { label: "Local history", href: "#local-history" },
+    ],
     sections: [
       {
+        id: "repeatable-docs",
         title: "Use Markdown for repeatable technical documents",
         body: [
-          "READMEs, architecture notes, API drafts, runbooks, changelogs, release plans, and onboarding guides all benefit from Markdown because the source is diffable and reviewable.",
+          "READMEs, architecture notes, API drafts, runbooks, changelogs, release plans, and onboarding guides all benefit from Markdown because the source is readable, diffable, and reviewable.",
+          "The goal is not to make every document formal. The goal is to make useful technical writing easy to start and easy to maintain.",
         ],
         example: {
-          label: "Developer document",
+          label: "Technical document shell",
           markdown:
-            "# API Change\n\n## Migration\n\n```bash\nnpm run test\nnpm run build\n```\n\n## Compatibility\n\n| Runtime | Status |\n| --- | --- |\n| Node 22 | Supported |",
-          note: "Code fences and tables make technical context easier to review.",
+            "# API Change\n\n## Summary\n\nExplain the change in two or three sentences.\n\n## Migration\n\n```bash\nnpm run test\nnpm run build\n```\n\n## Compatibility\n\n| Runtime | Status |\n| --- | --- |\n| Node 22 | Supported |",
+          note: "A shell like this is enough to start a reviewable technical note.",
         },
       },
       {
+        id: "code-examples",
         title: "Keep examples close to explanation",
         body: [
-          "Good developer docs explain the intent, then show the command, request, or code block. VeloWrite supports highlighted code and tabbed examples so multi-language docs stay compact.",
+          "Good developer docs explain the intent, then show the command, request, or code block. Put examples near the paragraph they support, not at the end of the document.",
+          "Use a language label after the opening fence so the preview can highlight syntax. Keep examples short enough that a reviewer can see the point quickly.",
         ],
+        example: {
+          label: "Command example",
+          markdown:
+            "Run the checks before opening the release PR:\n\n```bash\nnpm test\nnpm run build\n```\n\nIf either command fails, fix the failure before updating the changelog.",
+          note: "A command block is most useful when the surrounding text explains when to run it.",
+        },
       },
       {
+        id: "technical-decisions",
+        title: "Record technical decisions while they are fresh",
+        body: [
+          "Small decision notes save time later. They explain why a tradeoff was made, what alternatives were rejected, and what should be revisited when the system changes.",
+          "Markdown works well here because the source can live near code, be reviewed in Git, or stay as a local draft until the decision is ready to share.",
+        ],
+        example: {
+          label: "Decision note",
+          markdown:
+            "## Decision\n\nUse local browser storage for quick web drafts.\n\n## Why\n\n- No account is required for the first trial.\n- Drafts survive a refresh on the same device.\n- Sensitive long-term files still belong on desktop.\n\n## Revisit when\n\nPrivate sync moves from roadmap to implementation.",
+          note: "Decision notes should explain the constraint, not only the final choice.",
+        },
+      },
+      {
+        id: "runbooks",
+        title: "Write runbooks as steps, checks, and rollback notes",
+        body: [
+          "A runbook should be boring in a good way. The next person should know what to check, what command to run, and what rollback path exists if something goes wrong.",
+          "Numbered lists are useful for ordered procedures. Tables are useful for short status checks. Keep long explanations outside the emergency path.",
+        ],
+        example: {
+          label: "Runbook fragment",
+          markdown:
+            "## Deploy check\n\n1. Confirm CI is green.\n2. Build the app locally.\n3. Publish the release notes.\n\n| Check | Expected |\n| --- | --- |\n| Tests | Passing |\n| Build | Complete |\n| Rollback | Previous release tag |",
+          note: "Runbooks should favor clarity over clever formatting.",
+        },
+      },
+      {
+        id: "release-notes",
+        title: "Keep release notes close to real changes",
+        body: [
+          "Release notes are easier to write when they are updated near the work, not reconstructed at the end. Use short bullets and name the behavior users will notice.",
+          "A changelog does not need to include every internal detail. It should help a user understand what changed, what improved, and what remains preview work.",
+        ],
+        example: {
+          label: "Release note draft",
+          markdown:
+            "## Added\n\n- Copy Markdown and rendered HTML from the editor toolbar.\n- Open documentation examples directly in the web editor.\n\n## Fixed\n\n- Kept basics content focused on beginner Markdown patterns.",
+          note: "Release notes should be specific enough to help users decide whether to try the update.",
+        },
+      },
+      {
+        id: "local-history",
         title: "Why local history matters",
         body: [
           "Developers already understand version control, but not every draft belongs in Git immediately. Local history snapshots help recover accidental edits before the document is committed or shared.",
+          "This is one reason VeloWrite keeps better local recovery in the free preview roadmap. Draft safety is part of the editor foundation, not a Pro-only luxury.",
         ],
       },
     ],
@@ -1588,9 +1653,10 @@ const contentPages: Record<string, ContentPage> = {
         title: "Unreleased",
         body: [
           "Published Markdown for Writers as the third staged Markdown library article under /docs.",
+          "Published Markdown for Developers as the fourth staged Markdown library article under /docs.",
           "Published Markdown Basics as the second staged Markdown library article under /docs.",
-          "Added article-specific SEO metadata and sitemap entries for the three public articles while keeping the remaining article queue planned.",
-          "Updated the public roadmap to show three staged learning articles are now published.",
+          "Added article-specific SEO metadata and sitemap entries for the four public articles while keeping the remaining article queue planned.",
+          "Updated the public roadmap to show four staged learning articles and docs examples that open in the web editor.",
           "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
           "Revised the first two public Markdown articles with plainer wording.",
         ],
@@ -2815,7 +2881,7 @@ function DocsIndexPage() {
           Markdown library
         </div>
         <h1>Markdown articles we are building for VeloWrite users.</h1>
-        <p className="legal-updated">Last updated: July 22, 2026</p>
+        <p className="legal-updated">Last updated: July 23, 2026</p>
         <p className="legal-intro">
           This library is the public version of the VeloWrite content plan. Published
           articles are available now; planned articles show what we will write next
@@ -2850,11 +2916,11 @@ function DocsIndexPage() {
         </section>
 
         <section className="content-cta" aria-label="Next action">
-          <a className="primary-link" href="/docs/markdown-for-writers?utm_source=docs_cta&utm_medium=resource">
-            Read Markdown for Writers <ChevronRight size={17} />
+          <a className="primary-link" href="/docs/markdown-for-developers?utm_source=docs_cta&utm_medium=resource">
+            Read Markdown for Developers <ChevronRight size={17} />
           </a>
-          <a className="secondary-link" href="/docs/markdown-basics?utm_source=docs_cta&utm_medium=resource">
-            Read Markdown Basics <FileText size={17} />
+          <a className="secondary-link" href="/docs/markdown-for-writers?utm_source=docs_cta&utm_medium=resource">
+            Read Markdown for Writers <FileText size={17} />
           </a>
         </section>
       </main>
@@ -3398,6 +3464,13 @@ function NotFoundPage() {
 function Router() {
   const searchParams = new URLSearchParams(window.location.search);
   const demoFrame = searchParams.get("utm_source") === "demo_frame";
+  const docsExampleMarkdown =
+    searchParams.get("example") === "docs"
+      ? window.sessionStorage.getItem(exampleMarkdownKey)
+      : null;
+  if (docsExampleMarkdown) {
+    window.sessionStorage.removeItem(exampleMarkdownKey);
+  }
   const normalizedPath = normalizePath(window.location.pathname);
   const docPage = docPageRoutes[normalizedPath as keyof typeof docPageRoutes];
   const seo = routeSeo(window.location.pathname);
@@ -3408,8 +3481,8 @@ function Router() {
       <React.Suspense fallback={<div className="loading-screen">Loading web editor</div>}>
         <EditorApp
           surface="web"
-          initialMarkdown={demoFrame ? complexDemoMarkdown : undefined}
-          initialViewMode={demoFrame ? "split" : undefined}
+          initialMarkdown={docsExampleMarkdown ?? (demoFrame ? complexDemoMarkdown : undefined)}
+          initialViewMode={docsExampleMarkdown || demoFrame ? "split" : undefined}
         />
       </React.Suspense>
     );
