@@ -568,11 +568,11 @@ const publicRoadmapItems = [
   {
     title: "Web to desktop draft handoff",
     request: "Start quickly in the browser, then continue in the desktop app without manual copy and paste.",
-    status: "First step shipped",
+    status: "Direct import prepared",
     target: "0.1.x / 0.2.x",
     classification: "Free handoff first",
     decision:
-      "The web editor can now download the current Markdown draft before sending users to desktop downloads. The desktop shell also starts in a focused writing surface without website analytics prompts. Automatic cross-device sync may become Pro only after the local-first workflow is proven.",
+      "The web editor can download the current Markdown draft and now has a velowrite:// direct-import path for the next desktop build. Automatic cross-device sync may become Pro only after the local-first workflow is proven.",
   },
   {
     title: "Private, no-account sync",
@@ -1673,6 +1673,7 @@ const contentPages: Record<string, ContentPage> = {
           "Added article-specific SEO metadata and sitemap entries for the four public articles while keeping the remaining article queue planned.",
           "Updated the public roadmap to show four staged learning articles and docs examples that open in the web editor.",
           "Added a web-to-desktop draft handoff button that downloads the current Markdown draft before opening desktop downloads.",
+          "Prepared velowrite:// desktop handoff links so the next desktop build can import web drafts directly, with Markdown download kept as the fallback.",
           "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
           "Revised the first two public Markdown articles with plainer wording.",
         ],

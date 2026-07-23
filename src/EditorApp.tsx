@@ -67,6 +67,8 @@ type NativeApi = {
   listHistorySnapshots: (filePath: string) => Promise<HistoryEntry[]>;
   readHistorySnapshot: (id: string) => Promise<HistorySnapshot>;
   deleteHistorySnapshot: (id: string) => Promise<void>;
+  getInitialDeepLinks: () => Promise<string[]>;
+  listenDeepLinks: (handler: (urls: string[]) => void) => Promise<() => void>;
   listenMenuCommand: (handler: (command: string) => void) => Promise<() => void>;
   listenCloseRequested: (handler: () => Promise<boolean>) => Promise<() => void>;
   listenPathDrop: (handler: (paths: string[]) => void) => Promise<() => void>;
@@ -99,6 +101,11 @@ type HistorySnapshot = {
   contents: string;
 };
 
+type HandoffDraft = {
+  name: string;
+  markdown: string;
+};
+
 const draftKey = "velowrite:draft";
 const draftNameKey = "velowrite:draft-name";
 const recentFilesKey = "velowrite:recent-files";
@@ -108,6 +115,90 @@ const editorFontSizeKey = "velowrite:editor-font-size";
 const defaultViewModeKey = "velowrite:default-view-mode";
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
+const desktopHandoffUrlLimit = 12000;
+
+function encodeBase64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  const chunkSize = 0x8000;
+
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    binary += String.fromCharCode(...bytes.slice(index, index + chunkSize));
+  }
+
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function decodeBase64Url(value: string) {
+  const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return new TextDecoder().decode(bytes);
+}
+
+function normalizeMarkdownFileName(name: string) {
+  const fallback = "Web Draft.md";
+  const cleaned = name
+    .replace(/[\\/]/g, "-")
+    .replace(/[^\p{L}\p{N}._ -]/gu, "")
+    .trim()
+    .slice(0, 120);
+  const nextName = cleaned || fallback;
+  return /\.(md|markdown|mdown)$/i.test(nextName) ? nextName : `${nextName}.md`;
+}
+
+export function createDesktopHandoffUrl(name: string, markdown: string) {
+  const payload = encodeBase64Url(
+    JSON.stringify({
+      name: normalizeMarkdownFileName(name),
+      markdown,
+      source: "web",
+      createdAt: Date.now(),
+    }),
+  );
+  const url = `velowrite://import?payload=${payload}`;
+  return url.length <= desktopHandoffUrlLimit ? url : null;
+}
+
+export function parseDesktopHandoffUrl(urlString: string): HandoffDraft | null {
+  let url: URL;
+  try {
+    url = new URL(urlString);
+  } catch {
+    return null;
+  }
+
+  if (url.protocol !== "velowrite:") return null;
+  const action = url.hostname || url.pathname.replace(/^\/+/, "");
+  if (action !== "import") return null;
+
+  const payload = url.searchParams.get("payload");
+  if (!payload) return null;
+
+  try {
+    const parsed = JSON.parse(decodeBase64Url(payload));
+    if (
+      !parsed ||
+      typeof parsed.markdown !== "string" ||
+      typeof parsed.name !== "string"
+    ) {
+      return null;
+    }
+
+    return {
+      name: normalizeMarkdownFileName(parsed.name),
+      markdown: parsed.markdown,
+    };
+  } catch {
+    return null;
+  }
+}
 
 function createEditorTheme(fontSize: number) {
   return EditorView.theme({
@@ -182,11 +273,12 @@ function useNativeApi(): NativeApi | null {
 
     let cancelled = false;
     async function loadApi() {
-      const [{ invoke }, dialog, windowApi, eventApi] = await Promise.all([
+      const [{ invoke }, dialog, windowApi, eventApi, deepLink] = await Promise.all([
         import("@tauri-apps/api/core"),
         import("@tauri-apps/plugin-dialog"),
         import("@tauri-apps/api/window"),
         import("@tauri-apps/api/event"),
+        import("@tauri-apps/plugin-deep-link"),
       ]);
       const appWindow = windowApi.getCurrentWindow();
 
@@ -237,6 +329,12 @@ function useNativeApi(): NativeApi | null {
         },
         async deleteHistorySnapshot(id) {
           return invoke<void>("delete_history_snapshot", { id });
+        },
+        async getInitialDeepLinks() {
+          return (await deepLink.getCurrent()) ?? [];
+        },
+        async listenDeepLinks(handler) {
+          return deepLink.onOpenUrl(handler);
         },
         async listenMenuCommand(handler) {
           const unlisten = await eventApi.listen<string>("velowrite-menu", (event) => {
@@ -711,8 +809,10 @@ export default function EditorApp({
   const previewRef = React.useRef<HTMLElement>(null);
   const previewScrollFrame = React.useRef<number | null>(null);
   const suppressPreviewSync = React.useRef(false);
+  const suppressBeforeUnload = React.useRef(false);
   const autoSaveTimer = React.useRef<number | null>(null);
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
+  const handoffImportRef = React.useRef<(draft: HandoffDraft) => void>(() => undefined);
   const [markdown, setMarkdown] = React.useState(() => {
     return initialMarkdown ?? localStorage.getItem(draftKey) ?? defaultMarkdown;
   });
@@ -817,6 +917,7 @@ export default function EditorApp({
 
   React.useEffect(() => {
     function beforeUnload(event: BeforeUnloadEvent) {
+      if (suppressBeforeUnload.current) return;
       if (!dirty) return;
       event.preventDefault();
       event.returnValue = "";
@@ -883,6 +984,10 @@ export default function EditorApp({
       if (command === "exit") void closeAppWithGuard();
   };
 
+  handoffImportRef.current = (draft: HandoffDraft) => {
+    void importHandoffDraft(draft);
+  };
+
   React.useEffect(() => {
     if (!nativeApi) return;
 
@@ -923,6 +1028,37 @@ export default function EditorApp({
     };
   }, [nativeApi]);
 
+  React.useEffect(() => {
+    if (!nativeApi) return;
+
+    let cancelled = false;
+    let unlisten: (() => void) | undefined;
+
+    function importFirstValidUrl(urls: string[]) {
+      const draft = urls.map(parseDesktopHandoffUrl).find(Boolean);
+      if (draft) handoffImportRef.current(draft);
+    }
+
+    void nativeApi
+      .getInitialDeepLinks()
+      .then((urls) => {
+        if (!cancelled) importFirstValidUrl(urls);
+      })
+      .catch((error) => setErrorStatus("Desktop handoff", error));
+
+    void nativeApi
+      .listenDeepLinks(importFirstValidUrl)
+      .then((cleanup) => {
+        unlisten = cleanup;
+      })
+      .catch((error) => setErrorStatus("Desktop handoff", error));
+
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, [nativeApi]);
+
   function rememberRecentFile(path: string, name: string) {
     if (!path) return;
 
@@ -944,6 +1080,19 @@ export default function EditorApp({
     setStatus("Opened");
     rememberRecentFile(nextFile.path, nextFile.name || "Untitled.md");
     void refreshHistory(nextFile.path);
+  }
+
+  async function importHandoffDraft(draft: HandoffDraft) {
+    if (!(await confirmDiscardChanges())) return;
+
+    setMarkdown(draft.markdown);
+    setSavedMarkdown(draft.markdown);
+    setFilePath(null);
+    setFileName(draft.name);
+    setHistoryEntries([]);
+    setSelectedHistory(null);
+    setHistoryOpen(false);
+    setStatus("Imported web draft");
   }
 
   async function refreshHistory(path = filePath) {
@@ -1057,12 +1206,25 @@ export default function EditorApp({
   }
 
   function handoffToDesktop() {
-    downloadMarkdown();
-    setSavedMarkdown(markdown);
-    setStatus("Downloaded draft for desktop handoff");
+    const handoffUrl = createDesktopHandoffUrl(fileName, markdown);
+    if (!handoffUrl) {
+      downloadMarkdown();
+      setSavedMarkdown(markdown);
+      setStatus("Draft is too large for direct handoff; downloaded Markdown copy");
+      suppressBeforeUnload.current = true;
+      window.setTimeout(() => {
+        window.location.href = desktopHandoffHref;
+      }, 250);
+      return;
+    }
+
+    setStatus("Opening draft in VeloWrite Desktop");
+    suppressBeforeUnload.current = true;
+    window.location.href = handoffUrl;
     window.setTimeout(() => {
-      window.location.href = desktopHandoffHref;
-    }, 250);
+      suppressBeforeUnload.current = false;
+      setStatus("If Desktop did not open, download the app or save a Markdown copy");
+    }, 1600);
   }
 
   async function exportHtml() {
