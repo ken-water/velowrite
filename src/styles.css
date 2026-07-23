@@ -1329,7 +1329,7 @@ pre,
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: 14px;
   line-height: 1.8;
-  white-space: pre-wrap;
+  white-space: pre;
 }
 
 .preview-pane {
@@ -1686,8 +1686,10 @@ pre,
 .markdown-body pre code,
 .markdown-body pre code.hljs {
   display: block;
+  min-width: max-content;
   padding: 0;
   background: transparent;
+  white-space: pre;
 }
 
 .markdown-body a {
@@ -3025,7 +3027,7 @@ pre,
   gap: 12px;
 }
 
-.content-example span,
+.content-example-header > span,
 .content-example-panel strong {
   display: block;
   color: #47635b;
@@ -3071,7 +3073,7 @@ pre,
 }
 
 .content-example pre {
-  min-height: 100%;
+  min-height: 220px;
   margin: 0;
   border: 1px solid rgba(21, 54, 45, 0.12);
   border-radius: 8px;
@@ -3079,8 +3081,8 @@ pre,
   background: #f7f5f0;
   color: #17201c;
   overflow: auto;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
+  overflow-wrap: normal;
+  white-space: pre;
 }
 
 .content-example p {
@@ -3113,12 +3115,16 @@ pre,
   --surface: #ffffff;
   --surface-soft: #f7f5f0;
   --text: #17201c;
-  min-height: 100%;
+  min-height: 220px;
   border: 1px solid rgba(21, 54, 45, 0.12);
   border-radius: 8px;
   padding: 14px;
   background: #ffffff;
   overflow: auto;
+}
+
+.content-example-preview pre {
+  max-width: 100%;
 }
 
 .content-example-preview h1 {
