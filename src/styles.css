@@ -1160,7 +1160,7 @@ p {
   font-size: 12px;
 }
 
-.actions > button {
+.actions > button:not(.desktop-cta) {
   display: grid;
   width: 34px;
   height: 34px;

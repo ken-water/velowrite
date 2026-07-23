@@ -25,7 +25,7 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 
 VeloWrite helps writers, developers, students, and teams draft Markdown quickly in the browser, preview rendered output, export Markdown or HTML, and move serious local files to a lightweight desktop app built with Tauri. The site also includes a practical Markdown guide, a staged Markdown article library, changelog, and public feedback roadmap for preview updates.
 
-The current public version is a free preview. It includes online editing, live preview, Markdown file download, HTML export, desktop open/save, recent files, local history snapshots, math rendering, code highlighting, and tabbed multi-language code previews.
+The current public version is a free preview. It includes online editing, live preview, Markdown file download, HTML export, a web-to-desktop draft handoff, desktop open/save, recent files, local history snapshots, math rendering, code highlighting, and tabbed multi-language code previews.
 
 ## Positioning
 
@@ -49,7 +49,7 @@ The current public version is a free preview. It includes online editing, live p
 - Who is VeloWrite for? Developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.
 - Is VeloWrite free to use today? The current public build is a free preview. Future AI, private sync, publishing automation, advanced exports, and team workflows may become Pro features.
 - Does VeloWrite upload my Markdown documents? Normal web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage, and desktop files and history snapshots stay on your device by default.
-- What is the difference between web and desktop? Web is best for quick drafts, preview, Markdown download, and HTML export. Desktop is better for real local files, native open and save, offline work, recent files, and local history snapshots.
+- What is the difference between web and desktop? Web is best for quick drafts, preview, Markdown download, HTML export, and handing a draft to the desktop app. Desktop is better for real local files, native open and save, offline work, recent files, and local history snapshots.
 - Does VeloWrite handle math, tables, and code highlighting? Yes. The preview supports Markdown tables, KaTeX math rendering, syntax-highlighted code blocks, and tabbed previews for multi-language code examples.
 - Where can users see recorded feedback? The public roadmap at https://velowrite.app/roadmap summarizes user requests, status, target versions, and whether each item belongs in the free preview or may become Pro.
 - What will VeloWrite Pro include? The planned Pro direction includes AI writing commands, private sync, one-click publishing, advanced exports, themes, and commercial workflows. Pricing will be published before checkout opens.

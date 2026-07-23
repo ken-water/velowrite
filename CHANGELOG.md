@@ -19,10 +19,12 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Refined Markdown Basics so math stays in advanced guides instead of the basics article.
 - Added editor toolbar actions to copy Markdown source and rendered HTML.
 - Added an `Open in Web Editor` action to documentation examples.
+- Added a web-to-desktop draft handoff button that downloads the current Markdown draft before opening desktop downloads.
 
 ### Fixed
 
 - Aligned the 404 page navigation and background with the main website style.
+- Expanded the developer article with language-labeled syntax highlighting examples and tabbed multi-language code examples.
 
 ## [0.1.7] - 2026-07-20
 

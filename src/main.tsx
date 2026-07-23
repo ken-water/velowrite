@@ -568,11 +568,11 @@ const publicRoadmapItems = [
   {
     title: "Web to desktop draft handoff",
     request: "Start quickly in the browser, then continue in the desktop app without manual copy and paste.",
-    status: "Designing",
-    target: "0.2.x",
+    status: "First step shipped",
+    target: "0.1.x / 0.2.x",
     classification: "Free handoff first",
     decision:
-      "The desktop shell now starts in a focused writing surface without website analytics prompts. A simple handoff path should be free; automatic cross-device sync may become Pro only after the local-first workflow is proven.",
+      "The web editor can now download the current Markdown draft before sending users to desktop downloads. The desktop shell also starts in a focused writing surface without website analytics prompts. Automatic cross-device sync may become Pro only after the local-first workflow is proven.",
   },
   {
     title: "Private, no-account sync",
@@ -1109,7 +1109,8 @@ const contentPages: Record<string, ContentPage> = {
     updated: "July 23, 2026",
     directory: [
       { label: "Repeatable docs", href: "#repeatable-docs" },
-      { label: "Code examples", href: "#code-examples" },
+      { label: "Syntax highlighting", href: "#syntax-highlighting" },
+      { label: "Multi-language docs", href: "#multi-language-docs" },
       { label: "Technical decisions", href: "#technical-decisions" },
       { label: "Runbooks", href: "#runbooks" },
       { label: "Release notes", href: "#release-notes" },
@@ -1131,17 +1132,31 @@ const contentPages: Record<string, ContentPage> = {
         },
       },
       {
-        id: "code-examples",
-        title: "Keep examples close to explanation",
+        id: "syntax-highlighting",
+        title: "Use language labels for syntax highlighting",
         body: [
           "Good developer docs explain the intent, then show the command, request, or code block. Put examples near the paragraph they support, not at the end of the document.",
-          "Use a language label after the opening fence so the preview can highlight syntax. Keep examples short enough that a reviewer can see the point quickly.",
+          "Add a language label after the opening fence so the preview can highlight syntax. VeloWrite currently highlights common documentation languages including Bash, JavaScript, TypeScript, Python, and Java.",
         ],
         example: {
-          label: "Command example",
+          label: "Syntax-highlighted examples",
           markdown:
-            "Run the checks before opening the release PR:\n\n```bash\nnpm test\nnpm run build\n```\n\nIf either command fails, fix the failure before updating the changelog.",
-          note: "A command block is most useful when the surrounding text explains when to run it.",
+            "Run the checks before opening the release PR:\n\n```bash\nnpm test\nnpm run build\n```\n\nThen document the changed option:\n\n```ts\ntype ExportMode = \"markdown\" | \"html\";\n\nfunction labelFor(mode: ExportMode) {\n  return mode === \"html\" ? \"Rendered HTML\" : \"Markdown source\";\n}\n```",
+          note: "The language name after the opening fence controls syntax highlighting.",
+        },
+      },
+      {
+        id: "multi-language-docs",
+        title: "Keep multi-language examples compact",
+        body: [
+          "Some developer docs need to show the same idea in more than one language. Stacking every version vertically can make the page hard to scan.",
+          "VeloWrite groups adjacent Python, Bash, JavaScript, and Java code blocks into tabs, so readers can switch language without losing the surrounding explanation.",
+        ],
+        example: {
+          label: "Tabbed language examples",
+          markdown:
+            "The same quick check can be shown in several languages:\n\n```python\nprint(\"VeloWrite\")\n```\n\n```bash\necho VeloWrite\n```\n\n```javascript\nconsole.log(\"VeloWrite\");\n```\n\n```java\nSystem.out.println(\"VeloWrite\");\n```",
+          note: "Use tabs when each block shows the same idea in a different language.",
         },
       },
       {
@@ -1657,6 +1672,7 @@ const contentPages: Record<string, ContentPage> = {
           "Published Markdown Basics as the second staged Markdown library article under /docs.",
           "Added article-specific SEO metadata and sitemap entries for the four public articles while keeping the remaining article queue planned.",
           "Updated the public roadmap to show four staged learning articles and docs examples that open in the web editor.",
+          "Added a web-to-desktop draft handoff button that downloads the current Markdown draft before opening desktop downloads.",
           "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
           "Revised the first two public Markdown articles with plainer wording.",
         ],

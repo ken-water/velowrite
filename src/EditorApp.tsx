@@ -107,6 +107,7 @@ const themeModeKey = "velowrite:theme-mode";
 const editorFontSizeKey = "velowrite:editor-font-size";
 const defaultViewModeKey = "velowrite:default-view-mode";
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
+const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
 
 function createEditorTheme(fontSize: number) {
   return EditorView.theme({
@@ -1055,6 +1056,15 @@ export default function EditorApp({
     );
   }
 
+  function handoffToDesktop() {
+    downloadMarkdown();
+    setSavedMarkdown(markdown);
+    setStatus("Downloaded draft for desktop handoff");
+    window.setTimeout(() => {
+      window.location.href = desktopHandoffHref;
+    }, 250);
+  }
+
   async function exportHtml() {
     const baseName = fileName.replace(/\.(md|markdown|mdown)$/i, "") || "Untitled";
     const html = buildHtmlDocument(baseName, rendered);
@@ -1442,10 +1452,10 @@ export default function EditorApp({
           </div>
           <div className="actions">
             {browserMode && (
-              <a className="desktop-cta" href={desktopDownloadHref}>
+              <button className="desktop-cta" onClick={handoffToDesktop} type="button">
                 <MonitorDown size={16} />
                 Desktop
-              </a>
+              </button>
             )}
             <div className="mode-toggle" aria-label="View mode">
               <button
