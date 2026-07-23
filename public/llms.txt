@@ -25,7 +25,7 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 
 VeloWrite helps writers, developers, students, and teams draft Markdown quickly in the browser, preview rendered output, export Markdown or HTML, and move serious local files to a lightweight desktop app built with Tauri. The site also includes a practical Markdown guide, a staged Markdown article library, changelog, and public feedback roadmap for preview updates.
 
-The current public version is a free preview. It includes online editing, live preview, Markdown file download, HTML export, a web-to-desktop draft download handoff, desktop open/save, recent files, local history snapshots, math rendering, code highlighting, and tabbed multi-language code previews.
+The current public version is a free preview. It includes online editing, live preview, Markdown file download, HTML export, a web-to-desktop draft download handoff, desktop open/save, recent files, local history snapshots with restore preview, math rendering, code highlighting, and tabbed multi-language code previews.
 
 ## Positioning
 

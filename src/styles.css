@@ -1573,9 +1573,85 @@ pre,
   max-height: 360px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 12px;
   background: var(--editor-bg);
   color: var(--editor-text);
+  overflow: auto;
+}
+
+.history-preview > p {
+  margin: 0;
+  padding: 12px;
+  color: var(--muted-strong);
+}
+
+.history-diff-summary {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--editor-bg) 92%, var(--surface));
+}
+
+.history-diff-summary strong {
+  margin-right: auto;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.history-diff-summary span {
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: var(--muted-strong);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.history-diff-lines {
+  min-width: max-content;
+  padding: 8px 0;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.history-diff-line {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  min-height: 23px;
+}
+
+.history-diff-line > span {
+  border-right: 1px solid var(--border-soft);
+  color: var(--muted);
+  text-align: center;
+  user-select: none;
+}
+
+.history-diff-line code {
+  padding: 0 12px;
+  color: var(--editor-text);
+  white-space: pre;
+}
+
+.history-diff-line.added {
+  background: color-mix(in srgb, #d8efe4 58%, transparent);
+}
+
+.history-diff-line.removed {
+  background: color-mix(in srgb, #f7ded8 54%, transparent);
+}
+
+.history-diff-line.added > span {
+  color: #2c6e62;
+}
+
+.history-diff-line.removed > span {
+  color: #b14a32;
 }
 
 .about-panel p {

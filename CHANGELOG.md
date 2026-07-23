@@ -21,6 +21,7 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Added an `Open in Web Editor` action to documentation examples.
 - Added a web-to-desktop draft handoff button that downloads the current Markdown draft before opening desktop downloads.
 - Prepared `velowrite://` desktop handoff links so the next desktop build can import web drafts directly, with Markdown download kept as the fallback.
+- Added a line-level desktop history restore preview so users can review changes before restoring a snapshot.
 
 ### Fixed
 

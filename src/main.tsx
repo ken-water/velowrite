@@ -559,11 +559,11 @@ const publicRoadmapItems = [
   {
     title: "Better local history recovery",
     request: "Users want confidence that accidental paste mistakes or rewrites can be recovered.",
-    status: "Planned for Preview",
-    target: "0.2.x",
+    status: "Diff preview shipped",
+    target: "0.1.x / 0.2.x",
     classification: "Free desktop workflow",
     decision:
-      "Basic local history stays free. The next step is better discoverability and a diff preview before restore.",
+      "Basic local history stays free. The desktop history panel now shows a line-level restore preview before users replace the current document with an older snapshot.",
   },
   {
     title: "Web to desktop draft handoff",
@@ -1674,6 +1674,7 @@ const contentPages: Record<string, ContentPage> = {
           "Updated the public roadmap to show four staged learning articles and docs examples that open in the web editor.",
           "Added a web-to-desktop draft handoff button that downloads the current Markdown draft before opening desktop downloads.",
           "Prepared velowrite:// desktop handoff links so the next desktop build can import web drafts directly, with Markdown download kept as the fallback.",
+          "Added a line-level desktop history restore preview so users can review changes before restoring a snapshot.",
           "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
           "Revised the first two public Markdown articles with plainer wording.",
         ],

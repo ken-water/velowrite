@@ -106,6 +106,11 @@ type HandoffDraft = {
   markdown: string;
 };
 
+type DiffLine = {
+  type: "added" | "removed" | "unchanged";
+  text: string;
+};
+
 const draftKey = "velowrite:draft";
 const draftNameKey = "velowrite:draft-name";
 const recentFilesKey = "velowrite:recent-files";
@@ -198,6 +203,53 @@ export function parseDesktopHandoffUrl(urlString: string): HandoffDraft | null {
   } catch {
     return null;
   }
+}
+
+export function buildLineDiff(current: string, snapshot: string): DiffLine[] {
+  const currentLines = current.split("\n");
+  const snapshotLines = snapshot.split("\n");
+  const rows = currentLines.length + 1;
+  const cols = snapshotLines.length + 1;
+  const table = Array.from({ length: rows }, () => Array<number>(cols).fill(0));
+
+  for (let row = currentLines.length - 1; row >= 0; row -= 1) {
+    for (let col = snapshotLines.length - 1; col >= 0; col -= 1) {
+      table[row][col] =
+        currentLines[row] === snapshotLines[col]
+          ? table[row + 1][col + 1] + 1
+          : Math.max(table[row + 1][col], table[row][col + 1]);
+    }
+  }
+
+  const diff: DiffLine[] = [];
+  let row = 0;
+  let col = 0;
+
+  while (row < currentLines.length && col < snapshotLines.length) {
+    if (currentLines[row] === snapshotLines[col]) {
+      diff.push({ type: "unchanged", text: currentLines[row] });
+      row += 1;
+      col += 1;
+    } else if (table[row + 1][col] >= table[row][col + 1]) {
+      diff.push({ type: "removed", text: currentLines[row] });
+      row += 1;
+    } else {
+      diff.push({ type: "added", text: snapshotLines[col] });
+      col += 1;
+    }
+  }
+
+  while (row < currentLines.length) {
+    diff.push({ type: "removed", text: currentLines[row] });
+    row += 1;
+  }
+
+  while (col < snapshotLines.length) {
+    diff.push({ type: "added", text: snapshotLines[col] });
+    col += 1;
+  }
+
+  return diff;
 }
 
 function createEditorTheme(fontSize: number) {
@@ -604,6 +656,7 @@ function SettingsPanel({
 function HistoryPanel({
   entries,
   selectedSnapshot,
+  currentMarkdown,
   onPreview,
   onRestore,
   onDelete,
@@ -612,12 +665,19 @@ function HistoryPanel({
 }: {
   entries: HistoryEntry[];
   selectedSnapshot: HistorySnapshot | null;
+  currentMarkdown: string;
   onPreview: (id: string) => void;
   onRestore: (id: string) => void;
   onDelete: (id: string) => void;
   onRefresh: () => void;
   onClose: () => void;
 }) {
+  const diff = selectedSnapshot
+    ? buildLineDiff(currentMarkdown, selectedSnapshot.contents)
+    : [];
+  const addedCount = diff.filter((line) => line.type === "added").length;
+  const removedCount = diff.filter((line) => line.type === "removed").length;
+
   return (
     <div className="settings-backdrop" role="presentation" onMouseDown={onClose}>
       <section
@@ -660,9 +720,27 @@ function HistoryPanel({
                 </div>
               ))}
             </div>
-            <pre className="history-preview">
-              {selectedSnapshot?.contents || "Select a snapshot to preview."}
-            </pre>
+            <div className="history-preview">
+              {selectedSnapshot ? (
+                <>
+                  <div className="history-diff-summary">
+                    <strong>Restore preview</strong>
+                    <span>{addedCount} added</span>
+                    <span>{removedCount} removed</span>
+                  </div>
+                  <div className="history-diff-lines" aria-label="Snapshot diff preview">
+                    {diff.map((line, index) => (
+                      <div className={`history-diff-line ${line.type}`} key={`${line.type}-${index}`}>
+                        <span>{line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}</span>
+                        <code>{line.text || " "}</code>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p>Select a snapshot to preview changes before restoring.</p>
+              )}
+            </div>
           </div>
         ) : (
           <p className="empty-state">No snapshots yet. Save changes to create history.</p>
@@ -1764,6 +1842,7 @@ export default function EditorApp({
           <HistoryPanel
             entries={historyEntries}
             selectedSnapshot={selectedHistory}
+            currentMarkdown={markdown}
             onPreview={(id) => void previewHistorySnapshot(id)}
             onRestore={(id) => void restoreHistorySnapshot(id)}
             onDelete={(id) => void deleteHistorySnapshot(id)}

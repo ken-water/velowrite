@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDesktopHandoffUrl, parseDesktopHandoffUrl } from "./EditorApp";
+import { buildLineDiff, createDesktopHandoffUrl, parseDesktopHandoffUrl } from "./EditorApp";
 
 describe("desktop handoff URLs", () => {
   it("round-trips Markdown drafts through the VeloWrite import URL", () => {
@@ -21,5 +21,23 @@ describe("desktop handoff URLs", () => {
     const url = createDesktopHandoffUrl("large.md", "# Large\n\n" + "content\n".repeat(3000));
 
     expect(url).toBeNull();
+  });
+});
+
+describe("history diff previews", () => {
+  it("marks lines that would be restored or removed", () => {
+    expect(buildLineDiff("A\ncurrent\nC", "A\nsnapshot\nC")).toEqual([
+      { type: "unchanged", text: "A" },
+      { type: "removed", text: "current" },
+      { type: "added", text: "snapshot" },
+      { type: "unchanged", text: "C" },
+    ]);
+  });
+
+  it("handles appended snapshot lines", () => {
+    expect(buildLineDiff("A", "A\nB")).toEqual([
+      { type: "unchanged", text: "A" },
+      { type: "added", text: "B" },
+    ]);
   });
 });
