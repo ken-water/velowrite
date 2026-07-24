@@ -33,7 +33,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.1.7";
+const downloadVersion = "0.1.8";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -135,6 +135,7 @@ const docPageRoutes = {
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-basics",
+  "/docs/markdown-code-blocks",
   "/docs/markdown-for-developers",
   "/docs/markdown-for-writers",
   "/docs/online-markdown-editor",
@@ -482,7 +483,7 @@ function SeoManager({ config }: { config: SeoConfig }) {
       config.canonicalPath === "/guide" ||
       config.canonicalPath === "/changelog" ||
       config.canonicalPath === "/roadmap" ||
-      config.canonicalPath === "/docs/online-markdown-editor"
+      publishedDocPageRoutes.has(config.canonicalPath as keyof typeof docPageRoutes)
     ) {
       setStructuredData("content-article", {
         "@context": "https://schema.org",
@@ -490,7 +491,7 @@ function SeoManager({ config }: { config: SeoConfig }) {
         "@id": `${siteUrl}${config.canonicalPath}#article`,
         headline: config.title,
         description: config.description,
-        dateModified: "2026-07-19",
+        dateModified: "2026-07-24",
         mainEntityOfPage: `${siteUrl}${config.canonicalPath}`,
         author: { "@id": `${siteUrl}/#organization` },
         publisher: { "@id": `${siteUrl}/#organization` },
@@ -626,7 +627,7 @@ const docGroups = [
     title: "Advanced Markdown",
     description: "Deep dives for complex documents with math, code, tables, tabs, and local-first workflows.",
     items: [
-      { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Planned" },
+      { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Published" },
       { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Planned" },
       { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Planned" },
       { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Planned" },
@@ -1298,37 +1299,94 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Technical writing",
     title: "Markdown Code Blocks and Tabs",
     intro:
-      "Code blocks are one of the main reasons Markdown works so well for technical writing. Language labels, syntax highlighting, and tabbed examples make docs easier to scan.",
-    updated: "July 21, 2026",
+      "Code blocks are one of the main reasons Markdown works well for technical writing. A good code example should be easy to copy, easy to compare with the explanation, and short enough that readers do not lose the point.",
+    updated: "July 24, 2026",
+    directory: [
+      { label: "Fenced blocks", href: "#fenced-blocks" },
+      { label: "Language labels", href: "#language-labels" },
+      { label: "Long code", href: "#long-code" },
+      { label: "Tabbed examples", href: "#tabbed-examples" },
+      { label: "When not to use tabs", href: "#skip-tabs" },
+      { label: "Preview in VeloWrite", href: "#preview-in-velowrite" },
+    ],
     sections: [
       {
+        id: "fenced-blocks",
         title: "Use fenced code blocks",
         body: [
-          "A fenced code block starts and ends with three backticks. Add a language name after the first fence so the preview can highlight syntax correctly.",
+          "A fenced code block starts and ends with three backticks. It is the most reliable way to show commands, configuration, source code, log fragments, and API examples in Markdown.",
+          "Keep a short sentence before the block so the reader knows why the code is there. The block should support the paragraph, not replace it.",
         ],
         example: {
           label: "Fenced code",
           markdown:
-            "```js\nconst message = 'Write, preview, export';\nconsole.log(message);\n```",
-          note: "Language labels improve readability for readers and renderers.",
+            "Use a small JavaScript example when the document explains browser behavior:\n\n```js\nconst message = \"Write, preview, export\";\nconsole.log(message);\n```",
+          note: "The explanation before the block tells readers what to look for.",
         },
       },
       {
-        title: "Use tabs for multi-language examples",
+        id: "language-labels",
+        title: "Add language labels for syntax highlighting",
         body: [
-          "When the same idea needs Python, Bash, JavaScript, and Java versions, tabs are easier to read than four stacked blocks. VeloWrite's demo uses this pattern for compact technical examples.",
+          "The word after the opening fence tells the renderer how to highlight the block. Use common labels such as bash, js, ts, python, java, json, yaml, or markdown.",
+          "Do not invent labels just for decoration. If the language is unknown, a plain code block is better than misleading highlighting.",
         ],
         example: {
-          label: "Tabbed examples",
+          label: "Language labels",
           markdown:
-            "```python\nprint('VeloWrite')\n```\n\n```bash\necho VeloWrite\n```\n\n```java\nSystem.out.println(\"VeloWrite\");\n```",
+            "Run the release checks first:\n\n```bash\nnpm test\nnpm run build\n```\n\nThen document the option in TypeScript:\n\n```ts\ntype ExportMode = \"markdown\" | \"html\";\n\nfunction labelFor(mode: ExportMode) {\n  return mode === \"html\" ? \"Rendered HTML\" : \"Markdown source\";\n}\n```",
+          note: "Labels make the preview easier to scan and reduce mistakes when examples are copied.",
+        },
+      },
+      {
+        id: "long-code",
+        title: "Make long code blocks readable",
+        body: [
+          "Long code blocks are sometimes necessary, but they should not dominate the whole page. Prefer the smallest complete example that proves the idea.",
+          "If a line is long because it includes a URL, command, or nested object, place it in a block where horizontal scrolling or wrapping is expected. Avoid squeezing code into tables.",
+        ],
+        example: {
+          label: "Readable command block",
+          markdown:
+            "A command is easier to read as a code block than inside a paragraph:\n\n```bash\ncurl -X POST https://api.example.com/documents \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"title\":\"Release notes\",\"format\":\"markdown\"}'\n```",
+          note: "Break long shell commands with line continuations when that makes the steps clearer.",
+        },
+      },
+      {
+        id: "tabbed-examples",
+        title: "Use tabs for multi-language examples",
+        body: [
+          "When the same idea needs Python, Bash, JavaScript, and Java versions, tabs are easier to read than four stacked blocks. The reader can pick the language they need while the surrounding explanation stays in one place.",
+          "VeloWrite groups adjacent supported language blocks into a tabbed preview when the blocks look like parallel examples.",
+        ],
+        example: {
+          label: "Multi-language tab example",
+          markdown:
+            "Show the same quick check in several languages:\n\n```python\nprint(\"VeloWrite\")\n```\n\n```bash\necho VeloWrite\n```\n\n```javascript\nconsole.log(\"VeloWrite\");\n```\n\n```java\nSystem.out.println(\"VeloWrite\");\n```",
           note: "Tabbed code is best when each block explains the same action in a different language.",
         },
       },
       {
+        id: "skip-tabs",
+        title: "Do not use tabs for unrelated code",
+        body: [
+          "Tabs are useful for alternatives, not for a sequence. If the reader must run one command, then edit a file, then start a service, keep those blocks vertical and ordered.",
+          "A good rule is simple: use tabs for choices, use stacked blocks for steps.",
+        ],
+        example: {
+          label: "Stacked steps",
+          markdown:
+            "Install dependencies, then build the project:\n\n```bash\nnpm ci\n```\n\n```bash\nnpm run build\n```\n\nThese are separate steps, so they should stay stacked.",
+          note: "Sequential work should remain visible from top to bottom.",
+        },
+      },
+      {
+        id: "preview-in-velowrite",
         title: "Keep code blocks focused",
         body: [
           "A code example should prove one idea. If a block grows too long, split it into smaller examples and explain the transition between them.",
+          "In VeloWrite, use split mode when you are writing technical docs. The editor keeps the source visible while the preview shows syntax highlighting, copyable blocks, math, tables, and tabbed language examples.",
+          "For serious local documentation, move the draft to the desktop app so the file has a real path, can be backed up, and can use local history snapshots while you revise.",
         ],
       },
     ],
@@ -1650,9 +1708,10 @@ const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "July 21, 2026",
+    updated: "July 24, 2026",
     directory: [
       { label: "Unreleased", href: "#unreleased" },
+      { label: "0.1.8", href: "#v018" },
       { label: "0.1.7", href: "#v017" },
       { label: "0.1.6", href: "#v016" },
       { label: "0.1.5", href: "#v015" },
@@ -1666,17 +1725,29 @@ const contentPages: Record<string, ContentPage> = {
       {
         id: "unreleased",
         title: "Unreleased",
+        body: ["No unreleased changes yet."],
+      },
+      {
+        id: "v018",
+        title: "0.1.8 preview",
         body: [
           "Published Markdown for Writers as the third staged Markdown library article under /docs.",
           "Published Markdown for Developers as the fourth staged Markdown library article under /docs.",
           "Published Markdown Basics as the second staged Markdown library article under /docs.",
+          "Published Markdown Code Blocks and Tabs as the fifth staged Markdown library article with examples for fenced code, syntax highlighting, long commands, and tabbed multi-language snippets.",
           "Added article-specific SEO metadata and sitemap entries for the four public articles while keeping the remaining article queue planned.",
           "Updated the public roadmap to show four staged learning articles and docs examples that open in the web editor.",
           "Added a web-to-desktop draft handoff button that downloads the current Markdown draft before opening desktop downloads.",
           "Prepared velowrite:// desktop handoff links so the next desktop build can import web drafts directly, with Markdown download kept as the fallback.",
           "Added a line-level desktop history restore preview so users can review changes before restoring a snapshot.",
+          "Added browser-local web history snapshots with compare, restore, and delete actions.",
+          "Added immediate CSS tooltips for desktop toolbar icon buttons.",
           "Added stricter docs routing so unknown /docs/* paths use the friendly 404 page.",
           "Revised the first two public Markdown articles with plainer wording.",
+          "Made desktop history easier to find from the sidebar, toolbar, and File menu, including an empty-state explanation before snapshots exist.",
+          "Changed the desktop shell to open in a focused editing layout by default, with a workspace toggle for the sidebar and outline.",
+          "Fixed tabbed code previews so separate rendered examples no longer interfere with each other's default selected tab.",
+          "Fixed the web editor brand link so clicking VeloWrite returns to the homepage.",
         ],
       },
       {
@@ -2689,7 +2760,7 @@ function DownloadPage() {
           <ul>
             <li>VeloWrite is currently a free preview for early testers.</li>
             <li>Windows builds are not code-signed yet, so your system may show a security warning during install.</li>
-            <li>The macOS DMG is built on GitHub Actions and will be added after the current Apple Silicon build succeeds.</li>
+            <li>The macOS DMG will be added after the current Apple Silicon preview build is ready.</li>
             <li>Keep backups of important Markdown files while testing preview builds.</li>
             <li>AI commands, private sync, and one-click publishing are planned but not included in this release.</li>
           </ul>

@@ -77,6 +77,14 @@ export function getMetrics(markdown: string): EditorMetrics {
   };
 }
 
+function stableHash(value: string) {
+  let hash = 5381;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 33) ^ value.charCodeAt(index);
+  }
+  return (hash >>> 0).toString(36);
+}
+
 export function renderMarkdown(markdown: string, headings = extractHeadings(markdown)) {
   let headingIndex = 0;
   const renderer = new MarkdownIt({
@@ -129,6 +137,7 @@ function wrapCodeTabSets(html: string) {
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let tabsetIndex = 0;
+  const tabsetPrefix = `code-tabset-${stableHash(html)}`;
 
   while ((match = blockRe.exec(html))) {
     const blockStart = match.index;
@@ -164,9 +173,11 @@ function wrapCodeTabSets(html: string) {
       endIndex = blockRe.lastIndex;
     }
 
-    if (blocks.length > 1) {
+    const languages = blocks.map((block) => block.language);
+    const uniqueLanguages = new Set(languages);
+    if (blocks.length > 1 && uniqueLanguages.size === blocks.length) {
       parts.push(html.slice(lastIndex, blockStart));
-      parts.push(buildCodeTabset(blocks, ++tabsetIndex));
+      parts.push(buildCodeTabset(blocks, `${tabsetPrefix}-${++tabsetIndex}`));
       lastIndex = endIndex;
       if (!match) break;
       blockRe.lastIndex = endIndex;
@@ -184,9 +195,8 @@ function wrapCodeTabSets(html: string) {
 
 function buildCodeTabset(
   blocks: Array<{ language: string; code: string }>,
-  index: number,
+  groupName: string,
 ) {
-  const groupName = `code-tabset-${index}`;
   const tabs = blocks
     .map((block, tabIndex) => {
       const id = `${groupName}-${block.language}-${tabIndex}`;

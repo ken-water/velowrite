@@ -40,6 +40,8 @@ import {
   UploadCloud,
   MonitorDown,
   FolderPlus,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import {
   buildHtmlDocument,
@@ -101,14 +103,25 @@ type HistorySnapshot = {
   contents: string;
 };
 
+type HistoryScope = "desktop" | "browser";
+
+type BrowserHistoryRecord = {
+  id: string;
+  fileName: string;
+  createdAt: number;
+  contents: string;
+};
+
 type HandoffDraft = {
   name: string;
   markdown: string;
 };
 
 type DiffLine = {
-  type: "added" | "removed" | "unchanged";
+  type: "added" | "removed" | "unchanged" | "separator";
   text: string;
+  currentLine?: number;
+  snapshotLine?: number;
 };
 
 const draftKey = "velowrite:draft";
@@ -118,6 +131,8 @@ const autoSaveFileKey = "velowrite:auto-save-file";
 const themeModeKey = "velowrite:theme-mode";
 const editorFontSizeKey = "velowrite:editor-font-size";
 const defaultViewModeKey = "velowrite:default-view-mode";
+const browserHistoryKey = "velowrite:browser-history";
+const browserHistoryLimit = 12;
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
 const desktopHandoffUrlLimit = 12000;
@@ -227,29 +242,144 @@ export function buildLineDiff(current: string, snapshot: string): DiffLine[] {
 
   while (row < currentLines.length && col < snapshotLines.length) {
     if (currentLines[row] === snapshotLines[col]) {
-      diff.push({ type: "unchanged", text: currentLines[row] });
+      diff.push({
+        type: "unchanged",
+        text: currentLines[row],
+        currentLine: row + 1,
+        snapshotLine: col + 1,
+      });
       row += 1;
       col += 1;
     } else if (table[row + 1][col] >= table[row][col + 1]) {
-      diff.push({ type: "removed", text: currentLines[row] });
+      diff.push({ type: "removed", text: currentLines[row], currentLine: row + 1 });
       row += 1;
     } else {
-      diff.push({ type: "added", text: snapshotLines[col] });
+      diff.push({ type: "added", text: snapshotLines[col], snapshotLine: col + 1 });
       col += 1;
     }
   }
 
   while (row < currentLines.length) {
-    diff.push({ type: "removed", text: currentLines[row] });
+    diff.push({ type: "removed", text: currentLines[row], currentLine: row + 1 });
     row += 1;
   }
 
   while (col < snapshotLines.length) {
-    diff.push({ type: "added", text: snapshotLines[col] });
+    diff.push({ type: "added", text: snapshotLines[col], snapshotLine: col + 1 });
     col += 1;
   }
 
   return diff;
+}
+
+export function buildFocusedLineDiff(diff: DiffLine[], contextLines = 2): DiffLine[] {
+  const changedIndexes = diff
+    .map((line, index) => (line.type === "added" || line.type === "removed" ? index : -1))
+    .filter((index) => index >= 0);
+
+  if (!changedIndexes.length) return diff.slice(0, 120);
+
+  const visible = new Set<number>();
+  for (const index of changedIndexes) {
+    for (
+      let next = Math.max(0, index - contextLines);
+      next <= Math.min(diff.length - 1, index + contextLines);
+      next += 1
+    ) {
+      visible.add(next);
+    }
+  }
+
+  const result: DiffLine[] = [];
+  let previousIndex = -1;
+  const visibleIndexes = [...visible].sort((a, b) => a - b);
+  for (const index of visibleIndexes) {
+    if (previousIndex < 0 && index > 0) {
+      result.push({ type: "separator", text: `${index} unchanged lines hidden` });
+    } else if (previousIndex >= 0 && index > previousIndex + 1) {
+      result.push({
+        type: "separator",
+        text: `${index - previousIndex - 1} unchanged lines hidden`,
+      });
+    }
+    result.push(diff[index]);
+    previousIndex = index;
+  }
+
+  const hiddenTail = diff.length - 1 - previousIndex;
+  if (hiddenTail > 0) {
+    result.push({ type: "separator", text: `${hiddenTail} unchanged lines hidden` });
+  }
+
+  return result;
+}
+
+function browserHistoryRecordToSnapshot(record: BrowserHistoryRecord): HistorySnapshot {
+  return {
+    entry: {
+      id: record.id,
+      file_path: "browser:draft",
+      file_name: record.fileName,
+      snapshot_path: `localStorage:${browserHistoryKey}:${record.id}`,
+      created_at: record.createdAt,
+      size: new Blob([record.contents]).size,
+    },
+    contents: record.contents,
+  };
+}
+
+function readBrowserHistory(): HistorySnapshot[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(browserHistoryKey) || "[]");
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter(
+        (record): record is BrowserHistoryRecord =>
+          record &&
+          typeof record.id === "string" &&
+          typeof record.fileName === "string" &&
+          typeof record.createdAt === "number" &&
+          typeof record.contents === "string",
+      )
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, browserHistoryLimit)
+      .map(browserHistoryRecordToSnapshot);
+  } catch {
+    return [];
+  }
+}
+
+function writeBrowserHistory(snapshots: HistorySnapshot[]) {
+  const records: BrowserHistoryRecord[] = snapshots
+    .slice(0, browserHistoryLimit)
+    .map((snapshot) => ({
+      id: snapshot.entry.id,
+      fileName: snapshot.entry.file_name,
+      createdAt: snapshot.entry.created_at,
+      contents: snapshot.contents,
+    }));
+
+  localStorage.setItem(browserHistoryKey, JSON.stringify(records));
+}
+
+function createBrowserHistorySnapshot(fileName: string, contents: string) {
+  const snapshots = readBrowserHistory();
+  if (snapshots[0]?.contents === contents) return snapshots;
+
+  const record: BrowserHistoryRecord = {
+    id: `browser-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    fileName: normalizeMarkdownFileName(fileName),
+    createdAt: Date.now(),
+    contents,
+  };
+  const nextSnapshots = [
+    browserHistoryRecordToSnapshot(record),
+    ...snapshots.filter((snapshot) => snapshot.contents !== contents),
+  ].slice(0, browserHistoryLimit);
+
+  writeBrowserHistory(nextSnapshots);
+  return nextSnapshots;
 }
 
 function createEditorTheme(fontSize: number) {
@@ -657,6 +787,8 @@ function HistoryPanel({
   entries,
   selectedSnapshot,
   currentMarkdown,
+  hasLocalFile,
+  scope,
   onPreview,
   onRestore,
   onDelete,
@@ -666,17 +798,22 @@ function HistoryPanel({
   entries: HistoryEntry[];
   selectedSnapshot: HistorySnapshot | null;
   currentMarkdown: string;
+  hasLocalFile: boolean;
+  scope: HistoryScope;
   onPreview: (id: string) => void;
   onRestore: (id: string) => void;
   onDelete: (id: string) => void;
   onRefresh: () => void;
   onClose: () => void;
 }) {
+  const [diffMode, setDiffMode] = React.useState<"focused" | "full">("focused");
   const diff = selectedSnapshot
     ? buildLineDiff(currentMarkdown, selectedSnapshot.contents)
     : [];
   const addedCount = diff.filter((line) => line.type === "added").length;
   const removedCount = diff.filter((line) => line.type === "removed").length;
+  const changeCount = addedCount + removedCount;
+  const visibleDiff = diffMode === "focused" ? buildFocusedLineDiff(diff) : diff;
 
   return (
     <div className="settings-backdrop" role="presentation" onMouseDown={onClose}>
@@ -724,26 +861,76 @@ function HistoryPanel({
               {selectedSnapshot ? (
                 <>
                   <div className="history-diff-summary">
-                    <strong>Restore preview</strong>
-                    <span>{addedCount} added</span>
-                    <span>{removedCount} removed</span>
+                    <div>
+                      <strong>Restore preview</strong>
+                      <p>
+                        {changeCount
+                          ? "Restoring this snapshot will replace the current document with the older version shown below."
+                          : "This snapshot matches the current document."}
+                      </p>
+                    </div>
+                    <span>{addedCount} older lines</span>
+                    <span>{removedCount} current lines</span>
+                    <div className="history-diff-toggle" aria-label="Diff view mode">
+                      <button
+                        className={diffMode === "focused" ? "active" : ""}
+                        onClick={() => setDiffMode("focused")}
+                      >
+                        Changes
+                      </button>
+                      <button
+                        className={diffMode === "full" ? "active" : ""}
+                        onClick={() => setDiffMode("full")}
+                      >
+                        Full file
+                      </button>
+                    </div>
                   </div>
                   <div className="history-diff-lines" aria-label="Snapshot diff preview">
-                    {diff.map((line, index) => (
-                      <div className={`history-diff-line ${line.type}`} key={`${line.type}-${index}`}>
-                        <span>{line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}</span>
-                        <code>{line.text || " "}</code>
-                      </div>
-                    ))}
+                    {visibleDiff.map((line, index) =>
+                      line.type === "separator" ? (
+                        <div className="history-diff-separator" key={`${line.type}-${index}`}>
+                          {line.text}
+                        </div>
+                      ) : (
+                        <div className={`history-diff-line ${line.type}`} key={`${line.type}-${index}`}>
+                          <span className="history-diff-sign">
+                            {line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}
+                          </span>
+                          <span className="history-diff-line-number">
+                            {line.type === "added"
+                              ? line.snapshotLine
+                              : line.currentLine ?? line.snapshotLine}
+                          </span>
+                          <code>{line.text || " "}</code>
+                        </div>
+                      ),
+                    )}
                   </div>
                 </>
               ) : (
-                <p>Select a snapshot to preview changes before restoring.</p>
+                <p>Select a snapshot to compare it with the document you are editing now.</p>
               )}
             </div>
           </div>
         ) : (
-          <p className="empty-state">No snapshots yet. Save changes to create history.</p>
+          <div className="history-empty">
+            <GitBranch size={24} />
+            <h3>
+              {scope === "browser"
+                ? "No browser history yet"
+                : hasLocalFile
+                  ? "No history snapshots yet"
+                  : "Save as a local file first"}
+            </h3>
+            <p>
+              {scope === "browser"
+                ? "Web history is stored only in this browser. Keep writing for a moment after a change, then VeloWrite will keep a local snapshot for compare and restore."
+                : hasLocalFile
+                  ? "This file is ready for history. After you edit it and save again, VeloWrite will keep the version from before that save here."
+                  : "History works on real desktop files. Save this draft as a .md file, edit it later, then save again. The version from before the save will appear here for compare and restore."}
+            </p>
+          </div>
         )}
       </section>
     </div>
@@ -889,6 +1076,8 @@ export default function EditorApp({
   const suppressPreviewSync = React.useRef(false);
   const suppressBeforeUnload = React.useRef(false);
   const autoSaveTimer = React.useRef<number | null>(null);
+  const browserHistoryTimer = React.useRef<number | null>(null);
+  const browserHistoryBaseline = React.useRef<string | null>(null);
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
   const handoffImportRef = React.useRef<(draft: HandoffDraft) => void>(() => undefined);
   const [markdown, setMarkdown] = React.useState(() => {
@@ -914,6 +1103,7 @@ export default function EditorApp({
   const [historyOpen, setHistoryOpen] = React.useState(false);
   const [historyEntries, setHistoryEntries] = React.useState<HistoryEntry[]>([]);
   const [selectedHistory, setSelectedHistory] = React.useState<HistorySnapshot | null>(null);
+  const [sidebarOpen, setSidebarOpen] = React.useState(() => surface !== "desktop");
   const [editorScrollTarget, setEditorScrollTarget] = React.useState<{ line: number; nonce: number } | null>(null);
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
     return localStorage.getItem(autoSaveFileKey) === "true";
@@ -923,9 +1113,19 @@ export default function EditorApp({
   const metrics = React.useMemo(() => getMetrics(markdown), [markdown]);
   const rendered = React.useMemo(() => renderMarkdown(markdown, headings), [headings, markdown]);
   const dirty = markdown !== savedMarkdown;
-  const browserMode = !nativeApi;
+  const desktopSurface = surface === "desktop";
+  const browserMode = !nativeApi && !desktopSurface;
   const webSurface = surface === "web";
   const resolvedTheme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
+
+  React.useEffect(() => {
+    if (!browserMode) return;
+    const snapshots = readBrowserHistory();
+    setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+    if (browserHistoryBaseline.current === null) {
+      browserHistoryBaseline.current = markdown;
+    }
+  }, [browserMode, markdown]);
 
   React.useEffect(() => {
     const windowTitle = `${dirty ? "*" : ""}${fileName} - VeloWrite`;
@@ -970,6 +1170,34 @@ export default function EditorApp({
 
     return () => window.clearTimeout(timer);
   }, [dirty, fileName, markdown]);
+
+  React.useEffect(() => {
+    if (!browserMode) return;
+
+    if (browserHistoryBaseline.current === null) {
+      browserHistoryBaseline.current = markdown;
+      return;
+    }
+
+    if (browserHistoryTimer.current) {
+      window.clearTimeout(browserHistoryTimer.current);
+    }
+
+    browserHistoryTimer.current = window.setTimeout(() => {
+      const baseline = browserHistoryBaseline.current;
+      if (!baseline || baseline === markdown) return;
+
+      const snapshots = createBrowserHistorySnapshot(fileName, baseline);
+      setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+      browserHistoryBaseline.current = markdown;
+    }, 1600);
+
+    return () => {
+      if (browserHistoryTimer.current) {
+        window.clearTimeout(browserHistoryTimer.current);
+      }
+    };
+  }, [browserMode, fileName, markdown]);
 
   React.useEffect(() => {
     localStorage.setItem(autoSaveFileKey, String(autoSaveFile));
@@ -1056,6 +1284,7 @@ export default function EditorApp({
       if (command === "save") void saveFile();
       if (command === "export-html") void exportHtml();
       if (command === "clear-recent") clearRecentFiles();
+      if (command === "show-history") void openHistoryPanel();
       if (command === "view-write") setViewMode("write");
       if (command === "view-split") setViewMode("split");
       if (command === "view-preview") setViewMode("preview");
@@ -1156,6 +1385,7 @@ export default function EditorApp({
     setFilePath(nextFile.path);
     setFileName(nextFile.name || "Untitled.md");
     setStatus("Opened");
+    if (!nativeApi) browserHistoryBaseline.current = nextFile.contents;
     rememberRecentFile(nextFile.path, nextFile.name || "Untitled.md");
     void refreshHistory(nextFile.path);
   }
@@ -1170,10 +1400,23 @@ export default function EditorApp({
     setHistoryEntries([]);
     setSelectedHistory(null);
     setHistoryOpen(false);
+    browserHistoryBaseline.current = draft.markdown;
     setStatus("Imported web draft");
   }
 
   async function refreshHistory(path = filePath) {
+    if (browserMode) {
+      const snapshots = readBrowserHistory();
+      setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+      setSelectedHistory((current) => {
+        if (!current) return current;
+        return snapshots.some((snapshot) => snapshot.entry.id === current.entry.id)
+          ? current
+          : null;
+      });
+      return;
+    }
+
     if (!nativeApi || !path) {
       setHistoryEntries([]);
       return;
@@ -1378,6 +1621,29 @@ export default function EditorApp({
     setStatus("Recent files cleared");
   }
 
+  async function openHistoryPanel() {
+    if (browserMode) {
+      const baseline = browserHistoryBaseline.current;
+      if (baseline && baseline !== markdown) {
+        const snapshots = createBrowserHistorySnapshot(fileName, baseline);
+        setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+        browserHistoryBaseline.current = markdown;
+      } else {
+        await refreshHistory();
+      }
+      setHistoryOpen(true);
+      return;
+    }
+
+    if (!nativeApi) {
+      setStatus("Desktop history is loading");
+      return;
+    }
+
+    await refreshHistory();
+    setHistoryOpen(true);
+  }
+
   async function newFileWithGuard() {
     if (!(await confirmDiscardChanges())) return;
     newFile();
@@ -1390,11 +1656,33 @@ export default function EditorApp({
     setFilePath(null);
     setFileName("Untitled.md");
     setHistoryEntries([]);
+    setSelectedHistory(null);
+    browserHistoryBaseline.current = blankDocument;
     setStatus("New file");
   }
 
   async function restoreHistorySnapshot(id: string) {
+    if (browserMode) {
+      if (!(await confirmDiscardChanges())) return;
+      const snapshot = readBrowserHistory().find((item) => item.entry.id === id);
+      if (!snapshot) {
+        setStatus("History snapshot not found");
+        return;
+      }
+
+      setMarkdown(snapshot.contents);
+      setSavedMarkdown(snapshot.contents);
+      setFileName(snapshot.entry.file_name);
+      setSelectedHistory(null);
+      setHistoryOpen(false);
+      browserHistoryBaseline.current = snapshot.contents;
+      setStatus("Browser history restored");
+      await refreshHistory();
+      return;
+    }
+
     if (!nativeApi) return;
+
     if (!(await confirmDiscardChanges())) return;
 
     try {
@@ -1412,6 +1700,16 @@ export default function EditorApp({
   }
 
   async function previewHistorySnapshot(id: string) {
+    if (browserMode) {
+      const snapshot = readBrowserHistory().find((item) => item.entry.id === id);
+      if (snapshot) {
+        setSelectedHistory(snapshot);
+      } else {
+        setStatus("History snapshot not found");
+      }
+      return;
+    }
+
     if (!nativeApi) return;
 
     try {
@@ -1423,6 +1721,17 @@ export default function EditorApp({
   }
 
   async function deleteHistorySnapshot(id: string) {
+    if (browserMode) {
+      const snapshots = readBrowserHistory().filter((snapshot) => snapshot.entry.id !== id);
+      writeBrowserHistory(snapshots);
+      setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+      if (selectedHistory?.entry.id === id) {
+        setSelectedHistory(null);
+      }
+      setStatus("Browser history snapshot deleted");
+      return;
+    }
+
     if (!nativeApi) return;
 
     try {
@@ -1539,7 +1848,7 @@ export default function EditorApp({
 
   return (
     <main
-      className={`app-shell theme-${resolvedTheme}${dragActive ? " drag-active" : ""}`}
+      className={`app-shell theme-${resolvedTheme}${desktopSurface && !sidebarOpen ? " desktop-focus" : ""}${dragActive ? " drag-active" : ""}`}
       aria-label="VeloWrite editor"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -1554,18 +1863,28 @@ export default function EditorApp({
       />
 
       <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark">V</div>
-          <div>
-            <strong>VeloWrite</strong>
-            <span>{nativeApi ? "Desktop workspace" : webSurface ? "Web editor" : "Browser preview"}</span>
+        {browserMode ? (
+          <a className="brand brand-link" href="/">
+            <div className="brand-mark">V</div>
+            <div>
+              <strong>VeloWrite</strong>
+              <span>{webSurface ? "Web editor" : "Browser preview"}</span>
+            </div>
+          </a>
+        ) : (
+          <div className="brand">
+            <div className="brand-mark">V</div>
+            <div>
+              <strong>VeloWrite</strong>
+              <span>Desktop workspace</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {browserMode && (
           <section className="browser-panel" aria-label="Browser mode">
             <strong>{webSurface ? "Web editor" : "Browser mode"}</strong>
-            <span>Your Markdown stays in this browser and drafts autosave locally. Desktop adds native folders, direct save, offline work, and history.</span>
+            <span>Your Markdown, autosaved draft, and browser history stay on this device. Desktop adds native folders, direct save, offline work, and file history.</span>
             <a href={desktopDownloadHref}>
               <MonitorDown size={14} />
               Get desktop
@@ -1594,15 +1913,12 @@ export default function EditorApp({
             </button>
           )}
           <button
-            className={historyEntries.length > 0 ? "nav-item" : "nav-item muted"}
-            disabled={!nativeApi || !filePath}
-            onClick={() => {
-              void refreshHistory();
-              setHistoryOpen(true);
-            }}
+            className="nav-item"
+            onClick={() => void openHistoryPanel()}
           >
             <GitBranch size={16} />
-            {historyEntries.length} snapshots
+            History
+            {historyEntries.length > 0 && <span>{historyEntries.length}</span>}
           </button>
         </nav>
 
@@ -1674,17 +1990,30 @@ export default function EditorApp({
           </div>
           <div className="sync-row muted">
             <UploadCloud size={16} />
-            <span>{browserMode ? "Native history in desktop" : "Private sync planned"}</span>
+            <span>{browserMode ? "Browser history stays local" : "Private sync planned"}</span>
           </div>
         </div>
       </aside>
 
       <section className="workspace">
         <header className="topbar">
-          <div className="traffic" aria-hidden="true">
-            <span />
-            <span />
-            <span />
+          <div className="topbar-start">
+            {desktopSurface && (
+              <button
+                className="sidebar-toggle"
+                aria-label={sidebarOpen ? "Hide workspace" : "Show workspace"}
+                title={sidebarOpen ? "Hide workspace" : "Show workspace"}
+                onClick={() => setSidebarOpen((current) => !current)}
+                type="button"
+              >
+                {sidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />}
+              </button>
+            )}
+            <div className="traffic" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
           </div>
           <div className="search">
             <Search size={15} />
@@ -1765,11 +2094,7 @@ export default function EditorApp({
             <button
               aria-label="History"
               title="History"
-              disabled={!nativeApi || !filePath}
-              onClick={() => {
-                void refreshHistory();
-                setHistoryOpen(true);
-              }}
+              onClick={() => void openHistoryPanel()}
             >
               <GitBranch size={17} />
             </button>
@@ -1843,6 +2168,8 @@ export default function EditorApp({
             entries={historyEntries}
             selectedSnapshot={selectedHistory}
             currentMarkdown={markdown}
+            hasLocalFile={Boolean(filePath)}
+            scope={browserMode ? "browser" : "desktop"}
             onPreview={(id) => void previewHistorySnapshot(id)}
             onRestore={(id) => void restoreHistorySnapshot(id)}
             onDelete={(id) => void deleteHistorySnapshot(id)}

@@ -6,11 +6,16 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ## Unreleased
 
+No unreleased changes yet.
+
+## [0.1.8] - 2026-07-24
+
 ### Added
 
 - Published the first two staged Markdown library articles under `/docs`: Online Markdown Editor and Markdown Basics.
 - Published `/docs/markdown-for-writers` as the third staged Markdown library article.
 - Published `/docs/markdown-for-developers` as the fourth staged Markdown library article.
+- Published `/docs/markdown-code-blocks` as the fifth staged Markdown library article, with examples for fenced code, syntax highlighting, long commands, and tabbed multi-language snippets.
 - Added article-specific SEO metadata and sitemap entries for the four public articles while keeping the remaining article queue planned.
 - Updated the public roadmap to show four staged learning articles and docs examples that open in the web editor.
 - Added stricter docs routing so unknown `/docs/*` paths use the friendly 404 page.
@@ -22,11 +27,17 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Added a web-to-desktop draft handoff button that downloads the current Markdown draft before opening desktop downloads.
 - Prepared `velowrite://` desktop handoff links so the next desktop build can import web drafts directly, with Markdown download kept as the fallback.
 - Added a line-level desktop history restore preview so users can review changes before restoring a snapshot.
+- Added browser-local web history snapshots with compare, restore, and delete actions.
+- Added immediate CSS tooltips for desktop toolbar icon buttons.
 
 ### Fixed
 
 - Aligned the 404 page navigation and background with the main website style.
 - Expanded the developer article with language-labeled syntax highlighting examples and tabbed multi-language code examples.
+- Made desktop history easier to find from the sidebar, toolbar, and File menu, including an empty-state explanation before snapshots exist.
+- Changed the desktop shell to open in a focused editing layout by default, with a workspace toggle for the sidebar and outline.
+- Fixed tabbed code previews so separate rendered examples no longer interfere with each other's default selected tab.
+- Fixed the web editor brand link so clicking VeloWrite returns to the homepage.
 
 ## [0.1.7] - 2026-07-20
 

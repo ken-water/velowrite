@@ -9,7 +9,9 @@ test.beforeEach(async ({ page }) => {
 test("landing page drives users to web editor and desktop download", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: /Online Markdown editor/i })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Online Markdown editor, desktop when it matters." }),
+  ).toBeVisible();
   await expect(page.getByRole("link", { name: /Open Web Editor/i }).first()).toHaveAttribute(
     "href",
     /\/web/,
@@ -39,6 +41,65 @@ test("web editor switches between writing, split, and preview modes", async ({ p
 
   await page.getByRole("button", { name: "Split" }).click();
   await expect(page.locator(".editor-grid")).toHaveClass(/mode-split/);
+});
+
+test("web editor brand link returns to the homepage", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=brand");
+
+  await page.getByRole("link", { name: /VeloWrite/ }).first().click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(
+    page.getByRole("heading", { name: "Online Markdown editor, desktop when it matters." }),
+  ).toBeVisible();
+});
+
+test("desktop shell opens in focused editing mode", async ({ page }) => {
+  await page.goto("/app");
+
+  await expect(page.getByLabel("VeloWrite editor")).toHaveClass(/desktop-focus/);
+  await expect(page.locator(".sidebar")).toBeHidden();
+  await expect(page.getByLabel("Markdown editor")).toBeVisible();
+
+  await page.getByRole("button", { name: "Show workspace" }).click();
+  await expect(page.getByLabel("VeloWrite editor")).not.toHaveClass(/desktop-focus/);
+  await expect(page.locator(".sidebar")).toBeVisible();
+});
+
+test("desktop toolbar shows immediate icon tooltips", async ({ page }) => {
+  await page.goto("/app");
+
+  const saveButton = page.getByRole("button", { name: "Save file" });
+  await saveButton.hover();
+
+  await expect
+    .poll(async () =>
+      saveButton.evaluate((element) => window.getComputedStyle(element, "::after").opacity),
+    )
+    .toBe("1");
+  const tooltipContent = await saveButton.evaluate((element) =>
+    window.getComputedStyle(element, "::after").content,
+  );
+  expect(tooltipContent).toContain("Save file");
+});
+
+test("web editor keeps browser-local history snapshots", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=history");
+
+  const historyButton = page.getByRole("button", { name: "History" }).first();
+  await expect(historyButton).toBeEnabled();
+
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText("# Browser history\n\nThis draft should create a local browser snapshot.");
+
+  await historyButton.click();
+  const historyDialog = page.getByRole("dialog", { name: "History" });
+  await expect(historyDialog).toBeVisible();
+  await expect(page.locator(".history-item").first()).toBeVisible();
+
+  await page.locator(".history-summary").first().click();
+  await expect(page.getByLabel("Snapshot diff preview")).toBeVisible();
+  await expect(page.getByText("Restore preview")).toBeVisible();
 });
 
 test("outline navigation syncs the editor and rendered preview", async ({ page }) => {
@@ -88,13 +149,34 @@ test("download page presents user-facing preview information", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Planned Pro Path" })).toBeVisible();
-  await expect(page.getByText("Windows and macOS builds are not code-signed yet")).toBeVisible();
+  await expect(page.getByText("Windows builds are not code-signed yet")).toBeVisible();
   await expect(page.getByRole("link", { name: "Download PDF Guide" })).toHaveAttribute(
     "href",
     "/markdown-guide.pdf",
   );
   await expect(page.getByText("Current installer assets")).toHaveCount(0);
   await expect(page.getByText("GitHub Actions")).toHaveCount(0);
+});
+
+test("docs publishes the Markdown code blocks article with tabbed examples", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "Markdown Code Blocks and Tabs" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Markdown Code Blocks and Tabs" })).toContainText("Published");
+
+  await page.goto("/docs/markdown-code-blocks");
+  await expect(page.getByRole("heading", { name: "Markdown Code Blocks and Tabs" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Tabbed examples" })).toHaveAttribute(
+    "href",
+    "#tabbed-examples",
+  );
+  await expect(page.locator(".markdown-body .code-tabset")).toHaveCount(1);
+  await expect(page.locator(".markdown-body .code-tabset").first()).toBeVisible();
+  await expect(page.locator(".markdown-body .code-tabset-panel").first()).toBeVisible();
+  await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(0)).toHaveText("python");
+  await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(1)).toHaveText("bash");
+  await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(2)).toHaveText("javascript");
+  await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(3)).toHaveText("java");
 });
 
 test("feedback form submits through the public API contract", async ({ page }) => {

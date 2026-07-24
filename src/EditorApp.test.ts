@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildLineDiff, createDesktopHandoffUrl, parseDesktopHandoffUrl } from "./EditorApp";
+import {
+  buildFocusedLineDiff,
+  buildLineDiff,
+  createDesktopHandoffUrl,
+  parseDesktopHandoffUrl,
+} from "./EditorApp";
 
 describe("desktop handoff URLs", () => {
   it("round-trips Markdown drafts through the VeloWrite import URL", () => {
@@ -27,17 +32,27 @@ describe("desktop handoff URLs", () => {
 describe("history diff previews", () => {
   it("marks lines that would be restored or removed", () => {
     expect(buildLineDiff("A\ncurrent\nC", "A\nsnapshot\nC")).toEqual([
-      { type: "unchanged", text: "A" },
-      { type: "removed", text: "current" },
-      { type: "added", text: "snapshot" },
-      { type: "unchanged", text: "C" },
+      { type: "unchanged", text: "A", currentLine: 1, snapshotLine: 1 },
+      { type: "removed", text: "current", currentLine: 2 },
+      { type: "added", text: "snapshot", snapshotLine: 2 },
+      { type: "unchanged", text: "C", currentLine: 3, snapshotLine: 3 },
     ]);
   });
 
   it("handles appended snapshot lines", () => {
     expect(buildLineDiff("A", "A\nB")).toEqual([
-      { type: "unchanged", text: "A" },
-      { type: "added", text: "B" },
+      { type: "unchanged", text: "A", currentLine: 1, snapshotLine: 1 },
+      { type: "added", text: "B", snapshotLine: 2 },
     ]);
+  });
+
+  it("focuses long diffs around changed lines", () => {
+    const current = ["A", "B", "C", "current", "E", "F", "G", "H", "I"].join("\n");
+    const snapshot = ["A", "B", "C", "snapshot", "E", "F", "G", "H", "I"].join("\n");
+    const focused = buildFocusedLineDiff(buildLineDiff(current, snapshot), 1);
+
+    expect(focused).toContainEqual({ type: "removed", text: "current", currentLine: 4 });
+    expect(focused).toContainEqual({ type: "added", text: "snapshot", snapshotLine: 4 });
+    expect(focused.some((line) => line.type === "separator")).toBe(true);
   });
 });

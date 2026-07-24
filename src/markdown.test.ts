@@ -76,10 +76,22 @@ console.log("hello");
 \`\`\``);
 
     expect(html).toContain('class="code-tabset"');
-    expect(html).toContain('label for="code-tabset-1-python-0"');
-    expect(html).toContain('label for="code-tabset-1-bash-1"');
-    expect(html).toContain('label for="code-tabset-1-java-2"');
-    expect(html).toContain('label for="code-tabset-1-javascript-3"');
+    expect(html).toMatch(/label for="code-tabset-[a-z0-9]+-1-python-0"/);
+    expect(html).toMatch(/label for="code-tabset-[a-z0-9]+-1-bash-1"/);
+    expect(html).toMatch(/label for="code-tabset-[a-z0-9]+-1-java-2"/);
+    expect(html).toMatch(/label for="code-tabset-[a-z0-9]+-1-javascript-3"/);
+  });
+
+  it("does not group repeated languages as tabs", () => {
+    const html = renderMarkdown(`\`\`\`bash
+npm ci
+\`\`\`
+\`\`\`bash
+npm run build
+\`\`\``);
+
+    expect(html).not.toContain('class="code-tabset"');
+    expect(html.match(/<pre><code/g)).toHaveLength(2);
   });
 
   it("does not group code fences separated by content", () => {
