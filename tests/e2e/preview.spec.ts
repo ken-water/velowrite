@@ -53,6 +53,48 @@ test("web editor brand link returns to the homepage", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("web editor and docs avoid mobile horizontal overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  for (const route of ["/web?utm_source=e2e&utm_medium=responsive", "/docs/online-markdown-editor"]) {
+    await page.goto(route);
+    const overflow = await page.evaluate(() => {
+      const elements = [...document.querySelectorAll("body *")];
+      const overflowing = elements.filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = window.getComputedStyle(element);
+        return (
+          rect.width > 1 &&
+          rect.height > 1 &&
+          style.position !== "fixed" &&
+          rect.top < window.innerHeight + 100 &&
+          (rect.left < -2 || rect.right > window.innerWidth + 2)
+        );
+      });
+
+      return {
+        page: document.documentElement.scrollWidth - window.innerWidth,
+        visible: overflowing.length,
+      };
+    });
+
+    expect(overflow.page).toBeLessThanOrEqual(1);
+    expect(overflow.visible).toBe(0);
+  }
+});
+
+test("web editor shows a mobile brand home link", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/web?utm_source=e2e&utm_medium=mobile_brand");
+
+  const brandLink = page.locator(".mobile-editor-brand");
+  await expect(brandLink).toBeVisible();
+  await expect(brandLink).toHaveAttribute("href", "/");
+
+  await brandLink.click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
 test("desktop shell opens in focused editing mode", async ({ page }) => {
   await page.goto("/app");
 
@@ -147,7 +189,11 @@ test("download page presents user-facing preview information", async ({ page }) 
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "VeloWrite_0.1.8_aarch64.dmg" })).toHaveAttribute(
+  await expect(
+    page.locator(".download-card", { hasText: "macOS Apple Silicon" }).getByRole("link", {
+      name: "Download",
+    }),
+  ).toHaveAttribute(
     "href",
     /VeloWrite_0\.1\.8_aarch64\.dmg/,
   );

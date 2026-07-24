@@ -1848,7 +1848,7 @@ export default function EditorApp({
 
   return (
     <main
-      className={`app-shell theme-${resolvedTheme}${desktopSurface && !sidebarOpen ? " desktop-focus" : ""}${dragActive ? " drag-active" : ""}`}
+      className={`app-shell theme-${resolvedTheme}${browserMode ? " browser-surface" : " desktop-surface"}${desktopSurface && !sidebarOpen ? " desktop-focus" : ""}${dragActive ? " drag-active" : ""}`}
       aria-label="VeloWrite editor"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -2005,6 +2005,12 @@ export default function EditorApp({
       </aside>
 
       <section className="workspace">
+        {browserMode && (
+          <a className="mobile-editor-brand" href="/">
+            <span className="brand-mark">V</span>
+            <span>VeloWrite</span>
+          </a>
+        )}
         <header className="topbar">
           <div className="topbar-start">
             {desktopSurface && (

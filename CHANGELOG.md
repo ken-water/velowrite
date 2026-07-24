@@ -7,7 +7,8 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 ## Unreleased
 
 - Added the macOS Apple Silicon DMG to the download page now that the release asset is available.
-- Refined the cookie consent banner, mobile landing header, desktop focused editor width, and toolbar density.
+- Refined the homepage product showcase, footer link hierarchy, cookie consent banner, mobile landing header, desktop focused editor width, responsive editor toolbar, and documentation code examples.
+- Improved the download page platform cards and added a mobile web editor brand link back to the homepage.
 
 ## [0.1.8] - 2026-07-24
 

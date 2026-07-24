@@ -254,11 +254,31 @@ p {
   font-weight: 650;
 }
 
+.hero-trust {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  color: #52635d;
+  font-size: 13px;
+}
+
+.hero-trust span {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-trust svg {
+  color: #3d8a68;
+}
+
 .product-frame {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
-  height: clamp(700px, 74vh, 760px);
+  height: clamp(620px, 68vh, 720px);
   overflow: hidden;
   border: 1px solid rgba(21, 54, 45, 0.15);
   border-radius: 8px;
@@ -284,6 +304,7 @@ p {
 
 .product-frame .desktop-cta,
 .demo-product .desktop-cta,
+.product-frame .statusbar .shortcut-hint,
 .product-frame .actions > button[aria-label="New file"],
 .product-frame .actions > button[aria-label="Open file"],
 .product-frame .actions > button[aria-label="AI assist"],
@@ -299,6 +320,29 @@ p {
 .demo-product .actions > button[aria-label="Settings"],
 .demo-product .actions > button[aria-label="About"] {
   display: none;
+}
+
+.product-frame .topbar {
+  min-height: 50px;
+  padding: 0 14px;
+}
+
+.product-frame .editor-pane,
+.product-frame .preview-pane {
+  padding: 18px;
+}
+
+.product-frame .markdown-body {
+  padding: 22px clamp(18px, 2.2vw, 34px) 30px;
+}
+
+.product-frame .statusbar {
+  min-height: 28px;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 14px;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .video-showcase {
@@ -1121,6 +1165,10 @@ p {
   overflow: hidden;
 }
 
+.mobile-editor-brand {
+  display: none;
+}
+
 .topbar {
   display: grid;
   grid-template-columns: auto minmax(180px, 380px) auto;
@@ -1205,6 +1253,12 @@ p {
   justify-content: flex-end;
   gap: 8px;
   min-width: max-content;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.actions::-webkit-scrollbar {
+  display: none;
 }
 
 .desktop-cta {
@@ -2256,7 +2310,7 @@ pre,
 
 .resource-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -3002,12 +3056,12 @@ pre,
 .download-shell {
   width: min(1040px, calc(100% - 40px));
   margin: 0 auto;
-  padding: 58px 0 76px;
+  padding: 44px 0 76px;
 }
 
 .download-hero {
   max-width: 720px;
-  margin-bottom: 34px;
+  margin-bottom: 28px;
 }
 
 .download-hero h1 {
@@ -3033,33 +3087,68 @@ pre,
 
 .download-card {
   display: grid;
-  gap: 16px;
+  gap: 12px;
   align-content: space-between;
-  min-height: 230px;
+  min-height: 238px;
   border: 1px solid rgba(21, 54, 45, 0.16);
   border-radius: 8px;
-  padding: 18px;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.68);
   box-shadow: 0 12px 32px rgba(38, 52, 47, 0.08);
+}
+
+.download-card-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.download-platform-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(21, 54, 45, 0.14);
+  border-radius: 8px;
+  background: #f4f1eb;
+  color: #15362d;
+  font-size: 17px;
+  font-weight: 820;
 }
 
 .download-card h2 {
   margin: 0 0 5px;
   color: #17201c;
-  font-size: 20px;
+  font-size: 19px;
 }
 
 .download-card span {
+  display: inline-flex;
+  margin-bottom: 7px;
+  color: #d84f2a;
+  font-size: 11px;
+  font-weight: 820;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.download-card small {
   color: #65756f;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 680;
 }
 
 .download-card p {
   margin: 0;
   color: #4f5f59;
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 1.48;
+}
+
+.download-card .download-detail {
+  color: #697973;
+  font-size: 13px;
 }
 
 .download-card a,
@@ -3153,49 +3242,64 @@ pre,
 
 .site-footer {
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: 18px;
+  grid-template-columns: minmax(240px, 0.75fr) minmax(0, 1.25fr);
+  gap: 34px;
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
   border-top: 1px solid rgba(21, 54, 45, 0.16);
-  padding: 22px 0 32px;
+  padding: 28px 0 38px;
   color: #52635d;
   font-size: 14px;
 }
 
 .footer-brand {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
   gap: 8px;
+  align-content: start;
+  max-width: 340px;
 }
 
 .footer-brand strong {
   color: #17201c;
+  font-size: 16px;
+  font-weight: 760;
+}
+
+.footer-brand span {
+  color: #65756f;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .footer-links {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 22px;
 }
 
 .footer-group {
   display: grid;
-  gap: 8px;
+  gap: 9px;
   align-content: start;
 }
 
 .footer-group span {
-  color: #47635b;
+  margin-bottom: 2px;
+  color: #31453e;
   font-size: 12px;
-  font-weight: 850;
+  font-weight: 760;
   text-transform: uppercase;
 }
 
 .footer-group a {
+  color: #5c6c66;
+  font-size: 13px;
+  font-weight: 540;
+  line-height: 1.35;
+}
+
+.footer-group a:hover {
   color: #15362d;
-  font-weight: 750;
 }
 
 .legal-page,
@@ -3391,6 +3495,11 @@ pre,
 }
 
 .content-example-preview pre {
+  max-width: 100%;
+}
+
+.content-example code,
+.content-example-preview code {
   max-width: 100%;
 }
 
@@ -3645,7 +3754,7 @@ pre,
   }
 
   .product-frame {
-    height: 760px;
+    height: 700px;
   }
 
   .product-frame .app-shell {
@@ -3657,6 +3766,7 @@ pre,
   }
 
   .compare-grid,
+  .resource-grid,
   .faq-grid,
   .landing-waitlist,
   .feedback-shell,
@@ -3863,6 +3973,26 @@ pre,
 
   .topbar {
     grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  .actions {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .actions > .optional-action,
+  .actions > button[aria-label="New file"],
+  .actions > button[aria-label="Export HTML"],
+  .actions > button[aria-label="AI assist"],
+  .actions > button[aria-label="Settings"],
+  .actions > button[aria-label="Publish"],
+  .actions > button[aria-label="About"] {
+    display: none;
+  }
+
+  .mode-toggle button {
+    min-width: 50px;
   }
 
   .editor-grid {
@@ -4002,5 +4132,102 @@ pre,
 
   .statusbar .shortcut-hint {
     display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .app-shell.browser-surface .workspace {
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+
+  .app-shell.browser-surface .mobile-editor-brand {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    gap: 9px;
+    border-bottom: 1px solid var(--border);
+    padding: 0 10px;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 780;
+  }
+
+  .app-shell.browser-surface .mobile-editor-brand .brand-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    font-size: 15px;
+  }
+
+  .topbar {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    min-height: 96px;
+    padding: 8px 10px;
+  }
+
+  .topbar-start {
+    display: none;
+  }
+
+  .app-shell.desktop-surface .topbar-start {
+    display: flex;
+  }
+
+  .topbar .search {
+    min-height: 32px;
+  }
+
+  .actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .app-shell.browser-surface .actions > .optional-action,
+  .app-shell.browser-surface .actions > button[aria-label="History"],
+  .app-shell.browser-surface .actions > button[aria-label="Settings"] {
+    display: none;
+  }
+
+  .desktop-cta {
+    padding: 0 8px;
+  }
+
+  .app-shell.browser-surface .desktop-cta {
+    min-height: 32px;
+    color: #a6462f;
+  }
+
+  .mode-toggle {
+    min-height: 32px;
+  }
+
+  .mode-toggle button {
+    min-width: 48px;
+    padding: 0 6px;
+  }
+
+  .actions > button:not(.desktop-cta),
+  .sidebar-toggle {
+    width: 32px;
+    height: 32px;
+  }
+
+  .editor-grid.mode-split {
+    grid-template-rows: minmax(300px, 1fr) minmax(300px, 1fr);
+  }
+
+  .content-example pre,
+  .content-example-preview pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .content-example code,
+  .content-example-preview code {
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 }

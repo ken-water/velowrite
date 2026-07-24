@@ -516,31 +516,41 @@ const downloads = [
     platform: "Windows",
     format: "NSIS installer",
     fileName: `VeloWrite_${downloadVersion}_x64-setup.exe`,
-    note: "Unsigned preview installer for Windows x64.",
+    note: "Best choice for most Windows testers.",
+    detail: "Windows x64. SmartScreen may warn because preview builds are not signed yet.",
+    badge: "Recommended",
   },
   {
     platform: "macOS Apple Silicon",
     format: "DMG package",
     fileName: `VeloWrite_${downloadVersion}_aarch64.dmg`,
-    note: "Unsigned Apple Silicon preview build for M-series Macs.",
+    note: "For M-series Macs that want to test the native workflow.",
+    detail: "Unsigned Apple Silicon build. Gatekeeper may require manual approval.",
+    badge: "Apple Silicon",
   },
   {
     platform: "Linux AppImage",
     format: "Portable package",
     fileName: `VeloWrite_${downloadVersion}_amd64.AppImage`,
-    note: "Portable Linux build. Make it executable before running.",
+    note: "Portable Linux build without package installation.",
+    detail: "Make it executable before running. Works well for quick Linux testing.",
+    badge: "Portable",
   },
   {
     platform: "Ubuntu / Debian",
     format: "DEB package",
     fileName: `VeloWrite_${downloadVersion}_amd64.deb`,
-    note: "For Debian-based Linux distributions.",
+    note: "Native package for Debian-based distributions.",
+    detail: "Use this for Ubuntu, Debian, Linux Mint, and related distributions.",
+    badge: "DEB",
   },
   {
     platform: "Fedora / RHEL",
     format: "RPM package",
     fileName: `VeloWrite-${downloadVersion}-1.x86_64.rpm`,
-    note: "For RPM-based Linux distributions.",
+    note: "Native package for RPM-based distributions.",
+    detail: "Use this for Fedora, RHEL, openSUSE, and related distributions.",
+    badge: "RPM",
   },
 ];
 
@@ -1733,7 +1743,8 @@ const contentPages: Record<string, ContentPage> = {
         title: "Unreleased",
         body: [
           "Added the macOS Apple Silicon DMG to the download page now that the release asset is available.",
-          "Refined the cookie consent banner, mobile landing header, desktop focused editor width, and toolbar density.",
+          "Refined the homepage product showcase, footer link hierarchy, cookie consent banner, mobile landing header, desktop focused editor width, responsive editor toolbar, and documentation code examples.",
+          "Improved the download page platform cards and added a mobile web editor brand link back to the homepage.",
         ],
       },
       {
@@ -2079,10 +2090,20 @@ function LandingPage() {
               Clean split preview
             </span>
           </div>
+          <div className="hero-trust" aria-label="Privacy and workflow notes">
+            <span>
+              <ShieldCheck size={15} />
+              Browser drafts stay local
+            </span>
+            <span>
+              <FolderOpen size={15} />
+              Desktop unlocks native files
+            </span>
+          </div>
         </div>
         <div className="product-frame" aria-label="VeloWrite online editor">
           <div className="frame-toolbar">
-            <span>Web editor preview</span>
+            <span>Live web editor</span>
             <a href={webEditorHref}>
               Full screen <ChevronRight size={14} />
             </a>
@@ -2120,7 +2141,7 @@ function LandingPage() {
               <FolderOpen size={20} />
             </div>
             <h3>Desktop app</h3>
-            <p>Best for private writing, local Markdown vaults, offline editing, and native save workflows.</p>
+            <p>Best when Markdown becomes real work: private files, local folders, offline editing, and native save workflows.</p>
             <ul>
               <li>Open and save real files directly</li>
               <li>Work offline with local-first storage</li>
@@ -2717,15 +2738,22 @@ function DownloadPage() {
         <section className="download-grid" aria-label="Download installers">
           {downloads.map((item) => (
             <article className="download-card" key={item.fileName}>
-              <div>
-                <h2>{item.platform}</h2>
-                <span>{item.format}</span>
+              <div className="download-card-head">
+                <div className="download-platform-mark" aria-hidden="true">
+                  {item.platform.charAt(0)}
+                </div>
+                <div>
+                  <span>{item.badge}</span>
+                  <h2>{item.platform}</h2>
+                  <small>{item.format}</small>
+                </div>
               </div>
               <p>{item.note}</p>
+              <p className="download-detail">{item.detail}</p>
               {item.fileName ? (
                 <a href={`${releaseBaseUrl}/${item.fileName}?utm_source=download_page&utm_medium=installer&utm_campaign=v${downloadVersion}`}>
                   <Download size={16} />
-                  {item.fileName}
+                  Download
                 </a>
               ) : (
                 <button disabled>Building</button>
