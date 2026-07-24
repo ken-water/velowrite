@@ -1882,13 +1882,22 @@ export default function EditorApp({
         )}
 
         {browserMode && (
-          <section className="browser-panel" aria-label="Browser mode">
+          <section
+            className={dirty ? "browser-panel compact" : "browser-panel"}
+            aria-label="Browser mode"
+          >
             <strong>{webSurface ? "Web editor" : "Browser mode"}</strong>
-            <span>Your Markdown, autosaved draft, and browser history stay on this device. Desktop adds native folders, direct save, offline work, and file history.</span>
-            <a href={desktopDownloadHref}>
-              <MonitorDown size={14} />
-              Get desktop
-            </a>
+            <span>
+              {dirty
+                ? "Draft and history are stored in this browser."
+                : "Your Markdown, autosaved draft, and browser history stay on this device. Desktop adds native folders, direct save, offline work, and file history."}
+            </span>
+            {!dirty && (
+              <a href={desktopDownloadHref}>
+                <MonitorDown size={14} />
+                Get desktop
+              </a>
+            )}
           </section>
         )}
 
@@ -2077,6 +2086,7 @@ export default function EditorApp({
             <button
               aria-label="Copy Markdown"
               title="Copy Markdown"
+              className="optional-action"
               onClick={copyMarkdown}
             >
               <ClipboardCopy size={17} />
@@ -2084,6 +2094,7 @@ export default function EditorApp({
             <button
               aria-label="Copy rendered HTML"
               title="Copy rendered HTML"
+              className="optional-action"
               onClick={copyRenderedHtml}
             >
               <Code2 size={17} />

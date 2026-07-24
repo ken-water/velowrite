@@ -146,6 +146,11 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "macOS Apple Silicon" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "VeloWrite_0.1.8_aarch64.dmg" })).toHaveAttribute(
+    "href",
+    /VeloWrite_0\.1\.8_aarch64\.dmg/,
+  );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Planned Pro Path" })).toBeVisible();

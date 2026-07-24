@@ -519,6 +519,12 @@ const downloads = [
     note: "Unsigned preview installer for Windows x64.",
   },
   {
+    platform: "macOS Apple Silicon",
+    format: "DMG package",
+    fileName: `VeloWrite_${downloadVersion}_aarch64.dmg`,
+    note: "Unsigned Apple Silicon preview build for M-series Macs.",
+  },
+  {
     platform: "Linux AppImage",
     format: "Portable package",
     fileName: `VeloWrite_${downloadVersion}_amd64.AppImage`,
@@ -1725,7 +1731,10 @@ const contentPages: Record<string, ContentPage> = {
       {
         id: "unreleased",
         title: "Unreleased",
-        body: ["No unreleased changes yet."],
+        body: [
+          "Added the macOS Apple Silicon DMG to the download page now that the release asset is available.",
+          "Refined the cookie consent banner, mobile landing header, desktop focused editor width, and toolbar density.",
+        ],
       },
       {
         id: "v018",
@@ -2731,7 +2740,7 @@ function DownloadPage() {
             <ul>
               <li>Online Markdown editing, preview, and local browser draft autosave</li>
               <li>Desktop open, save, export HTML, recent files, and local history snapshots</li>
-              <li>Windows and Linux preview packages</li>
+              <li>Windows, macOS Apple Silicon, and Linux preview packages</li>
               <li>Privacy policy, cookie consent, and waitlist email handling</li>
             </ul>
           </article>
@@ -2760,7 +2769,7 @@ function DownloadPage() {
           <ul>
             <li>VeloWrite is currently a free preview for early testers.</li>
             <li>Windows builds are not code-signed yet, so your system may show a security warning during install.</li>
-            <li>The macOS DMG will be added after the current Apple Silicon preview build is ready.</li>
+            <li>The macOS DMG is an unsigned Apple Silicon preview build, so Gatekeeper may warn during install.</li>
             <li>Keep backups of important Markdown files while testing preview builds.</li>
             <li>AI commands, private sync, and one-click publishing are planned but not included in this release.</li>
           </ul>
@@ -3195,8 +3204,7 @@ function CookieConsent({
       <div className="cookie-copy">
         <Cookie size={19} />
         <p>
-          We keep drafts in your browser and load analytics only if you allow it.
-          Markdown content is not uploaded for normal web editing.
+          Drafts stay in your browser. Analytics loads only if you allow it.
         </p>
       </div>
       <div className="cookie-actions">

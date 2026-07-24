@@ -6,7 +6,8 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ## Unreleased
 
-No unreleased changes yet.
+- Added the macOS Apple Silicon DMG to the download page now that the release asset is available.
+- Refined the cookie consent banner, mobile landing header, desktop focused editor width, and toolbar density.
 
 ## [0.1.8] - 2026-07-24
 
