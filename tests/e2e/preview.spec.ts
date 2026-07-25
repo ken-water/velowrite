@@ -21,7 +21,10 @@ test("landing page drives users to web editor and desktop download", async ({ pa
     /\/download/,
   );
   await expect(page.getByRole("heading", { name: /Web for a quick draft/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /A preview build should still be clear/i })).toBeVisible();
+  await expect(page.getByText("Private by default")).toBeVisible();
   await expect(page.getByLabel("VeloWrite product video")).toBeVisible();
+  await expect(page.locator(".product-frame .editor-grid")).toHaveClass(/mode-preview/);
 });
 
 test("web editor switches between writing, split, and preview modes", async ({ page }) => {
@@ -51,6 +54,17 @@ test("web editor brand link returns to the homepage", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Online Markdown editor, desktop when it matters." }),
   ).toBeVisible();
+});
+
+test("web editor can start from practical Markdown templates", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=templates");
+
+  await expect(page.getByLabel("Start from a template")).toBeVisible();
+  await page.getByRole("button", { name: /Meeting Notes/i }).click();
+
+  await expect(page.locator(".search")).toContainText("Meeting Notes.md");
+  await expect(page.locator(".cm-content").first()).toContainText("Meeting Notes");
+  await expect(page.locator(".cm-content").first()).toContainText("Action Items");
 });
 
 test("web editor and docs avoid mobile horizontal overflow", async ({ page }) => {
@@ -90,9 +104,25 @@ test("web editor shows a mobile brand home link", async ({ page }) => {
   const brandLink = page.locator(".mobile-editor-brand");
   await expect(brandLink).toBeVisible();
   await expect(brandLink).toHaveAttribute("href", "/");
+  await expect(page.locator(".editor-grid")).toHaveClass(/mode-write/);
 
   await brandLink.click();
   await expect(page).toHaveURL(/\/$/);
+});
+
+test("web editor explains when desktop is better for local files", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=desktop_prompt");
+
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download Markdown copy" }).click();
+  await download;
+
+  await expect(page.getByLabel("Desktop upgrade prompt")).toBeVisible();
+  await expect(page.getByText("Need native local files?")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Download Desktop/i })).toHaveAttribute(
+    "href",
+    /\/download/,
+  );
 });
 
 test("desktop shell opens in focused editing mode", async ({ page }) => {
@@ -101,10 +131,27 @@ test("desktop shell opens in focused editing mode", async ({ page }) => {
   await expect(page.getByLabel("VeloWrite editor")).toHaveClass(/desktop-focus/);
   await expect(page.locator(".sidebar")).toBeHidden();
   await expect(page.getByLabel("Markdown editor")).toBeVisible();
+  await expect(page.getByLabel("Desktop start")).toBeVisible();
+  await expect(page.getByText("Start locally")).toBeVisible();
+  await expect(page.getByText("Unsaved local draft")).toBeVisible();
+  await expect(page.getByText(/draft snapshots/)).toBeVisible();
 
   await page.getByRole("button", { name: "Show workspace" }).click();
   await expect(page.getByLabel("VeloWrite editor")).not.toHaveClass(/desktop-focus/);
   await expect(page.locator(".sidebar")).toBeVisible();
+});
+
+test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
+  await page.goto("/app");
+
+  await page.getByRole("button", { name: "Enter focus mode" }).click();
+  await expect(page.getByLabel("VeloWrite editor")).toHaveClass(/writing-focus/);
+  await expect(page.locator(".topbar")).toBeHidden();
+  await expect(page.getByRole("button", { name: "Exit focus mode" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Exit focus mode" }).click();
+  await expect(page.getByLabel("VeloWrite editor")).not.toHaveClass(/writing-focus/);
+  await expect(page.locator(".topbar")).toBeVisible();
 });
 
 test("desktop toolbar shows immediate icon tooltips", async ({ page }) => {
@@ -144,6 +191,47 @@ test("web editor keeps browser-local history snapshots", async ({ page }) => {
   await expect(page.getByText("Restore preview")).toBeVisible();
 });
 
+test("history shows an empty diff after restoring the matching snapshot", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=history-match");
+
+  const historyButton = page.getByRole("button", { name: "History" }).first();
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText("# Restored history\n\nThis draft will be replaced by the first snapshot.");
+
+  await historyButton.click();
+  const firstSnapshot = page.locator(".history-item").first();
+  await expect(firstSnapshot).toBeVisible();
+
+  page.once("dialog", (dialog) => void dialog.accept());
+  await firstSnapshot.getByRole("button", { name: "Restore" }).click();
+  await expect(page.getByRole("dialog", { name: "History" })).toBeHidden();
+
+  await historyButton.click();
+  await page.locator(".history-summary").first().click();
+
+  await expect(page.getByText("No differences")).toBeVisible();
+  await expect(page.getByText("The current document already matches this snapshot.")).toBeVisible();
+});
+
+test("desktop drafts can open history before saving a local file", async ({ page }) => {
+  await page.goto("/app");
+
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText("# Unsaved desktop draft\n\nThis edit should create a draft snapshot.");
+
+  await page.getByRole("button", { name: "History" }).first().click();
+
+  const historyDialog = page.getByRole("dialog", { name: "History" });
+  await expect(historyDialog).toBeVisible();
+  await expect(page.locator(".history-item").first()).toBeVisible();
+
+  await page.locator(".history-summary").first().click();
+  await expect(page.getByLabel("Snapshot diff preview")).toBeVisible();
+  await expect(page.getByText("Restore preview")).toBeVisible();
+});
+
 test("outline navigation syncs the editor and rendered preview", async ({ page }) => {
   await page.goto("/web?utm_source=demo_frame&utm_medium=cta&demo=complex");
 
@@ -155,6 +243,36 @@ test("outline navigation syncs the editor and rendered preview", async ({ page }
   await expect(page.locator(".markdown-body #mathematical-notes")).toBeVisible();
 });
 
+test("outline navigation returns the editor to the first heading", async ({ page }) => {
+  await page.goto("/web?utm_source=demo_frame&utm_medium=cta&demo=complex");
+
+  await page.getByRole("button", { name: "Preview" }).click();
+  await page.getByRole("button", { name: "Writing Workflow" }).evaluate((el) => {
+    (el as HTMLButtonElement).click();
+  });
+  await expect(page.locator(".cm-activeLine")).toContainText("## Writing Workflow");
+
+  await page.getByRole("button", { name: "Project Notes: Lightweight Writing Stack" }).evaluate((el) => {
+    (el as HTMLButtonElement).click();
+  });
+
+  await expect(page.locator(".cm-activeLine")).toContainText("# Project Notes: Lightweight Writing Stack");
+  await expect(page.locator(".cm-scroller").first()).toHaveJSProperty("scrollTop", 0);
+  await expect(page.locator(".markdown-body #project-notes-lightweight-writing-stack")).toBeVisible();
+  await expect
+    .poll(async () =>
+      page.evaluate(() => {
+        const preview = document.querySelector(".markdown-body");
+        const target = document.querySelector("#project-notes-lightweight-writing-stack");
+        if (!preview || !target) return Number.NaN;
+        return Math.round(
+          target.getBoundingClientRect().top - preview.getBoundingClientRect().top,
+        );
+      }),
+    )
+    .toBeLessThanOrEqual(2);
+});
+
 test("complex Markdown demo renders math and tabbed code previews", async ({ page }) => {
   await page.goto("/web?utm_source=demo_frame&utm_medium=cta&demo=complex");
 
@@ -164,6 +282,33 @@ test("complex Markdown demo renders math and tabbed code previews", async ({ pag
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(1)).toHaveText("bash");
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(2)).toHaveText("java");
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(3)).toHaveText("javascript");
+});
+
+test("dark mode keeps preview code blocks readable", async ({ page }) => {
+  await page.goto("/web?utm_source=demo_frame&utm_medium=cta&demo=complex");
+
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("button", { name: "dark" }).click();
+  await page.getByRole("button", { name: "Close settings" }).click();
+
+  await expect(page.locator(".app-shell")).toHaveClass(/theme-dark/);
+  const codeBlock = page.locator(".markdown-body pre").first();
+  await expect(codeBlock).toBeVisible();
+
+  const styles = await codeBlock.evaluate((element) => {
+    const block = window.getComputedStyle(element);
+    const code = element.querySelector("code") ?? element;
+    const token = element.querySelector(".hljs-keyword, .hljs-string, .hljs-title");
+    return {
+      background: block.backgroundColor,
+      text: window.getComputedStyle(code).color,
+      token: token ? window.getComputedStyle(token).color : "",
+    };
+  });
+
+  expect(styles.background).toBe("rgb(17, 22, 17)");
+  expect(styles.text).toBe("rgb(237, 242, 235)");
+  expect(styles.token).not.toBe(styles.text);
 });
 
 test("interactive demo code tabs change displayed language without layout jumps", async ({ page }) => {
@@ -195,11 +340,13 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.1\.8_aarch64\.dmg/,
+    /VeloWrite_0\.1\.10_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Planned Pro Path" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Install Safety Notes" })).toBeVisible();
+  await expect(page.getByText("official GitHub Releases page")).toBeVisible();
   await expect(page.getByText("Windows builds are not code-signed yet")).toBeVisible();
   await expect(page.getByRole("link", { name: "Download PDF Guide" })).toHaveAttribute(
     "href",
@@ -228,6 +375,29 @@ test("docs publishes the Markdown code blocks article with tabbed examples", asy
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(1)).toHaveText("bash");
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(2)).toHaveText("javascript");
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(3)).toHaveText("java");
+});
+
+test("docs publishes the local-first Markdown article and sync guidance", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "Local-First Markdown Editing" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Local-First Markdown Editing" })).toContainText(
+    "Published",
+  );
+
+  await page.goto("/docs/local-first-markdown");
+  await expect(page.getByRole("heading", { name: "Local-First Markdown Editing" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "History recovery" })).toHaveAttribute(
+    "href",
+    "#history-recovery",
+  );
+  await expect(page.getByRole("link", { name: "Sync design" })).toHaveAttribute(
+    "href",
+    "#sync-design",
+  );
+  await expect(page.getByRole("heading", { name: "Sync should preserve folder ownership" })).toBeVisible();
+  await expect(page.getByText("basic local history recovery in the free foundation")).toBeVisible();
+  await expect(page.getByText("Many users already have a sync habit")).toBeVisible();
 });
 
 test("feedback form submits through the public API contract", async ({ page }) => {

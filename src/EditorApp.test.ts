@@ -55,4 +55,10 @@ describe("history diff previews", () => {
     expect(focused).toContainEqual({ type: "added", text: "snapshot", snapshotLine: 4 });
     expect(focused.some((line) => line.type === "separator")).toBe(true);
   });
+
+  it("does not show unchanged document text when a snapshot matches current content", () => {
+    const focused = buildFocusedLineDiff(buildLineDiff("A\nB\nC", "A\nB\nC"));
+
+    expect(focused).toEqual([]);
+  });
 });

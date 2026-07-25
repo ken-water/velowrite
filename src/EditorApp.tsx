@@ -42,6 +42,8 @@ import {
   FolderPlus,
   PanelLeftClose,
   PanelLeftOpen,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import {
   buildHtmlDocument,
@@ -103,7 +105,7 @@ type HistorySnapshot = {
   contents: string;
 };
 
-type HistoryScope = "desktop" | "browser";
+type HistoryScope = "desktop" | "browser" | "draft";
 
 type BrowserHistoryRecord = {
   id: string;
@@ -114,6 +116,13 @@ type BrowserHistoryRecord = {
 
 type HandoffDraft = {
   name: string;
+  markdown: string;
+};
+
+type EditorTemplate = {
+  label: string;
+  description: string;
+  fileName: string;
   markdown: string;
 };
 
@@ -132,10 +141,59 @@ const themeModeKey = "velowrite:theme-mode";
 const editorFontSizeKey = "velowrite:editor-font-size";
 const defaultViewModeKey = "velowrite:default-view-mode";
 const browserHistoryKey = "velowrite:browser-history";
+const draftHistoryKey = "velowrite:draft-history";
 const browserHistoryLimit = 12;
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
 const desktopHandoffUrlLimit = 12000;
+const friendlyDefaultMarkdown = `# Start Writing
+
+Use this page as a quick Markdown draft. Write on the left, then switch to Preview when you want to read the result.
+
+## A simple note
+
+- Capture the main idea
+- Add useful details
+- Mark the next action
+
+## Example checklist
+
+- [ ] Draft the note
+- [ ] Review the preview
+- [ ] Save a Markdown copy
+
+> Tip: keep quick drafts in the browser. Move important files to VeloWrite Desktop for native save, offline work, and local history.
+`;
+const editorTemplates: EditorTemplate[] = [
+  {
+    label: "Quick Note",
+    description: "A clean scratchpad for ideas, todos, or meeting follow-up.",
+    fileName: "Quick Note.md",
+    markdown:
+      "# Quick Note\n\n## Summary\n\nWrite the main idea in one or two sentences.\n\n## Notes\n\n- First point\n- Second point\n\n## Next Actions\n\n- [ ] Follow up\n",
+  },
+  {
+    label: "Meeting Notes",
+    description: "Agenda, decisions, owners, and action items in one page.",
+    fileName: "Meeting Notes.md",
+    markdown:
+      "# Meeting Notes\n\n**Date:** Today  \n**Attendees:** \n\n## Agenda\n\n1. Topic one\n2. Topic two\n\n## Decisions\n\n- Decision one\n\n## Action Items\n\n- [ ] Owner: next step\n",
+  },
+  {
+    label: "README",
+    description: "A practical project README with install, usage, and roadmap sections.",
+    fileName: "README.md",
+    markdown:
+      "# Project Name\n\nA short description of what this project does and who it helps.\n\n## Install\n\n```bash\nnpm install\n```\n\n## Usage\n\n```bash\nnpm run dev\n```\n\n## Roadmap\n\n- [ ] First milestone\n- [ ] Next milestone\n",
+  },
+  {
+    label: "Article Draft",
+    description: "A lightweight outline for tutorials, product notes, and essays.",
+    fileName: "Article Draft.md",
+    markdown:
+      "# Article Title\n\nStart with the reader's problem, then show the path forward.\n\n## Why this matters\n\nExplain the context in plain language.\n\n## Practical workflow\n\n1. Step one\n2. Step two\n3. Step three\n\n## Final notes\n\nSummarize what changed for the reader.\n",
+  },
+];
 
 function encodeBase64Url(value: string) {
   const bytes = new TextEncoder().encode(value);
@@ -277,7 +335,7 @@ export function buildFocusedLineDiff(diff: DiffLine[], contextLines = 2): DiffLi
     .map((line, index) => (line.type === "added" || line.type === "removed" ? index : -1))
     .filter((index) => index >= 0);
 
-  if (!changedIndexes.length) return diff.slice(0, 120);
+  if (!changedIndexes.length) return [];
 
   const visible = new Set<number>();
   for (const index of changedIndexes) {
@@ -314,13 +372,17 @@ export function buildFocusedLineDiff(diff: DiffLine[], contextLines = 2): DiffLi
   return result;
 }
 
-function browserHistoryRecordToSnapshot(record: BrowserHistoryRecord): HistorySnapshot {
+function localHistoryRecordToSnapshot(
+  record: BrowserHistoryRecord,
+  storageKey: string,
+  filePath: string,
+): HistorySnapshot {
   return {
     entry: {
       id: record.id,
-      file_path: "browser:draft",
+      file_path: filePath,
       file_name: record.fileName,
-      snapshot_path: `localStorage:${browserHistoryKey}:${record.id}`,
+      snapshot_path: `localStorage:${storageKey}:${record.id}`,
       created_at: record.createdAt,
       size: new Blob([record.contents]).size,
     },
@@ -328,9 +390,9 @@ function browserHistoryRecordToSnapshot(record: BrowserHistoryRecord): HistorySn
   };
 }
 
-function readBrowserHistory(): HistorySnapshot[] {
+function readLocalHistory(storageKey: string, filePath: string): HistorySnapshot[] {
   try {
-    const parsed = JSON.parse(localStorage.getItem(browserHistoryKey) || "[]");
+    const parsed = JSON.parse(localStorage.getItem(storageKey) || "[]");
     if (!Array.isArray(parsed)) return [];
 
     return parsed
@@ -344,13 +406,13 @@ function readBrowserHistory(): HistorySnapshot[] {
       )
       .sort((a, b) => b.createdAt - a.createdAt)
       .slice(0, browserHistoryLimit)
-      .map(browserHistoryRecordToSnapshot);
+      .map((record) => localHistoryRecordToSnapshot(record, storageKey, filePath));
   } catch {
     return [];
   }
 }
 
-function writeBrowserHistory(snapshots: HistorySnapshot[]) {
+function writeLocalHistory(storageKey: string, snapshots: HistorySnapshot[]) {
   const records: BrowserHistoryRecord[] = snapshots
     .slice(0, browserHistoryLimit)
     .map((snapshot) => ({
@@ -360,26 +422,68 @@ function writeBrowserHistory(snapshots: HistorySnapshot[]) {
       contents: snapshot.contents,
     }));
 
-  localStorage.setItem(browserHistoryKey, JSON.stringify(records));
+  localStorage.setItem(storageKey, JSON.stringify(records));
 }
 
-function createBrowserHistorySnapshot(fileName: string, contents: string) {
-  const snapshots = readBrowserHistory();
+function createLocalHistorySnapshot(
+  storageKey: string,
+  filePath: string,
+  idPrefix: string,
+  fileName: string,
+  contents: string,
+) {
+  const snapshots = readLocalHistory(storageKey, filePath);
   if (snapshots[0]?.contents === contents) return snapshots;
 
   const record: BrowserHistoryRecord = {
-    id: `browser-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    id: `${idPrefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     fileName: normalizeMarkdownFileName(fileName),
     createdAt: Date.now(),
     contents,
   };
   const nextSnapshots = [
-    browserHistoryRecordToSnapshot(record),
+    localHistoryRecordToSnapshot(record, storageKey, filePath),
     ...snapshots.filter((snapshot) => snapshot.contents !== contents),
   ].slice(0, browserHistoryLimit);
 
-  writeBrowserHistory(nextSnapshots);
+  writeLocalHistory(storageKey, nextSnapshots);
   return nextSnapshots;
+}
+
+function readBrowserHistory() {
+  return readLocalHistory(browserHistoryKey, "browser:draft");
+}
+
+function writeBrowserHistory(snapshots: HistorySnapshot[]) {
+  writeLocalHistory(browserHistoryKey, snapshots);
+}
+
+function createBrowserHistorySnapshot(fileName: string, contents: string) {
+  return createLocalHistorySnapshot(
+    browserHistoryKey,
+    "browser:draft",
+    "browser",
+    fileName,
+    contents,
+  );
+}
+
+function readDraftHistory() {
+  return readLocalHistory(draftHistoryKey, "desktop:unsaved-draft");
+}
+
+function writeDraftHistory(snapshots: HistorySnapshot[]) {
+  writeLocalHistory(draftHistoryKey, snapshots);
+}
+
+function createDraftHistorySnapshot(fileName: string, contents: string) {
+  return createLocalHistorySnapshot(
+    draftHistoryKey,
+    "desktop:unsaved-draft",
+    "draft",
+    fileName,
+    contents,
+  );
 }
 
 function createEditorTheme(fontSize: number) {
@@ -391,8 +495,9 @@ function createEditorTheme(fontSize: number) {
     fontSize: `${fontSize}px`,
   },
   ".cm-scroller": {
-    fontFamily: '"SFMono-Regular", Consolas, "Liberation Mono", monospace',
-    lineHeight: "1.78",
+    fontFamily:
+      'ui-monospace, "SFMono-Regular", "Cascadia Code", "Liberation Mono", Menlo, monospace',
+    lineHeight: "1.86",
   },
   ".cm-content": {
     padding: "0 0 48px",
@@ -444,7 +549,7 @@ function createEditorExtensions(fontSize: number): Extension[] {
   ];
 }
 
-const defaultMarkdown = complexDemoMarkdown;
+const defaultMarkdown = friendlyDefaultMarkdown;
 
 function useNativeApi(): NativeApi | null {
   const [api, setApi] = React.useState<NativeApi | null>(null);
@@ -588,9 +693,14 @@ function storeRecentFiles(files: RecentFile[]) {
   localStorage.setItem(recentFilesKey, JSON.stringify(files.slice(0, 8)));
 }
 
-function getStoredViewMode(): ViewMode {
-  const value = localStorage.getItem(defaultViewModeKey);
-  return value === "write" || value === "preview" || value === "split" ? value : "split";
+function getInitialViewMode(surface: EditorSurface, initialViewMode?: ViewMode): ViewMode {
+  if (initialViewMode) return initialViewMode;
+  if (surface === "desktop") return "write";
+  const storedMode = localStorage.getItem(defaultViewModeKey);
+  if (storedMode === "write" || storedMode === "preview" || storedMode === "split") {
+    return storedMode;
+  }
+  return window.matchMedia?.("(max-width: 760px)").matches ? "write" : "split";
 }
 
 function getStoredThemeMode(): ThemeMode {
@@ -868,6 +978,9 @@ function HistoryPanel({
                           ? "Restoring this snapshot will replace the current document with the older version shown below."
                           : "This snapshot matches the current document."}
                       </p>
+                      {changeCount > 0 && (
+                        <small>Green lines come from the snapshot. Red lines are in the current document.</small>
+                      )}
                     </div>
                     <span>{addedCount} older lines</span>
                     <span>{removedCount} current lines</span>
@@ -886,27 +999,39 @@ function HistoryPanel({
                       </button>
                     </div>
                   </div>
-                  <div className="history-diff-lines" aria-label="Snapshot diff preview">
-                    {visibleDiff.map((line, index) =>
-                      line.type === "separator" ? (
-                        <div className="history-diff-separator" key={`${line.type}-${index}`}>
-                          {line.text}
-                        </div>
-                      ) : (
-                        <div className={`history-diff-line ${line.type}`} key={`${line.type}-${index}`}>
-                          <span className="history-diff-sign">
-                            {line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}
-                          </span>
-                          <span className="history-diff-line-number">
-                            {line.type === "added"
-                              ? line.snapshotLine
-                              : line.currentLine ?? line.snapshotLine}
-                          </span>
-                          <code>{line.text || " "}</code>
-                        </div>
-                      ),
-                    )}
-                  </div>
+                  {visibleDiff.length > 0 ? (
+                    <div className="history-diff-lines" aria-label="Snapshot diff preview">
+                      {visibleDiff.map((line, index) =>
+                        line.type === "separator" ? (
+                          <div className="history-diff-separator" key={`${line.type}-${index}`}>
+                            {line.text}
+                          </div>
+                        ) : (
+                          <div className={`history-diff-line ${line.type}`} key={`${line.type}-${index}`}>
+                            <span className="history-diff-sign">
+                              {line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}
+                            </span>
+                            <span className="history-diff-line-number">
+                              {line.type === "added"
+                                ? line.snapshotLine
+                                : line.currentLine ?? line.snapshotLine}
+                            </span>
+                            <code>{line.text || " "}</code>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  ) : (
+                    <div className="history-diff-empty" aria-label="Snapshot diff preview">
+                      <GitBranch size={22} />
+                      <strong>No differences</strong>
+                      <p>
+                        The current document already matches this snapshot. Choose another
+                        snapshot to compare changes, or switch to Full file to inspect the
+                        saved content.
+                      </p>
+                    </div>
+                  )}
                 </>
               ) : (
                 <p>Select a snapshot to compare it with the document you are editing now.</p>
@@ -921,14 +1046,14 @@ function HistoryPanel({
                 ? "No browser history yet"
                 : hasLocalFile
                   ? "No history snapshots yet"
-                  : "Save as a local file first"}
+                  : "No draft history yet"}
             </h3>
             <p>
               {scope === "browser"
                 ? "Web history is stored only in this browser. Keep writing for a moment after a change, then VeloWrite will keep a local snapshot for compare and restore."
                 : hasLocalFile
                   ? "This file is ready for history. After you edit it and save again, VeloWrite will keep the version from before that save here."
-                  : "History works on real desktop files. Save this draft as a .md file, edit it later, then save again. The version from before the save will appear here for compare and restore."}
+                  : "Unsaved desktop drafts keep local recovery points on this device. Edit for a moment, then VeloWrite will let you compare and restore earlier draft content before the file has a path."}
             </p>
           </div>
         )}
@@ -994,11 +1119,13 @@ function WelcomePanel({
   hasRecentFiles,
   onNew,
   onOpen,
+  onTemplate,
 }: {
   nativeReady: boolean;
   hasRecentFiles: boolean;
   onNew: () => void;
   onOpen: () => void;
+  onTemplate: (template: EditorTemplate) => void;
 }) {
   return (
     <section className="welcome-panel" aria-label="Getting started">
@@ -1018,10 +1145,76 @@ function WelcomePanel({
           New
         </button>
       </div>
+      <div className="welcome-templates" aria-label="Start from a template">
+        {editorTemplates.map((template) => (
+          <button key={template.label} onClick={() => onTemplate(template)} type="button">
+            <strong>{template.label}</strong>
+            <span>{template.description}</span>
+          </button>
+        ))}
+      </div>
       {!nativeReady && (
         <p>Browser preview mode can import and download files. Desktop mode enables native save dialogs and history.</p>
       )}
       {nativeReady && !hasRecentFiles && <p>Recent files will appear here after your first desktop save.</p>}
+    </section>
+  );
+}
+
+function DesktopStartPanel({
+  recentFiles,
+  historyCount,
+  onOpen,
+  onNew,
+  onTemplate,
+  onRecent,
+  onHistory,
+}: {
+  recentFiles: RecentFile[];
+  historyCount: number;
+  onOpen: () => void;
+  onNew: () => void;
+  onTemplate: (template: EditorTemplate) => void;
+  onRecent: (path: string) => void;
+  onHistory: () => void;
+}) {
+  return (
+    <section className="desktop-start-panel" aria-label="Desktop start">
+      <div className="desktop-start-copy">
+        <span>Start locally</span>
+        <strong>Open a file, continue a recent draft, or start from a template.</strong>
+      </div>
+      <div className="desktop-start-actions">
+        <button onClick={onOpen} type="button">
+          <FolderOpen size={15} />
+          Open File
+        </button>
+        <button onClick={onNew} type="button">
+          <FileText size={15} />
+          New Note
+        </button>
+        <button onClick={onHistory} type="button">
+          <GitBranch size={15} />
+          History {historyCount > 0 ? `(${historyCount})` : ""}
+        </button>
+      </div>
+      <div className="desktop-start-grid">
+        {recentFiles.slice(0, 3).map((file) => (
+          <button key={file.path} title={file.path} onClick={() => onRecent(file.path)} type="button">
+            <FileText size={14} />
+            <span>{file.name}</span>
+            <small>Recent file</small>
+          </button>
+        ))}
+        {recentFiles.length === 0 &&
+          editorTemplates.slice(0, 3).map((template) => (
+            <button key={template.label} onClick={() => onTemplate(template)} type="button">
+              <FileText size={14} />
+              <span>{template.label}</span>
+              <small>{template.description}</small>
+            </button>
+          ))}
+      </div>
     </section>
   );
 }
@@ -1078,6 +1271,8 @@ export default function EditorApp({
   const autoSaveTimer = React.useRef<number | null>(null);
   const browserHistoryTimer = React.useRef<number | null>(null);
   const browserHistoryBaseline = React.useRef<string | null>(null);
+  const draftHistoryTimer = React.useRef<number | null>(null);
+  const draftHistoryBaseline = React.useRef<string | null>(null);
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
   const handoffImportRef = React.useRef<(draft: HandoffDraft) => void>(() => undefined);
   const [markdown, setMarkdown] = React.useState(() => {
@@ -1091,7 +1286,7 @@ export default function EditorApp({
   const [savedMarkdown, setSavedMarkdown] = React.useState(markdown);
   const [status, setStatus] = React.useState("Draft restored");
   const [viewMode, setViewMode] = React.useState<ViewMode>(() => {
-    return initialViewMode ?? (surface === "desktop" ? "write" : getStoredViewMode());
+    return getInitialViewMode(surface, initialViewMode);
   });
   const [themeMode, setThemeMode] = React.useState<ThemeMode>(getStoredThemeMode);
   const [systemDark, setSystemDark] = React.useState(() => {
@@ -1105,6 +1300,8 @@ export default function EditorApp({
   const [selectedHistory, setSelectedHistory] = React.useState<HistorySnapshot | null>(null);
   const [sidebarOpen, setSidebarOpen] = React.useState(() => surface !== "desktop");
   const [editorScrollTarget, setEditorScrollTarget] = React.useState<{ line: number; nonce: number } | null>(null);
+  const [desktopPrompt, setDesktopPrompt] = React.useState<string | null>(null);
+  const [focusMode, setFocusMode] = React.useState(false);
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
     return localStorage.getItem(autoSaveFileKey) === "true";
   });
@@ -1116,7 +1313,20 @@ export default function EditorApp({
   const desktopSurface = surface === "desktop";
   const browserMode = !nativeApi && !desktopSurface;
   const webSurface = surface === "web";
+  const draftHistoryMode = !browserMode && !filePath;
   const resolvedTheme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
+  const showDesktopStart = desktopSurface && !focusMode && !filePath;
+  const fileTrustLabel = browserMode
+    ? "Browser-local draft"
+    : filePath
+      ? "Native local file"
+      : "Unsaved local draft";
+  const saveTrustLabel = dirty ? "Unsaved changes" : browserMode ? "Browser draft saved" : "Saved";
+  const historyTrustLabel = browserMode
+    ? `${historyEntries.length} browser snapshots`
+    : filePath
+      ? `${historyEntries.length} file snapshots`
+      : `${historyEntries.length} draft snapshots`;
 
   React.useEffect(() => {
     if (!browserMode) return;
@@ -1126,6 +1336,15 @@ export default function EditorApp({
       browserHistoryBaseline.current = markdown;
     }
   }, [browserMode, markdown]);
+
+  React.useEffect(() => {
+    if (!draftHistoryMode) return;
+    const snapshots = readDraftHistory();
+    setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+    if (draftHistoryBaseline.current === null) {
+      draftHistoryBaseline.current = markdown;
+    }
+  }, [draftHistoryMode, markdown]);
 
   React.useEffect(() => {
     const windowTitle = `${dirty ? "*" : ""}${fileName} - VeloWrite`;
@@ -1198,6 +1417,34 @@ export default function EditorApp({
       }
     };
   }, [browserMode, fileName, markdown]);
+
+  React.useEffect(() => {
+    if (!draftHistoryMode) return;
+
+    if (draftHistoryBaseline.current === null) {
+      draftHistoryBaseline.current = markdown;
+      return;
+    }
+
+    if (draftHistoryTimer.current) {
+      window.clearTimeout(draftHistoryTimer.current);
+    }
+
+    draftHistoryTimer.current = window.setTimeout(() => {
+      const baseline = draftHistoryBaseline.current;
+      if (!baseline || baseline === markdown) return;
+
+      const snapshots = createDraftHistorySnapshot(fileName, baseline);
+      setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+      draftHistoryBaseline.current = markdown;
+    }, 1600);
+
+    return () => {
+      if (draftHistoryTimer.current) {
+        window.clearTimeout(draftHistoryTimer.current);
+      }
+    };
+  }, [draftHistoryMode, fileName, markdown]);
 
   React.useEffect(() => {
     localStorage.setItem(autoSaveFileKey, String(autoSaveFile));
@@ -1401,12 +1648,25 @@ export default function EditorApp({
     setSelectedHistory(null);
     setHistoryOpen(false);
     browserHistoryBaseline.current = draft.markdown;
+    draftHistoryBaseline.current = draft.markdown;
     setStatus("Imported web draft");
   }
 
   async function refreshHistory(path = filePath) {
     if (browserMode) {
       const snapshots = readBrowserHistory();
+      setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+      setSelectedHistory((current) => {
+        if (!current) return current;
+        return snapshots.some((snapshot) => snapshot.entry.id === current.entry.id)
+          ? current
+          : null;
+      });
+      return;
+    }
+
+    if (draftHistoryMode) {
+      const snapshots = readDraftHistory();
       setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
       setSelectedHistory((current) => {
         if (!current) return current;
@@ -1460,6 +1720,22 @@ export default function EditorApp({
     await nativeApi.closeWindow();
   }
 
+  async function confirmRestoreSnapshot() {
+    const message =
+      "Restore this snapshot? The current document will be replaced with the selected older version.";
+    if (nativeApi) {
+      const dialog = await import("@tauri-apps/plugin-dialog");
+      return dialog.confirm(message, {
+        title: "Restore history",
+        kind: "warning",
+        okLabel: "Restore",
+        cancelLabel: "Cancel",
+      });
+    }
+
+    return window.confirm(message);
+  }
+
   async function openFileWithGuard() {
     if (!(await confirmDiscardChanges())) return;
     await openFile();
@@ -1496,11 +1772,17 @@ export default function EditorApp({
   async function saveFile(options?: { silent?: boolean }) {
     if (nativeApi) {
       try {
-        if (filePath && savedMarkdown && savedMarkdown !== markdown) {
-          await nativeApi.createHistorySnapshot(filePath, fileName, savedMarkdown);
+        const previousSavedMarkdown = savedMarkdown;
+        const previousFileName = fileName;
+        const previousFilePath = filePath;
+        if (previousFilePath && previousSavedMarkdown && previousSavedMarkdown !== markdown) {
+          await nativeApi.createHistorySnapshot(previousFilePath, previousFileName, previousSavedMarkdown);
         }
         const savedPath = await nativeApi.saveMarkdownFile(filePath, markdown);
         if (!savedPath) return;
+        if (!previousFilePath && previousSavedMarkdown && previousSavedMarkdown !== markdown) {
+          await nativeApi.createHistorySnapshot(savedPath, previousFileName, previousSavedMarkdown);
+        }
         setFilePath(savedPath);
         setFileName(savedPath.split(/[\\/]/).pop() || fileName);
         setSavedMarkdown(markdown);
@@ -1516,6 +1798,7 @@ export default function EditorApp({
     downloadMarkdown();
     setSavedMarkdown(markdown);
     setStatus("Downloaded Markdown copy");
+    setDesktopPrompt("Desktop saves directly to your local files, keeps history snapshots, and works offline.");
   }
 
   function downloadMarkdown() {
@@ -1532,6 +1815,7 @@ export default function EditorApp({
       downloadMarkdown();
       setSavedMarkdown(markdown);
       setStatus("Draft is too large for direct handoff; downloaded Markdown copy");
+      setDesktopPrompt("The Markdown copy is saved. Desktop gives this draft native file access and recovery history.");
       suppressBeforeUnload.current = true;
       window.setTimeout(() => {
         window.location.href = desktopHandoffHref;
@@ -1540,6 +1824,7 @@ export default function EditorApp({
     }
 
     setStatus("Opening draft in VeloWrite Desktop");
+    setDesktopPrompt("If Desktop is installed, this draft can open there. Otherwise download the app and keep the Markdown copy.");
     suppressBeforeUnload.current = true;
     window.location.href = handoffUrl;
     window.setTimeout(() => {
@@ -1564,6 +1849,7 @@ export default function EditorApp({
 
     downloadTextFile(`${baseName}.html`, html, "text/html;charset=utf-8");
     setStatus("Downloaded HTML export");
+    setDesktopPrompt("Desktop is better for repeated export work because it can keep files, drafts, and history together.");
   }
 
   async function copyText(label: string, contents: string) {
@@ -1635,6 +1921,19 @@ export default function EditorApp({
       return;
     }
 
+    if (draftHistoryMode) {
+      const baseline = draftHistoryBaseline.current;
+      if (baseline && baseline !== markdown) {
+        const snapshots = createDraftHistorySnapshot(fileName, baseline);
+        setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+        draftHistoryBaseline.current = markdown;
+      } else {
+        await refreshHistory();
+      }
+      setHistoryOpen(true);
+      return;
+    }
+
     if (!nativeApi) {
       setStatus("Desktop history is loading");
       return;
@@ -1650,25 +1949,39 @@ export default function EditorApp({
   }
 
   function newFile() {
-    const blankDocument = "# Untitled\n\nStart writing...\n";
+    const blankDocument = editorTemplates[0].markdown;
     setMarkdown(blankDocument);
     setSavedMarkdown(blankDocument);
     setFilePath(null);
-    setFileName("Untitled.md");
+    setFileName(editorTemplates[0].fileName);
     setHistoryEntries([]);
     setSelectedHistory(null);
     browserHistoryBaseline.current = blankDocument;
+    draftHistoryBaseline.current = blankDocument;
     setStatus("New file");
+  }
+
+  async function startFromTemplate(template: EditorTemplate) {
+    if (!(await confirmDiscardChanges())) return;
+    setMarkdown(template.markdown);
+    setSavedMarkdown(template.markdown);
+    setFilePath(null);
+    setFileName(template.fileName);
+    setHistoryEntries([]);
+    setSelectedHistory(null);
+    browserHistoryBaseline.current = template.markdown;
+    draftHistoryBaseline.current = template.markdown;
+    setStatus(`${template.label} template loaded`);
   }
 
   async function restoreHistorySnapshot(id: string) {
     if (browserMode) {
-      if (!(await confirmDiscardChanges())) return;
       const snapshot = readBrowserHistory().find((item) => item.entry.id === id);
       if (!snapshot) {
         setStatus("History snapshot not found");
         return;
       }
+      if (!(await confirmRestoreSnapshot())) return;
 
       setMarkdown(snapshot.contents);
       setSavedMarkdown(snapshot.contents);
@@ -1681,12 +1994,31 @@ export default function EditorApp({
       return;
     }
 
-    if (!nativeApi) return;
+    if (id.startsWith("draft-")) {
+      const snapshot = readDraftHistory().find((item) => item.entry.id === id);
+      if (!snapshot) {
+        setStatus("History snapshot not found");
+        return;
+      }
+      if (!(await confirmRestoreSnapshot())) return;
 
-    if (!(await confirmDiscardChanges())) return;
+      setMarkdown(snapshot.contents);
+      setSavedMarkdown(snapshot.contents);
+      setFilePath(null);
+      setFileName(snapshot.entry.file_name);
+      setSelectedHistory(null);
+      setHistoryOpen(false);
+      draftHistoryBaseline.current = snapshot.contents;
+      setStatus("Draft history restored");
+      await refreshHistory();
+      return;
+    }
+
+    if (!nativeApi) return;
 
     try {
       const snapshot = await nativeApi.readHistorySnapshot(id);
+      if (!(await confirmRestoreSnapshot())) return;
       setMarkdown(snapshot.contents);
       setSavedMarkdown(snapshot.contents);
       setFilePath(snapshot.entry.file_path);
@@ -1702,6 +2034,16 @@ export default function EditorApp({
   async function previewHistorySnapshot(id: string) {
     if (browserMode) {
       const snapshot = readBrowserHistory().find((item) => item.entry.id === id);
+      if (snapshot) {
+        setSelectedHistory(snapshot);
+      } else {
+        setStatus("History snapshot not found");
+      }
+      return;
+    }
+
+    if (id.startsWith("draft-")) {
+      const snapshot = readDraftHistory().find((item) => item.entry.id === id);
       if (snapshot) {
         setSelectedHistory(snapshot);
       } else {
@@ -1732,6 +2074,17 @@ export default function EditorApp({
       return;
     }
 
+    if (id.startsWith("draft-")) {
+      const snapshots = readDraftHistory().filter((snapshot) => snapshot.entry.id !== id);
+      writeDraftHistory(snapshots);
+      setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
+      if (selectedHistory?.entry.id === id) {
+        setSelectedHistory(null);
+      }
+      setStatus("Draft history snapshot deleted");
+      return;
+    }
+
     if (!nativeApi) return;
 
     try {
@@ -1751,6 +2104,7 @@ export default function EditorApp({
 
     if (file.type.startsWith("image/")) {
       setStatus("Image attachments are a desktop feature");
+      setDesktopPrompt("Local image attachments need Desktop so VeloWrite can work with files on your computer.");
       return;
     }
 
@@ -1815,6 +2169,23 @@ export default function EditorApp({
     });
   }
 
+  function scrollEditorToLine(line: number) {
+    setEditorScrollTarget((current) => ({
+      line,
+      nonce: (current?.nonce ?? 0) + 1,
+    }));
+  }
+
+  function scrollPreviewToHeading(id: string) {
+    const preview = previewRef.current;
+    const target = preview?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+    if (!preview || !target) return;
+
+    const previewRect = preview.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    preview.scrollTop = Math.max(0, preview.scrollTop + targetRect.top - previewRect.top);
+  }
+
   function scrollToHeading(id: string) {
     const line = findHeadingLine(markdown, id);
     suppressPreviewSync.current = true;
@@ -1824,31 +2195,27 @@ export default function EditorApp({
 
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        const preview = previewRef.current;
-        const target = preview?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
-        if (preview && target) {
-          const previewRect = preview.getBoundingClientRect();
-          const targetRect = target.getBoundingClientRect();
-          preview.scrollTop = Math.max(0, preview.scrollTop + targetRect.top - previewRect.top - 12);
-        }
+        scrollPreviewToHeading(id);
 
         if (line) {
-          setEditorScrollTarget((current) => ({
-            line,
-            nonce: (current?.nonce ?? 0) + 1,
-          }));
+          scrollEditorToLine(line);
+          window.setTimeout(() => scrollEditorToLine(line), 80);
+          window.setTimeout(() => {
+            scrollEditorToLine(line);
+            scrollPreviewToHeading(id);
+          }, 220);
         }
 
         window.setTimeout(() => {
           suppressPreviewSync.current = false;
-        }, 160);
+        }, 360);
       });
     });
   }
 
   return (
     <main
-      className={`app-shell theme-${resolvedTheme}${browserMode ? " browser-surface" : " desktop-surface"}${desktopSurface && !sidebarOpen ? " desktop-focus" : ""}${dragActive ? " drag-active" : ""}`}
+      className={`app-shell theme-${resolvedTheme}${browserMode ? " browser-surface" : " desktop-surface"}${desktopSurface && !sidebarOpen ? " desktop-focus" : ""}${focusMode ? " writing-focus" : ""}${dragActive ? " drag-active" : ""}`}
       aria-label="VeloWrite editor"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -1913,9 +2280,10 @@ export default function EditorApp({
           {browserMode && (
             <button
               className="nav-item muted"
-              onClick={() =>
-                setStatus("Folder vaults need VeloWrite Desktop for native file access")
-              }
+              onClick={() => {
+                setStatus("Folder vaults need VeloWrite Desktop for native file access");
+                setDesktopPrompt("Folder vaults need Desktop for native file access, offline work, and local history.");
+              }}
             >
               <FolderPlus size={16} />
               Open folder
@@ -1960,6 +2328,7 @@ export default function EditorApp({
             hasRecentFiles={recentFiles.length > 0}
             onNew={() => void newFileWithGuard()}
             onOpen={() => void openFileWithGuard()}
+            onTemplate={(template) => void startFromTemplate(template)}
           />
         )}
 
@@ -2005,6 +2374,18 @@ export default function EditorApp({
       </aside>
 
       <section className="workspace">
+        {desktopSurface && focusMode && (
+          <button
+            className="focus-exit"
+            aria-label="Exit focus mode"
+            title="Exit focus mode"
+            onClick={() => setFocusMode(false)}
+            type="button"
+          >
+            <Minimize2 size={16} />
+            Exit Focus
+          </button>
+        )}
         {browserMode && (
           <a className="mobile-editor-brand" href="/">
             <span className="brand-mark">V</span>
@@ -2022,6 +2403,17 @@ export default function EditorApp({
                 type="button"
               >
                 {sidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />}
+              </button>
+            )}
+            {desktopSurface && (
+              <button
+                className="sidebar-toggle"
+                aria-label={focusMode ? "Exit focus mode" : "Enter focus mode"}
+                title={focusMode ? "Exit focus mode" : "Enter focus mode"}
+                onClick={() => setFocusMode((current) => !current)}
+                type="button"
+              >
+                {focusMode ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
               </button>
             )}
             <div className="traffic" aria-hidden="true">
@@ -2131,6 +2523,18 @@ export default function EditorApp({
           </div>
         </header>
 
+        {showDesktopStart && (
+          <DesktopStartPanel
+            recentFiles={recentFiles}
+            historyCount={historyEntries.length}
+            onOpen={() => void openFileWithGuard()}
+            onNew={() => void newFileWithGuard()}
+            onTemplate={(template) => void startFromTemplate(template)}
+            onRecent={(path) => void openRecentFile(path)}
+            onHistory={() => void openHistoryPanel()}
+          />
+        )}
+
         <div className={`editor-grid mode-${viewMode}`}>
           <section className="editor-pane" aria-label="Markdown editor">
             <div className="pane-title">
@@ -2161,13 +2565,43 @@ export default function EditorApp({
         </div>
 
         <footer className="statusbar">
-          <span className="shortcut-hint">Ctrl/Cmd O open</span>
-          <span className="shortcut-hint">{browserMode ? "Ctrl/Cmd S download .md" : "Ctrl/Cmd S save"}</span>
+          <span className="trust-pill">
+            <FolderOpen size={13} />
+            {fileTrustLabel}
+          </span>
+          <span className={dirty ? "trust-pill warning" : "trust-pill"}>
+            <Check size={13} />
+            {saveTrustLabel}
+          </span>
+          <button className="trust-pill trust-button" onClick={() => void openHistoryPanel()} type="button">
+            <GitBranch size={13} />
+            {historyTrustLabel}
+          </button>
           <span>{metrics.words} words</span>
           <span>{metrics.characters} chars</span>
           <span>{metrics.lines} lines</span>
           <span>{metrics.readingMinutes} min read</span>
         </footer>
+        {browserMode && desktopPrompt && (
+          <aside className="desktop-prompt" aria-label="Desktop upgrade prompt">
+            <button
+              className="desktop-prompt-close"
+              aria-label="Dismiss desktop prompt"
+              onClick={() => setDesktopPrompt(null)}
+              type="button"
+            >
+              x
+            </button>
+            <MonitorDown size={18} />
+            <div>
+              <strong>Need native local files?</strong>
+              <p>{desktopPrompt}</p>
+            </div>
+            <a href={desktopDownloadHref}>
+              Download Desktop <Download size={14} />
+            </a>
+          </aside>
+        )}
         {dragActive && <div className="drop-overlay">Drop Markdown file to open</div>}
         {settingsOpen && (
           <SettingsPanel
@@ -2186,7 +2620,7 @@ export default function EditorApp({
             selectedSnapshot={selectedHistory}
             currentMarkdown={markdown}
             hasLocalFile={Boolean(filePath)}
-            scope={browserMode ? "browser" : "desktop"}
+            scope={browserMode ? "browser" : filePath ? "desktop" : "draft"}
             onPreview={(id) => void previewHistorySnapshot(id)}
             onRestore={(id) => void restoreHistorySnapshot(id)}
             onDelete={(id) => void deleteHistorySnapshot(id)}

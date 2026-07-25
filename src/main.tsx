@@ -33,7 +33,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.1.8";
+const downloadVersion = "0.1.10";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -114,6 +114,10 @@ function normalizePath(pathname: string) {
   return pathname;
 }
 
+function isTauriRuntime() {
+  return "__TAURI_INTERNALS__" in window;
+}
+
 const docPageRoutes = {
   "/docs/markdown": "markdown",
   "/docs/markdown-history": "markdownHistory",
@@ -134,6 +138,7 @@ const docPageRoutes = {
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
+  "/docs/local-first-markdown",
   "/docs/markdown-basics",
   "/docs/markdown-code-blocks",
   "/docs/markdown-for-developers",
@@ -295,7 +300,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Public Roadmap - User Feedback and Planned Improvements",
       description:
-        "See which VeloWrite user requests have been recorded, what belongs in the free preview, and which future workflows may become Pro features.",
+        "See which VeloWrite user requests have been recorded, which preview fixes have shipped, and what local-first editor improvements are being researched next.",
       canonicalPath: "/roadmap",
     };
   }
@@ -562,7 +567,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "Four staged articles are now published under /docs. Example blocks can now open directly in the web editor, so readers can move from learning to trying without copying text manually.",
+      "Six staged articles are now published under /docs, including the local-first workflow guide. Example blocks can now open directly in the web editor, so readers can move from learning to trying without copying text manually.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -571,16 +576,25 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free core editor work",
     decision:
-      "Outline clicks now align both panes in the preview build. Continuous stable scroll matching for long documents remains core editor work and should not become Pro-only.",
+      "Outline clicks now align both panes in the preview build. Continuous stable scroll matching for long documents should stay core editor work because it affects daily writing quality.",
   },
   {
     title: "Better local history recovery",
     request: "Users want confidence that accidental paste mistakes or rewrites can be recovered.",
-    status: "Diff preview shipped",
+    status: "Free foundation shipped",
     target: "0.1.x / 0.2.x",
-    classification: "Free desktop workflow",
+    classification: "Free safety workflow",
     decision:
-      "Basic local history stays free. The desktop history panel now shows a line-level restore preview before users replace the current document with an older snapshot.",
+      "Basic local history and restore preview should stay free because recovery is part of document safety. Reasonable free limits may apply later, but users should always have enough recovery for normal writing.",
+  },
+  {
+    title: "Advanced history and recovery controls",
+    request: "Power users may need deeper restore history, longer retention, cross-device history, and clearer comparison for long documents.",
+    status: "Designing",
+    target: "0.2.x / 0.3.x",
+    classification: "Recovery policy design",
+    decision:
+      "Before any restore limits become real product behavior, VeloWrite should clearly explain snapshot counts, retention rules, export paths, and what remains available for everyday recovery.",
   },
   {
     title: "Web to desktop draft handoff",
@@ -589,16 +603,16 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free handoff first",
     decision:
-      "The web editor can download the current Markdown draft and now has a velowrite:// direct-import path for the next desktop build. Automatic cross-device sync may become Pro only after the local-first workflow is proven.",
+      "The web editor can download the current Markdown draft and now has a velowrite:// direct-import path for the next desktop build. The next useful step is a clearer handoff model before any heavier account-based sync is considered.",
   },
   {
     title: "Private, no-account sync",
     request: "Sync should not force a heavy cloud account or take ownership away from local files.",
     status: "Researching",
     target: "0.3.x+",
-    classification: "Pro candidate for managed sync",
+    classification: "Local-first sync research",
     decision:
-      "Folder-based local workflows should remain lightweight. Managed encrypted sync and conflict handling are stronger Pro candidates.",
+      "The first sync direction should preserve folder-based ownership: clear import/export, predictable conflict handling, no hidden lock-in, and a documented path for users who already use Git, Syncthing, iCloud, Dropbox, or OneDrive.",
   },
   {
     title: "More complete Markdown rendering",
@@ -610,13 +624,13 @@ const publicRoadmapItems = [
       "Rendering trust is part of the preview foundation. The work should be backed by tests before broader promotion.",
   },
   {
-    title: "AI writing, publishing, and advanced export",
-    request: "Some users want higher-value workflows once the basic editor is stable.",
+    title: "AI writing, publishing, and advanced export research",
+    request: "Some users want richer workflows once the basic editor is stable.",
     status: "Later",
     target: "0.3.x+",
-    classification: "Pro candidate",
+    classification: "Future workflow research",
     decision:
-      "These features add ongoing value or infrastructure cost, so they are reasonable future Pro workflows after the free editor feels complete.",
+      "These workflows should stay behind core editor quality. The public roadmap tracks the user need; detailed packaging can live on the dedicated Pro page when it is ready.",
   },
 ];
 
@@ -644,7 +658,7 @@ const docGroups = [
     description: "Deep dives for complex documents with math, code, tables, tabs, and local-first workflows.",
     items: [
       { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Published" },
-      { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Planned" },
+      { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Published" },
       { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Planned" },
       { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Planned" },
     ],
@@ -1415,26 +1429,84 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Local-first workflow",
     title: "Local-First Markdown Editing",
     intro:
-      "Local-first Markdown editing means your files stay usable on your machine first. Cloud, sync, and AI can add value later, but the core document should not depend on a remote account.",
-    updated: "July 21, 2026",
+      "Local-first Markdown editing means your files stay useful on your own machine first. Cloud, sync, and AI can add value later, but the core document should stay readable, portable, and recoverable without a remote account.",
+    updated: "July 25, 2026",
+    directory: [
+      { label: "What it means", href: "#what-it-means" },
+      { label: "Browser vs desktop", href: "#browser-vs-desktop" },
+      { label: "History recovery", href: "#history-recovery" },
+      { label: "Sync design", href: "#sync-design" },
+      { label: "Recovery rules", href: "#recovery-rules" },
+      { label: "Practical workflow", href: "#practical-workflow" },
+    ],
     sections: [
       {
-        title: "Why local-first matters",
+        id: "what-it-means",
+        title: "Local-first starts with a real file you control",
         body: [
-          "Markdown users often care about ownership. A local file can be backed up, searched, versioned, copied, and opened in another editor. That makes it safer for notes, documentation, and long-lived writing.",
-          "VeloWrite's desktop preview is designed around native open and save, recent files, and local history snapshots.",
+          "A local-first Markdown workflow treats the file on your computer as the source of truth. The document is not trapped inside a private database, a browser session, or a hosted workspace that only one product can read.",
+          "That matters because Markdown is supposed to be boring in the best way. You can copy a .md file to another folder, put it in Git, search it with normal tools, attach it to an issue, or open it in a different editor years later.",
+        ],
+        example: {
+          label: "A portable project note",
+          markdown:
+            "# Launch Notes\n\n## Decision\n\nKeep the Markdown source in the project folder.\n\n## Why\n\n- The file can be backed up\n- The team can review it later\n- Another editor can still open it\n\n## Next\n\nSave a local copy before publishing.",
+          note: "The value is not a special format. The value is that the source stays readable and movable.",
+        },
+      },
+      {
+        id: "browser-vs-desktop",
+        title: "Use the browser for speed, desktop for durable work",
+        body: [
+          "The browser is the right place to test an idea quickly. Paste Markdown, check the preview, export HTML, or download a copy without signing in. That low-friction start is useful when the document is still disposable.",
+          "The desktop app becomes the better home when the draft turns into a real file: a README, a runbook, class notes, meeting notes, a product spec, or a blog draft you will revise more than once. Native open and save, offline access, recent files, and local history are the difference between a quick tool and a daily writing workspace.",
         ],
       },
       {
-        title: "Use the browser for trials, desktop for durable work",
+        id: "history-recovery",
+        title: "Local history is part of document safety",
         body: [
-          "The web editor is useful when you want to start immediately. The desktop app is better when the document needs a real path on disk, offline access, or repeated editing.",
+          "Undo is not enough for real writing. A mistake may be saved, the app may be reopened later, or a large paste may change a long document in a way that is hard to inspect. Local history gives the editor a safety net that is closer to how people actually work.",
+          "VeloWrite's preview keeps basic local history recovery in the free foundation. The reason is simple: users should not feel that accidental recovery is a luxury feature. A Markdown editor earns trust by helping people avoid losing work.",
+          "The product rule should be understandable before it becomes enforceable. Users should know how many snapshots are kept, what happens when the limit is reached, and how to protect important files outside the app.",
+        ],
+        example: {
+          label: "History-friendly revision note",
+          markdown:
+            "# Draft Review\n\n## Before editing\n\nKeep the current argument short.\n\n## After editing\n\nExpand only the examples that support the main point.\n\n## Recovery rule\n\nIf the edit gets worse, compare with the previous saved version before restoring.",
+          note: "Good recovery is not only about restoring. It is about seeing what changed before you replace the current draft.",
+        },
+      },
+      {
+        id: "sync-design",
+        title: "Sync should preserve folder ownership",
+        body: [
+          "A good sync layer should not make local files feel less local. The folder should remain visible, backup-friendly, and usable in other tools. Sync should move changes between devices, not turn a Markdown vault into an opaque account-only workspace.",
+          "Many users already have a sync habit: Git for project docs, Syncthing for private machines, iCloud or OneDrive for everyday files, Dropbox for shared folders. VeloWrite should respect those choices before introducing anything heavier.",
+          "The most useful near-term work is not a hosted sync service. It is predictable file behavior: clear save paths, recent files, import/export, conflict explanation, and documentation that tells users what is stored locally.",
+        ],
+        example: {
+          label: "Sync-friendly folder layout",
+          markdown:
+            "# Notes Folder\n\n## Structure\n\n- inbox.md\n- project-plan.md\n- meeting-notes.md\n- archive/\n\n## Sync rule\n\nKeep the folder visible so another backup or sync tool can protect it.",
+          note: "A visible folder keeps the workflow understandable even when sync tools are involved.",
+        },
+      },
+      {
+        id: "recovery-rules",
+        title: "Recovery rules should be visible",
+        body: [
+          "History and sync overlap. If two devices edit the same file, the editor should help users see which version changed, when it changed, and what can be restored. Silent overwrites are worse than asking the user to make a choice.",
+          "Before VeloWrite adds any advanced sync behavior, it should document the basic recovery model: where snapshots live, how restore works, whether deleted snapshots can be recovered, and what users should back up themselves.",
+          "This is still part of the ordinary product foundation. Clear recovery rules reduce support burden and make the desktop app feel safer for daily documents.",
         ],
       },
       {
-        title: "Sync should not take ownership away",
+        id: "practical-workflow",
+        title: "A practical local-first Markdown workflow",
         body: [
-          "Private sync is on the roadmap, but it should be designed after the local workflow is proven. Folder-based workflows should remain simple; managed encrypted sync is a stronger Pro candidate later.",
+          "Start in the web editor when the document is only an idea. Move to desktop once the file deserves a name and a folder. Keep important documents in a project folder, a synced folder you control, or a Git repository if version history matters.",
+          "Use preview while drafting, export only when the document is ready to share, and treat local history as a recovery layer rather than your only backup. That keeps the workflow lightweight without pretending the editor should own everything.",
         ],
       },
     ],
@@ -1724,9 +1796,11 @@ const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "July 24, 2026",
+    updated: "July 25, 2026",
     directory: [
       { label: "Unreleased", href: "#unreleased" },
+      { label: "0.1.10", href: "#v0110" },
+      { label: "0.1.9", href: "#v019" },
       { label: "0.1.8", href: "#v018" },
       { label: "0.1.7", href: "#v017" },
       { label: "0.1.6", href: "#v016" },
@@ -1741,8 +1815,42 @@ const contentPages: Record<string, ContentPage> = {
       {
         id: "unreleased",
         title: "Unreleased",
+        body: ["No unreleased changes yet."],
+      },
+      {
+        id: "v0110",
+        title: "0.1.10 preview",
         body: [
+          "Fixed desktop history so unsaved drafts can keep local recovery snapshots before the document has been saved as a real file.",
+          "Reworked the history restore dialog so long diffs reserve space for the actual changed lines instead of letting summary text dominate the panel.",
+          "Changed matching history snapshots to show a clear No differences state in the default Changes view instead of showing unchanged document text.",
+          "Fixed outline navigation timing so the editor and preview panes stay aligned when jumping between headings after changing view modes.",
+          "Improved dark-mode preview code blocks with readable syntax colors, stronger code backgrounds, and dark-aware tabbed-code styling.",
+        ],
+      },
+      {
+        id: "v019",
+        title: "0.1.9 preview",
+        body: [
+          "Added a desktop start panel with local file actions, recent-file recovery, history access, and practical templates before a real file is opened.",
+          "Added a real desktop Focus Mode that hides application chrome while keeping a visible exit control.",
+          "Reworked the editor status bar into a file trust strip showing storage scope, save state, and available history snapshots.",
+          "Fixed Tauri startup so the installed desktop app opens the desktop editor shell instead of the marketing homepage.",
+          "Changed the homepage embedded editor to open in preview mode so first-time visitors see polished rendered Markdown immediately.",
+          "Made desktop focused writing feel less like a code editor by reducing toolbar noise and visually de-emphasizing line gutters.",
+          "Tightened the mobile analytics consent banner so it stays compliant without covering as much of the first screen.",
+          "Replaced the heavy default sample document with a friendlier starter draft for first-time web and desktop users.",
+          "Improved the homepage and interactive demo loading state with an editor-shaped skeleton instead of a large blank loading panel.",
+          "Changed first-time mobile web editing to open in write mode instead of split mode for better small-screen usability.",
+          "Added contextual desktop upgrade prompts after browser-only save/export and local-file-limited actions.",
+          "Added practical editor templates for quick notes, meeting notes, README files, and article drafts in the web and desktop shells.",
+          "Added an explicit confirmation step before restoring a history snapshot and clarified the diff legend for older versus current lines.",
+          "Added homepage trust signals for privacy, recovery, public roadmap tracking, and visible preview limits.",
+          "Reworked download preview notes into clearer install safety guidance for official sources, unsigned installer warnings, backups, and web-first evaluation.",
           "Added the macOS Apple Silicon DMG to the download page now that the release asset is available.",
+          "Published Local-First Markdown Editing as the sixth staged Markdown library article, covering file ownership, recovery, and local-first sync design.",
+          "Expanded the public roadmap with clearer sync and recovery policy notes, while keeping advanced paid-plan framing on the Pro page.",
+          "Fixed the web editor tablet and small-desktop layout so the preview no longer clips when the browser is around 834-1024px wide.",
           "Refined the homepage product showcase, footer link hierarchy, cookie consent banner, mobile landing header, desktop focused editor width, responsive editor toolbar, and documentation code examples.",
           "Improved the download page platform cards and added a mobile web editor brand link back to the homepage.",
         ],
@@ -2026,6 +2134,39 @@ const legalPages = {
   },
 } as const;
 
+function EditorPreviewSkeleton({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={compact ? "editor-skeleton compact" : "editor-skeleton"} aria-label="Editor preview loading">
+      <div className="skeleton-topbar">
+        <span />
+        <span />
+        <span />
+        <div />
+      </div>
+      <div className="skeleton-grid">
+        <section aria-label="Markdown skeleton">
+          <strong>Markdown</strong>
+          <p># Start Writing</p>
+          <p>Use VeloWrite for quick drafts, live preview, and clean Markdown export.</p>
+          <p>- Draft fast</p>
+          <p>- Preview clearly</p>
+          <p>- Move serious files to Desktop</p>
+        </section>
+        <section aria-label="Preview skeleton">
+          <strong>Live Preview</strong>
+          <h3>Start Writing</h3>
+          <p>Use VeloWrite for quick drafts, live preview, and clean Markdown export.</p>
+          <ul>
+            <li>Draft fast</li>
+            <li>Preview clearly</li>
+            <li>Move serious files to Desktop</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  );
+}
+
 function LandingPage() {
   return (
     <div className="landing">
@@ -2108,8 +2249,8 @@ function LandingPage() {
               Full screen <ChevronRight size={14} />
             </a>
           </div>
-          <React.Suspense fallback={<div className="loading-preview">Loading editor</div>}>
-            <EditorApp surface="web" />
+          <React.Suspense fallback={<EditorPreviewSkeleton />}>
+            <EditorApp surface="web" initialViewMode="preview" />
           </React.Suspense>
         </div>
       </section>
@@ -2151,6 +2292,35 @@ function LandingPage() {
             <a className="primary-link" href="/download?utm_source=compare&utm_medium=desktop">
               Download desktop <Download size={15} />
             </a>
+          </article>
+        </div>
+      </section>
+
+      <section className="trust-band" aria-label="Why people can trust VeloWrite">
+        <div className="section-heading">
+          <span>Trust signals</span>
+          <h2>A preview build should still be clear about privacy, limits, and recovery.</h2>
+        </div>
+        <div className="trust-grid">
+          <article>
+            <ShieldCheck size={20} />
+            <h3>Private by default</h3>
+            <p>Browser drafts stay in local browser storage. Desktop files stay on your own disk unless you choose to export or share them.</p>
+          </article>
+          <article>
+            <GitBranch size={20} />
+            <h3>Recovery is part of the foundation</h3>
+            <p>Local history and compare views are preview features today, because writers need rollback before they need cloud features.</p>
+          </article>
+          <article>
+            <ListChecks size={20} />
+            <h3>Roadmap is public</h3>
+            <p>Feedback from early users is tracked on the roadmap, with free preview work separated from future Pro workflows.</p>
+          </article>
+          <article>
+            <LockKeyhole size={20} />
+            <h3>Limits are visible</h3>
+            <p>Unsigned installers, preview gaps, and planned paid features are documented before download so testers know what they are getting.</p>
           </article>
         </div>
       </section>
@@ -2417,7 +2587,7 @@ function InteractiveDemoPage() {
                 </a>
               </div>
             </div>
-            <React.Suspense fallback={<div className="loading-preview">Loading editor</div>}>
+            <React.Suspense fallback={<EditorPreviewSkeleton compact />}>
               <EditorApp
                 key={activeMode}
                 surface="web"
@@ -2509,12 +2679,12 @@ function ProPage() {
             <div>
               <span>Preview</span>
               <strong>Free</strong>
-              <p>Markdown editing, preview, local files, browser drafts, and desktop history snapshots.</p>
+              <p>Markdown editing, preview, local files, browser drafts, and basic desktop history recovery.</p>
             </div>
             <div>
               <span>Future Pro</span>
               <strong>TBD</strong>
-              <p>AI commands, private sync, one-click publishing, advanced export, and commercial workflows.</p>
+              <p>AI commands, private sync, one-click publishing, advanced export, and deeper recovery controls.</p>
             </div>
           </div>
         </section>
@@ -2540,6 +2710,11 @@ function ProPage() {
             <h2>Commercial controls</h2>
             <p>Licensing, export polish, and privacy-first defaults for people writing work documents every day.</p>
           </article>
+          <article>
+            <GitBranch size={22} />
+            <h2>Advanced recovery</h2>
+            <p>Longer retention, more restore points, cross-device recovery, and richer diff navigation after the free baseline is stable.</p>
+          </article>
         </section>
 
         <section className="pro-compare" aria-label="Free preview and future Pro comparison">
@@ -2555,7 +2730,8 @@ function ProPage() {
             </div>
             {[
               ["Markdown writing", "Web and desktop editing", "More structured writing workflows"],
-              ["Local files", "Native desktop open/save", "Vault workflows and stronger recovery"],
+              ["Local files", "Native desktop open/save", "Vault workflows and workspace polish"],
+              ["History recovery", "Basic local snapshots and restore preview", "Longer retention, more restore points, and cross-device recovery"],
               ["AI", "Not active", "Rewrite, summarize, continue, convert"],
               ["Sync", "Not active", "Private multi-device sync"],
               ["Publishing", "HTML export today", "Deploy to GitHub Pages or Vercel"],
@@ -2614,8 +2790,8 @@ function RoadmapPage() {
           <h1>User feedback we have recorded and what happens next.</h1>
           <p>
             VeloWrite is still in preview, so early feedback directly shapes the product.
-            This page shows which requests are core editor work, which stay free, and which
-            high-value workflows may become Pro later.
+            This page shows which requests are core editor work, which preview fixes have
+            shipped, and which local-first workflows are still being researched.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href="/feedback?utm_source=roadmap_hero&utm_medium=cta">
@@ -2631,7 +2807,7 @@ function RoadmapPage() {
           <article>
             <span>Preview first</span>
             <strong>Core quality</strong>
-            <p>Editing, preview, rendering trust, file handling, and recovery must feel solid before Pro work expands.</p>
+            <p>Editing, preview, rendering trust, file handling, and recovery must feel solid before broader workflow expansion.</p>
           </article>
           <article>
             <span>Free by default</span>
@@ -2639,9 +2815,9 @@ function RoadmapPage() {
             <p>Markdown editing, preview, import, download, local files, and basic history should remain free.</p>
           </article>
           <article>
-            <span>Pro later</span>
-            <strong>High-value workflows</strong>
-            <p>AI, managed private sync, publishing automation, advanced export, and commercial use are Pro candidates.</p>
+            <span>Research next</span>
+            <strong>Local-first workflows</strong>
+            <p>Sync, handoff, publishing, and advanced export should preserve file ownership and explain their limits before they ship.</p>
           </article>
         </section>
 
@@ -2792,14 +2968,14 @@ function DownloadPage() {
           </article>
         </section>
 
-        <section className="download-notes" aria-label="Preview notes">
-          <h2>Preview Notes</h2>
+        <section className="download-notes" aria-label="Install safety notes">
+          <h2>Install Safety Notes</h2>
           <ul>
-            <li>VeloWrite is currently a free preview for early testers.</li>
-            <li>Windows builds are not code-signed yet, so your system may show a security warning during install.</li>
-            <li>The macOS DMG is an unsigned Apple Silicon preview build, so Gatekeeper may warn during install.</li>
-            <li>Keep backups of important Markdown files while testing preview builds.</li>
-            <li>AI commands, private sync, and one-click publishing are planned but not included in this release.</li>
+            <li>Use this download page or the official GitHub Releases page as the source for installers.</li>
+            <li>Windows builds are not code-signed yet, so SmartScreen may show a warning during install.</li>
+            <li>The macOS Apple Silicon DMG is unsigned today, so Gatekeeper may require an explicit open action.</li>
+            <li>Back up important Markdown files while testing preview builds.</li>
+            <li>If you only want to evaluate the editor first, use the web editor before installing the desktop app.</li>
           </ul>
         </section>
 
@@ -3589,6 +3765,7 @@ function NotFoundPage() {
 function Router() {
   const searchParams = new URLSearchParams(window.location.search);
   const demoFrame = searchParams.get("utm_source") === "demo_frame";
+  const isTauriRoot = isTauriRuntime() && (window.location.pathname === "/" || window.location.pathname === "");
   const docsExampleMarkdown =
     searchParams.get("example") === "docs"
       ? window.sessionStorage.getItem(exampleMarkdownKey)
@@ -3601,7 +3778,13 @@ function Router() {
   const seo = routeSeo(window.location.pathname);
   let page: React.ReactNode;
 
-  if (matchesRoute(window.location.pathname, "/web")) {
+  if (isTauriRoot) {
+    page = (
+      <React.Suspense fallback={<div className="loading-screen">Loading editor</div>}>
+        <EditorApp surface="desktop" initialViewMode="write" />
+      </React.Suspense>
+    );
+  } else if (matchesRoute(window.location.pathname, "/web")) {
     page = (
       <React.Suspense fallback={<div className="loading-screen">Loading web editor</div>}>
         <EditorApp
@@ -3660,7 +3843,7 @@ function Router() {
 }
 
 function AppRoot() {
-  const isDesktopShell = matchesRoute(window.location.pathname, "/app") || "__TAURI_INTERNALS__" in window;
+  const isDesktopShell = matchesRoute(window.location.pathname, "/app") || isTauriRuntime();
   const [analyticsConsent, setAnalyticsConsent] = React.useState<string | null>(() => {
     if (isDesktopShell) return "declined";
     return window.localStorage.getItem(analyticsConsentKey);

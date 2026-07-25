@@ -6,7 +6,41 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ## Unreleased
 
+No unreleased changes yet.
+
+## [0.1.10] - 2026-07-25
+
+### Fixed
+
+- Fixed desktop history so unsaved drafts can keep local recovery snapshots before the document has been saved as a real file.
+- Reworked the history restore dialog so long diffs reserve space for the actual changed lines instead of letting summary text dominate the panel.
+- Changed matching history snapshots to show a clear "No differences" state in the default Changes view instead of showing unchanged document text.
+- Fixed outline navigation timing so the editor and preview panes stay aligned when jumping between headings after changing view modes.
+- Improved dark-mode preview code blocks with readable syntax colors, stronger code backgrounds, and dark-aware tabbed-code styling.
+
+## [0.1.9] - 2026-07-25
+
+### Added
+
+- Added a desktop start panel with local file actions, recent-file recovery, history access, and practical templates before a real file is opened.
+- Added a real desktop Focus Mode that hides application chrome while keeping a visible exit control.
+- Reworked the editor status bar into a file trust strip showing storage scope, save state, and available history snapshots.
+- Fixed Tauri startup so the installed desktop app opens the desktop editor shell instead of the marketing homepage.
+- Changed the homepage embedded editor to open in preview mode so first-time visitors see polished rendered Markdown immediately.
+- Made desktop focused writing feel less like a code editor by reducing toolbar noise and visually de-emphasizing line gutters.
+- Tightened the mobile analytics consent banner so it stays compliant without covering as much of the first screen.
+- Replaced the heavy default sample document with a friendlier starter draft for first-time web and desktop users.
+- Improved the homepage and interactive demo loading state with an editor-shaped skeleton instead of a large blank loading panel.
+- Changed first-time mobile web editing to open in write mode instead of split mode for better small-screen usability.
+- Added contextual desktop upgrade prompts after browser-only save/export and local-file-limited actions.
+- Added practical editor templates for quick notes, meeting notes, README files, and article drafts in the web and desktop shells.
+- Added an explicit confirmation step before restoring a history snapshot and clarified the diff legend for older versus current lines.
+- Added homepage trust signals for privacy, recovery, public roadmap tracking, and visible preview limits.
+- Reworked download preview notes into clearer install safety guidance for official sources, unsigned installer warnings, backups, and web-first evaluation.
 - Added the macOS Apple Silicon DMG to the download page now that the release asset is available.
+- Published `/docs/local-first-markdown` as the sixth staged Markdown library article, covering file ownership, recovery, and local-first sync design.
+- Expanded the public roadmap with clearer sync and recovery policy notes, while keeping advanced paid-plan framing on the Pro page.
+- Fixed the web editor tablet and small-desktop layout so the preview no longer clips when the browser is around 834-1024px wide.
 - Refined the homepage product showcase, footer link hierarchy, cookie consent banner, mobile landing header, desktop focused editor width, responsive editor toolbar, and documentation code examples.
 - Improved the download page platform cards and added a mobile web editor brand link back to the homepage.
 
