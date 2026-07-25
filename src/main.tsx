@@ -2955,12 +2955,15 @@ function DownloadPage() {
               <p>{item.note}</p>
               <p className="download-detail">{item.detail}</p>
               {item.fileName ? (
-                <a href={`${releaseBaseUrl}/${item.fileName}?utm_source=download_page&utm_medium=installer&utm_campaign=v${downloadVersion}`}>
+                <a
+                  className="download-action"
+                  href={`${releaseBaseUrl}/${item.fileName}?utm_source=download_page&utm_medium=installer&utm_campaign=v${downloadVersion}`}
+                >
                   <Download size={16} />
                   Download
                 </a>
               ) : (
-                <button disabled>Building</button>
+                <button className="download-action" disabled>Building</button>
               )}
             </article>
           ))}

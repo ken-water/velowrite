@@ -391,6 +391,50 @@ test("download page presents user-facing preview information", async ({ page }) 
   await expect(page.getByText("GitHub Actions")).toHaveCount(0);
 });
 
+test("download page keeps buttons visually separated from explanatory text", async ({ page }) => {
+  await page.goto("/download");
+
+  const downloadButtonGaps = await page.locator(".download-card").evaluateAll((cards) =>
+    cards.map((card) => {
+      const detail = card.querySelector(".download-detail");
+      const action = card.querySelector(".download-action");
+      if (!detail || !action) {
+        return 99;
+      }
+      return action.getBoundingClientRect().top - detail.getBoundingClientRect().bottom;
+    }),
+  );
+
+  expect(Math.min(...downloadButtonGaps)).toBeGreaterThanOrEqual(14);
+
+  const sectionButtonGaps = await page.locator(".download-notes .feedback-actions").evaluateAll((actionGroups) =>
+    actionGroups.map((group) => {
+      const previous = group.previousElementSibling;
+      if (!previous) {
+        return 99;
+      }
+      return group.getBoundingClientRect().top - previous.getBoundingClientRect().bottom;
+    }),
+  );
+
+  expect(Math.min(...sectionButtonGaps)).toBeGreaterThanOrEqual(16);
+
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.reload();
+
+  const mobileActionGaps = await page.locator(".download-notes .feedback-actions").evaluateAll((actionGroups) =>
+    actionGroups.map((group) => {
+      const previous = group.previousElementSibling;
+      if (!previous) {
+        return 99;
+      }
+      return group.getBoundingClientRect().top - previous.getBoundingClientRect().bottom;
+    }),
+  );
+
+  expect(Math.min(...mobileActionGaps)).toBeGreaterThanOrEqual(16);
+});
+
 test("docs publishes the Markdown code blocks article with tabbed examples", async ({ page }) => {
   await page.goto("/docs");
 
