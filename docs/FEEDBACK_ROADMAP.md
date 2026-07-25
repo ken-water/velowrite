@@ -63,6 +63,43 @@ Version target:
 Pro status:
 - Not Pro. Charging for this would make the editor feel incomplete.
 
+### Focused writing polish
+
+Signal:
+- The desktop app needs to feel like a dedicated writing tool from the first screen.
+- Too much browser-like chrome, dense controls, or unclear hover behavior can make users doubt the app experience even when the editor works.
+
+Decision:
+- Keep reducing unnecessary interface weight in the desktop shell.
+- Make the default desktop state a calm writing surface, with file actions and structure tools available without dominating the page.
+- Improve templates, focus mode, hover affordances, and empty states as part of the free product experience.
+
+Version target:
+- Preview / Free: continue in `0.1.x` and `0.2.x`.
+
+Pro status:
+- Not Pro. The writing surface is the core product promise.
+
+### Outline and structure map
+
+Signal:
+- Long-form writers need to understand document structure before polishing the final draft.
+- Headings already give Markdown a natural outline, but the current outline should become more useful than a simple jump list.
+
+Decision:
+- Improve the outline panel with active-section clarity, folding, and better long-document navigation.
+- Add a read-only structure map generated from Markdown headings before attempting a full visual editor.
+- Keep the first version deterministic and local so it stays fast and testable.
+- Evaluate editable visual mapping and AI-assisted outline expansion after the outline workflow proves useful.
+
+Version target:
+- Free structure workflow: `0.2.x`.
+- Advanced visual and AI-assisted structure workflows: `0.3.x+`.
+
+Pro status:
+- Better outline navigation and a basic read-only structure map should be free.
+- AI-assisted outline expansion, advanced visual editing, and exportable visual maps can be Pro candidates later.
+
 ### Web to desktop draft handoff
 
 Signal:
@@ -122,6 +159,25 @@ Pro status:
 - Not Pro for basic editing, preview, import, and download.
 - Advanced export, publishing, AI, and sync can become Pro.
 
+### Better export and publishing preparation
+
+Signal:
+- Users need finished documents that look good outside the editor.
+- HTML export is useful today, but PDF/DOCX quality and publish-ready templates will matter for writers, students, founders, and teams.
+
+Decision:
+- Improve print/PDF styling first because it builds on the current rendered preview.
+- Keep basic Markdown, HTML, and clean PDF-style output as part of the free editor baseline.
+- Treat DOCX, branded templates, batch export, and one-click publishing as later workflow packaging.
+
+Version target:
+- Free export baseline: `0.2.x`.
+- Advanced export and publishing workflows: `0.3.x+`.
+
+Pro status:
+- Basic export should stay free.
+- Advanced export, branded templates, publishing automation, and team/commercial workflows are strong Pro candidates.
+
 ## Feature Classification
 
 ### Preview Completion
@@ -129,8 +185,11 @@ Pro status:
 These are required before the preview feels solid enough for broader promotion:
 
 - Stable editor/preview sync scroll.
+- Focused desktop writing polish, including calmer default chrome and clearer hover states.
+- Better outline navigation and a read-only structure map generated from Markdown headings.
 - Better local history browsing and diff preview.
 - More complete image handling and relative asset behavior.
+- Cleaner print/PDF styling based on the rendered preview.
 - Markdown edge-case rendering tests for math, code, tables, and tabs.
 - Cross-platform smoke tests for open, edit, save, export, and close behavior.
 
@@ -144,6 +203,7 @@ These should remain free because they form the basic editor promise:
 - Desktop native file open/save.
 - Recent files.
 - Local history snapshots.
+- Better outline navigation and a basic document structure view.
 - Theme and view-mode settings.
 - No-login local-first workflow.
 
@@ -155,6 +215,7 @@ These are reasonable paid features because they add ongoing value or cost:
 - Private multi-device sync.
 - Advanced export: polished PDF, DOCX, custom templates, branded outputs.
 - One-click publishing to GitHub Pages, Vercel, static blogs, or CMS targets.
+- AI-assisted outline expansion and advanced visual structure editing.
 - Encrypted vault/history options.
 - Commercial/team license features.
 - Advanced themes and custom CSS packages.
@@ -178,7 +239,10 @@ Examples:
 ## Near-Term Priorities
 
 1. Finish stable continuous sync scrolling for editor and preview.
-2. Improve local history discoverability and add diff preview.
-3. Design a lightweight web-to-desktop handoff flow.
-4. Add tests around long Markdown documents with headings, math, code tabs, images, and tables.
-5. Revisit Pro packaging only after the free preview workflow feels complete.
+2. Improve focused desktop writing polish so the app feels dedicated, calm, and native from launch.
+3. Improve the outline panel and prototype a read-only Markdown structure map.
+4. Improve local history discoverability and long-document diff review.
+5. Add a cleaner print/PDF export baseline.
+6. Design a lightweight web-to-desktop handoff flow.
+7. Add tests around long Markdown documents with headings, math, code tabs, images, tables, structure navigation, export, and history recovery.
+8. Revisit Pro packaging only after the free preview workflow feels complete.

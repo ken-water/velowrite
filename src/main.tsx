@@ -579,6 +579,24 @@ const publicRoadmapItems = [
       "Outline clicks now align both panes in the preview build. Continuous stable scroll matching for long documents should stay core editor work because it affects daily writing quality.",
   },
   {
+    title: "Focused writing polish",
+    request: "The desktop app should feel like a calm native writing tool, not a website inside a window.",
+    status: "In progress",
+    target: "0.1.x / 0.2.x",
+    classification: "Free core experience",
+    decision:
+      "The desktop preview now opens directly into the editor, but the next polish pass should keep reducing chrome, tighten hover states, improve first-run templates, and make focus mode feel natural for daily writing.",
+  },
+  {
+    title: "Outline and structure map",
+    request: "Writers need a clearer way to understand document structure before turning notes into a finished draft.",
+    status: "Designing",
+    target: "0.2.x",
+    classification: "Free structure workflow first",
+    decision:
+      "The first step should be a better outline panel with folding, active-section clarity, and a read-only structure map generated from Markdown headings. Editable visual mapping and AI-assisted outline expansion can be evaluated later.",
+  },
+  {
     title: "Better local history recovery",
     request: "Users want confidence that accidental paste mistakes or rewrites can be recovered.",
     status: "Free foundation shipped",
@@ -622,6 +640,15 @@ const publicRoadmapItems = [
     classification: "Free preview quality",
     decision:
       "Rendering trust is part of the preview foundation. The work should be backed by tests before broader promotion.",
+  },
+  {
+    title: "Better export and publishing preparation",
+    request: "Users need finished documents that look good when shared outside the editor.",
+    status: "Planned",
+    target: "0.2.x / 0.3.x",
+    classification: "Free export baseline, Pro workflow later",
+    decision:
+      "A cleaner print/PDF style and reliable HTML export fit the free editor promise. DOCX, branded templates, batch export, and one-click publishing are stronger candidates for future workflow packaging.",
   },
   {
     title: "AI writing, publishing, and advanced export research",
