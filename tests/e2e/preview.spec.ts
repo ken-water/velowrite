@@ -247,6 +247,34 @@ test("web editor history UI explains and enforces the three snapshot preview lim
   await expect(page.locator(".history-item").first()).toContainText("6 B");
 });
 
+test("mobile history panel keeps the preview limit readable without overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    window.localStorage.setItem(
+      "velowrite:browser-history",
+      JSON.stringify([
+        { id: "browser-4", fileName: "Mobile.md", createdAt: 4, contents: "# Four\n\nMobile snapshot." },
+        { id: "browser-3", fileName: "Mobile.md", createdAt: 3, contents: "# Three\n\nMobile snapshot." },
+        { id: "browser-2", fileName: "Mobile.md", createdAt: 2, contents: "# Two\n\nMobile snapshot." },
+        { id: "browser-1", fileName: "Mobile.md", createdAt: 1, contents: "# One\n\nMobile snapshot." },
+      ]),
+    );
+  });
+  await page.goto("/web?utm_source=e2e&utm_medium=history-mobile");
+
+  await page.getByRole("button", { name: /browser snapshots/ }).click();
+
+  const historyDialog = page.getByRole("dialog", { name: "History" });
+  await expect(historyDialog).toBeVisible();
+  await expect(page.getByText("Free preview keeps the latest 3 local snapshots.")).toBeVisible();
+  await expect(page.locator(".history-item")).toHaveCount(3);
+  await page.locator(".history-summary").first().click();
+  await expect(page.getByLabel("Snapshot diff preview")).toBeVisible();
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+});
+
 test("history shows an empty diff after restoring the matching snapshot", async ({ page }) => {
   await page.goto("/web?utm_source=e2e&utm_medium=history-match");
 

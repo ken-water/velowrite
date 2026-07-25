@@ -210,6 +210,60 @@ fn now_ms() -> u128 {
         .unwrap_or_default()
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn history_entry(id: &str, file_path: &str, snapshot_path: &Path) -> HistoryEntry {
+        HistoryEntry {
+            id: id.to_string(),
+            file_path: file_path.to_string(),
+            file_name: "Notes.md".to_string(),
+            snapshot_path: snapshot_path.to_string_lossy().to_string(),
+            created_at: 1,
+            size: 10,
+        }
+    }
+
+    #[test]
+    fn prunes_file_history_to_the_free_snapshot_limit() {
+        let dir = std::env::temp_dir().join(format!("velowrite-history-test-{}", now_ms()));
+        fs::create_dir_all(&dir).expect("create temp history dir");
+
+        let paths: Vec<_> = (1..=5)
+            .map(|index| {
+                let path = dir.join(format!("snapshot-{index}.md"));
+                fs::write(&path, format!("snapshot {index}")).expect("write snapshot");
+                path
+            })
+            .collect();
+        let unrelated_path = dir.join("unrelated.md");
+        fs::write(&unrelated_path, "unrelated").expect("write unrelated snapshot");
+
+        let mut entries = vec![
+            history_entry("target-5", "/docs/notes.md", &paths[4]),
+            history_entry("target-4", "/docs/notes.md", &paths[3]),
+            history_entry("target-3", "/docs/notes.md", &paths[2]),
+            history_entry("other-1", "/docs/other.md", &unrelated_path),
+            history_entry("target-2", "/docs/notes.md", &paths[1]),
+            history_entry("target-1", "/docs/notes.md", &paths[0]),
+        ];
+
+        prune_file_history(&mut entries, "/docs/notes.md");
+
+        let ids: Vec<_> = entries.iter().map(|entry| entry.id.as_str()).collect();
+        assert_eq!(ids, vec!["target-5", "target-4", "target-3", "other-1"]);
+        assert!(paths[4].exists());
+        assert!(paths[3].exists());
+        assert!(paths[2].exists());
+        assert!(unrelated_path.exists());
+        assert!(!paths[1].exists());
+        assert!(!paths[0].exists());
+
+        let _ = fs::remove_dir_all(dir);
+    }
+}
+
 fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::menu::Menu<R>> {
     let new_file = MenuItemBuilder::with_id("new_file", "New")
         .accelerator("CmdOrCtrl+N")
