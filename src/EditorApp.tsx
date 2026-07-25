@@ -1260,6 +1260,12 @@ function findHeadingLine(markdown: string, id: string) {
   return null;
 }
 
+function afterNextPaint(callback: () => void) {
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(callback);
+  });
+}
+
 export default function EditorApp({
   surface = "desktop",
   initialMarkdown,
@@ -2200,23 +2206,21 @@ export default function EditorApp({
       setViewMode("split");
     }
 
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        scrollPreviewToHeading(id);
+    afterNextPaint(() => {
+      scrollPreviewToHeading(id);
 
-        if (line) {
-          scrollEditorToLine(line);
-          window.setTimeout(() => scrollEditorToLine(line), 80);
-          window.setTimeout(() => {
-            scrollEditorToLine(line);
-            scrollPreviewToHeading(id);
-          }, 220);
-        }
-
+      if (line) {
+        scrollEditorToLine(line);
+        window.setTimeout(() => scrollEditorToLine(line), 80);
         window.setTimeout(() => {
-          suppressPreviewSync.current = false;
-        }, 360);
-      });
+          scrollEditorToLine(line);
+          scrollPreviewToHeading(id);
+        }, 220);
+      }
+
+      window.setTimeout(() => {
+        suppressPreviewSync.current = false;
+      }, 360);
     });
   }
 
