@@ -1,9 +1,44 @@
 import { expect, test } from "@playwright/test";
+import fs from "node:fs";
+import path from "node:path";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem("velowrite:analytics-consent", "declined");
   });
+});
+
+test("static SEO HTML exposes route-specific metadata before JavaScript runs", async () => {
+  const downloadHtml = fs.readFileSync(path.join(process.cwd(), "dist/download/index.html"), "utf8");
+
+  expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
+  expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
+  expect(downloadHtml).toContain('"softwareVersion": "0.1.10"');
+
+  const articleHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
+    "utf8",
+  );
+
+  expect(articleHtml).toContain("<title>Online Markdown Editor - Write, Preview, and Download Markdown</title>");
+  expect(articleHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/online-markdown-editor" />',
+  );
+  expect(articleHtml).toContain('"@type": "Article"');
+});
+
+test("static deployment includes a friendly 404 without SPA catch-all rewrites", async ({ page }) => {
+  const notFoundHtml = fs.readFileSync(path.join(process.cwd(), "dist/404.html"), "utf8");
+  const vercelConfig = JSON.parse(fs.readFileSync(path.join(process.cwd(), "vercel.json"), "utf8"));
+
+  expect(notFoundHtml).toContain("<title>Page Not Found - VeloWrite</title>");
+  expect(vercelConfig.rewrites).toBeUndefined();
+  expect(vercelConfig.cleanUrls).toBe(true);
+
+  // Vite preview falls back to the SPA for extensionless paths, while Vercel serves 404.html.
+  // This keeps the rendered friendly page covered without asserting Vite's fallback status.
+  await page.goto("/web111");
+  await expect(page.getByRole("heading", { name: "This page is not available." })).toBeVisible();
 });
 
 test("landing page drives users to web editor and desktop download", async ({ page }) => {

@@ -253,9 +253,9 @@ function routeSeo(pathname: string): SeoConfig {
 
   if (matchesRoute(pathname, "/download")) {
     return {
-      title: "Download VeloWrite - Windows and Linux Markdown App",
+      title: "Download VeloWrite - Windows, macOS, and Linux Markdown App",
       description:
-        "Download the VeloWrite desktop preview for Windows, AppImage, Debian, and RPM Linux workflows. The macOS DMG is added after the GitHub build finishes.",
+        "Download the VeloWrite desktop preview for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux workflows.",
       canonicalPath: "/download",
     };
   }
@@ -496,7 +496,7 @@ function SeoManager({ config }: { config: SeoConfig }) {
         "@id": `${siteUrl}${config.canonicalPath}#article`,
         headline: config.title,
         description: config.description,
-        dateModified: "2026-07-24",
+        dateModified: "2026-07-25",
         mainEntityOfPage: `${siteUrl}${config.canonicalPath}`,
         author: { "@id": `${siteUrl}/#organization` },
         publisher: { "@id": `${siteUrl}/#organization` },
@@ -692,6 +692,11 @@ const faqGroups: readonly FaqGroup[] = [
           "VeloWrite is built for users who want a clean Typora-like Markdown workflow with a browser trial, lightweight desktop packaging, local-first files, and a planned AI-native path.",
       },
       {
+        question: "What is the best lightweight Markdown editor for Windows?",
+        answer:
+          "VeloWrite is designed for people who want a lightweight Markdown editor for Windows with browser preview, desktop files, recent documents, local history snapshots, and HTML export.",
+      },
+      {
         question: "Who is VeloWrite for?",
         answer:
           "VeloWrite is for developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.",
@@ -705,6 +710,11 @@ const faqGroups: readonly FaqGroup[] = [
         question: "Can I try VeloWrite without installing anything?",
         answer:
           "Yes. Open the web editor in your browser and start writing immediately. It is the fastest way to test the Markdown workflow before deciding whether the desktop app is worth installing.",
+      },
+      {
+        question: "Can I edit Markdown online without uploading files?",
+        answer:
+          "Yes. Normal VeloWrite web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage on the same device.",
       },
       {
         question: "What happens if I refresh the browser while editing?",
@@ -724,12 +734,17 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Which platforms can I download right now?",
         answer:
-          "VeloWrite currently offers a web editor plus preview desktop installers for Windows x64, Linux AppImage, Debian, and RPM-based Linux distributions. The macOS DMG is published after the GitHub macOS build succeeds.",
+          "VeloWrite currently offers a web editor plus preview desktop installers for Windows x64, macOS Apple Silicon, Linux AppImage, Debian, and RPM-based Linux distributions.",
+      },
+      {
+        question: "Does VeloWrite work offline?",
+        answer:
+          "The desktop preview is the offline path for real local files. The web editor is best for quick drafts, Markdown download, and HTML export while the browser is available.",
       },
       {
         question: "Will the desktop installer trigger a warning?",
         answer:
-          "Yes. The current Windows preview installer is unsigned, so SmartScreen may warn. The macOS DMG will also be treated as an unsigned preview build until Apple signing and notarization are ready.",
+          "Yes. The current Windows preview installer is unsigned, so SmartScreen may warn. The macOS DMG is also treated as an unsigned preview build until Apple signing and notarization are ready.",
       },
     ],
   },
@@ -762,6 +777,11 @@ const faqGroups: readonly FaqGroup[] = [
           "Normal web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage, and desktop files and history snapshots stay on your device by default.",
       },
       {
+        question: "Is VeloWrite safe for private notes?",
+        answer:
+          "VeloWrite is designed around private, local-first writing. Browser drafts stay in localStorage, and desktop files plus local history snapshots stay on the user's device by default.",
+      },
+      {
         question: "Is VeloWrite free to use today?",
         answer:
           "The current public build is a free preview for early testers. Future AI, private sync, publishing automation, advanced exports, and team workflows may become Pro features.",
@@ -791,8 +811,10 @@ const landingFaqs = [
   faqByQuestion("What is VeloWrite?"),
   faqByQuestion("Is VeloWrite free to use today?"),
   faqByQuestion("Is VeloWrite a Typora alternative?"),
+  faqByQuestion("Can I edit Markdown online without uploading files?"),
   faqByQuestion("Does VeloWrite upload my Markdown documents?"),
   faqByQuestion("Can I try VeloWrite without installing anything?"),
+  faqByQuestion("Does VeloWrite work offline?"),
   faqByQuestion("What is the difference between the web editor and desktop app?"),
   faqByQuestion("Does VeloWrite handle math, tables, and code highlighting?"),
   faqByQuestion("Will the desktop installer trigger a warning?"),
@@ -1815,7 +1837,13 @@ const contentPages: Record<string, ContentPage> = {
       {
         id: "unreleased",
         title: "Unreleased",
-        body: ["No unreleased changes yet."],
+        body: [
+          "Added build-time static SEO HTML generation for public website routes so crawlers can read route-specific title, description, canonical, and structured data before JavaScript runs.",
+          "Added generated 404.html output so static hosting can keep the friendly 404 page while returning a real 404 status for unknown routes.",
+          "Added more natural-language FAQ coverage for private online Markdown editing, lightweight Windows Markdown editing, Typora comparison, offline use, and private notes.",
+          "Updated sitemap lastmod dates during the SEO build step.",
+          "Simplified Vercel routing so known pages are served as static clean URLs instead of using a full SPA catch-all rewrite.",
+        ],
       },
       {
         id: "v0110",

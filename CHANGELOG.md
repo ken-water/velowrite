@@ -6,7 +6,16 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ## Unreleased
 
-No unreleased changes yet.
+### Added
+
+- Added build-time static SEO HTML generation for public website routes so crawlers can read route-specific title, description, canonical, and structured data before JavaScript runs.
+- Added generated `404.html` output so static hosting can keep the friendly 404 page while returning a real 404 status for unknown routes.
+- Added more natural-language FAQ coverage for private online Markdown editing, lightweight Windows Markdown editing, Typora comparison, offline use, and private notes.
+
+### Changed
+
+- Updated sitemap `lastmod` dates during the SEO build step.
+- Simplified Vercel routing so known pages are served as static clean URLs instead of using a full SPA catch-all rewrite.
 
 ## [0.1.10] - 2026-07-25
 
