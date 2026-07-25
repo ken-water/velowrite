@@ -167,13 +167,26 @@ test("desktop shell opens in focused editing mode", async ({ page }) => {
   await expect(page.locator(".sidebar")).toBeHidden();
   await expect(page.getByLabel("Markdown editor")).toBeVisible();
   await expect(page.getByLabel("Desktop start")).toBeVisible();
-  await expect(page.getByText("Start locally")).toBeVisible();
+  await expect(page.getByText("Continue writing")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Continue Draft/i })).toBeVisible();
   await expect(page.getByText("Unsaved local draft")).toBeVisible();
-  await expect(page.getByText(/draft snapshots/)).toBeVisible();
+  await expect(page.getByText(/0 \/ 3 draft snapshots/)).toBeVisible();
 
   await page.getByRole("button", { name: "Show workspace" }).click();
   await expect(page.getByLabel("VeloWrite editor")).not.toHaveClass(/desktop-focus/);
   await expect(page.locator(".sidebar")).toBeVisible();
+});
+
+test("desktop about panel shows the installed app version", async ({ page }) => {
+  await page.goto("/app");
+
+  await page.getByRole("button", { name: "Show workspace" }).click();
+  await page.getByRole("button", { name: "About" }).click();
+
+  const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
+  await expect(aboutDialog).toBeVisible();
+  await expect(aboutDialog).toContainText("Version");
+  await expect(aboutDialog).toContainText("0.1.11");
 });
 
 test("desktop focus mode hides chrome and can be exited", async ({ page }) => {

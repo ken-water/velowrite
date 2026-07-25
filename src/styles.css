@@ -1208,6 +1208,12 @@ p {
   line-height: 1.35;
 }
 
+.desktop-start-copy small {
+  color: var(--muted-strong);
+  font-size: 12px;
+  font-weight: 760;
+}
+
 .desktop-start-actions {
   display: flex;
   flex-wrap: wrap;
@@ -2452,6 +2458,30 @@ pre,
   margin: 0 0 16px;
   color: var(--muted-strong);
   line-height: 1.65;
+}
+
+.about-version {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 38px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: var(--app-bg);
+}
+
+.about-version span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.about-version strong {
+  color: var(--text);
+  font-size: 13px;
 }
 
 .about-links {

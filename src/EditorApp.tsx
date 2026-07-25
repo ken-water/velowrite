@@ -142,6 +142,7 @@ const editorFontSizeKey = "velowrite:editor-font-size";
 const defaultViewModeKey = "velowrite:default-view-mode";
 const browserHistoryKey = "velowrite:browser-history";
 const draftHistoryKey = "velowrite:draft-history";
+const appVersion = "0.1.11";
 export const freeHistorySnapshotLimit = 3;
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
@@ -1100,6 +1101,11 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
           recoverable history.
         </p>
 
+        <div className="about-version">
+          <span>Version</span>
+          <strong>{appVersion}</strong>
+        </div>
+
         <div className="about-links">
           {links.map(([label, href]) => (
             <a key={href} href={href} target="_blank" rel="noreferrer">
@@ -1171,27 +1177,38 @@ function WelcomePanel({
 function DesktopStartPanel({
   recentFiles,
   historyCount,
+  currentDraftName,
   onOpen,
   onNew,
+  onContinue,
   onTemplate,
   onRecent,
   onHistory,
 }: {
   recentFiles: RecentFile[];
   historyCount: number;
+  currentDraftName: string;
   onOpen: () => void;
   onNew: () => void;
+  onContinue: () => void;
   onTemplate: (template: EditorTemplate) => void;
   onRecent: (path: string) => void;
   onHistory: () => void;
 }) {
+  const historyLabel = `${Math.min(historyCount, freeHistorySnapshotLimit)} / ${freeHistorySnapshotLimit}`;
+
   return (
     <section className="desktop-start-panel" aria-label="Desktop start">
       <div className="desktop-start-copy">
-        <span>Start locally</span>
-        <strong>Open a file, continue a recent draft, or start from a template.</strong>
+        <span>Continue writing</span>
+        <strong>Resume your current draft, open a recent file, or start from a template.</strong>
+        <small>{currentDraftName} · {historyLabel} recovery snapshots</small>
       </div>
       <div className="desktop-start-actions">
+        <button onClick={onContinue} type="button">
+          <PanelLeftClose size={15} />
+          Continue Draft
+        </button>
         <button onClick={onOpen} type="button">
           <FolderOpen size={15} />
           Open File
@@ -1202,7 +1219,7 @@ function DesktopStartPanel({
         </button>
         <button onClick={onHistory} type="button">
           <GitBranch size={15} />
-          History {historyCount > 0 ? `(${historyCount})` : ""}
+          History ({historyLabel})
         </button>
       </div>
       <div className="desktop-start-grid">
@@ -1312,6 +1329,7 @@ export default function EditorApp({
   const [historyEntries, setHistoryEntries] = React.useState<HistoryEntry[]>([]);
   const [selectedHistory, setSelectedHistory] = React.useState<HistorySnapshot | null>(null);
   const [sidebarOpen, setSidebarOpen] = React.useState(() => surface !== "desktop");
+  const [startPanelDismissed, setStartPanelDismissed] = React.useState(false);
   const [editorScrollTarget, setEditorScrollTarget] = React.useState<{ line: number; nonce: number } | null>(null);
   const [desktopPrompt, setDesktopPrompt] = React.useState<string | null>(null);
   const [focusMode, setFocusMode] = React.useState(false);
@@ -1328,18 +1346,19 @@ export default function EditorApp({
   const webSurface = surface === "web";
   const draftHistoryMode = !browserMode && !filePath;
   const resolvedTheme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
-  const showDesktopStart = desktopSurface && !focusMode && !filePath;
+  const showDesktopStart = desktopSurface && !focusMode && !filePath && !startPanelDismissed;
   const fileTrustLabel = browserMode
     ? "Browser-local draft"
     : filePath
       ? "Native local file"
       : "Unsaved local draft";
   const saveTrustLabel = dirty ? "Unsaved changes" : browserMode ? "Browser draft saved" : "Saved";
+  const historyCountLabel = `${Math.min(historyEntries.length, freeHistorySnapshotLimit)} / ${freeHistorySnapshotLimit}`;
   const historyTrustLabel = browserMode
-    ? `${historyEntries.length} browser snapshots`
+    ? `${historyCountLabel} browser snapshots`
     : filePath
-      ? `${historyEntries.length} file snapshots`
-      : `${historyEntries.length} draft snapshots`;
+      ? `${historyCountLabel} file snapshots`
+      : `${historyCountLabel} draft snapshots`;
 
   React.useEffect(() => {
     if (!browserMode) return;
@@ -1644,6 +1663,7 @@ export default function EditorApp({
     setSavedMarkdown(nextFile.contents);
     setFilePath(nextFile.path);
     setFileName(nextFile.name || "Untitled.md");
+    setStartPanelDismissed(true);
     setStatus("Opened");
     if (!nativeApi) browserHistoryBaseline.current = nextFile.contents;
     rememberRecentFile(nextFile.path, nextFile.name || "Untitled.md");
@@ -1660,6 +1680,7 @@ export default function EditorApp({
     setHistoryEntries([]);
     setSelectedHistory(null);
     setHistoryOpen(false);
+    setStartPanelDismissed(true);
     browserHistoryBaseline.current = draft.markdown;
     draftHistoryBaseline.current = draft.markdown;
     setStatus("Imported web draft");
@@ -1788,18 +1809,32 @@ export default function EditorApp({
         const previousSavedMarkdown = savedMarkdown;
         const previousFileName = fileName;
         const previousFilePath = filePath;
+        const historyWasFull = historyEntries.length >= freeHistorySnapshotLimit;
+        let keptPreviousVersion = false;
         if (previousFilePath && previousSavedMarkdown && previousSavedMarkdown !== markdown) {
           await nativeApi.createHistorySnapshot(previousFilePath, previousFileName, previousSavedMarkdown);
+          keptPreviousVersion = true;
         }
         const savedPath = await nativeApi.saveMarkdownFile(filePath, markdown);
         if (!savedPath) return;
         if (!previousFilePath && previousSavedMarkdown && previousSavedMarkdown !== markdown) {
           await nativeApi.createHistorySnapshot(savedPath, previousFileName, previousSavedMarkdown);
+          keptPreviousVersion = true;
         }
         setFilePath(savedPath);
         setFileName(savedPath.split(/[\\/]/).pop() || fileName);
         setSavedMarkdown(markdown);
-        setStatus(options?.silent ? "Autosaved to file" : "Saved");
+        if (options?.silent) {
+          setStatus(keptPreviousVersion ? "Autosaved. Previous version kept in History." : "Autosaved to file");
+        } else if (keptPreviousVersion) {
+          setStatus(
+            historyWasFull
+              ? "Saved. Oldest snapshot rotated out."
+              : "Saved. Previous version kept in History.",
+          );
+        } else {
+          setStatus("Saved");
+        }
         rememberRecentFile(savedPath, savedPath.split(/[\\/]/).pop() || fileName);
         await refreshHistory(savedPath);
       } catch (error) {
@@ -1924,9 +1959,15 @@ export default function EditorApp({
     if (browserMode) {
       const baseline = browserHistoryBaseline.current;
       if (baseline && baseline !== markdown) {
+        const historyWasFull = readBrowserHistory().length >= freeHistorySnapshotLimit;
         const snapshots = createBrowserHistorySnapshot(fileName, baseline);
         setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
         browserHistoryBaseline.current = markdown;
+        setStatus(
+          historyWasFull
+            ? "History updated. Oldest snapshot rotated out."
+            : "History snapshot kept locally.",
+        );
       } else {
         await refreshHistory();
       }
@@ -1937,9 +1978,15 @@ export default function EditorApp({
     if (draftHistoryMode) {
       const baseline = draftHistoryBaseline.current;
       if (baseline && baseline !== markdown) {
+        const historyWasFull = readDraftHistory().length >= freeHistorySnapshotLimit;
         const snapshots = createDraftHistorySnapshot(fileName, baseline);
         setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
         draftHistoryBaseline.current = markdown;
+        setStatus(
+          historyWasFull
+            ? "History updated. Oldest snapshot rotated out."
+            : "Draft history snapshot kept locally.",
+        );
       } else {
         await refreshHistory();
       }
@@ -1969,6 +2016,7 @@ export default function EditorApp({
     setFileName(editorTemplates[0].fileName);
     setHistoryEntries([]);
     setSelectedHistory(null);
+    setStartPanelDismissed(true);
     browserHistoryBaseline.current = blankDocument;
     draftHistoryBaseline.current = blankDocument;
     setStatus("New file");
@@ -1982,6 +2030,7 @@ export default function EditorApp({
     setFileName(template.fileName);
     setHistoryEntries([]);
     setSelectedHistory(null);
+    setStartPanelDismissed(true);
     browserHistoryBaseline.current = template.markdown;
     draftHistoryBaseline.current = template.markdown;
     setStatus(`${template.label} template loaded`);
@@ -2538,8 +2587,13 @@ export default function EditorApp({
           <DesktopStartPanel
             recentFiles={recentFiles}
             historyCount={historyEntries.length}
+            currentDraftName={fileName}
             onOpen={() => void openFileWithGuard()}
             onNew={() => void newFileWithGuard()}
+            onContinue={() => {
+              setStartPanelDismissed(true);
+              setStatus("Continuing current draft");
+            }}
             onTemplate={(template) => void startFromTemplate(template)}
             onRecent={(path) => void openRecentFile(path)}
             onHistory={() => void openHistoryPanel()}

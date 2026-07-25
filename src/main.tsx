@@ -1847,6 +1847,10 @@ const contentPages: Record<string, ContentPage> = {
         title: "0.1.11 preview",
         body: [
           "Set the free preview history policy to the latest 3 local snapshots across browser drafts, unsaved desktop drafts, and native desktop file history.",
+          "Added a clearer desktop Continue Draft start panel with current draft name and 3-snapshot recovery status.",
+          "Changed the editor status bar to show history as 0 / 3, 1 / 3, 2 / 3, or 3 / 3 snapshots instead of an open-ended count.",
+          "Improved desktop save feedback so users know when the previous version was kept or when the oldest snapshot rotated out.",
+          "Added the installed app version to the desktop About panel.",
           "Added clearer history panel copy so users understand what is kept locally and why older snapshots rotate out.",
           "Improved global control spacing on the website and editor surfaces so compact buttons and text links feel less crowded.",
           "Improved download page CTA spacing and moved the analytics consent banner away from the primary platform cards on desktop.",
