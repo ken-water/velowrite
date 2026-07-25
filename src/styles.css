@@ -560,11 +560,12 @@ p {
 .demo-mode-tabs button,
 .demo-mode-tabs a {
   display: inline-flex;
-  min-height: 30px;
+  min-height: 34px;
   align-items: center;
+  justify-content: center;
   border: 1px solid rgba(21, 54, 45, 0.14);
   border-radius: 7px;
-  padding: 0 10px;
+  padding: 0 12px;
   background: #ffffff;
   color: #15362d;
   font-size: 12px;
@@ -1612,9 +1613,9 @@ p {
 }
 
 .desktop-cta {
-  min-height: 34px;
+  min-height: 36px;
   border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--border));
-  padding: 0 10px;
+  padding: 0 12px;
   background: color-mix(in srgb, var(--accent) 10%, var(--surface));
   color: var(--accent-strong);
   font-size: 12px;
@@ -1681,15 +1682,16 @@ p {
 .mode-toggle {
   display: inline-grid;
   grid-template-columns: repeat(3, auto);
-  min-height: 34px;
+  min-height: 38px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 3px;
+  padding: 4px;
   background: color-mix(in srgb, var(--panel-bg) 55%, var(--surface));
 }
 
 .mode-toggle button {
   min-width: 58px;
+  min-height: 30px;
   border: 0;
   border-radius: 6px;
   padding: 0 8px;
@@ -1883,12 +1885,12 @@ pre,
 
 .trust-pill {
   display: inline-flex;
-  min-height: 24px;
+  min-height: 30px;
   align-items: center;
   gap: 6px;
   border: 1px solid var(--border-soft);
   border-radius: 999px;
-  padding: 0 9px;
+  padding: 0 10px;
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   color: var(--muted-strong);
   font: inherit;
@@ -3624,6 +3626,9 @@ pre,
 }
 
 .not-found-grid a {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
   color: #15362d;
   font-size: 14px;
   font-weight: 850;
@@ -3919,6 +3924,11 @@ pre,
 .content-sidebar {
   position: sticky;
   top: 24px;
+}
+
+.content-sidebar a {
+  min-height: 36px;
+  line-height: 1.45;
 }
 
 .content-article {
