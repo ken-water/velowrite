@@ -226,6 +226,27 @@ test("web editor keeps browser-local history snapshots", async ({ page }) => {
   await expect(page.getByText("Restore preview")).toBeVisible();
 });
 
+test("web editor history UI explains and enforces the three snapshot preview limit", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem(
+      "velowrite:browser-history",
+      JSON.stringify([
+        { id: "browser-4", fileName: "Seed.md", createdAt: 4, contents: "# Four" },
+        { id: "browser-3", fileName: "Seed.md", createdAt: 3, contents: "# Three" },
+        { id: "browser-2", fileName: "Seed.md", createdAt: 2, contents: "# Two" },
+        { id: "browser-1", fileName: "Seed.md", createdAt: 1, contents: "# One" },
+      ]),
+    );
+  });
+  await page.goto("/web?utm_source=e2e&utm_medium=history-limit");
+
+  await page.getByRole("button", { name: "History" }).first().click();
+
+  await expect(page.getByText("Free preview keeps the latest 3 local snapshots.")).toBeVisible();
+  await expect(page.locator(".history-item")).toHaveCount(3);
+  await expect(page.locator(".history-item").first()).toContainText("6 B");
+});
+
 test("history shows an empty diff after restoring the matching snapshot", async ({ page }) => {
   await page.goto("/web?utm_source=e2e&utm_medium=history-match");
 

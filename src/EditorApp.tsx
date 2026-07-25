@@ -390,7 +390,7 @@ function localHistoryRecordToSnapshot(
   };
 }
 
-function readLocalHistory(storageKey: string, filePath: string): HistorySnapshot[] {
+export function readLocalHistory(storageKey: string, filePath: string): HistorySnapshot[] {
   try {
     const parsed = JSON.parse(localStorage.getItem(storageKey) || "[]");
     if (!Array.isArray(parsed)) return [];
@@ -416,7 +416,7 @@ export function limitHistorySnapshots<T>(snapshots: T[]) {
   return snapshots.slice(0, freeHistorySnapshotLimit);
 }
 
-function writeLocalHistory(storageKey: string, snapshots: HistorySnapshot[]) {
+export function writeLocalHistory(storageKey: string, snapshots: HistorySnapshot[]) {
   const records: BrowserHistoryRecord[] = snapshots
     .slice(0, freeHistorySnapshotLimit)
     .map((snapshot) => ({
@@ -429,7 +429,7 @@ function writeLocalHistory(storageKey: string, snapshots: HistorySnapshot[]) {
   localStorage.setItem(storageKey, JSON.stringify(records));
 }
 
-function createLocalHistorySnapshot(
+export function createLocalHistorySnapshot(
   storageKey: string,
   filePath: string,
   idPrefix: string,
@@ -454,15 +454,15 @@ function createLocalHistorySnapshot(
   return nextSnapshots;
 }
 
-function readBrowserHistory() {
+export function readBrowserHistory() {
   return readLocalHistory(browserHistoryKey, "browser:draft");
 }
 
-function writeBrowserHistory(snapshots: HistorySnapshot[]) {
+export function writeBrowserHistory(snapshots: HistorySnapshot[]) {
   writeLocalHistory(browserHistoryKey, snapshots);
 }
 
-function createBrowserHistorySnapshot(fileName: string, contents: string) {
+export function createBrowserHistorySnapshot(fileName: string, contents: string) {
   return createLocalHistorySnapshot(
     browserHistoryKey,
     "browser:draft",
@@ -472,15 +472,15 @@ function createBrowserHistorySnapshot(fileName: string, contents: string) {
   );
 }
 
-function readDraftHistory() {
+export function readDraftHistory() {
   return readLocalHistory(draftHistoryKey, "desktop:unsaved-draft");
 }
 
-function writeDraftHistory(snapshots: HistorySnapshot[]) {
+export function writeDraftHistory(snapshots: HistorySnapshot[]) {
   writeLocalHistory(draftHistoryKey, snapshots);
 }
 
-function createDraftHistorySnapshot(fileName: string, contents: string) {
+export function createDraftHistorySnapshot(fileName: string, contents: string) {
   return createLocalHistorySnapshot(
     draftHistoryKey,
     "desktop:unsaved-draft",

@@ -1,12 +1,41 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildFocusedLineDiff,
   buildLineDiff,
+  createBrowserHistorySnapshot,
   createDesktopHandoffUrl,
+  createDraftHistorySnapshot,
   freeHistorySnapshotLimit,
   limitHistorySnapshots,
   parseDesktopHandoffUrl,
+  readBrowserHistory,
+  readDraftHistory,
 } from "./EditorApp";
+
+function createLocalStorageMock() {
+  const store = new Map<string, string>();
+  return {
+    clear: vi.fn(() => store.clear()),
+    getItem: vi.fn((key: string) => store.get(key) ?? null),
+    removeItem: vi.fn((key: string) => {
+      store.delete(key);
+    }),
+    setItem: vi.fn((key: string, value: string) => {
+      store.set(key, value);
+    }),
+  };
+}
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-07-25T00:00:00Z"));
+  vi.stubGlobal("localStorage", createLocalStorageMock());
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.unstubAllGlobals();
+});
 
 describe("desktop handoff URLs", () => {
   it("round-trips Markdown drafts through the VeloWrite import URL", () => {
@@ -22,6 +51,12 @@ describe("desktop handoff URLs", () => {
 
   it("rejects non-VeloWrite URLs", () => {
     expect(parseDesktopHandoffUrl("https://velowrite.app/web")).toBeNull();
+  });
+
+  it("rejects malformed or incomplete VeloWrite import URLs", () => {
+    expect(parseDesktopHandoffUrl("velowrite://open?payload=abc")).toBeNull();
+    expect(parseDesktopHandoffUrl("velowrite://import")).toBeNull();
+    expect(parseDesktopHandoffUrl("velowrite://import?payload=not-json")).toBeNull();
   });
 
   it("returns null when the encoded draft is too large for a practical deep link", () => {
@@ -73,5 +108,26 @@ describe("free preview history policy", () => {
       "middle",
       "oldest",
     ]);
+  });
+
+  it("rotates browser history down to the latest three unique snapshots", () => {
+    for (const contents of ["one", "two", "three", "four"]) {
+      createBrowserHistorySnapshot("Scratch", contents);
+      vi.advanceTimersByTime(1);
+    }
+
+    const snapshots = readBrowserHistory();
+
+    expect(snapshots).toHaveLength(3);
+    expect(snapshots.map((snapshot) => snapshot.contents)).toEqual(["four", "three", "two"]);
+    expect(snapshots.every((snapshot) => snapshot.entry.file_name === "Scratch.md")).toBe(true);
+  });
+
+  it("does not duplicate adjacent draft snapshots with identical contents", () => {
+    createDraftHistorySnapshot("Draft", "same");
+    vi.advanceTimersByTime(1);
+    createDraftHistorySnapshot("Draft", "same");
+
+    expect(readDraftHistory()).toHaveLength(1);
   });
 });
