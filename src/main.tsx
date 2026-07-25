@@ -271,9 +271,9 @@ function routeSeo(pathname: string): SeoConfig {
 
   if (matchesRoute(pathname, "/pro")) {
     return {
-      title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
-      description:
-        "Explore the planned VeloWrite Pro path for AI writing commands, private sync, publishing automation, advanced exports, and team workflows.",
+        title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
+        description:
+        "Explore the planned VeloWrite Pro path, early pricing preview, AI writing commands, advanced exports, recovery controls, and future workflow features.",
       canonicalPath: "/pro",
     };
   }
@@ -811,12 +811,12 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Is VeloWrite free to use today?",
         answer:
-          "The current public build is a free preview for early testers. Future AI, private sync, publishing automation, advanced exports, and team workflows may become Pro features.",
+          "The current public build is a free preview for early testers. The first Pro direction focuses on AI writing workflows, advanced export, and deeper recovery while heavier cloud features remain later candidates.",
       },
       {
         question: "What will VeloWrite Pro include?",
         answer:
-          "The planned Pro direction includes AI writing commands, private sync, one-click publishing, advanced exports, themes, and commercial workflows. Pricing will be published before checkout opens.",
+          "The planned early Pro direction is $29/year with a $99 lifetime local-Pro option. It is expected to include AI writing actions with fair-use credits, BYOK AI, advanced export, and deeper local recovery. Checkout is not open yet.",
       },
       {
         question: "Where do I send feedback if something feels off?",
@@ -1831,7 +1831,7 @@ const contentPages: Record<string, ContentPage> = {
           "Can I use VeloWrite without signing in? Yes. The current web editor is available without an account.",
           "Can I download my file? Yes. You can download a Markdown copy and export HTML from the browser.",
           "Is the desktop app required? No. It is recommended when you need native files, offline work, recent files, and local history snapshots.",
-          "Will AI and sync be free? Basic writing stays free in the preview. AI, managed private sync, publishing automation, and advanced export are future Pro candidates.",
+          "Will AI be free? Basic writing stays free in the preview. AI writing actions, advanced export, and deeper recovery are likely Pro features, while sync and publishing remain later candidates.",
         ],
       },
     ],
@@ -2714,6 +2714,42 @@ function InteractiveDemoPage() {
 }
 
 function ProPage() {
+  const proPlans = [
+    {
+      name: "Free Preview",
+      price: "$0",
+      note: "Try the editor before trusting it with daily work.",
+      features: [
+        "Web and desktop Markdown editing",
+        "Live preview and HTML export",
+        "Native file open/save",
+        "Latest 3 local history snapshots",
+      ],
+    },
+    {
+      name: "Pro Yearly",
+      price: "$29/year",
+      note: "Planned early-access price for the first paid users.",
+      features: [
+        "AI writing actions with fair-use credits",
+        "Deeper local history and named checkpoints",
+        "Advanced export styles",
+        "BYOK AI support",
+      ],
+    },
+    {
+      name: "Lifetime Early",
+      price: "$99",
+      note: "Planned early local-Pro license for people who prefer ownership.",
+      features: [
+        "Lifetime local Pro features",
+        "Advanced recovery and export features",
+        "BYOK AI included",
+        "Hosted AI credits are limited, not unlimited",
+      ],
+    },
+  ];
+
   return (
     <div className="pro-page">
       <header className="landing-nav">
@@ -2740,9 +2776,9 @@ function ProPage() {
             </div>
             <h1>Free preview now. Pro workflows when the foundation is ready.</h1>
             <p>
-              VeloWrite is currently free to test. Pro will focus on the expensive,
-              high-value workflows that go beyond a local Markdown editor: AI,
-              private sync, publishing, and advanced export.
+              VeloWrite is currently free to test. The first Pro direction is
+              intentionally focused: AI writing workflows, better export, and
+              deeper local recovery before heavier cloud features.
             </p>
             <div className="hero-actions">
               <a className="primary-link" href="/web?utm_source=pro_hero&utm_medium=cta">
@@ -2760,38 +2796,69 @@ function ProPage() {
               <p>Markdown editing, preview, local files, browser drafts, and basic desktop history recovery.</p>
             </div>
             <div>
-              <span>Future Pro</span>
-              <strong>TBD</strong>
-              <p>AI commands, private sync, one-click publishing, advanced export, and deeper recovery controls.</p>
+              <span>Pricing preview</span>
+              <strong>$29/year</strong>
+              <p>Early Pro pricing is planned before checkout opens, with a $99 lifetime local-Pro option.</p>
             </div>
           </div>
+        </section>
+
+        <section className="pro-pricing" aria-label="Planned Pro pricing">
+          <div className="section-heading">
+            <span>Pricing preview</span>
+            <h2>Simple early pricing, with clear AI limits.</h2>
+            <p>
+              These prices are a planning preview, not an active checkout. The
+              goal is to set expectations early and avoid surprising users when
+              Pro opens.
+            </p>
+          </div>
+          <div className="pro-price-grid">
+            {proPlans.map((plan) => (
+              <article key={plan.name}>
+                <span>{plan.name}</span>
+                <strong>{plan.price}</strong>
+                <p>{plan.note}</p>
+                <ul>
+                  {plan.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+          <p className="pro-pricing-note">
+            Hosted AI will use fair-use credits to keep the product sustainable.
+            Lifetime access is planned for local Pro features; unlimited hosted
+            AI is not planned.
+          </p>
         </section>
 
         <section className="pro-grid" aria-label="Future Pro capabilities">
           <article>
             <WandSparkles size={22} />
-            <h2>AI-native writing</h2>
-            <p>Draft, rewrite, summarize, convert outlines, and generate Mermaid diagrams from Markdown context.</p>
+            <h2>AI writing workflows</h2>
+            <p>Turn notes into articles, generate READMEs, polish technical sections, summarize meetings, and expand outlines.</p>
           </article>
           <article>
-            <Cloud size={22} />
-            <h2>Private sync</h2>
-            <p>Bring local-first notes across machines without forcing users into a heavy hosted workspace.</p>
-          </article>
-          <article>
-            <Rocket size={22} />
-            <h2>One-click publishing</h2>
-            <p>Turn a Markdown file into a GitHub Pages or Vercel-backed static site from the editor workflow.</p>
-          </article>
-          <article>
-            <LockKeyhole size={22} />
-            <h2>Commercial controls</h2>
-            <p>Licensing, export polish, and privacy-first defaults for people writing work documents every day.</p>
+            <FileText size={22} />
+            <h2>Advanced export</h2>
+            <p>Improve PDF output, add DOCX export, and support cleaner article, README, newsletter, and documentation templates.</p>
           </article>
           <article>
             <GitBranch size={22} />
             <h2>Advanced recovery</h2>
-            <p>Longer retention, more restore points, cross-device recovery, and richer diff navigation after the free baseline is stable.</p>
+            <p>Longer retention, named checkpoints, richer diff review, and safer restore workflows after the free baseline is stable.</p>
+          </article>
+          <article>
+            <LockKeyhole size={22} />
+            <h2>Local-first by default</h2>
+            <p>Keep basic files local while optional paid workflows add value without forcing every user into a hosted workspace.</p>
+          </article>
+          <article>
+            <Rocket size={22} />
+            <h2>Later workflow options</h2>
+            <p>Private sync, one-click publishing, and team workflows remain possible after the individual writing workflow proves demand.</p>
           </article>
         </section>
 
@@ -2810,10 +2877,10 @@ function ProPage() {
               ["Markdown writing", "Web and desktop editing", "More structured writing workflows"],
               ["Local files", "Native desktop open/save", "Vault workflows and workspace polish"],
               ["History recovery", "Basic local snapshots and restore preview", "Longer retention, more restore points, and cross-device recovery"],
-              ["AI", "Not active", "Rewrite, summarize, continue, convert"],
-              ["Sync", "Not active", "Private multi-device sync"],
-              ["Publishing", "HTML export today", "Deploy to GitHub Pages or Vercel"],
-              ["Pricing", "Free preview", "Published before checkout opens"],
+              ["AI", "Not active", "Task-based writing actions with fair-use credits and BYOK"],
+              ["Export", "Markdown download and HTML export", "Better PDF, DOCX, templates, and custom styling"],
+              ["Sync", "Not active", "Later only if paid users prove demand"],
+              ["Pricing", "Free preview", "$29/year early Pro and $99 lifetime local-Pro planned"],
             ].map(([capability, preview, pro]) => (
               <div className="pro-row" key={capability}>
                 <span>{capability}</span>
@@ -2826,8 +2893,8 @@ function ProPage() {
 
         <section className="pro-waitlist" aria-label="Pro interest signup">
           <div>
-            <span>Shape Pro before pricing</span>
-            <h2>Join the list if AI, sync, or publishing would make VeloWrite worth paying for.</h2>
+            <span>Shape Pro before checkout</span>
+            <h2>Join the list if AI writing, better export, or deeper recovery would make VeloWrite worth paying for.</h2>
           </div>
           <WaitlistForm source="pro" label="Join the Pro interest list" />
         </section>
@@ -3198,28 +3265,47 @@ function ContentPage({ page }: { page: keyof typeof contentPages }) {
           )}
 
           <article className="content-article">
-            {content.sections.map((section) => (
-              <section id={section.id} key={section.title}>
-                <h2>{section.title}</h2>
-                {section.body.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-                {section.example && (
-                  <React.Suspense
-                    fallback={
-                      <div className="content-example">
-                        <div className="content-example-header">
-                          <span>{section.example.label}</span>
+            {content.sections.map((section, index) =>
+              page === "changelog" ? (
+                <details
+                  id={section.id}
+                  className="changelog-entry"
+                  key={section.title}
+                  open={index <= 2}
+                >
+                  <summary>
+                    <span>{section.title}</span>
+                    <small>{section.body.length} updates</small>
+                  </summary>
+                  <div>
+                    {section.body.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
+                </details>
+              ) : (
+                <section id={section.id} key={section.title}>
+                  <h2>{section.title}</h2>
+                  {section.body.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                  {section.example && (
+                    <React.Suspense
+                      fallback={
+                        <div className="content-example">
+                          <div className="content-example-header">
+                            <span>{section.example.label}</span>
+                          </div>
+                          <div className="content-example-loading">Loading rendered preview</div>
                         </div>
-                        <div className="content-example-loading">Loading rendered preview</div>
-                      </div>
-                    }
-                  >
-                    <RenderedMarkdownExample example={section.example} />
-                  </React.Suspense>
-                )}
-              </section>
-            ))}
+                      }
+                    >
+                      <RenderedMarkdownExample example={section.example} />
+                    </React.Suspense>
+                  )}
+                </section>
+              ),
+            )}
 
             <section className="content-cta" aria-label="Next action">
               <a className="primary-link" href={content.cta.primary.href}>
