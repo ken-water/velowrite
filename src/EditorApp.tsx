@@ -142,7 +142,7 @@ const editorFontSizeKey = "velowrite:editor-font-size";
 const defaultViewModeKey = "velowrite:default-view-mode";
 const browserHistoryKey = "velowrite:browser-history";
 const draftHistoryKey = "velowrite:draft-history";
-const browserHistoryLimit = 12;
+export const freeHistorySnapshotLimit = 3;
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
 const desktopHandoffUrlLimit = 12000;
@@ -405,16 +405,20 @@ function readLocalHistory(storageKey: string, filePath: string): HistorySnapshot
           typeof record.contents === "string",
       )
       .sort((a, b) => b.createdAt - a.createdAt)
-      .slice(0, browserHistoryLimit)
+      .slice(0, freeHistorySnapshotLimit)
       .map((record) => localHistoryRecordToSnapshot(record, storageKey, filePath));
   } catch {
     return [];
   }
 }
 
+export function limitHistorySnapshots<T>(snapshots: T[]) {
+  return snapshots.slice(0, freeHistorySnapshotLimit);
+}
+
 function writeLocalHistory(storageKey: string, snapshots: HistorySnapshot[]) {
   const records: BrowserHistoryRecord[] = snapshots
-    .slice(0, browserHistoryLimit)
+    .slice(0, freeHistorySnapshotLimit)
     .map((snapshot) => ({
       id: snapshot.entry.id,
       fileName: snapshot.entry.file_name,
@@ -444,7 +448,7 @@ function createLocalHistorySnapshot(
   const nextSnapshots = [
     localHistoryRecordToSnapshot(record, storageKey, filePath),
     ...snapshots.filter((snapshot) => snapshot.contents !== contents),
-  ].slice(0, browserHistoryLimit);
+  ].slice(0, freeHistorySnapshotLimit);
 
   writeLocalHistory(storageKey, nextSnapshots);
   return nextSnapshots;
@@ -945,6 +949,9 @@ function HistoryPanel({
         {entries.length > 0 ? (
           <div className="history-layout">
             <div className="history-list">
+              <p className="history-limit-note">
+                Free preview keeps the latest {freeHistorySnapshotLimit} local snapshots.
+              </p>
               {entries.map((entry) => (
                 <div
                   className={
@@ -1050,10 +1057,10 @@ function HistoryPanel({
             </h3>
             <p>
               {scope === "browser"
-                ? "Web history is stored only in this browser. Keep writing for a moment after a change, then VeloWrite will keep a local snapshot for compare and restore."
+                ? `Web history is stored only in this browser. The free preview keeps the latest ${freeHistorySnapshotLimit} local snapshots for compare and restore.`
                 : hasLocalFile
-                  ? "This file is ready for history. After you edit it and save again, VeloWrite will keep the version from before that save here."
-                  : "Unsaved desktop drafts keep local recovery points on this device. Edit for a moment, then VeloWrite will let you compare and restore earlier draft content before the file has a path."}
+                  ? `This file is ready for history. After you edit it and save again, VeloWrite keeps the latest ${freeHistorySnapshotLimit} versions from before each save.`
+                  : `Unsaved desktop drafts keep local recovery points on this device. The free preview keeps the latest ${freeHistorySnapshotLimit} draft snapshots before the file has a path.`}
             </p>
           </div>
         )}

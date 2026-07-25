@@ -33,7 +33,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.1.10";
+const downloadVersion = "0.1.11";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -585,7 +585,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free safety workflow",
     decision:
-      "Basic local history and restore preview should stay free because recovery is part of document safety. Reasonable free limits may apply later, but users should always have enough recovery for normal writing.",
+      "Basic local history and restore preview stay free because recovery is part of document safety. The current free preview keeps the latest 3 local snapshots so the rule is clear before deeper Pro history controls are designed.",
   },
   {
     title: "Advanced history and recovery controls",
@@ -594,7 +594,7 @@ const publicRoadmapItems = [
     target: "0.2.x / 0.3.x",
     classification: "Recovery policy design",
     decision:
-      "Before any restore limits become real product behavior, VeloWrite should clearly explain snapshot counts, retention rules, export paths, and what remains available for everyday recovery.",
+      "The free preview now keeps 3 local snapshots. Longer retention, richer recovery review, cross-device history, and exportable recovery archives remain candidates for later Pro design.",
   },
   {
     title: "Web to desktop draft handoff",
@@ -1821,6 +1821,7 @@ const contentPages: Record<string, ContentPage> = {
     updated: "July 25, 2026",
     directory: [
       { label: "Unreleased", href: "#unreleased" },
+      { label: "0.1.11", href: "#v0111" },
       { label: "0.1.10", href: "#v0110" },
       { label: "0.1.9", href: "#v019" },
       { label: "0.1.8", href: "#v018" },
@@ -1838,11 +1839,18 @@ const contentPages: Record<string, ContentPage> = {
         id: "unreleased",
         title: "Unreleased",
         body: [
-          "Added build-time static SEO HTML generation for public website routes so crawlers can read route-specific title, description, canonical, and structured data before JavaScript runs.",
-          "Added generated 404.html output so static hosting can keep the friendly 404 page while returning a real 404 status for unknown routes.",
-          "Added more natural-language FAQ coverage for private online Markdown editing, lightweight Windows Markdown editing, Typora comparison, offline use, and private notes.",
-          "Updated sitemap lastmod dates during the SEO build step.",
-          "Simplified Vercel routing so known pages are served as static clean URLs instead of using a full SPA catch-all rewrite.",
+          "Preparing the next Markdown article and continued onboarding improvements.",
+        ],
+      },
+      {
+        id: "v0111",
+        title: "0.1.11 preview",
+        body: [
+          "Set the free preview history policy to the latest 3 local snapshots across browser drafts, unsaved desktop drafts, and native desktop file history.",
+          "Added clearer history panel copy so users understand what is kept locally and why older snapshots rotate out.",
+          "Improved global control spacing on the website and editor surfaces so compact buttons and text links feel less crowded.",
+          "Improved download page CTA spacing and moved the analytics consent banner away from the primary platform cards on desktop.",
+          "Kept the SEO/GEO static rendering improvements from the previous unreleased work in this preview line.",
         ],
       },
       {
@@ -2985,6 +2993,7 @@ function DownloadPage() {
               <li>No code signing yet for Windows, and future macOS preview DMGs will also require signing and notarization work</li>
               <li>No account system, cloud sync, encrypted sharing, or team workspace</li>
               <li>No active AI assistant or publishing automation in the public build</li>
+              <li>Free preview keeps the latest 3 local history snapshots for recovery</li>
               <li>Important writing should still be backed up outside the app</li>
             </ul>
           </article>

@@ -3,6 +3,8 @@ import {
   buildFocusedLineDiff,
   buildLineDiff,
   createDesktopHandoffUrl,
+  freeHistorySnapshotLimit,
+  limitHistorySnapshots,
   parseDesktopHandoffUrl,
 } from "./EditorApp";
 
@@ -60,5 +62,16 @@ describe("history diff previews", () => {
     const focused = buildFocusedLineDiff(buildLineDiff("A\nB\nC", "A\nB\nC"));
 
     expect(focused).toEqual([]);
+  });
+});
+
+describe("free preview history policy", () => {
+  it("keeps the free local history limit intentionally small and explicit", () => {
+    expect(freeHistorySnapshotLimit).toBe(3);
+    expect(limitHistorySnapshots(["newest", "middle", "oldest", "rotated"])).toEqual([
+      "newest",
+      "middle",
+      "oldest",
+    ]);
   });
 });

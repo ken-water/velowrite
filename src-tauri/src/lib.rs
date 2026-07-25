@@ -7,6 +7,9 @@ use serde::{Deserialize, Serialize};
 use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
 use tauri::{AppHandle, Emitter, Manager, Runtime};
 
+const FREE_HISTORY_SNAPSHOT_LIMIT: usize = 3;
+const GLOBAL_HISTORY_INDEX_LIMIT: usize = 120;
+
 #[derive(Serialize)]
 struct MarkdownFile {
     path: String,
@@ -97,7 +100,7 @@ fn create_history_snapshot(
 
     let mut entries = read_history_index(&app)?;
     entries.insert(0, entry.clone());
-    entries.truncate(80);
+    entries.truncate(GLOBAL_HISTORY_INDEX_LIMIT);
     prune_file_history(&mut entries, &entry.file_path);
     write_history_index(&app, &entries)?;
 
@@ -110,7 +113,7 @@ fn list_history_snapshots(app: AppHandle, file_path: String) -> Result<Vec<Histo
     Ok(entries
         .into_iter()
         .filter(|entry| entry.file_path == file_path)
-        .take(30)
+        .take(FREE_HISTORY_SNAPSHOT_LIMIT)
         .collect())
 }
 
@@ -150,7 +153,7 @@ fn prune_file_history(entries: &mut Vec<HistoryEntry>, file_path: &str) {
         }
 
         seen_for_file += 1;
-        if seen_for_file <= 30 {
+        if seen_for_file <= FREE_HISTORY_SNAPSHOT_LIMIT {
             true
         } else {
             remove_paths.push(entry.snapshot_path.clone());

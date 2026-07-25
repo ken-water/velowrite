@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.1.10"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.1.11"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -375,7 +375,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.1\.10_aarch64\.dmg/,
+    /VeloWrite_0\.1\.11_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
@@ -383,6 +383,7 @@ test("download page presents user-facing preview information", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Install Safety Notes" })).toBeVisible();
   await expect(page.getByText("official GitHub Releases page")).toBeVisible();
   await expect(page.getByText("Windows builds are not code-signed yet")).toBeVisible();
+  await expect(page.getByText("Free preview keeps the latest 3 local history snapshots")).toBeVisible();
   await expect(page.getByRole("link", { name: "Download PDF Guide" })).toHaveAttribute(
     "href",
     "/markdown-guide.pdf",

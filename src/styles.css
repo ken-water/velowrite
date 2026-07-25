@@ -2120,6 +2120,18 @@ pre,
   overflow: auto;
 }
 
+.history-limit-note {
+  margin: 0 0 4px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+  color: var(--muted-strong);
+  font-size: 12px;
+  font-weight: 720;
+  line-height: 1.45;
+}
+
 .history-empty {
   display: grid;
   min-height: 260px;
