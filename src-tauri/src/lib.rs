@@ -1,6 +1,6 @@
 use std::fs;
 use std::hash::{DefaultHasher, Hash, Hasher};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
@@ -49,6 +49,11 @@ fn read_markdown_file(path: String) -> Result<MarkdownFile, String> {
 }
 
 #[tauri::command]
+fn get_launch_files() -> Vec<String> {
+    markdown_paths_from_args(std::env::args().collect::<Vec<_>>())
+}
+
+#[tauri::command]
 fn read_recent_markdown_file(path: String) -> Result<MarkdownFile, String> {
     read_markdown_file_from_path(path)
 }
@@ -72,6 +77,35 @@ fn read_markdown_file_from_path(path: String) -> Result<MarkdownFile, String> {
 fn write_markdown_file(path: String, contents: String) -> Result<String, String> {
     fs::write(&path, contents).map_err(|error| error.to_string())?;
     Ok(path)
+}
+
+fn markdown_paths_from_args(args: Vec<String>) -> Vec<String> {
+    args.into_iter()
+        .filter_map(|arg| markdown_path_from_arg(&arg))
+        .collect()
+}
+
+fn markdown_path_from_arg(arg: &str) -> Option<String> {
+    if arg.starts_with('-') || arg.starts_with("velowrite://") {
+        return None;
+    }
+
+    let path = PathBuf::from(arg);
+    if !path.is_file() {
+        return None;
+    }
+
+    let extension = path.extension()?.to_string_lossy().to_ascii_lowercase();
+    if !matches!(extension.as_str(), "md" | "markdown" | "mdown") {
+        return None;
+    }
+
+    Some(
+        fs::canonicalize(&path)
+            .unwrap_or(path)
+            .to_string_lossy()
+            .to_string(),
+    )
 }
 
 #[tauri::command]
@@ -262,6 +296,35 @@ mod tests {
 
         let _ = fs::remove_dir_all(dir);
     }
+
+    #[test]
+    fn launch_file_parser_keeps_existing_markdown_files_only() {
+        let dir = std::env::temp_dir().join(format!("velowrite-launch-test-{}", now_ms()));
+        fs::create_dir_all(&dir).expect("create temp launch dir");
+
+        let markdown_path = dir.join("notes.md");
+        let uppercase_path = dir.join("README.MARKDOWN");
+        let text_path = dir.join("notes.txt");
+        fs::write(&markdown_path, "# Notes").expect("write markdown");
+        fs::write(&uppercase_path, "# Readme").expect("write uppercase markdown");
+        fs::write(&text_path, "not markdown").expect("write text");
+
+        let paths = markdown_paths_from_args(vec![
+            "velowrite.exe".to_string(),
+            "--flag".to_string(),
+            "velowrite://import?payload=abc".to_string(),
+            text_path.to_string_lossy().to_string(),
+            markdown_path.to_string_lossy().to_string(),
+            uppercase_path.to_string_lossy().to_string(),
+            dir.join("missing.md").to_string_lossy().to_string(),
+        ]);
+
+        assert_eq!(paths.len(), 2);
+        assert!(paths.iter().any(|path| path.ends_with("notes.md")));
+        assert!(paths.iter().any(|path| path.ends_with("README.MARKDOWN")));
+
+        let _ = fs::remove_dir_all(dir);
+    }
 }
 
 fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::menu::Menu<R>> {
@@ -337,10 +400,14 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            let paths = markdown_paths_from_args(args);
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
                 let _ = window.set_focus();
+            }
+            if !paths.is_empty() {
+                let _ = app.emit("velowrite-open-files", paths);
             }
         }))
         .plugin(tauri_plugin_deep_link::init())
@@ -381,6 +448,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             app_ready,
             force_close_app,
+            get_launch_files,
             read_markdown_file,
             read_recent_markdown_file,
             write_markdown_file,

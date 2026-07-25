@@ -33,7 +33,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.1.11";
+const downloadVersion = "0.1.12";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -1848,6 +1848,7 @@ const contentPages: Record<string, ContentPage> = {
     updated: "July 25, 2026",
     directory: [
       { label: "Unreleased", href: "#unreleased" },
+      { label: "0.1.12", href: "#v0112" },
       { label: "0.1.11", href: "#v0111" },
       { label: "0.1.10", href: "#v0110" },
       { label: "0.1.9", href: "#v019" },
@@ -1867,6 +1868,16 @@ const contentPages: Record<string, ContentPage> = {
         title: "Unreleased",
         body: [
           "Preparing the next Markdown article and continued onboarding improvements.",
+        ],
+      },
+      {
+        id: "v0112",
+        title: "0.1.12 preview",
+        body: [
+          "Added Windows Markdown file association metadata for .md, .markdown, and .mdown documents.",
+          "Added system Open With handling so VeloWrite can receive a Markdown file path when launched from Windows Explorer.",
+          "Added single-instance file handoff so opening another Markdown file while VeloWrite is already running focuses the app and opens the requested file.",
+          "Added a VeloWrite Start Menu folder for the Windows NSIS installer.",
         ],
       },
       {

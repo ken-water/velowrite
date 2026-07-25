@@ -6,6 +6,28 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 ## Unreleased
 
+## [0.1.12] - 2026-07-25
+
+### Added
+
+- Added Windows file association metadata for `.md`, `.markdown`, and `.mdown` documents.
+- Added launch-argument handling so Windows Explorer "Open with" can open a Markdown file directly in VeloWrite.
+- Added single-instance file handoff so opening a Markdown file while VeloWrite is already running focuses the app and opens the requested file.
+- Added a VeloWrite Start Menu folder for the Windows NSIS installer shortcut.
+
+## [0.1.11] - 2026-07-25
+
+### Changed
+
+- Set the free preview history policy to the latest 3 local snapshots across browser drafts, unsaved desktop drafts, and native desktop file history.
+- Added a clearer desktop Continue Draft start panel with current draft name and 3-snapshot recovery status.
+- Changed the editor status bar to show history as `0 / 3`, `1 / 3`, `2 / 3`, or `3 / 3` snapshots instead of an open-ended count.
+- Improved desktop save feedback so users know when the previous version was kept or when the oldest snapshot rotated out.
+- Added the installed app version to the desktop About panel.
+- Improved website/editor control spacing and synchronized LLM release metadata.
+
+## [0.1.10] - 2026-07-25
+
 ### Added
 
 - Added build-time static SEO HTML generation for public website routes so crawlers can read route-specific title, description, canonical, and structured data before JavaScript runs.
@@ -16,8 +38,6 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 - Updated sitemap `lastmod` dates during the SEO build step.
 - Simplified Vercel routing so known pages are served as static clean URLs instead of using a full SPA catch-all rewrite.
-
-## [0.1.10] - 2026-07-25
 
 ### Fixed
 

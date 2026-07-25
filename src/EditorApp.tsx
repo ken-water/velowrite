@@ -73,6 +73,8 @@ type NativeApi = {
   deleteHistorySnapshot: (id: string) => Promise<void>;
   getInitialDeepLinks: () => Promise<string[]>;
   listenDeepLinks: (handler: (urls: string[]) => void) => Promise<() => void>;
+  getLaunchFiles: () => Promise<string[]>;
+  listenLaunchFiles: (handler: (paths: string[]) => void) => Promise<() => void>;
   listenMenuCommand: (handler: (command: string) => void) => Promise<() => void>;
   listenCloseRequested: (handler: () => Promise<boolean>) => Promise<() => void>;
   listenPathDrop: (handler: (paths: string[]) => void) => Promise<() => void>;
@@ -142,7 +144,7 @@ const editorFontSizeKey = "velowrite:editor-font-size";
 const defaultViewModeKey = "velowrite:default-view-mode";
 const browserHistoryKey = "velowrite:browser-history";
 const draftHistoryKey = "velowrite:draft-history";
-const appVersion = "0.1.11";
+const appVersion = "0.1.12";
 export const freeHistorySnapshotLimit = 3;
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
@@ -627,6 +629,15 @@ function useNativeApi(): NativeApi | null {
         },
         async listenDeepLinks(handler) {
           return deepLink.onOpenUrl(handler);
+        },
+        async getLaunchFiles() {
+          return invoke<string[]>("get_launch_files");
+        },
+        async listenLaunchFiles(handler) {
+          const unlisten = await eventApi.listen<string[]>("velowrite-open-files", (event) => {
+            handler(event.payload);
+          });
+          return unlisten;
         },
         async listenMenuCommand(handler) {
           const unlisten = await eventApi.listen<string>("velowrite-menu", (event) => {
@@ -1603,7 +1614,7 @@ export default function EditorApp({
 
     void nativeApi.listenPathDrop((paths) => {
       const [path] = paths;
-      if (path) void openDroppedPath(path);
+      if (path) void openNativePath(path, "Dropped file opened", "Drop open");
     }).then((cleanup) => {
       unlistenDrop = cleanup;
     });
@@ -1611,6 +1622,37 @@ export default function EditorApp({
     return () => {
       unlistenClose?.();
       unlistenDrop?.();
+    };
+  }, [nativeApi]);
+
+  React.useEffect(() => {
+    if (!nativeApi) return;
+
+    let cancelled = false;
+    let unlisten: (() => void) | undefined;
+
+    function openFirstPath(paths: string[]) {
+      const [path] = paths.filter(Boolean);
+      if (path) void openNativePath(path, "Opened from system", "Open with");
+    }
+
+    void nativeApi
+      .getLaunchFiles()
+      .then((paths) => {
+        if (!cancelled) openFirstPath(paths);
+      })
+      .catch((error) => setErrorStatus("Open with", error));
+
+    void nativeApi
+      .listenLaunchFiles(openFirstPath)
+      .then((cleanup) => {
+        unlisten = cleanup;
+      })
+      .catch((error) => setErrorStatus("Open with", error));
+
+    return () => {
+      cancelled = true;
+      unlisten?.();
     };
   }, [nativeApi]);
 
@@ -2181,16 +2223,16 @@ export default function EditorApp({
     reader.readAsText(file);
   }
 
-  async function openDroppedPath(path: string) {
+  async function openNativePath(path: string, successStatus: string, errorAction: string) {
     if (!nativeApi) return;
     if (!(await confirmDiscardChanges())) return;
 
     try {
       const nextFile = await nativeApi.openRecentMarkdownFile(path);
       loadDocument(nextFile);
-      setStatus("Dropped file opened");
+      setStatus(successStatus);
     } catch (error) {
-      setErrorStatus("Drop open", error);
+      setErrorStatus(errorAction, error);
     }
   }
 
