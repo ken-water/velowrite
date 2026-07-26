@@ -137,6 +137,7 @@ type DiffLine = {
 
 const draftKey = "velowrite:draft";
 const draftNameKey = "velowrite:draft-name";
+const lastLocalFileKey = "velowrite:last-local-file";
 const recentFilesKey = "velowrite:recent-files";
 const autoSaveFileKey = "velowrite:auto-save-file";
 const themeModeKey = "velowrite:theme-mode";
@@ -707,6 +708,30 @@ function getStoredRecentFiles(): RecentFile[] {
 
 function storeRecentFiles(files: RecentFile[]) {
   localStorage.setItem(recentFilesKey, JSON.stringify(files.slice(0, 8)));
+}
+
+export function getStoredLastLocalFile(): RecentFile | null {
+  try {
+    const value = localStorage.getItem(lastLocalFileKey);
+    if (!value) return null;
+    const parsed = JSON.parse(value);
+    if (
+      parsed &&
+      typeof parsed.path === "string" &&
+      parsed.path.length > 0 &&
+      typeof parsed.name === "string"
+    ) {
+      return parsed;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+export function storeLastLocalFile(file: RecentFile) {
+  if (!file.path) return;
+  localStorage.setItem(lastLocalFileKey, JSON.stringify(file));
 }
 
 function getInitialViewMode(surface: EditorSurface, initialViewMode?: ViewMode): ViewMode {
@@ -1316,6 +1341,8 @@ export default function EditorApp({
   const draftHistoryBaseline = React.useRef<string | null>(null);
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
   const handoffImportRef = React.useRef<(draft: HandoffDraft) => void>(() => undefined);
+  const launchFileHandled = React.useRef(false);
+  const lastSessionRestoreTried = React.useRef(false);
   const [markdown, setMarkdown] = React.useState(() => {
     return initialMarkdown ?? localStorage.getItem(draftKey) ?? defaultMarkdown;
   });
@@ -1326,6 +1353,7 @@ export default function EditorApp({
   const [recentFiles, setRecentFiles] = React.useState(getStoredRecentFiles);
   const [savedMarkdown, setSavedMarkdown] = React.useState(markdown);
   const [status, setStatus] = React.useState("Draft restored");
+  const [launchFilesChecked, setLaunchFilesChecked] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<ViewMode>(() => {
     return getInitialViewMode(surface, initialViewMode);
   });
@@ -1633,15 +1661,22 @@ export default function EditorApp({
 
     function openFirstPath(paths: string[]) {
       const [path] = paths.filter(Boolean);
-      if (path) void openNativePath(path, "Opened from system", "Open with");
+      if (path) {
+        launchFileHandled.current = true;
+        void openNativePath(path, "Opened from system", "Open with");
+      }
     }
 
     void nativeApi
       .getLaunchFiles()
       .then((paths) => {
         if (!cancelled) openFirstPath(paths);
+        if (!cancelled) setLaunchFilesChecked(true);
       })
-      .catch((error) => setErrorStatus("Open with", error));
+      .catch((error) => {
+        setErrorStatus("Open with", error);
+        if (!cancelled) setLaunchFilesChecked(true);
+      });
 
     void nativeApi
       .listenLaunchFiles(openFirstPath)
@@ -1655,6 +1690,24 @@ export default function EditorApp({
       unlisten?.();
     };
   }, [nativeApi]);
+
+  React.useEffect(() => {
+    if (!nativeApi || !desktopSurface || !launchFilesChecked || lastSessionRestoreTried.current) return;
+
+    lastSessionRestoreTried.current = true;
+    const lastFile = getStoredLastLocalFile();
+    if (!lastFile || launchFileHandled.current) return;
+
+    void nativeApi
+      .openRecentMarkdownFile(lastFile.path)
+      .then((nextFile) => {
+        if (launchFileHandled.current || dirty || filePath) return;
+        loadDocument(nextFile, "Restored last session");
+      })
+      .catch(() => {
+        setStatus("Draft restored");
+      });
+  }, [desktopSurface, dirty, filePath, launchFilesChecked, nativeApi]);
 
   React.useEffect(() => {
     if (!nativeApi) return;
@@ -1700,14 +1753,15 @@ export default function EditorApp({
     });
   }
 
-  function loadDocument(nextFile: NativeFile) {
+  function loadDocument(nextFile: NativeFile, nextStatus = "Opened") {
     setMarkdown(nextFile.contents);
     setSavedMarkdown(nextFile.contents);
     setFilePath(nextFile.path);
     setFileName(nextFile.name || "Untitled.md");
     setStartPanelDismissed(true);
-    setStatus("Opened");
+    setStatus(nextStatus);
     if (!nativeApi) browserHistoryBaseline.current = nextFile.contents;
+    storeLastLocalFile({ path: nextFile.path, name: nextFile.name || "Untitled.md" });
     rememberRecentFile(nextFile.path, nextFile.name || "Untitled.md");
     void refreshHistory(nextFile.path);
   }

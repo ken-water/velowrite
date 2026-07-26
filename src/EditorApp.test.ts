@@ -6,10 +6,12 @@ import {
   createDesktopHandoffUrl,
   createDraftHistorySnapshot,
   freeHistorySnapshotLimit,
+  getStoredLastLocalFile,
   limitHistorySnapshots,
   parseDesktopHandoffUrl,
   readBrowserHistory,
   readDraftHistory,
+  storeLastLocalFile,
 } from "./EditorApp";
 
 function createLocalStorageMock() {
@@ -129,5 +131,24 @@ describe("free preview history policy", () => {
     createDraftHistorySnapshot("Draft", "same");
 
     expect(readDraftHistory()).toHaveLength(1);
+  });
+});
+
+describe("last local file restore", () => {
+  it("stores and reads the most recent local Markdown file", () => {
+    storeLastLocalFile({ path: "/notes/project.md", name: "project.md" });
+
+    expect(getStoredLastLocalFile()).toEqual({ path: "/notes/project.md", name: "project.md" });
+  });
+
+  it("ignores empty paths and malformed stored values", () => {
+    storeLastLocalFile({ path: "", name: "browser-import.md" });
+    expect(getStoredLastLocalFile()).toBeNull();
+
+    localStorage.setItem("velowrite:last-local-file", JSON.stringify({ path: "", name: "broken.md" }));
+    expect(getStoredLastLocalFile()).toBeNull();
+
+    localStorage.setItem("velowrite:last-local-file", "not-json");
+    expect(getStoredLastLocalFile()).toBeNull();
   });
 });

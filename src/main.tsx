@@ -54,6 +54,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/markdown-basics": "Markdown Basics",
   "/docs/markdown-for-writers": "Markdown for Writers",
   "/docs/markdown-for-developers": "Markdown for Developers",
+  "/docs/markdown-math": "Markdown Math",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -143,6 +144,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-code-blocks",
   "/docs/markdown-for-developers",
   "/docs/markdown-for-writers",
+  "/docs/markdown-math",
   "/docs/online-markdown-editor",
 ]);
 
@@ -567,7 +569,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "Six staged articles are now published under /docs, including the local-first workflow guide. Example blocks can now open directly in the web editor, so readers can move from learning to trying without copying text manually.",
+      "Seven staged articles are now published under /docs, including the local-first workflow guide and a practical KaTeX math guide. Example blocks can now open directly in the web editor, so readers can move from learning to trying without copying text manually.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -585,7 +587,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free core experience",
     decision:
-      "The desktop preview now opens directly into the editor, but the next polish pass should keep reducing chrome, tighten hover states, improve first-run templates, and make focus mode feel natural for daily writing.",
+      "The desktop preview now opens directly into the editor and now prepares a last-local-file restore path so returning writers can resume faster. The next polish pass should keep reducing chrome, tighten hover states, improve first-run templates, and make focus mode feel natural for daily writing.",
   },
   {
     title: "Outline and structure map",
@@ -639,7 +641,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free preview quality",
     decision:
-      "Rendering trust is part of the preview foundation. The work should be backed by tests before broader promotion.",
+      "Rendering trust is part of the preview foundation. The published math and code-block guides now exercise KaTeX, tables, code highlighting, and tabbed examples, and the work should keep gaining tests before broader promotion.",
   },
   {
     title: "Better export and publishing preparation",
@@ -687,7 +689,7 @@ const docGroups = [
       { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Published" },
       { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Published" },
       { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Planned" },
-      { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Planned" },
+      { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Published" },
     ],
   },
   {
@@ -1337,36 +1339,100 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Technical writing",
     title: "Markdown Math with KaTeX",
     intro:
-      "Math support turns Markdown into a better format for study notes, engineering docs, product analysis, and research drafts. VeloWrite renders math with KaTeX in the preview.",
-    updated: "July 21, 2026",
+      "Math support makes Markdown useful for study notes, engineering docs, product analysis, and research drafts. VeloWrite renders math with KaTeX in the preview, so you can keep formulas beside the plain-text source that explains them.",
+    updated: "July 26, 2026",
+    directory: [
+      { label: "Inline math", href: "#inline-math" },
+      { label: "Block math", href: "#block-math" },
+      { label: "Variables", href: "#variables" },
+      { label: "Tables", href: "#tables" },
+      { label: "Readable notes", href: "#readable-notes" },
+      { label: "Preview workflow", href: "#preview-workflow" },
+    ],
     sections: [
       {
+        id: "inline-math",
         title: "Use inline math for small expressions",
         body: [
-          "Inline math belongs inside a sentence, where the formula is short enough not to interrupt reading. Use it for symbols, variables, and compact expressions.",
+          "Inline math belongs inside a sentence, where the expression is short enough not to interrupt reading. Use it for variables, units, compact equations, and short references that need to stay close to the surrounding words.",
+          "If the expression needs its own explanation, do not force it inline. Put it in a block and use the paragraph before or after the formula to explain what the reader should notice.",
         ],
         example: {
           label: "Inline math",
-          markdown: "The term $x_i$ represents one input sample, and $n$ is the total number of samples.",
+          markdown:
+            "The term $x_i$ represents one input sample, and $n$ is the total number of samples.\n\nA simple average can be written as $\\bar{x}$ when the full equation is explained nearby.",
           note: "Inline math is best when it supports the sentence instead of replacing it.",
         },
       },
       {
+        id: "block-math",
         title: "Use block math when the formula is the point",
         body: [
-          "Block math should stand on its own. It is better for equations that readers need to inspect, copy, or compare.",
+          "Block math should stand on its own. It is better for equations that readers need to inspect, copy, compare, or discuss in a review.",
+          "A useful pattern is: introduce the idea, show the formula, then explain the variables. That keeps the document readable even for someone who is scanning before they study the details.",
         ],
         example: {
           label: "Block math",
-          markdown: "$$\\bar{x} = \\frac{1}{n}\\sum_{i=1}^{n}x_i$$",
+          markdown:
+            "The arithmetic mean is the sum of all samples divided by the sample count:\n\n$$\\bar{x} = \\frac{1}{n}\\sum_{i=1}^{n}x_i$$\n\nHere, $x_i$ is one sample and $n$ is the total number of samples.",
           note: "Preview the rendered result before sharing technical documents.",
         },
       },
       {
+        id: "variables",
         title: "Keep surrounding explanation clear",
         body: [
           "A formula without context is hard to use. Explain what each variable means, then show the equation, then describe how it affects the document's conclusion.",
+          "Do not assume future readers will remember why a symbol was chosen. In team docs, study notes, and product analysis, a small variable list can save time later.",
         ],
+        example: {
+          label: "Variables beside a formula",
+          markdown:
+            "We use a weighted score when recent signals matter more than older ones:\n\n$$S = \\sum_{i=1}^{n} w_i x_i$$\n\n| Symbol | Meaning |\n| --- | --- |\n| $S$ | Final score |\n| $w_i$ | Weight for signal $i$ |\n| $x_i$ | Signal value |",
+          note: "A short table is useful when symbols appear more than once.",
+        },
+      },
+      {
+        id: "tables",
+        title: "Use tables for small math references",
+        body: [
+          "Tables work well for compact reference material: symbol definitions, parameter ranges, model assumptions, or before-and-after values. Keep cells short so the Markdown source remains readable.",
+          "If a formula, explanation, or derivation becomes long, move it out of the table and into a normal section. Long math inside table cells is hard to edit and easy to break.",
+        ],
+        example: {
+          label: "Math reference table",
+          markdown:
+            "| Term | Meaning | Example |\n| --- | --- | --- |\n| $r$ | Growth rate | $r = 0.08$ |\n| $t$ | Time period | $t = 12$ months |\n| $P_t$ | Projected value | $P_t = P_0(1+r)^t$ |",
+          note: "Tables are for reference, not for long derivations.",
+        },
+      },
+      {
+        id: "readable-notes",
+        title: "Write math notes for rereading",
+        body: [
+          "The best math note is not the one with the most notation. It is the one you can reopen later and understand quickly. Use headings for the problem, assumptions, formula, and conclusion.",
+          "For study notes, keep one concept per section. For engineering notes, include the decision that the formula supports. For product analysis, write the conclusion in words before the equation becomes too detailed.",
+        ],
+        example: {
+          label: "Rereadable math note",
+          markdown:
+            "## Conversion estimate\n\nWe estimate monthly paid users from traffic, activation, and paid conversion.\n\n$$P = V \\times a \\times c$$\n\nWhere:\n\n- $V$ is monthly visitors\n- $a$ is editor activation rate\n- $c$ is activated-to-paid conversion\n\nIf $V = 10,000$, $a = 0.15$, and $c = 0.03$, then $P = 45$ new paid users.",
+          note: "The formula is easier to trust when the assumptions are visible.",
+        },
+      },
+      {
+        id: "preview-workflow",
+        title: "Preview formulas before sharing",
+        body: [
+          "Math syntax is easy to mistype. A missing brace or an unclosed delimiter can make a clean note look broken. Split preview helps you catch those mistakes while the source is still visible.",
+          "In VeloWrite, use the web editor for quick math checks and the desktop app for local technical documents you will revise. Local files, recent documents, and history snapshots matter more once the note becomes part of a real project.",
+        ],
+        example: {
+          label: "Formula check workflow",
+          markdown:
+            "# Formula Check\n\n## Source\n\nThe expected value is:\n\n$$E[X] = \\sum_x x \\cdot P(X=x)$$\n\n## Review\n\n- Does the formula render?\n- Are variables explained?\n- Is the conclusion written in plain language?",
+          note: "Preview is not decoration. It is part of reviewing a technical draft.",
+        },
       },
     ],
     cta: {
@@ -1867,7 +1933,8 @@ const contentPages: Record<string, ContentPage> = {
         id: "unreleased",
         title: "Unreleased",
         body: [
-          "Preparing the next Markdown article and continued onboarding improvements.",
+          "Published Markdown Math with KaTeX as the next staged Markdown library article for inline formulas, block equations, symbol tables, and formula review workflow.",
+          "Prepared desktop last-session restore so the app can reopen the most recent local Markdown file after launch when no system Open With file is pending.",
         ],
       },
       {

@@ -72,6 +72,7 @@ Signal:
 Decision:
 - Keep reducing unnecessary interface weight in the desktop shell.
 - Make the default desktop state a calm writing surface, with file actions and structure tools available without dominating the page.
+- Prepare last-session restore so returning desktop users can reopen the most recent local Markdown file without hunting through folders.
 - Improve templates, focus mode, hover affordances, and empty states as part of the free product experience.
 
 Version target:
@@ -185,7 +186,7 @@ Pro status:
 These are required before the preview feels solid enough for broader promotion:
 
 - Stable editor/preview sync scroll.
-- Focused desktop writing polish, including calmer default chrome and clearer hover states.
+- Focused desktop writing polish, including calmer default chrome, clearer hover states, and last-session resume behavior.
 - Better outline navigation and a read-only structure map generated from Markdown headings.
 - Better local history browsing and diff preview.
 - More complete image handling and relative asset behavior.
@@ -239,7 +240,7 @@ Examples:
 ## Near-Term Priorities
 
 1. Finish stable continuous sync scrolling for editor and preview.
-2. Improve focused desktop writing polish so the app feels dedicated, calm, and native from launch.
+2. Improve focused desktop writing polish so the app feels dedicated, calm, native from launch, and able to resume the last local file when appropriate.
 3. Improve the outline panel and prototype a read-only Markdown structure map.
 4. Improve local history discoverability and long-document diff review.
 5. Add a cleaner print/PDF export baseline.
