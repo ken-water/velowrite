@@ -4,7 +4,9 @@ import waitlistHandler from "./waitlist.js";
 import {
   parseBody,
   readContactPayload,
+  requireLoopsApiKey,
   setCors,
+  upsertLoopsContact,
   validateEmail,
 } from "./loops.js";
 
@@ -31,6 +33,10 @@ function createResponse() {
 }
 
 describe("loops helpers", () => {
+  beforeEach(() => {
+    delete process.env.LOOPS_API_KEY;
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
   });
@@ -71,6 +77,95 @@ describe("loops helpers", () => {
 
     expect(response.headers["Access-Control-Allow-Origin"]).toBe("https://velowrite.app");
   });
+
+  it("parses object bodies and default contact fields", () => {
+    expect(
+      readContactPayload(
+        {
+          body: {
+            email: "USER@Example.COM",
+            message: "hello",
+            wantsReply: true,
+            ignored: null,
+          },
+        },
+        { source: "feedback", userGroup: "feedback", signupPath: "/feedback" },
+      ),
+    ).toEqual({
+      email: "user@example.com",
+      product: "velowrite",
+      source: "feedback",
+      userGroup: "feedback",
+      signupPath: "/feedback",
+      notes: "",
+      extra: {
+        message: "hello",
+        wantsReply: true,
+      },
+    });
+  });
+
+  it("rejects missing loops configuration", () => {
+    const response = createResponse();
+
+    expect(requireLoopsApiKey(response, "Missing key")).toBe(false);
+    expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual({ error: "Missing key" });
+  });
+
+  it("sends notes and extra fields to Loops", async () => {
+    process.env.LOOPS_API_KEY = "test-key";
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, text: async () => "" });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await upsertLoopsContact({
+      email: "user@example.com",
+      source: "velowrite.app",
+      userGroup: "feedback",
+      product: "velowrite",
+      signupPath: "/feedback",
+      notes: "Useful note",
+      extra: {
+        surface: "web",
+      },
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://app.loops.so/api/v1/contacts/update",
+      expect.objectContaining({
+        method: "POST",
+        headers: {
+          Authorization: "Bearer test-key",
+          "Content-Type": "application/json",
+        },
+      }),
+    );
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+      email: "user@example.com",
+      notes: "Useful note",
+      surface: "web",
+    });
+  });
+
+  it("throws useful errors when Loops rejects the request", async () => {
+    process.env.LOOPS_API_KEY = "test-key";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 429, text: async () => "rate limited" }),
+    );
+
+    await expect(
+      upsertLoopsContact({
+        email: "user@example.com",
+        source: "velowrite.app",
+        userGroup: "waitlist",
+        product: "velowrite",
+        signupPath: "/",
+        notes: "",
+        extra: {},
+      }),
+    ).rejects.toThrow("Loops returned 429: rate limited");
+  });
 });
 
 describe("waitlist handler", () => {
@@ -99,6 +194,57 @@ describe("waitlist handler", () => {
     expect(payload.userGroup).toBe("pro-interest");
     expect(payload.signupPath).toBe("/pro");
     expect(payload.source).toBe("velowrite.app");
+  });
+
+  it("handles CORS preflight without touching Loops", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const response = createResponse();
+
+    await waitlistHandler({ method: "OPTIONS", headers: {} }, response);
+
+    expect(response.statusCode).toBe(204);
+    expect(response.ended).toBe(true);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects waitlist signups when Loops is not configured", async () => {
+    delete process.env.LOOPS_API_KEY;
+    const response = createResponse();
+
+    await waitlistHandler(
+      {
+        method: "POST",
+        headers: {},
+        body: JSON.stringify({ email: "user@example.com" }),
+      },
+      response,
+    );
+
+    expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual({ error: "Waitlist is not configured" });
+  });
+
+  it("returns a gateway error when Loops waitlist signup fails", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 500, text: async () => "down" }),
+    );
+    const response = createResponse();
+
+    await waitlistHandler(
+      {
+        method: "POST",
+        headers: {},
+        body: JSON.stringify({ email: "user@example.com" }),
+      },
+      response,
+    );
+
+    expect(response.statusCode).toBe(502);
+    expect(response.body).toEqual({ error: "Waitlist signup failed" });
+    errorSpy.mockRestore();
   });
 
   it("rejects invalid JSON bodies", async () => {
@@ -169,6 +315,73 @@ describe("feedback handler", () => {
     expect(payload.signupPath).toBe("/feedback");
     expect(payload.notes).toContain("Feedback from web");
     expect(payload.notes).toContain("Need better split view.");
+  });
+
+  it("handles CORS preflight without touching Loops", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const response = createResponse();
+
+    await feedbackHandler({ method: "OPTIONS", headers: {} }, response);
+
+    expect(response.statusCode).toBe(204);
+    expect(response.ended).toBe(true);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects feedback when Loops is not configured", async () => {
+    delete process.env.LOOPS_API_KEY;
+    const response = createResponse();
+
+    await feedbackHandler(
+      {
+        method: "POST",
+        headers: {},
+        body: JSON.stringify({ email: "reader@example.com" }),
+      },
+      response,
+    );
+
+    expect(response.statusCode).toBe(500);
+    expect(response.body).toEqual({ error: "Feedback is not configured" });
+  });
+
+  it("rejects invalid feedback JSON bodies", async () => {
+    const response = createResponse();
+
+    await feedbackHandler(
+      {
+        method: "POST",
+        headers: {},
+        body: "{",
+      },
+      response,
+    );
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid JSON body" });
+  });
+
+  it("returns a gateway error when Loops feedback submission fails", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 500, text: async () => "down" }),
+    );
+    const response = createResponse();
+
+    await feedbackHandler(
+      {
+        method: "POST",
+        headers: {},
+        body: JSON.stringify({ email: "reader@example.com" }),
+      },
+      response,
+    );
+
+    expect(response.statusCode).toBe(502);
+    expect(response.body).toEqual({ error: "Feedback submission failed" });
+    errorSpy.mockRestore();
   });
 
   it("rejects invalid emails", async () => {

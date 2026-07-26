@@ -109,6 +109,19 @@ echo "hello"
     expect(html.match(/<pre><code/g)).toHaveLength(2);
   });
 
+  it("does not group a supported code fence with an unsupported neighbor", () => {
+    const html = renderMarkdown(`\`\`\`python
+print("hello")
+\`\`\`
+\`\`\`ruby
+puts "hello"
+\`\`\``);
+
+    expect(html).not.toContain('class="code-tabset"');
+    expect(html).toContain("language-python");
+    expect(html).toContain("language-ruby");
+  });
+
   it("escapes unsupported code languages without tab grouping", () => {
     const html = renderMarkdown(`\`\`\`ruby
 puts "<unsafe>"

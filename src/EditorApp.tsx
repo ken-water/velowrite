@@ -224,7 +224,7 @@ function decodeBase64Url(value: string) {
   return new TextDecoder().decode(bytes);
 }
 
-function normalizeMarkdownFileName(name: string) {
+export function normalizeMarkdownFileName(name: string) {
   const fallback = "Web Draft.md";
   const cleaned = name
     .replace(/[\\/]/g, "-")
@@ -734,7 +734,7 @@ export function storeLastLocalFile(file: RecentFile) {
   localStorage.setItem(lastLocalFileKey, JSON.stringify(file));
 }
 
-function getInitialViewMode(surface: EditorSurface, initialViewMode?: ViewMode): ViewMode {
+export function getInitialViewMode(surface: EditorSurface, initialViewMode?: ViewMode): ViewMode {
   if (initialViewMode) return initialViewMode;
   if (surface === "desktop") return "write";
   const storedMode = localStorage.getItem(defaultViewModeKey);
@@ -744,12 +744,12 @@ function getInitialViewMode(surface: EditorSurface, initialViewMode?: ViewMode):
   return window.matchMedia?.("(max-width: 760px)").matches ? "write" : "split";
 }
 
-function getStoredThemeMode(): ThemeMode {
+export function getStoredThemeMode(): ThemeMode {
   const value = localStorage.getItem(themeModeKey);
   return value === "dark" || value === "system" || value === "light" ? value : "system";
 }
 
-function getStoredEditorFontSize() {
+export function getStoredEditorFontSize() {
   const value = Number(localStorage.getItem(editorFontSizeKey));
   if (!Number.isFinite(value)) return 15;
   return Math.min(22, Math.max(12, value));

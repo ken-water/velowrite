@@ -5,13 +5,20 @@ import {
   createBrowserHistorySnapshot,
   createDesktopHandoffUrl,
   createDraftHistorySnapshot,
+  createLocalHistorySnapshot,
   freeHistorySnapshotLimit,
+  getInitialViewMode,
   getStoredLastLocalFile,
+  getStoredEditorFontSize,
+  getStoredThemeMode,
   limitHistorySnapshots,
+  normalizeMarkdownFileName,
   parseDesktopHandoffUrl,
   readBrowserHistory,
   readDraftHistory,
+  readLocalHistory,
   storeLastLocalFile,
+  writeLocalHistory,
 } from "./EditorApp";
 
 function createLocalStorageMock() {
@@ -65,6 +72,61 @@ describe("desktop handoff URLs", () => {
     const url = createDesktopHandoffUrl("large.md", "# Large\n\n" + "content\n".repeat(3000));
 
     expect(url).toBeNull();
+  });
+
+  it("normalizes unsafe draft names before creating a desktop handoff URL", () => {
+    const url = createDesktopHandoffUrl("../../Unsafe<>Name", "content");
+
+    expect(parseDesktopHandoffUrl(url ?? "")).toEqual({
+      name: "..-..-UnsafeName.md",
+      markdown: "content",
+    });
+  });
+});
+
+describe("editor preferences", () => {
+  it("normalizes Markdown file names for local and handoff workflows", () => {
+    expect(normalizeMarkdownFileName("Notes")).toBe("Notes.md");
+    expect(normalizeMarkdownFileName("Draft.markdown")).toBe("Draft.markdown");
+    expect(normalizeMarkdownFileName("folder/name?.mdown")).toBe("folder-name.mdown");
+    expect(normalizeMarkdownFileName("   ")).toBe("Web Draft.md");
+  });
+
+  it("uses write mode for desktop and stored view mode for web", () => {
+    expect(getInitialViewMode("desktop")).toBe("write");
+    expect(getInitialViewMode("web", "preview")).toBe("preview");
+
+    localStorage.setItem("velowrite:default-view-mode", "split");
+    expect(getInitialViewMode("web")).toBe("split");
+
+    localStorage.setItem("velowrite:default-view-mode", "invalid");
+    vi.stubGlobal("window", { matchMedia: vi.fn().mockReturnValue({ matches: true }) });
+    expect(getInitialViewMode("web")).toBe("write");
+
+    vi.stubGlobal("window", { matchMedia: vi.fn().mockReturnValue({ matches: false }) });
+    expect(getInitialViewMode("web")).toBe("split");
+  });
+
+  it("reads theme and clamps editor font size preferences", () => {
+    expect(getStoredThemeMode()).toBe("system");
+
+    localStorage.setItem("velowrite:theme-mode", "dark");
+    expect(getStoredThemeMode()).toBe("dark");
+
+    localStorage.setItem("velowrite:theme-mode", "unknown");
+    expect(getStoredThemeMode()).toBe("system");
+
+    localStorage.setItem("velowrite:editor-font-size", "8");
+    expect(getStoredEditorFontSize()).toBe(12);
+
+    localStorage.setItem("velowrite:editor-font-size", "26");
+    expect(getStoredEditorFontSize()).toBe(22);
+
+    localStorage.setItem("velowrite:editor-font-size", "17");
+    expect(getStoredEditorFontSize()).toBe(17);
+
+    localStorage.setItem("velowrite:editor-font-size", "bad");
+    expect(getStoredEditorFontSize()).toBe(15);
   });
 });
 
@@ -131,6 +193,75 @@ describe("free preview history policy", () => {
     createDraftHistorySnapshot("Draft", "same");
 
     expect(readDraftHistory()).toHaveLength(1);
+  });
+
+  it("reads local history in newest-first order and drops invalid records", () => {
+    localStorage.setItem(
+      "history:test",
+      JSON.stringify([
+        { id: "old", fileName: "old.md", createdAt: 1, contents: "old" },
+        { id: "bad", fileName: "bad.md", createdAt: "wrong", contents: "bad" },
+        { id: "new", fileName: "new.md", createdAt: 3, contents: "new" },
+        { id: "middle", fileName: "middle.md", createdAt: 2, contents: "middle" },
+        { id: "extra", fileName: "extra.md", createdAt: 0, contents: "extra" },
+      ]),
+    );
+
+    const snapshots = readLocalHistory("history:test", "/notes/test.md");
+
+    expect(snapshots.map((snapshot) => snapshot.entry.id)).toEqual(["new", "middle", "old"]);
+    expect(snapshots[0].entry.file_path).toBe("/notes/test.md");
+    expect(snapshots[0].entry.snapshot_path).toBe("localStorage:history:test:new");
+  });
+
+  it("returns no local history for malformed storage", () => {
+    localStorage.setItem("history:test", "{");
+
+    expect(readLocalHistory("history:test", "/notes/test.md")).toEqual([]);
+
+    localStorage.setItem("history:test", JSON.stringify({ id: "not-an-array" }));
+    expect(readLocalHistory("history:test", "/notes/test.md")).toEqual([]);
+  });
+
+  it("writes local history using the free snapshot limit", () => {
+    const snapshots = ["one", "two", "three", "four"].map((contents, index) => ({
+      entry: {
+        id: `id-${index}`,
+        file_path: "/notes/test.md",
+        file_name: `file-${index}.md`,
+        snapshot_path: `snapshot-${index}`,
+        created_at: index,
+        size: contents.length,
+      },
+      contents,
+    }));
+
+    writeLocalHistory("history:test", snapshots);
+
+    expect(JSON.parse(localStorage.getItem("history:test") ?? "[]")).toEqual([
+      { id: "id-0", fileName: "file-0.md", createdAt: 0, contents: "one" },
+      { id: "id-1", fileName: "file-1.md", createdAt: 1, contents: "two" },
+      { id: "id-2", fileName: "file-2.md", createdAt: 2, contents: "three" },
+    ]);
+  });
+
+  it("deduplicates non-adjacent local snapshots with matching contents", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.123456);
+
+    createLocalHistorySnapshot("history:test", "/notes/test.md", "test", "Draft", "first");
+    vi.advanceTimersByTime(1);
+    createLocalHistorySnapshot("history:test", "/notes/test.md", "test", "Draft", "second");
+    vi.advanceTimersByTime(1);
+    const snapshots = createLocalHistorySnapshot(
+      "history:test",
+      "/notes/test.md",
+      "test",
+      "Draft",
+      "first",
+    );
+
+    expect(snapshots.map((snapshot) => snapshot.contents)).toEqual(["first", "second"]);
+    expect(snapshots[0].entry.file_name).toBe("Draft.md");
   });
 });
 
