@@ -53,10 +53,43 @@ import {
   slugify,
 } from "./markdown";
 import { complexDemoMarkdown } from "./sampleMarkdown";
-
-type ViewMode = "split" | "write" | "preview";
-type ThemeMode = "light" | "dark" | "system";
-type EditorSurface = "desktop" | "web" | "embedded";
+import {
+  appVersion,
+  autoSaveFileKey,
+  buildFocusedLineDiff,
+  buildLineDiff,
+  createBrowserHistorySnapshot,
+  createDesktopHandoffUrl,
+  createDraftHistorySnapshot,
+  defaultViewModeKey,
+  draftKey,
+  draftNameKey,
+  editorFontSizeKey,
+  freeHistorySnapshotLimit,
+  getInitialViewMode,
+  getStoredEditorFontSize,
+  getStoredLastLocalFile,
+  getStoredRecentFiles,
+  getStoredThemeMode,
+  parseDesktopHandoffUrl,
+  readBrowserHistory,
+  readDraftHistory,
+  storeLastLocalFile,
+  storeRecentFiles,
+  themeModeKey,
+  writeBrowserHistory,
+  writeDraftHistory,
+  type DiffLine,
+  type EditorSurface,
+  type HandoffDraft,
+  type HistoryEntry,
+  type HistoryScope,
+  type HistorySnapshot,
+  type NativeFile,
+  type RecentFile,
+  type ThemeMode,
+  type ViewMode,
+} from "./editorCore";
 
 type NativeApi = {
   openMarkdownFile: () => Promise<NativeFile | null>;
@@ -82,45 +115,6 @@ type NativeApi = {
   setWindowTitle: (title: string) => Promise<void>;
 };
 
-type NativeFile = {
-  path: string;
-  name: string;
-  contents: string;
-};
-
-type RecentFile = {
-  path: string;
-  name: string;
-};
-
-type HistoryEntry = {
-  id: string;
-  file_path: string;
-  file_name: string;
-  snapshot_path: string;
-  created_at: number;
-  size: number;
-};
-
-type HistorySnapshot = {
-  entry: HistoryEntry;
-  contents: string;
-};
-
-type HistoryScope = "desktop" | "browser" | "draft";
-
-type BrowserHistoryRecord = {
-  id: string;
-  fileName: string;
-  createdAt: number;
-  contents: string;
-};
-
-type HandoffDraft = {
-  name: string;
-  markdown: string;
-};
-
 type EditorTemplate = {
   label: string;
   description: string;
@@ -128,28 +122,8 @@ type EditorTemplate = {
   markdown: string;
 };
 
-type DiffLine = {
-  type: "added" | "removed" | "unchanged" | "separator";
-  text: string;
-  currentLine?: number;
-  snapshotLine?: number;
-};
-
-const draftKey = "velowrite:draft";
-const draftNameKey = "velowrite:draft-name";
-const lastLocalFileKey = "velowrite:last-local-file";
-const recentFilesKey = "velowrite:recent-files";
-const autoSaveFileKey = "velowrite:auto-save-file";
-const themeModeKey = "velowrite:theme-mode";
-const editorFontSizeKey = "velowrite:editor-font-size";
-const defaultViewModeKey = "velowrite:default-view-mode";
-const browserHistoryKey = "velowrite:browser-history";
-const draftHistoryKey = "velowrite:draft-history";
-const appVersion = "0.1.12";
-export const freeHistorySnapshotLimit = 3;
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
-const desktopHandoffUrlLimit = 12000;
 const friendlyDefaultMarkdown = `# Start Writing
 
 Use this page as a quick Markdown draft. Write on the left, then switch to Preview when you want to read the result.
@@ -198,301 +172,6 @@ const editorTemplates: EditorTemplate[] = [
       "# Article Title\n\nStart with the reader's problem, then show the path forward.\n\n## Why this matters\n\nExplain the context in plain language.\n\n## Practical workflow\n\n1. Step one\n2. Step two\n3. Step three\n\n## Final notes\n\nSummarize what changed for the reader.\n",
   },
 ];
-
-function encodeBase64Url(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = "";
-  const chunkSize = 0x8000;
-
-  for (let index = 0; index < bytes.length; index += chunkSize) {
-    binary += String.fromCharCode(...bytes.slice(index, index + chunkSize));
-  }
-
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-}
-
-function decodeBase64Url(value: string) {
-  const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
-  const binary = atob(padded);
-  const bytes = new Uint8Array(binary.length);
-
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-
-  return new TextDecoder().decode(bytes);
-}
-
-export function normalizeMarkdownFileName(name: string) {
-  const fallback = "Web Draft.md";
-  const cleaned = name
-    .replace(/[\\/]/g, "-")
-    .replace(/[^\p{L}\p{N}._ -]/gu, "")
-    .trim()
-    .slice(0, 120);
-  const nextName = cleaned || fallback;
-  return /\.(md|markdown|mdown)$/i.test(nextName) ? nextName : `${nextName}.md`;
-}
-
-export function createDesktopHandoffUrl(name: string, markdown: string) {
-  const payload = encodeBase64Url(
-    JSON.stringify({
-      name: normalizeMarkdownFileName(name),
-      markdown,
-      source: "web",
-      createdAt: Date.now(),
-    }),
-  );
-  const url = `velowrite://import?payload=${payload}`;
-  return url.length <= desktopHandoffUrlLimit ? url : null;
-}
-
-export function parseDesktopHandoffUrl(urlString: string): HandoffDraft | null {
-  let url: URL;
-  try {
-    url = new URL(urlString);
-  } catch {
-    return null;
-  }
-
-  if (url.protocol !== "velowrite:") return null;
-  const action = url.hostname || url.pathname.replace(/^\/+/, "");
-  if (action !== "import") return null;
-
-  const payload = url.searchParams.get("payload");
-  if (!payload) return null;
-
-  try {
-    const parsed = JSON.parse(decodeBase64Url(payload));
-    if (
-      !parsed ||
-      typeof parsed.markdown !== "string" ||
-      typeof parsed.name !== "string"
-    ) {
-      return null;
-    }
-
-    return {
-      name: normalizeMarkdownFileName(parsed.name),
-      markdown: parsed.markdown,
-    };
-  } catch {
-    return null;
-  }
-}
-
-export function buildLineDiff(current: string, snapshot: string): DiffLine[] {
-  const currentLines = current.split("\n");
-  const snapshotLines = snapshot.split("\n");
-  const rows = currentLines.length + 1;
-  const cols = snapshotLines.length + 1;
-  const table = Array.from({ length: rows }, () => Array<number>(cols).fill(0));
-
-  for (let row = currentLines.length - 1; row >= 0; row -= 1) {
-    for (let col = snapshotLines.length - 1; col >= 0; col -= 1) {
-      table[row][col] =
-        currentLines[row] === snapshotLines[col]
-          ? table[row + 1][col + 1] + 1
-          : Math.max(table[row + 1][col], table[row][col + 1]);
-    }
-  }
-
-  const diff: DiffLine[] = [];
-  let row = 0;
-  let col = 0;
-
-  while (row < currentLines.length && col < snapshotLines.length) {
-    if (currentLines[row] === snapshotLines[col]) {
-      diff.push({
-        type: "unchanged",
-        text: currentLines[row],
-        currentLine: row + 1,
-        snapshotLine: col + 1,
-      });
-      row += 1;
-      col += 1;
-    } else if (table[row + 1][col] >= table[row][col + 1]) {
-      diff.push({ type: "removed", text: currentLines[row], currentLine: row + 1 });
-      row += 1;
-    } else {
-      diff.push({ type: "added", text: snapshotLines[col], snapshotLine: col + 1 });
-      col += 1;
-    }
-  }
-
-  while (row < currentLines.length) {
-    diff.push({ type: "removed", text: currentLines[row], currentLine: row + 1 });
-    row += 1;
-  }
-
-  while (col < snapshotLines.length) {
-    diff.push({ type: "added", text: snapshotLines[col], snapshotLine: col + 1 });
-    col += 1;
-  }
-
-  return diff;
-}
-
-export function buildFocusedLineDiff(diff: DiffLine[], contextLines = 2): DiffLine[] {
-  const changedIndexes = diff
-    .map((line, index) => (line.type === "added" || line.type === "removed" ? index : -1))
-    .filter((index) => index >= 0);
-
-  if (!changedIndexes.length) return [];
-
-  const visible = new Set<number>();
-  for (const index of changedIndexes) {
-    for (
-      let next = Math.max(0, index - contextLines);
-      next <= Math.min(diff.length - 1, index + contextLines);
-      next += 1
-    ) {
-      visible.add(next);
-    }
-  }
-
-  const result: DiffLine[] = [];
-  let previousIndex = -1;
-  const visibleIndexes = [...visible].sort((a, b) => a - b);
-  for (const index of visibleIndexes) {
-    if (previousIndex < 0 && index > 0) {
-      result.push({ type: "separator", text: `${index} unchanged lines hidden` });
-    } else if (previousIndex >= 0 && index > previousIndex + 1) {
-      result.push({
-        type: "separator",
-        text: `${index - previousIndex - 1} unchanged lines hidden`,
-      });
-    }
-    result.push(diff[index]);
-    previousIndex = index;
-  }
-
-  const hiddenTail = diff.length - 1 - previousIndex;
-  if (hiddenTail > 0) {
-    result.push({ type: "separator", text: `${hiddenTail} unchanged lines hidden` });
-  }
-
-  return result;
-}
-
-function localHistoryRecordToSnapshot(
-  record: BrowserHistoryRecord,
-  storageKey: string,
-  filePath: string,
-): HistorySnapshot {
-  return {
-    entry: {
-      id: record.id,
-      file_path: filePath,
-      file_name: record.fileName,
-      snapshot_path: `localStorage:${storageKey}:${record.id}`,
-      created_at: record.createdAt,
-      size: new Blob([record.contents]).size,
-    },
-    contents: record.contents,
-  };
-}
-
-export function readLocalHistory(storageKey: string, filePath: string): HistorySnapshot[] {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(storageKey) || "[]");
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed
-      .filter(
-        (record): record is BrowserHistoryRecord =>
-          record &&
-          typeof record.id === "string" &&
-          typeof record.fileName === "string" &&
-          typeof record.createdAt === "number" &&
-          typeof record.contents === "string",
-      )
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .slice(0, freeHistorySnapshotLimit)
-      .map((record) => localHistoryRecordToSnapshot(record, storageKey, filePath));
-  } catch {
-    return [];
-  }
-}
-
-export function limitHistorySnapshots<T>(snapshots: T[]) {
-  return snapshots.slice(0, freeHistorySnapshotLimit);
-}
-
-export function writeLocalHistory(storageKey: string, snapshots: HistorySnapshot[]) {
-  const records: BrowserHistoryRecord[] = snapshots
-    .slice(0, freeHistorySnapshotLimit)
-    .map((snapshot) => ({
-      id: snapshot.entry.id,
-      fileName: snapshot.entry.file_name,
-      createdAt: snapshot.entry.created_at,
-      contents: snapshot.contents,
-    }));
-
-  localStorage.setItem(storageKey, JSON.stringify(records));
-}
-
-export function createLocalHistorySnapshot(
-  storageKey: string,
-  filePath: string,
-  idPrefix: string,
-  fileName: string,
-  contents: string,
-) {
-  const snapshots = readLocalHistory(storageKey, filePath);
-  if (snapshots[0]?.contents === contents) return snapshots;
-
-  const record: BrowserHistoryRecord = {
-    id: `${idPrefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    fileName: normalizeMarkdownFileName(fileName),
-    createdAt: Date.now(),
-    contents,
-  };
-  const nextSnapshots = [
-    localHistoryRecordToSnapshot(record, storageKey, filePath),
-    ...snapshots.filter((snapshot) => snapshot.contents !== contents),
-  ].slice(0, freeHistorySnapshotLimit);
-
-  writeLocalHistory(storageKey, nextSnapshots);
-  return nextSnapshots;
-}
-
-export function readBrowserHistory() {
-  return readLocalHistory(browserHistoryKey, "browser:draft");
-}
-
-export function writeBrowserHistory(snapshots: HistorySnapshot[]) {
-  writeLocalHistory(browserHistoryKey, snapshots);
-}
-
-export function createBrowserHistorySnapshot(fileName: string, contents: string) {
-  return createLocalHistorySnapshot(
-    browserHistoryKey,
-    "browser:draft",
-    "browser",
-    fileName,
-    contents,
-  );
-}
-
-export function readDraftHistory() {
-  return readLocalHistory(draftHistoryKey, "desktop:unsaved-draft");
-}
-
-export function writeDraftHistory(snapshots: HistorySnapshot[]) {
-  writeLocalHistory(draftHistoryKey, snapshots);
-}
-
-export function createDraftHistorySnapshot(fileName: string, contents: string) {
-  return createLocalHistorySnapshot(
-    draftHistoryKey,
-    "desktop:unsaved-draft",
-    "draft",
-    fileName,
-    contents,
-  );
-}
 
 function createEditorTheme(fontSize: number) {
   return EditorView.theme({
@@ -682,77 +361,6 @@ function useNativeApi(): NativeApi | null {
   }, []);
 
   return api;
-}
-
-function getStoredRecentFiles(): RecentFile[] {
-  try {
-    const value = localStorage.getItem(recentFilesKey);
-    if (!value) return [];
-    const parsed = JSON.parse(value);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed
-      .filter((item): item is RecentFile => {
-        return (
-          item &&
-          typeof item.path === "string" &&
-          item.path.length > 0 &&
-          typeof item.name === "string"
-        );
-      })
-      .slice(0, 8);
-  } catch {
-    return [];
-  }
-}
-
-function storeRecentFiles(files: RecentFile[]) {
-  localStorage.setItem(recentFilesKey, JSON.stringify(files.slice(0, 8)));
-}
-
-export function getStoredLastLocalFile(): RecentFile | null {
-  try {
-    const value = localStorage.getItem(lastLocalFileKey);
-    if (!value) return null;
-    const parsed = JSON.parse(value);
-    if (
-      parsed &&
-      typeof parsed.path === "string" &&
-      parsed.path.length > 0 &&
-      typeof parsed.name === "string"
-    ) {
-      return parsed;
-    }
-  } catch {
-    return null;
-  }
-  return null;
-}
-
-export function storeLastLocalFile(file: RecentFile) {
-  if (!file.path) return;
-  localStorage.setItem(lastLocalFileKey, JSON.stringify(file));
-}
-
-export function getInitialViewMode(surface: EditorSurface, initialViewMode?: ViewMode): ViewMode {
-  if (initialViewMode) return initialViewMode;
-  if (surface === "desktop") return "write";
-  const storedMode = localStorage.getItem(defaultViewModeKey);
-  if (storedMode === "write" || storedMode === "preview" || storedMode === "split") {
-    return storedMode;
-  }
-  return window.matchMedia?.("(max-width: 760px)").matches ? "write" : "split";
-}
-
-export function getStoredThemeMode(): ThemeMode {
-  const value = localStorage.getItem(themeModeKey);
-  return value === "dark" || value === "system" || value === "light" ? value : "system";
-}
-
-export function getStoredEditorFontSize() {
-  const value = Number(localStorage.getItem(editorFontSizeKey));
-  if (!Number.isFinite(value)) return 15;
-  return Math.min(22, Math.max(12, value));
 }
 
 function MarkdownEditor({

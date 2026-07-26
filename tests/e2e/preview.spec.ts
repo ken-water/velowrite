@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.1.11"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.1.12"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -186,7 +186,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.1.11");
+  await expect(aboutDialog).toContainText("0.1.12");
 });
 
 test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
@@ -437,7 +437,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.1\.11_aarch64\.dmg/,
+    /VeloWrite_0\.1\.12_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
@@ -540,6 +540,32 @@ test("docs publishes the local-first Markdown article and sync guidance", async 
   await expect(page.getByRole("heading", { name: "Sync should preserve folder ownership" })).toBeVisible();
   await expect(page.getByText("basic local history recovery in the free foundation")).toBeVisible();
   await expect(page.getByText("Many users already have a sync habit")).toBeVisible();
+});
+
+test("docs publishes the Markdown math article with rendered KaTeX examples", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "Markdown Math with KaTeX" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Markdown Math with KaTeX" })).toContainText(
+    "Published",
+  );
+
+  await page.goto("/docs/markdown-math");
+  await expect(page.getByRole("heading", { name: "Markdown Math with KaTeX" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Inline math" })).toHaveAttribute(
+    "href",
+    "#inline-math",
+  );
+  await expect(page.getByRole("link", { name: "Preview workflow" })).toHaveAttribute(
+    "href",
+    "#preview-workflow",
+  );
+  await expect(page.locator(".markdown-body .katex").first()).toBeVisible();
+  await expect(page.locator(".markdown-body table").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Try Math Preview" })).toHaveAttribute(
+    "href",
+    /\/web/,
+  );
 });
 
 test("feedback form submits through the public API contract", async ({ page }) => {

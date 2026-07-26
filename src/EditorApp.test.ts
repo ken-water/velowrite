@@ -19,7 +19,7 @@ import {
   readLocalHistory,
   storeLastLocalFile,
   writeLocalHistory,
-} from "./EditorApp";
+} from "./editorCore";
 
 function createLocalStorageMock() {
   const store = new Map<string, string>();
