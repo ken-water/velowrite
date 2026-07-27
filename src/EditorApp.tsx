@@ -44,6 +44,7 @@ import {
   PanelLeftOpen,
   Maximize2,
   Minimize2,
+  Printer,
 } from "lucide-react";
 import {
   buildHtmlDocument,
@@ -1604,6 +1605,21 @@ export default function EditorApp({
     setDesktopPrompt("Desktop is better for repeated export work because it can keep files, drafts, and history together.");
   }
 
+  function printOrSavePdf() {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      setStatus("Allow pop-ups to print or save PDF");
+      return;
+    }
+
+    const baseName = fileName.replace(/\.(md|markdown|mdown)$/i, "") || "VeloWrite Document";
+    printWindow.document.write(buildHtmlDocument(baseName, rendered));
+    printWindow.document.close();
+    printWindow.focus();
+    window.setTimeout(() => printWindow.print(), 250);
+    setStatus("Print view opened");
+  }
+
   async function copyText(label: string, contents: string) {
     if (!navigator.clipboard?.writeText) {
       setStatus(`${label} copy is not available in this browser`);
@@ -2245,6 +2261,16 @@ export default function EditorApp({
             >
               <Download size={17} />
             </button>
+            {browserMode && (
+              <button
+                aria-label="Print or save PDF"
+                title="Print or save PDF"
+                className="optional-action"
+                onClick={printOrSavePdf}
+              >
+                <Printer size={17} />
+              </button>
+            )}
             <button
               aria-label="Copy Markdown"
               title="Copy Markdown"

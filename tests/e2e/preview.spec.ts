@@ -160,6 +160,20 @@ test("web editor explains when desktop is better for local files", async ({ page
   );
 });
 
+test("web editor opens a clean print document for browser PDF saving", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=print");
+
+  const popupPromise = page.waitForEvent("popup");
+  await page.getByRole("button", { name: "Print or save PDF" }).click();
+  const popup = await popupPromise;
+
+  await expect.poll(() => popup.title()).toBe("Untitled");
+  await expect(popup.locator("main h1")).toHaveText("Start Writing");
+  await expect(popup.locator("style").evaluate((element) => element.textContent)).resolves.toContain(
+    "@media print",
+  );
+});
+
 test("desktop shell opens in focused editing mode", async ({ page }) => {
   await page.goto("/app");
 
@@ -566,6 +580,23 @@ test("docs publishes the Markdown math article with rendered KaTeX examples", as
     "href",
     /\/web/,
   );
+});
+
+test("docs publishes the Markdown to Blog workflow", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "Markdown to Blog" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Markdown to Blog" })).toContainText("Published");
+
+  await page.goto("/docs/markdown-to-blog");
+  await expect(page.getByRole("heading", { name: "Markdown to Blog" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Choose an output" })).toHaveAttribute(
+    "href",
+    "#choose-an-output",
+  );
+  await expect(page.getByRole("heading", { name: "Choose the output that fits the next step" })).toBeVisible();
+  await expect(page.getByText("Print / Save PDF")).toBeVisible();
+  await expect(page.locator(".markdown-body table").first()).toBeVisible();
 });
 
 test("feedback form submits through the public API contract", async ({ page }) => {

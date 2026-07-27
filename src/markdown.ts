@@ -279,6 +279,17 @@ export function buildHtmlDocument(title: string, body: string) {
       .code-tabset:has(.code-tabset-tabs input:nth-of-type(5):checked) .code-tabset-panel:nth-child(5),
       .code-tabset:has(.code-tabset-tabs input:nth-of-type(6):checked) .code-tabset-panel:nth-child(6) { display: block; }
       .code-tabset-panel pre { min-height: 280px; margin: 0; border: 0; border-radius: 0; }
+      @media print {
+        :root { background: #fff; }
+        main { max-width: none; padding: 0; }
+        a { color: inherit; text-decoration: none; }
+        pre, blockquote, table, .code-tabset { break-inside: avoid; }
+        .code-tabset { border-color: #cfcfcf; }
+        .code-tabset-tabs { display: none; }
+        .code-tabset-panel { display: none; }
+        .code-tabset-panel:first-child { display: block; }
+        .code-tabset-panel pre { min-height: 0; }
+      }
     </style>
   </head>
   <body>

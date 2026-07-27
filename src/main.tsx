@@ -55,6 +55,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/markdown-for-writers": "Markdown for Writers",
   "/docs/markdown-for-developers": "Markdown for Developers",
   "/docs/markdown-math": "Markdown Math",
+  "/docs/markdown-to-blog": "Markdown to Blog",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -145,6 +146,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-for-developers",
   "/docs/markdown-for-writers",
   "/docs/markdown-math",
+  "/docs/markdown-to-blog",
   "/docs/online-markdown-editor",
 ]);
 
@@ -646,11 +648,11 @@ const publicRoadmapItems = [
   {
     title: "Better export and publishing preparation",
     request: "Users need finished documents that look good when shared outside the editor.",
-    status: "Planned",
     target: "0.2.x / 0.3.x",
     classification: "Free export baseline, Pro workflow later",
+    status: "In progress",
     decision:
-      "A cleaner print/PDF style and reliable HTML export fit the free editor promise. DOCX, branded templates, batch export, and one-click publishing are stronger candidates for future workflow packaging.",
+      "The web editor now opens a clean rendered Print / Save PDF document, alongside Markdown download and HTML export. DOCX, branded templates, batch export, and one-click publishing are stronger candidates for future workflow packaging.",
   },
   {
     title: "AI writing, publishing, and advanced export research",
@@ -698,7 +700,7 @@ const docGroups = [
     items: [
       { title: "Online Markdown Editor", href: "/docs/online-markdown-editor", status: "Published" },
       { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Planned" },
-      { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Planned" },
+      { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Published" },
       { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Planned" },
       { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Planned" },
       { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Planned" },
@@ -1666,37 +1668,93 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Publishing workflow",
     title: "Markdown to Blog",
     intro:
-      "Markdown is a strong drafting format for blog posts because it keeps writing portable. The practical workflow is draft, preview, export, then publish through the platform you trust.",
-    updated: "July 21, 2026",
+      "Markdown is a practical way to draft a blog post before a CMS, theme, or publishing platform gets involved. Keep the source portable, use preview to review the reading flow, then export or print when the draft is ready to leave your editor.",
+    updated: "July 27, 2026",
+    directory: [
+      { label: "Start with structure", href: "#start-with-structure" },
+      { label: "Draft for reading", href: "#draft-for-reading" },
+      { label: "Preview before export", href: "#preview-before-export" },
+      { label: "Choose an output", href: "#choose-an-output" },
+      { label: "Keep a source of truth", href: "#source-of-truth" },
+      { label: "Publishing later", href: "#publishing-later" },
+    ],
     sections: [
       {
-        title: "Draft in Markdown first",
+        id: "start-with-structure",
+        title: "Start with structure, not the editor chrome",
         body: [
-          "Start with the article title, a short promise, section headings, and examples. Markdown keeps the draft readable while you focus on the argument instead of the publishing tool.",
-        ],
-      },
-      {
-        title: "Preview before publishing",
-        body: [
-          "Preview catches broken structure, awkward tables, long code blocks, and math that does not render as expected. VeloWrite is built to make that check fast.",
+          "Begin with a working title, the promise to the reader, and a few section headings. That is enough structure to decide whether the article has a useful path before you spend time polishing sentences.",
+          "Markdown is helpful here because headings, lists, links, quotes, code, tables, and images stay visible in the source. The draft remains easy to move between a browser, a local file, and the publishing tool you eventually choose.",
         ],
         example: {
-          label: "Blog draft structure",
+          label: "A blog post skeleton",
           markdown:
-            "# How to Write Better Markdown\n\n## Problem\n\nExplain the pain.\n\n## Workflow\n\n1. Draft\n2. Preview\n3. Export\n4. Publish",
-          note: "A simple outline is enough to start a useful blog draft.",
+            "# A practical title\n\nA one-paragraph promise that explains who this is for and what they will take away.\n\n## The problem\n\nDescribe the situation the reader recognizes.\n\n## The workflow\n\nShow the steps with a concrete example.\n\n## What to do next\n\nEnd with one decision or action.",
+          note: "A useful outline makes it easier to spot missing ideas before the draft gets long.",
         },
       },
       {
+        id: "draft-for-reading",
+        title: "Draft for reading, not just for search",
+        body: [
+          "A good blog draft should make sense to a person before it tries to rank for a phrase. Use a direct opening, headings that describe real questions, short paragraphs, and examples that prove the point.",
+          "Search terms still matter, but they belong in the natural language of the article: the title, a relevant heading, the introduction, and the places where the topic is genuinely explained. Avoid repeating a phrase when a clearer sentence would do.",
+        ],
+        example: {
+          label: "A readable section",
+          markdown:
+            "## Why a preview matters\n\nA preview lets you read the draft as a reader will see it. It catches headings that are too vague, lists that belong in prose, and code blocks that need an explanation before someone copies them.\n\n> Write the conclusion in plain language before you add more formatting.",
+          note: "The preview should help you review the argument, not only check Markdown syntax.",
+        },
+      },
+      {
+        id: "preview-before-export",
+        title: "Preview before export",
+        body: [
+          "Preview catches broken structure, awkward tables, long code blocks, and math that does not render as expected. Read the document from top to bottom at least once before you export it.",
+          "In VeloWrite, switch to Preview for a clean reading pass, then return to Split when you need to fix the source beside the result. This is especially useful for technical posts with tables, formulas, or multi-language code examples.",
+        ],
+        example: {
+          label: "A short publishing checklist",
+          markdown:
+            "## Before export\n\n- [ ] The title says what the reader will learn\n- [ ] Every heading earns the section below it\n- [ ] Links point to the right place\n- [ ] Code and math render correctly\n- [ ] The conclusion gives a real next step",
+          note: "A short check is more reliable than trying to remember every detail at the end.",
+        },
+      },
+      {
+        id: "choose-an-output",
+        title: "Choose the output that fits the next step",
+        body: [
+          "Download Markdown when the next tool accepts source files or when you want a durable local copy. Export HTML when you need to paste a structured draft into a site builder, documentation tool, or static site workflow.",
+          "Use Print / Save PDF when someone needs a readable review copy, a handout, or an attachment. It opens a clean document instead of printing the editor interface, and your browser can save that document as a PDF.",
+        ],
+        example: {
+          label: "Output decision",
+          markdown:
+            "| Need | Best next step |\n| --- | --- |\n| Keep editing later | Download Markdown |\n| Move into a CMS or static site | Export HTML |\n| Send a review copy | Print or Save PDF |\n| Publish automatically | Keep the source and wait for a later publishing workflow |",
+          note: "The output should match the next job, not force every draft into the same format.",
+        },
+      },
+      {
+        id: "source-of-truth",
+        title: "Keep one source of truth",
+        body: [
+          "The Markdown file should remain the source you can reopen and revise. Exported HTML and PDFs are useful delivery formats, but they are not the best place to continue editing a living article.",
+          "For important posts, keep the Markdown file in a folder you back up. The desktop app is the better path once the draft becomes a real file: it supports native open and save, recent files, local history snapshots, and offline work.",
+        ],
+      },
+      {
+        id: "publishing-later",
         title: "Publishing automation belongs later",
         body: [
-          "One-click publishing to GitHub Pages, Vercel, CMS tools, or static blogs is a strong future Pro workflow. It should be added after editing and export feel stable.",
+          "One-click publishing to GitHub Pages, Vercel, CMS tools, or static blogs can save time, but it should not replace a trustworthy editor and export workflow. VeloWrite keeps that work on the later Pro roadmap instead of pretending it is ready today.",
+          "The useful workflow now is simple: write, preview, export or print, then publish through the platform you already trust. That keeps your files portable and the current preview honest.",
         ],
       },
     ],
     cta: {
-      primary: { href: "/web?utm_source=markdown_to_blog_cta&utm_medium=cta", label: "Draft Online" },
-      secondary: { href: "/pro?utm_source=markdown_to_blog_cta&utm_medium=resource", label: "Publishing Roadmap" },
+      primary: { href: "/web?utm_source=markdown_to_blog_cta&utm_medium=cta", label: "Draft and Export" },
+      secondary: { href: "/roadmap?utm_source=markdown_to_blog_cta&utm_medium=resource", label: "Publishing Roadmap" },
     },
   },
   markdownEditorForWindows: {
@@ -1935,6 +1993,8 @@ const contentPages: Record<string, ContentPage> = {
         body: [
           "Published Markdown Math with KaTeX as the next staged Markdown library article for inline formulas, block equations, symbol tables, and formula review workflow.",
           "Prepared desktop last-session restore so the app can reopen the most recent local Markdown file after launch when no system Open With file is pending.",
+          "Published Markdown to Blog with a practical draft, preview, export, print, and source-of-truth workflow.",
+          "Added Print / Save PDF for browser drafts, opening a clean rendered document for the browser print dialog.",
         ],
       },
       {

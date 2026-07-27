@@ -10,6 +10,8 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 
 - Published Markdown Math with KaTeX as the next staged Markdown library article for inline formulas, block equations, symbol tables, and formula review workflow.
 - Prepared desktop last-session restore so the app can reopen the most recent local Markdown file after launch when no system Open With file is pending.
+- Published Markdown to Blog with a practical draft, preview, export, print, and source-of-truth workflow.
+- Added Print / Save PDF for browser drafts, opening a clean rendered document for the browser print dialog.
 
 ## [0.1.12] - 2026-07-25
 

@@ -168,6 +168,7 @@ Signal:
 
 Decision:
 - Improve print/PDF styling first because it builds on the current rendered preview.
+- The web editor now opens a clean rendered Print / Save PDF document from the editor toolbar, so browser users can create a readable review copy without printing application chrome.
 - Keep basic Markdown, HTML, and clean PDF-style output as part of the free editor baseline.
 - Treat DOCX, branded templates, batch export, and one-click publishing as later workflow packaging.
 
@@ -243,7 +244,7 @@ Examples:
 2. Improve focused desktop writing polish so the app feels dedicated, calm, native from launch, and able to resume the last local file when appropriate.
 3. Improve the outline panel and prototype a read-only Markdown structure map.
 4. Improve local history discoverability and long-document diff review.
-5. Add a cleaner print/PDF export baseline.
+5. Refine the new browser Print / Save PDF baseline and evaluate desktop printing only after the web workflow proves reliable.
 6. Design a lightweight web-to-desktop handoff flow.
 7. Add tests around long Markdown documents with headings, math, code tabs, images, tables, structure navigation, export, and history recovery.
 8. Revisit Pro packaging only after the free preview workflow feels complete.

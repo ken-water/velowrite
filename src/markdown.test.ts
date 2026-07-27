@@ -154,5 +154,8 @@ puts "<unsafe>"
     expect(html).toContain("<!doctype html>");
     expect(html).toContain("<title>Doc &lt;One&gt;</title>");
     expect(html).toContain("<main><h1>Doc</h1></main>");
+    expect(html).toContain("@media print");
+    expect(html).toContain("break-inside: avoid");
+    expect(html).toContain(".code-tabset-tabs { display: none; }");
   });
 });
