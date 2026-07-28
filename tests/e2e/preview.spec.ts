@@ -45,7 +45,7 @@ test("landing page drives users to web editor and desktop download", async ({ pa
   await page.goto("/");
 
   await expect(
-    page.getByRole("heading", { name: "Online Markdown editor, desktop when it matters." }),
+    page.getByRole("heading", { name: "Markdown that stays yours." }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: /Open Web Editor/i }).first()).toHaveAttribute(
     "href",
@@ -87,7 +87,7 @@ test("web editor brand link returns to the homepage", async ({ page }) => {
   await page.getByRole("link", { name: /VeloWrite/ }).first().click();
   await expect(page).toHaveURL(/\/$/);
   await expect(
-    page.getByRole("heading", { name: "Online Markdown editor, desktop when it matters." }),
+    page.getByRole("heading", { name: "Markdown that stays yours." }),
   ).toBeVisible();
 });
 
@@ -129,6 +129,59 @@ test("web editor and docs avoid mobile horizontal overflow", async ({ page }) =>
 
     expect(overflow.page).toBeLessThanOrEqual(1);
     expect(overflow.visible).toBe(0);
+  }
+});
+
+test("public pages keep compact desktop titles and responsive layouts", async ({ page }) => {
+  const publicRoutes = [
+    "/",
+    "/demo",
+    "/download",
+    "/pro",
+    "/roadmap",
+    "/docs",
+    "/docs/online-markdown-editor",
+    "/docs/markdown-basics",
+    "/docs/markdown-for-writers",
+    "/docs/markdown-for-developers",
+    "/docs/markdown-code-blocks",
+    "/docs/markdown-math",
+    "/docs/local-first-markdown",
+    "/docs/markdown-to-blog",
+    "/guide",
+    "/changelog",
+    "/faq",
+    "/privacy",
+    "/terms",
+    "/refund",
+    "/license",
+    "/feedback",
+    "/web111",
+  ];
+  const compactTitleRoutes = ["/", "/demo", "/pro", "/roadmap", "/faq", "/feedback", "/web111"];
+
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  for (const route of publicRoutes) {
+    await page.goto(route);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, `${route} should not overflow on desktop`).toBeLessThanOrEqual(1);
+
+    if (compactTitleRoutes.includes(route)) {
+      const lines = await page.locator("h1").first().evaluate((heading) => {
+        const rect = heading.getBoundingClientRect();
+        const style = window.getComputedStyle(heading);
+        const lineHeight = Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.1;
+        return Math.round(rect.height / lineHeight);
+      });
+      expect(lines, `${route} title should not wrap excessively on desktop`).toBeLessThanOrEqual(3);
+    }
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const route of publicRoutes) {
+    await page.goto(route);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, `${route} should not overflow on mobile`).toBeLessThanOrEqual(1);
   }
 });
 

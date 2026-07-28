@@ -2405,7 +2405,7 @@ function LandingPage() {
             <Zap size={16} />
             Start writing in the browser
           </div>
-          <h1>Online Markdown editor, desktop when it matters.</h1>
+          <h1>Markdown that stays yours.</h1>
           <p>
             Open the web editor instantly for reading, editing, preview, and
             HTML export. Move to the lightweight desktop app when you need
@@ -2645,7 +2645,7 @@ function LandingPage() {
       <section className="landing-waitlist" aria-label="Private beta signup">
         <div>
           <span>Follow the desktop beta</span>
-          <h2>Get updates when sync, AI commands, and publishing land.</h2>
+          <h2>Get updates when bigger workflows land.</h2>
         </div>
         <WaitlistForm />
       </section>
@@ -2732,7 +2732,7 @@ function InteractiveDemoPage() {
               <Rocket size={16} />
               Interactive demo
             </div>
-            <h1>Try the VeloWrite workflow before you download.</h1>
+            <h1>See the writing flow before you download.</h1>
             <p>
               Walk through the core writing flow: open the web editor, write
               Markdown, preview the rendered document, export your work, then
@@ -2901,7 +2901,7 @@ function ProPage() {
               <Rocket size={16} />
               Pro roadmap
             </div>
-            <h1>Free preview now. Pro workflows when the foundation is ready.</h1>
+            <h1>Free now. Pro when it earns it.</h1>
             <p>
               VeloWrite is currently free to test. The first Pro direction is
               intentionally focused: AI writing workflows, better export, and
@@ -3021,7 +3021,7 @@ function ProPage() {
         <section className="pro-waitlist" aria-label="Pro interest signup">
           <div>
             <span>Shape Pro before checkout</span>
-            <h2>Join the list if AI writing, better export, or deeper recovery would make VeloWrite worth paying for.</h2>
+            <h2>What would make Pro worth it for you?</h2>
           </div>
           <WaitlistForm source="pro" label="Join the Pro interest list" />
         </section>
@@ -3059,7 +3059,7 @@ function RoadmapPage() {
             <ListChecks size={16} />
             Public roadmap
           </div>
-          <h1>User feedback we have recorded and what happens next.</h1>
+          <h1>What we are building next.</h1>
           <p>
             VeloWrite is still in preview, so early feedback directly shapes the product.
             This page shows which requests are core editor work, which preview fixes have
@@ -3557,7 +3557,7 @@ function FAQPage() {
             <Sparkles size={16} />
             FAQ
           </div>
-          <h1>Answers about the web editor, desktop app, privacy, and Pro path.</h1>
+          <h1>Answers before you try VeloWrite.</h1>
           <p>
             This page collects the questions people usually ask before trying VeloWrite.
             Use it to understand the preview boundaries, installation notes, and how the
@@ -3604,7 +3604,7 @@ function FAQPage() {
         <section className="faq-note">
           <div>
             <span>Next step</span>
-            <h2>Try the browser editor first, then move to desktop when local files matter.</h2>
+            <h2>Start on web. Move to desktop when files matter.</h2>
           </div>
           <div className="hero-actions">
             <a className="primary-link" href="/web?utm_source=faq_footer&utm_medium=cta">
