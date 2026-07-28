@@ -145,6 +145,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-code-blocks",
   "/docs/markdown-for-developers",
   "/docs/markdown-for-writers",
+  "/docs/advanced-markdown",
   "/docs/markdown-math",
   "/docs/markdown-to-blog",
   "/docs/online-markdown-editor",
@@ -182,9 +183,9 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
       "A developer-focused Markdown guide for README files, technical specs, API notes, code examples, changelogs, and documentation workflows.",
   },
   "/docs/advanced-markdown": {
-    title: "Advanced Markdown - Complex Documents, Tables, Math, and Code Tabs",
+    title: "Advanced Markdown - Portable, Reviewable, Maintainable Documents",
     description:
-      "Advanced Markdown patterns for complex documents with tables, math, callouts, code tabs, local files, and long-form preview behavior.",
+      "Advanced Markdown practices for portable, reviewable documents: semantic line breaks, reference links, escaped technical text, stable anchors, and reusable document templates.",
   },
   "/docs/markdown-math": {
     title: "Markdown Math with KaTeX - Inline and Block Formula Examples",
@@ -690,7 +691,7 @@ const docGroups = [
     items: [
       { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Published" },
       { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Published" },
-      { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Planned" },
+      { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Published" },
       { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Published" },
     ],
   },
@@ -1301,34 +1302,104 @@ const contentPages: Record<string, ContentPage> = {
   },
   advancedMarkdown: {
     eyebrow: "Advanced Markdown",
-    title: "Advanced Markdown",
+    title: "Advanced Markdown for Maintainable Documents",
     intro:
-      "Advanced Markdown is less about rare syntax and more about complex documents: tables, math, code examples, images, navigation, and long-form preview behavior.",
-    updated: "July 21, 2026",
+      "The advanced part of Markdown is not obscure syntax. It is writing files that stay readable in review, survive a move between tools, and still make sense six months later.",
+    updated: "July 28, 2026",
+    directory: [
+      { label: "A source-first mindset", href: "#source-first" },
+      { label: "One sentence per line", href: "#semantic-lines" },
+      { label: "Reference links", href: "#reference-links" },
+      { label: "Escaping technical text", href: "#escaping" },
+      { label: "Stable anchors", href: "#stable-anchors" },
+      { label: "Document contracts", href: "#document-contracts" },
+      { label: "Portable syntax", href: "#portable-syntax" },
+    ],
     sections: [
       {
-        title: "Complex documents need predictable structure",
+        id: "source-first",
+        title: "Think source-first, not preview-first",
         body: [
-          "Use stable heading levels, short sections, and consistent examples. Long documents become hard to edit when the source has visual tricks but no outline discipline.",
-          "VeloWrite's document outline and split preview are designed around that structure.",
+          "A polished preview matters, but the source file is the durable asset. An advanced Markdown workflow treats the .md file as something another person can edit in a plain text editor, review in Git, and publish through a different tool without a rescue operation.",
+          "That changes the question you ask before adding syntax: does this make the source clearer, or only make this one preview look clever? Prefer the first option for documents that will live beyond a single draft.",
         ],
       },
       {
-        title: "Use tables, math, and code carefully",
+        id: "semantic-lines",
+        title: "Write one sentence per line for reviewable prose",
         body: [
-          "Tables should compare a small number of fields. Math should be isolated when it needs attention. Code examples should be labeled by language and kept close to the explanation.",
+          "For notes that will be reviewed in Git or revised often, put each sentence on its own source line. Markdown renders those lines as one normal paragraph, while a diff shows exactly which sentence changed.",
+          "This is especially useful for product specifications, contributor guides, policies, and release notes. It looks unusual in a plain editor for a few minutes, then becomes much easier to scan and revise.",
         ],
         example: {
-          label: "Advanced block set",
+          label: "Semantic line breaks",
           markdown:
-            "## Model Notes\n\n| Symbol | Meaning |\n| --- | --- |\n| x | Input |\n| y | Output |\n\n$$y = f(x) + \\epsilon$$\n\n```python\nprint('preview first')\n```",
-          note: "A clear preview makes advanced Markdown easier to trust.",
+            "VeloWrite keeps the source file local by default.\nEvery revision should leave the document easier to reopen.\nA short sentence per line makes review changes easier to isolate.",
+          note: "The preview reads as one paragraph, while version control can track sentence-level changes.",
         },
       },
       {
-        title: "Preview behavior is part of the feature",
+        id: "reference-links",
+        title: "Use reference links when citations repeat",
         body: [
-          "Advanced Markdown is only useful if the editor renders it reliably. That is why math, code tabs, tables, images, and long-document sync are tracked as preview-completion work rather than Pro-only work.",
+          "Inline URLs make a source file noisy when the same destination appears several times. Reference links keep the paragraph readable and collect destinations at the bottom of the relevant section or document.",
+          "They are useful for engineering proposals, research notes, and onboarding guides where readers need the link but editors need to focus on the words around it.",
+        ],
+        example: {
+          label: "Reference links",
+          markdown:
+            "Read the [release checklist][checklist] before publishing.\nThe same [checklist][] is useful when reviewing a pull request.\n\n[checklist]: https://example.com/release-checklist",
+          note: "Define a destination once, then reuse the short label wherever it helps the reader.",
+        },
+      },
+      {
+        id: "escaping",
+        title: "Escape punctuation when technical prose looks like Markdown",
+        body: [
+          "Technical documents often need to show literal characters that Markdown would otherwise interpret. A backslash keeps an asterisk, hash, bracket, or underscore visible as text instead of turning it into emphasis, a heading, a link, or another construct.",
+          "Use inline code for a compact command or filename. Use a fenced code block when punctuation, whitespace, or multiple lines must be copied exactly.",
+        ],
+        example: {
+          label: "Literal Markdown characters",
+          markdown:
+            "Use \\*literal asterisks\\* when explaining emphasis.\n\nUse \\# not a heading when documenting a shell comment.\n\nUse `docs/release-notes.md` for a filename that readers may copy.",
+          note: "Escape only what needs to stay literal. Too many escapes make source harder to read.",
+        },
+      },
+      {
+        id: "stable-anchors",
+        title: "Treat headings as stable links, not decorative labels",
+        body: [
+          "Most Markdown tools generate section anchors from headings. That means a heading such as \"Install on Linux\" may already be a link used by an internal table of contents, another document, or a shared message.",
+          "Choose headings that describe a durable concept, and avoid renaming them for style alone after people have started linking to them. When a section needs a new angle, add a subheading instead of silently changing the destination.",
+        ],
+        example: {
+          label: "Heading hierarchy",
+          markdown:
+            "# Deployment guide\n\n## Install on Linux\n\nUse the package that matches the distribution.\n\n### Debian and Ubuntu\n\nInstall the `.deb` package.\n\n### Fedora and openSUSE\n\nInstall the `.rpm` package.",
+          note: "Stable, descriptive headings make outlines and copied section links more reliable.",
+        },
+      },
+      {
+        id: "document-contracts",
+        title: "Give recurring documents a small contract",
+        body: [
+          "A document contract is a short agreement about what a recurring file contains and how it is maintained. For example, a decision record may always include context, the decision, consequences, and an owner. A release note may always include user impact and upgrade notes.",
+          "The contract can be a lightweight template at the top of the file. It removes blank-page friction and makes a folder of Markdown documents easier for a team to navigate.",
+        ],
+        example: {
+          label: "Decision record template",
+          markdown:
+            "# Decision: Store documents as local Markdown\n\n## Context\n\nThe team needs files that remain readable without a specific service.\n\n## Decision\n\nKeep source documents as Markdown in the project folder.\n\n## Consequences\n\nUse a browser editor for quick drafts and desktop files for ongoing work.\n\n## Owner\n\nWriting workflow team",
+          note: "A repeatable structure is often more valuable than a more complicated Markdown extension.",
+        },
+      },
+      {
+        id: "portable-syntax",
+        title: "Know where portable Markdown ends",
+        body: [
+          "Headings, paragraphs, lists, links, blockquotes, fenced code, and reference links travel well between Markdown tools. Tables, math, task lists, diagrams, front matter, and custom callouts depend more on the renderer and publishing target.",
+          "VeloWrite supports tables, KaTeX math, syntax-highlighted code, and tabbed previews for adjacent language examples. When a file must move between editors, test it in the destination tool and keep the source understandable even if an extension is unavailable.",
         ],
       },
     ],

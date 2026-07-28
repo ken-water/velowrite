@@ -635,6 +635,34 @@ test("docs publishes the Markdown math article with rendered KaTeX examples", as
   );
 });
 
+test("docs publishes advanced Markdown guidance with practical rendered examples", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "Advanced Markdown" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Advanced Markdown" })).toContainText("Published");
+
+  await page.goto("/docs/advanced-markdown");
+  await expect(
+    page.getByRole("heading", { name: "Advanced Markdown for Maintainable Documents" }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Reference links" })).toHaveAttribute(
+    "href",
+    "#reference-links",
+  );
+  await expect(page.getByRole("link", { name: "Document contracts" })).toHaveAttribute(
+    "href",
+    "#document-contracts",
+  );
+  await expect(page.getByRole("link", { name: "release checklist" }).first()).toHaveAttribute(
+    "href",
+    "https://example.com/release-checklist",
+  );
+  await expect(
+    page.locator(".markdown-body p").filter({ hasText: "VeloWrite keeps the source file local by default." }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Decision: Store documents as local Markdown" })).toBeVisible();
+});
+
 test("docs publishes the Markdown to Blog workflow", async ({ page }) => {
   await page.goto("/docs");
 
