@@ -21,7 +21,7 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'self'; frame-src 'none'; script-src 'self' http://localhost:1420; style-src 'self' 'unsafe-inline' http://localhost:1420; img-src 'self' asset: http://asset.localhost https: data: blob: http://localhost:1420; font-src 'self' data:; media-src 'self' https: data: blob:; connect-src 'self' ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1420"
     }
   },
   "plugins": {

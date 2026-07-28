@@ -5,10 +5,16 @@ import {
   parseBody,
   readContactPayload,
   requireLoopsApiKey,
+  resetRateLimitsForTests,
   setCors,
   upsertLoopsContact,
   validateEmail,
 } from "./loops.js";
+
+const allowedHeaders = {
+  origin: "https://velowrite.app",
+  "x-forwarded-for": "127.0.0.1",
+};
 
 function createResponse() {
   return {
@@ -35,6 +41,7 @@ function createResponse() {
 describe("loops helpers", () => {
   beforeEach(() => {
     delete process.env.LOOPS_API_KEY;
+    resetRateLimitsForTests();
   });
 
   afterEach(() => {
@@ -52,6 +59,7 @@ describe("loops helpers", () => {
       readContactPayload(
         { body: JSON.stringify({ email: "  Test@Example.com ", role: "writer", empty: "" }) },
         { source: "waitlist", userGroup: "waitlist", signupPath: "/" },
+        ["role"],
       ),
     ).toMatchObject({
       email: "test@example.com",
@@ -62,20 +70,22 @@ describe("loops helpers", () => {
     });
   });
 
-  it("sets cors and validates email", () => {
+  it("sets CORS for an allowed origin and validates email", () => {
     const response = createResponse();
-    setCors({ headers: { origin: "https://example.com" } }, response);
+    expect(setCors({ headers: allowedHeaders }, response)).toBe(true);
 
-    expect(response.headers["Access-Control-Allow-Origin"]).toBe("https://example.com");
+    expect(response.headers["Access-Control-Allow-Origin"]).toBe("https://velowrite.app");
+    expect(response.headers.Vary).toBe("Origin");
     expect(validateEmail("good@example.com")).toBe(true);
     expect(validateEmail("bad-email")).toBe(false);
   });
 
-  it("falls back to the public origin when request origin is missing", () => {
+  it("rejects missing or untrusted origins", () => {
     const response = createResponse();
-    setCors({ headers: {} }, response);
+    expect(setCors({ headers: {} }, response)).toBe(false);
+    expect(setCors({ headers: { origin: "https://example.com" } }, response)).toBe(false);
 
-    expect(response.headers["Access-Control-Allow-Origin"]).toBe("https://velowrite.app");
+    expect(response.headers["Access-Control-Allow-Origin"]).toBeUndefined();
   });
 
   it("parses object bodies and default contact fields", () => {
@@ -90,6 +100,7 @@ describe("loops helpers", () => {
           },
         },
         { source: "feedback", userGroup: "feedback", signupPath: "/feedback" },
+        ["message", "wantsReply"],
       ),
     ).toEqual({
       email: "user@example.com",
@@ -171,6 +182,7 @@ describe("loops helpers", () => {
 describe("waitlist handler", () => {
   beforeEach(() => {
     process.env.LOOPS_API_KEY = "test-key";
+    resetRateLimitsForTests();
   });
 
   it("routes pro waitlist signups to pro-interest", async () => {
@@ -181,7 +193,7 @@ describe("waitlist handler", () => {
     await waitlistHandler(
       {
         method: "POST",
-        headers: {},
+        headers: allowedHeaders,
         body: JSON.stringify({ email: "pro@example.com", source: "pro" }),
       },
       response,
@@ -201,7 +213,7 @@ describe("waitlist handler", () => {
     vi.stubGlobal("fetch", fetchMock);
     const response = createResponse();
 
-    await waitlistHandler({ method: "OPTIONS", headers: {} }, response);
+    await waitlistHandler({ method: "OPTIONS", headers: allowedHeaders }, response);
 
     expect(response.statusCode).toBe(204);
     expect(response.ended).toBe(true);
@@ -215,7 +227,7 @@ describe("waitlist handler", () => {
     await waitlistHandler(
       {
         method: "POST",
-        headers: {},
+        headers: allowedHeaders,
         body: JSON.stringify({ email: "user@example.com" }),
       },
       response,
@@ -236,7 +248,7 @@ describe("waitlist handler", () => {
     await waitlistHandler(
       {
         method: "POST",
-        headers: {},
+        headers: allowedHeaders,
         body: JSON.stringify({ email: "user@example.com" }),
       },
       response,
@@ -253,7 +265,7 @@ describe("waitlist handler", () => {
     await waitlistHandler(
       {
         method: "POST",
-        headers: {},
+        headers: allowedHeaders,
         body: "{",
       },
       response,
@@ -269,7 +281,7 @@ describe("waitlist handler", () => {
     await waitlistHandler(
       {
         method: "GET",
-        headers: {},
+        headers: allowedHeaders,
       },
       response,
     );
@@ -277,11 +289,58 @@ describe("waitlist handler", () => {
     expect(response.statusCode).toBe(405);
     expect(response.body).toEqual({ error: "Method not allowed" });
   });
+
+  it("rejects waitlist requests from other origins", async () => {
+    const response = createResponse();
+
+    await waitlistHandler(
+      {
+        method: "POST",
+        headers: { origin: "https://example.com", "x-forwarded-for": "127.0.0.2" },
+        body: JSON.stringify({ email: "user@example.com" }),
+      },
+      response,
+    );
+
+    expect(response.statusCode).toBe(403);
+    expect(response.body).toEqual({ error: "Origin not allowed" });
+  });
+
+  it("rate limits repeated waitlist submissions", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, text: async () => "" });
+    vi.stubGlobal("fetch", fetchMock);
+
+    for (let index = 0; index < 5; index += 1) {
+      await waitlistHandler(
+        {
+          method: "POST",
+          headers: { ...allowedHeaders, "x-forwarded-for": "127.0.0.3" },
+          body: JSON.stringify({ email: `user${index}@example.com` }),
+        },
+        createResponse(),
+      );
+    }
+
+    const response = createResponse();
+    await waitlistHandler(
+      {
+        method: "POST",
+        headers: { ...allowedHeaders, "x-forwarded-for": "127.0.0.3" },
+        body: JSON.stringify({ email: "limited@example.com" }),
+      },
+      response,
+    );
+
+    expect(response.statusCode).toBe(429);
+    expect(response.headers["Retry-After"]).toMatch(/^\d+$/);
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+  });
 });
 
 describe("feedback handler", () => {
   beforeEach(() => {
     process.env.LOOPS_API_KEY = "test-key";
+    resetRateLimitsForTests();
   });
 
   it("stores feedback notes with context fields", async () => {
@@ -292,7 +351,7 @@ describe("feedback handler", () => {
     await feedbackHandler(
       {
         method: "POST",
-        headers: {},
+        headers: allowedHeaders,
         body: JSON.stringify({
           email: "reader@example.com",
           surface: "web",
@@ -322,7 +381,7 @@ describe("feedback handler", () => {
     vi.stubGlobal("fetch", fetchMock);
     const response = createResponse();
 
-    await feedbackHandler({ method: "OPTIONS", headers: {} }, response);
+    await feedbackHandler({ method: "OPTIONS", headers: allowedHeaders }, response);
 
     expect(response.statusCode).toBe(204);
     expect(response.ended).toBe(true);
@@ -336,7 +395,7 @@ describe("feedback handler", () => {
     await feedbackHandler(
       {
         method: "POST",
-        headers: {},
+        headers: allowedHeaders,
         body: JSON.stringify({ email: "reader@example.com" }),
       },
       response,
@@ -352,7 +411,7 @@ describe("feedback handler", () => {
     await feedbackHandler(
       {
         method: "POST",
-        headers: {},
+        headers: allowedHeaders,
         body: "{",
       },
       response,
@@ -373,7 +432,7 @@ describe("feedback handler", () => {
     await feedbackHandler(
       {
         method: "POST",
-        headers: {},
+        headers: allowedHeaders,
         body: JSON.stringify({ email: "reader@example.com" }),
       },
       response,
@@ -390,7 +449,7 @@ describe("feedback handler", () => {
     await feedbackHandler(
       {
         method: "POST",
-        headers: {},
+        headers: allowedHeaders,
         body: JSON.stringify({ email: "not-an-email" }),
       },
       response,
@@ -406,12 +465,35 @@ describe("feedback handler", () => {
     await feedbackHandler(
       {
         method: "GET",
-        headers: {},
+        headers: allowedHeaders,
       },
       response,
     );
 
     expect(response.statusCode).toBe(405);
     expect(response.body).toEqual({ error: "Method not allowed" });
+  });
+
+  it("keeps only approved feedback fields and bounds their length", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, text: async () => "" });
+    vi.stubGlobal("fetch", fetchMock);
+    const response = createResponse();
+
+    await feedbackHandler(
+      {
+        method: "POST",
+        headers: allowedHeaders,
+        body: JSON.stringify({
+          email: "reader@example.com",
+          message: "x".repeat(5_000),
+          unexpectedField: "must not reach Loops",
+        }),
+      },
+      response,
+    );
+
+    const payload = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(payload.message).toHaveLength(4_000);
+    expect(payload.unexpectedField).toBeUndefined();
   });
 });

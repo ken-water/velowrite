@@ -1,5 +1,7 @@
 import { katex } from "@mdit/plugin-katex";
+import katexStyles from "katex/dist/katex.min.css?inline";
 import hljs from "highlight.js/lib/core";
+import highlightStyles from "highlight.js/styles/github.min.css?inline";
 import bash from "highlight.js/lib/languages/bash";
 import java from "highlight.js/lib/languages/java";
 import javascript from "highlight.js/lib/languages/javascript";
@@ -249,9 +251,9 @@ export function buildHtmlDocument(title: string, body: string) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(title)}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js/styles/github.min.css" />
     <style>
+      ${katexStyles}
+      ${highlightStyles}
       :root { color: #17201c; background: #f7f5f0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
       body { margin: 0; }
       main { max-width: 760px; margin: 0 auto; padding: 56px 24px; }

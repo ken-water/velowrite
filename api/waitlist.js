@@ -1,5 +1,6 @@
 import {
   json,
+  checkRateLimit,
   readContactPayload,
   requireLoopsApiKey,
   setCors,
@@ -8,7 +9,10 @@ import {
 } from "./loops.js";
 
 export default async function handler(request, response) {
-  setCors(request, response);
+  if (!setCors(request, response)) {
+    json(response, 403, { error: "Origin not allowed" });
+    return;
+  }
 
   if (request.method === "OPTIONS") {
     response.status(204).end();
@@ -17,6 +21,10 @@ export default async function handler(request, response) {
 
   if (request.method !== "POST") {
     json(response, 405, { error: "Method not allowed" });
+    return;
+  }
+
+  if (!checkRateLimit(request, response)) {
     return;
   }
 
@@ -53,8 +61,8 @@ export default async function handler(request, response) {
   try {
     await upsertLoopsContact(payload);
     json(response, 200, { ok: true });
-  } catch (error) {
-    console.error("Loops waitlist signup failed", error);
+  } catch {
+    console.error("Loops waitlist signup failed");
     json(response, 502, { error: "Waitlist signup failed" });
   }
 }

@@ -1,6 +1,7 @@
 use std::fs;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
@@ -9,6 +10,9 @@ use tauri::{AppHandle, Emitter, Manager, Runtime};
 
 const FREE_HISTORY_SNAPSHOT_LIMIT: usize = 3;
 const GLOBAL_HISTORY_INDEX_LIMIT: usize = 120;
+const MAX_MARKDOWN_BYTES: usize = 10 * 1024 * 1024;
+const MAX_HTML_EXPORT_BYTES: usize = 20 * 1024 * 1024;
+static SNAPSHOT_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Serialize)]
 struct MarkdownFile {
@@ -59,15 +63,17 @@ fn read_recent_markdown_file(path: String) -> Result<MarkdownFile, String> {
 }
 
 fn read_markdown_file_from_path(path: String) -> Result<MarkdownFile, String> {
+    let path = canonical_markdown_path(&path)?;
+    ensure_file_size(&path, MAX_MARKDOWN_BYTES as u64)?;
     let contents = fs::read_to_string(&path).map_err(|error| error.to_string())?;
-    let name = Path::new(&path)
+    let name = path
         .file_name()
         .and_then(|value| value.to_str())
         .unwrap_or("Untitled.md")
         .to_string();
 
     Ok(MarkdownFile {
-        path,
+        path: path.to_string_lossy().to_string(),
         name,
         contents,
     })
@@ -75,8 +81,80 @@ fn read_markdown_file_from_path(path: String) -> Result<MarkdownFile, String> {
 
 #[tauri::command]
 fn write_markdown_file(path: String, contents: String) -> Result<String, String> {
+    write_text_file(path, contents, is_markdown_path, MAX_MARKDOWN_BYTES, "Markdown")
+}
+
+#[tauri::command]
+fn write_html_file(path: String, contents: String) -> Result<String, String> {
+    write_text_file(path, contents, is_html_path, MAX_HTML_EXPORT_BYTES, "HTML")
+}
+
+fn canonical_markdown_path(path: &str) -> Result<PathBuf, String> {
+    let path = PathBuf::from(path);
+    if !path.is_file() {
+        return Err("Markdown file not found".to_string());
+    }
+    if !is_markdown_path(&path) {
+        return Err("Only Markdown files can be opened".to_string());
+    }
+    fs::canonicalize(path).map_err(|error| error.to_string())
+}
+
+fn write_text_file(
+    path: String,
+    contents: String,
+    allowed_path: fn(&Path) -> bool,
+    max_bytes: usize,
+    label: &str,
+) -> Result<String, String> {
+    let path = PathBuf::from(path);
+    if !allowed_path(&path) {
+        return Err(format!("Only {label} files can be saved"));
+    }
+    if contents.len() > max_bytes {
+        return Err(format!("{label} files must be smaller than {} MB", max_bytes / (1024 * 1024)));
+    }
+    if let Some(parent) = path.parent() {
+        if !parent.is_dir() {
+            return Err("The selected folder is not available".to_string());
+        }
+    }
+
     fs::write(&path, contents).map_err(|error| error.to_string())?;
-    Ok(path)
+    Ok(path.to_string_lossy().to_string())
+}
+
+fn ensure_file_size(path: &Path, max_bytes: u64) -> Result<(), String> {
+    let size = fs::metadata(path)
+        .map_err(|error| error.to_string())?
+        .len();
+    if size > max_bytes {
+        return Err(format!(
+            "Markdown files must be smaller than {} MB",
+            max_bytes / (1024 * 1024)
+        ));
+    }
+    Ok(())
+}
+
+fn is_markdown_path(path: &Path) -> bool {
+    matches!(
+        path.extension()
+            .and_then(|extension| extension.to_str())
+            .map(|extension| extension.to_ascii_lowercase())
+            .as_deref(),
+        Some("md" | "markdown" | "mdown")
+    )
+}
+
+fn is_html_path(path: &Path) -> bool {
+    matches!(
+        path.extension()
+            .and_then(|extension| extension.to_str())
+            .map(|extension| extension.to_ascii_lowercase())
+            .as_deref(),
+        Some("html" | "htm")
+    )
 }
 
 fn markdown_paths_from_args(args: Vec<String>) -> Vec<String> {
@@ -95,8 +173,7 @@ fn markdown_path_from_arg(arg: &str) -> Option<String> {
         return None;
     }
 
-    let extension = path.extension()?.to_string_lossy().to_ascii_lowercase();
-    if !matches!(extension.as_str(), "md" | "markdown" | "mdown") {
+    if !is_markdown_path(&path) {
         return None;
     }
 
@@ -116,12 +193,12 @@ fn create_history_snapshot(
     contents: String,
 ) -> Result<HistoryEntry, String> {
     let created_at = now_ms();
-    let id = format!("{}-{}", hash_string(&file_path), created_at);
+    let id = new_snapshot_id(&file_path, created_at);
     let history_dir = history_dir(&app)?;
     fs::create_dir_all(&history_dir).map_err(|error| error.to_string())?;
 
     let snapshot_path = history_dir.join(format!("{}.md", id));
-    fs::write(&snapshot_path, &contents).map_err(|error| error.to_string())?;
+    write_file_atomically(&snapshot_path, &contents)?;
 
     let entry = HistoryEntry {
         id,
@@ -134,7 +211,8 @@ fn create_history_snapshot(
 
     let mut entries = read_history_index(&app)?;
     entries.insert(0, entry.clone());
-    entries.truncate(GLOBAL_HISTORY_INDEX_LIMIT);
+    let removed_global_entries = entries.split_off(GLOBAL_HISTORY_INDEX_LIMIT);
+    remove_snapshot_files(&removed_global_entries);
     prune_file_history(&mut entries, &entry.file_path);
     write_history_index(&app, &entries)?;
 
@@ -195,9 +273,7 @@ fn prune_file_history(entries: &mut Vec<HistoryEntry>, file_path: &str) {
         }
     });
 
-    for path in remove_paths {
-        let _ = fs::remove_file(path);
-    }
+    remove_snapshot_paths(remove_paths);
 }
 
 fn history_dir(app: &AppHandle) -> Result<std::path::PathBuf, String> {
@@ -228,13 +304,60 @@ fn write_history_index(app: &AppHandle, entries: &[HistoryEntry]) -> Result<(), 
         fs::create_dir_all(parent).map_err(|error| error.to_string())?;
     }
     let contents = serde_json::to_string_pretty(entries).map_err(|error| error.to_string())?;
-    fs::write(path, contents).map_err(|error| error.to_string())
+    write_file_atomically(&path, &contents)
+}
+
+fn write_file_atomically(path: &Path, contents: &str) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| "Unable to determine output folder".to_string())?;
+    fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+    let temporary_path = parent.join(format!(
+        ".{}.{}.tmp",
+        path.file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("velowrite"),
+        SNAPSHOT_SEQUENCE.fetch_add(1, Ordering::Relaxed)
+    ));
+
+    fs::write(&temporary_path, contents).map_err(|error| error.to_string())?;
+
+    if let Err(error) = fs::rename(&temporary_path, path) {
+        if path.exists() {
+            fs::remove_file(path).map_err(|remove_error| remove_error.to_string())?;
+            fs::rename(&temporary_path, path).map_err(|rename_error| rename_error.to_string())?;
+        } else {
+            let _ = fs::remove_file(&temporary_path);
+            return Err(error.to_string());
+        }
+    }
+
+    Ok(())
+}
+
+fn remove_snapshot_files(entries: &[HistoryEntry]) {
+    remove_snapshot_paths(entries.iter().map(|entry| entry.snapshot_path.clone()));
+}
+
+fn remove_snapshot_paths(paths: impl IntoIterator<Item = String>) {
+    for path in paths {
+        let _ = fs::remove_file(path);
+    }
 }
 
 fn hash_string(value: &str) -> u64 {
     let mut hasher = DefaultHasher::new();
     value.hash(&mut hasher);
     hasher.finish()
+}
+
+fn new_snapshot_id(file_path: &str, created_at: u128) -> String {
+    format!(
+        "{}-{}-{}",
+        hash_string(file_path),
+        created_at,
+        SNAPSHOT_SEQUENCE.fetch_add(1, Ordering::Relaxed)
+    )
 }
 
 fn now_ms() -> u128 {
@@ -324,6 +447,59 @@ mod tests {
         assert!(paths.iter().any(|path| path.ends_with("README.MARKDOWN")));
 
         let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn native_file_helpers_only_accept_expected_extensions_and_sizes() {
+        let dir = std::env::temp_dir().join(format!("velowrite-file-test-{}", now_ms()));
+        fs::create_dir_all(&dir).expect("create temp directory");
+        let markdown_path = dir.join("notes.md");
+        let text_path = dir.join("notes.txt");
+        let html_path = dir.join("notes.html");
+
+        write_text_file(
+            markdown_path.to_string_lossy().to_string(),
+            "notes".to_string(),
+            is_markdown_path,
+            MAX_MARKDOWN_BYTES,
+            "Markdown",
+        )
+        .expect("write markdown file");
+        assert!(markdown_path.exists());
+        assert!(write_text_file(
+            text_path.to_string_lossy().to_string(),
+            "notes".to_string(),
+            is_markdown_path,
+            MAX_MARKDOWN_BYTES,
+            "Markdown",
+        )
+        .is_err());
+        assert!(write_text_file(
+            html_path.to_string_lossy().to_string(),
+            "export".to_string(),
+            is_html_path,
+            MAX_HTML_EXPORT_BYTES,
+            "HTML",
+        )
+        .is_ok());
+        assert!(write_text_file(
+            markdown_path.to_string_lossy().to_string(),
+            "x".repeat(MAX_MARKDOWN_BYTES + 1),
+            is_markdown_path,
+            MAX_MARKDOWN_BYTES,
+            "Markdown",
+        )
+        .is_err());
+
+        let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn snapshot_ids_do_not_collide_within_the_same_millisecond() {
+        let first = new_snapshot_id("/docs/notes.md", 1);
+        let second = new_snapshot_id("/docs/notes.md", 1);
+
+        assert_ne!(first, second);
     }
 }
 
@@ -452,6 +628,7 @@ pub fn run() {
             read_markdown_file,
             read_recent_markdown_file,
             write_markdown_file,
+            write_html_file,
             create_history_snapshot,
             list_history_snapshots,
             read_history_snapshot,

@@ -1,5 +1,6 @@
 import {
   json,
+  checkRateLimit,
   readContactPayload,
   requireLoopsApiKey,
   setCors,
@@ -24,7 +25,10 @@ function buildNotes(extra) {
 }
 
 export default async function handler(request, response) {
-  setCors(request, response);
+  if (!setCors(request, response)) {
+    json(response, 403, { error: "Origin not allowed" });
+    return;
+  }
 
   if (request.method === "OPTIONS") {
     response.status(204).end();
@@ -33,6 +37,10 @@ export default async function handler(request, response) {
 
   if (request.method !== "POST") {
     json(response, 405, { error: "Method not allowed" });
+    return;
+  }
+
+  if (!checkRateLimit(request, response)) {
     return;
   }
 
@@ -46,7 +54,7 @@ export default async function handler(request, response) {
       source: "feedback",
       userGroup: "feedback",
       signupPath: "/feedback",
-    });
+    }, ["surface", "role", "useCase", "friction", "message", "wantsDesktop", "wantsPro", "wantsReply"]);
   } catch {
     json(response, 400, { error: "Invalid JSON body" });
     return;
@@ -63,8 +71,8 @@ export default async function handler(request, response) {
   try {
     await upsertLoopsContact(payload);
     json(response, 200, { ok: true });
-  } catch (error) {
-    console.error("Loops feedback submission failed", error);
+  } catch {
+    console.error("Loops feedback submission failed");
     json(response, 502, { error: "Feedback submission failed" });
   }
 }

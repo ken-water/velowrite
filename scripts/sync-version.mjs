@@ -5,6 +5,7 @@ const root = process.cwd();
 const packagePath = path.join(root, "package.json");
 const tauriConfigPath = path.join(root, "src-tauri", "tauri.conf.json");
 const cargoTomlPath = path.join(root, "src-tauri", "Cargo.toml");
+const indexHtmlPath = path.join(root, "index.html");
 const checkOnly = process.argv.includes("--check");
 
 function readJson(filePath) {
@@ -18,6 +19,7 @@ function writeJson(filePath, value) {
 const packageJson = readJson(packagePath);
 const tauriConfig = readJson(tauriConfigPath);
 const cargoToml = fs.readFileSync(cargoTomlPath, "utf8");
+const indexHtml = fs.readFileSync(indexHtmlPath, "utf8");
 const version = packageJson.version;
 
 if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(version)) {
@@ -41,6 +43,14 @@ if (checkOnly) {
     process.exit(1);
   }
 
+  const seoVersionMatch = indexHtml.match(/"softwareVersion": "([^"]+)"/);
+  if (!seoVersionMatch || seoVersionMatch[1] !== version) {
+    console.error(
+      `Version mismatch: package.json=${version}, index.html=${seoVersionMatch?.[1] ?? "missing"}`,
+    );
+    process.exit(1);
+  }
+
   console.log(`Version check passed: ${version}`);
   process.exit(0);
 }
@@ -50,5 +60,9 @@ writeJson(tauriConfigPath, tauriConfig);
 fs.writeFileSync(
   cargoTomlPath,
   cargoToml.replace(/^version = "[^"]+"/m, `version = "${version}"`),
+);
+fs.writeFileSync(
+  indexHtmlPath,
+  indexHtml.replace(/"softwareVersion": "[^"]+"/, `"softwareVersion": "${version}"`),
 );
 console.log(`Synced Tauri and Cargo versions to ${version}`);

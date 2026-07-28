@@ -157,5 +157,6 @@ puts "<unsafe>"
     expect(html).toContain("@media print");
     expect(html).toContain("break-inside: avoid");
     expect(html).toContain(".code-tabset-tabs { display: none; }");
+    expect(html).not.toContain("cdn.jsdelivr.net");
   });
 });

@@ -287,7 +287,7 @@ function useNativeApi(): NativeApi | null {
             filters: [{ name: "HTML", extensions: ["html", "htm"] }],
           });
           if (!target) return null;
-          return invoke<string>("write_markdown_file", { path: target, contents: html });
+          return invoke<string>("write_html_file", { path: target, contents: html });
         },
         async createHistorySnapshot(filePath, fileName, contents) {
           return invoke<HistoryEntry>("create_history_snapshot", {
@@ -1508,50 +1508,64 @@ export default function EditorApp({
     event.target.value = "";
   }
 
-  async function saveFile(options?: { silent?: boolean }) {
-    if (nativeApi) {
-      try {
-        const previousSavedMarkdown = savedMarkdown;
-        const previousFileName = fileName;
-        const previousFilePath = filePath;
-        const historyWasFull = historyEntries.length >= freeHistorySnapshotLimit;
-        let keptPreviousVersion = false;
-        if (previousFilePath && previousSavedMarkdown && previousSavedMarkdown !== markdown) {
-          await nativeApi.createHistorySnapshot(previousFilePath, previousFileName, previousSavedMarkdown);
-          keptPreviousVersion = true;
-        }
-        const savedPath = await nativeApi.saveMarkdownFile(filePath, markdown);
-        if (!savedPath) return;
-        if (!previousFilePath && previousSavedMarkdown && previousSavedMarkdown !== markdown) {
-          await nativeApi.createHistorySnapshot(savedPath, previousFileName, previousSavedMarkdown);
-          keptPreviousVersion = true;
-        }
-        setFilePath(savedPath);
-        setFileName(savedPath.split(/[\\/]/).pop() || fileName);
-        setSavedMarkdown(markdown);
-        if (options?.silent) {
-          setStatus(keptPreviousVersion ? "Autosaved. Previous version kept in History." : "Autosaved to file");
-        } else if (keptPreviousVersion) {
-          setStatus(
-            historyWasFull
-              ? "Saved. Oldest snapshot rotated out."
-              : "Saved. Previous version kept in History.",
-          );
-        } else {
-          setStatus("Saved");
-        }
-        rememberRecentFile(savedPath, savedPath.split(/[\\/]/).pop() || fileName);
-        await refreshHistory(savedPath);
-      } catch (error) {
-        setErrorStatus("Save", error);
-      }
-      return;
-    }
-
+  function saveBrowserDraft() {
     downloadMarkdown();
     setSavedMarkdown(markdown);
     setStatus("Downloaded Markdown copy");
     setDesktopPrompt("Desktop saves directly to your local files, keeps history snapshots, and works offline.");
+  }
+
+  function getSaveStatus(keptPreviousVersion: boolean, historyWasFull: boolean, silent: boolean) {
+    if (silent) {
+      return keptPreviousVersion ? "Autosaved. Previous version kept in History." : "Autosaved to file";
+    }
+    if (!keptPreviousVersion) return "Saved";
+    return historyWasFull ? "Saved. Oldest snapshot rotated out." : "Saved. Previous version kept in History.";
+  }
+
+  async function saveNativeFile(options?: { silent?: boolean }) {
+    if (!nativeApi) return;
+
+    try {
+      const previous = {
+        markdown: savedMarkdown,
+        fileName,
+        filePath,
+      };
+      const historyWasFull = historyEntries.length >= freeHistorySnapshotLimit;
+      let keptPreviousVersion = false;
+
+      if (previous.filePath && previous.markdown && previous.markdown !== markdown) {
+        await nativeApi.createHistorySnapshot(previous.filePath, previous.fileName, previous.markdown);
+        keptPreviousVersion = true;
+      }
+
+      const savedPath = await nativeApi.saveMarkdownFile(filePath, markdown);
+      if (!savedPath) return;
+
+      if (!previous.filePath && previous.markdown && previous.markdown !== markdown) {
+        await nativeApi.createHistorySnapshot(savedPath, previous.fileName, previous.markdown);
+        keptPreviousVersion = true;
+      }
+
+      const savedName = savedPath.split(/[\\/]/).pop() || fileName;
+      setFilePath(savedPath);
+      setFileName(savedName);
+      setSavedMarkdown(markdown);
+      setStatus(getSaveStatus(keptPreviousVersion, historyWasFull, Boolean(options?.silent)));
+      rememberRecentFile(savedPath, savedName);
+      await refreshHistory(savedPath);
+    } catch (error) {
+      setErrorStatus("Save", error);
+    }
+  }
+
+  async function saveFile(options?: { silent?: boolean }) {
+    if (nativeApi) {
+      await saveNativeFile(options);
+      return;
+    }
+    saveBrowserDraft();
   }
 
   function downloadMarkdown() {
