@@ -11,6 +11,7 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 - Pro roadmap: https://velowrite.app/pro
 - Public feedback roadmap: https://velowrite.app/roadmap
 - Markdown library: https://velowrite.app/docs
+- What Is Markdown article: https://velowrite.app/docs/markdown
 - Online Markdown Editor article: https://velowrite.app/docs/online-markdown-editor
 - Markdown Basics article: https://velowrite.app/docs/markdown-basics
 - Markdown for Writers article: https://velowrite.app/docs/markdown-for-writers
@@ -20,14 +21,14 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 - Markdown Math with KaTeX article: https://velowrite.app/docs/markdown-math
 - Markdown to Blog article: https://velowrite.app/docs/markdown-to-blog
 - Markdown guide: https://velowrite.app/guide
-- Changelog: https://velowrite.app/changelog includes the version directory for 0.1.0 through 0.1.12.
+- Changelog: https://velowrite.app/changelog includes the version directory for 0.1.0 through 0.1.13.
 - FAQ: https://velowrite.app/faq
 - GitHub repository: https://github.com/ken-water/velowrite
 - Markdown guide PDF: https://velowrite.app/markdown-guide.pdf
 
 ## Product Summary
 
-VeloWrite helps writers, developers, students, and teams draft Markdown quickly in the browser, preview rendered output, download Markdown, export HTML, print or save a clean PDF-style document, and move serious local files to a lightweight desktop app built with Tauri. The site also includes a practical Markdown guide, a staged Markdown article library, changelog, and public feedback roadmap for preview updates. The published article library now includes code block guidance for fenced blocks, language labels, syntax highlighting, long commands, tabbed multi-language examples, KaTeX math writing for formulas, practical Markdown-to-blog guidance, and advanced practices for portable source files, sentence-level review, reference links, stable anchors, and reusable document templates.
+VeloWrite helps writers, developers, students, and teams draft Markdown quickly in the browser, preview rendered output, download Markdown, export HTML, print or save a clean PDF-style document, and move serious local files to a lightweight desktop app built with Tauri. The site also includes a practical Markdown guide, a staged Markdown article library, changelog, and public feedback roadmap for preview updates. The published article library now includes a top-level Markdown introduction, code block guidance for fenced blocks, language labels, syntax highlighting, long commands, tabbed multi-language examples, KaTeX math writing for formulas, practical Markdown-to-blog guidance, and advanced practices for portable source files, sentence-level review, reference links, stable anchors, and reusable document templates.
 
 The current public version is a free preview. It includes online editing, live preview, Markdown file download, HTML export, a web-to-desktop draft download handoff, desktop open/save, recent files, local history snapshots with restore preview, math rendering, code highlighting, tabbed multi-language code previews, and preview installers for Windows, macOS Apple Silicon, Linux AppImage, Debian, and RPM workflows.
 
@@ -52,7 +53,7 @@ The current public version is a free preview. It includes online editing, live p
 - How is VeloWrite different from Typora? VeloWrite follows a Typora-like writing direction but starts with a fast browser editor, lightweight Tauri desktop builds, local-first files, visible preview limits, and a public roadmap for AI, sync, and publishing workflows.
 - Does VeloWrite work offline? The desktop preview is the offline path for real local files. The web editor is best for quick drafts, Markdown download, and HTML export while the browser is available.
 - Is VeloWrite safe for private notes? VeloWrite is designed around private, local-first writing. Browser drafts stay in localStorage, and desktop files plus local history snapshots stay on the user's device by default.
-- What can I read first? The Markdown library at https://velowrite.app/docs lists the currently published articles and the planned article queue. Start with Online Markdown Editor for the browser workflow, read Markdown Basics for source structure, then read Markdown for Writers, Markdown for Developers, Markdown Code Blocks and Tabs, Advanced Markdown, Markdown Math with KaTeX, or Markdown to Blog based on the kind of documents you write. Article examples can be opened directly in the web editor for hands-on preview. The changelog explains what changed across preview versions 0.1.0 through 0.1.12.
+- What can I read first? The Markdown library at https://velowrite.app/docs lists the currently published articles and the planned article queue. Start with What Is Markdown if you are new to the format, then read Online Markdown Editor for the browser workflow, Markdown Basics for source structure, Markdown for Writers, Markdown for Developers, Markdown Code Blocks and Tabs, Advanced Markdown, Markdown Math with KaTeX, or Markdown to Blog based on the kind of documents you write. Article examples can be opened directly in the web editor for hands-on preview. The changelog explains what changed across preview versions 0.1.0 through 0.1.13.
 - Can I try VeloWrite without installing anything? Yes. Open the web editor in your browser and start writing immediately.
 - What happens if I refresh the browser while editing? Your draft stays in localStorage in the same browser, so a refresh on the same device can bring it back.
 - Who is VeloWrite for? Developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.

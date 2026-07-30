@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.1.12"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.1.13"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -25,6 +25,17 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
     '<link rel="canonical" href="https://velowrite.app/docs/online-markdown-editor" />',
   );
   expect(articleHtml).toContain('"@type": "Article"');
+
+  const markdownHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/markdown/index.html"),
+    "utf8",
+  );
+
+  expect(markdownHtml).toContain("<title>What Is Markdown? Plain Text Writing for Notes, Docs, and Blogs</title>");
+  expect(markdownHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/markdown" />',
+  );
+  expect(markdownHtml).toContain('"dateModified": "2026-07-30"');
 });
 
 test("static deployment includes a friendly 404 without SPA catch-all rewrites", async ({ page }) => {
@@ -60,6 +71,16 @@ test("landing page drives users to web editor and desktop download", async ({ pa
   await expect(page.getByText("Private by default")).toBeVisible();
   await expect(page.getByLabel("VeloWrite product video")).toBeVisible();
   await expect(page.locator(".product-frame .editor-grid")).toHaveClass(/mode-preview/);
+});
+
+test("roadmap shows recommended next priorities", async ({ page }) => {
+  await page.goto("/roadmap");
+
+  await expect(page.getByRole("heading", { name: "What we are building next." })).toBeVisible();
+  await expect(page.getByText("Recommended next")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sharper outline and structure map" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "More app-like desktop polish" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Cleaner web-to-desktop handoff" })).toBeVisible();
 });
 
 test("web editor switches between writing, split, and preview modes", async ({ page }) => {
@@ -140,6 +161,7 @@ test("public pages keep compact desktop titles and responsive layouts", async ({
     "/pro",
     "/roadmap",
     "/docs",
+    "/docs/markdown",
     "/docs/online-markdown-editor",
     "/docs/markdown-basics",
     "/docs/markdown-for-writers",
@@ -253,7 +275,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.1.12");
+  await expect(aboutDialog).toContainText("0.1.13");
 });
 
 test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
@@ -399,12 +421,23 @@ test("desktop drafts can open history before saving a local file", async ({ page
 test("outline navigation syncs the editor and rendered preview", async ({ page }) => {
   await page.goto("/web?utm_source=demo_frame&utm_medium=cta&demo=complex");
 
+  const structureMap = page.getByLabel("Document structure map");
+  await expect(structureMap).toBeVisible();
+  await expect(structureMap).toContainText("8");
+  await expect(structureMap).toContainText("H1");
+  await expect(structureMap).toContainText("H2");
+  await expect(structureMap).toContainText("H3");
+
   await page.getByRole("button", { name: "Mathematical Notes" }).evaluate((el) => {
     (el as HTMLButtonElement).click();
   });
 
   await expect(page.locator(".cm-activeLine")).toContainText("## Mathematical Notes");
   await expect(page.locator(".markdown-body #mathematical-notes")).toBeVisible();
+  await expect(page.getByRole("button", { name: "H2 Mathematical Notes" })).toHaveAttribute(
+    "aria-current",
+    "location",
+  );
 });
 
 test("outline navigation returns the editor to the first heading", async ({ page }) => {
@@ -504,7 +537,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.1\.12_aarch64\.dmg/,
+    /VeloWrite_0\.1\.13_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
@@ -584,6 +617,46 @@ test("docs publishes the Markdown code blocks article with tabbed examples", asy
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(1)).toHaveText("bash");
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(2)).toHaveText("javascript");
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(3)).toHaveText("java");
+});
+
+test("docs publishes the top-level Markdown introduction", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "What Is Markdown?" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "What Is Markdown?" })).toContainText("Published");
+
+  await page.goto("/docs/markdown");
+  await expect(page.getByRole("heading", { name: "What Is Markdown?" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Markdown vs rich text" })).toHaveAttribute(
+    "href",
+    "#markdown-vs-rich-text",
+  );
+  await expect(page.getByRole("link", { name: "Start writing" })).toHaveAttribute(
+    "href",
+    "#start-writing",
+  );
+  await expect(page.locator(".markdown-body table").first()).toBeVisible();
+  await expect(page.locator(".markdown-body pre code").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Web Editor" })).toHaveAttribute("href", /\/web/);
+});
+
+test("docs article shows side and bottom share links with canonical URLs", async ({ page }) => {
+  await page.goto("/docs/markdown?utm_source=e2e&utm_medium=share");
+
+  const sideShare = page.getByRole("navigation", { name: "Share article links" });
+  const bottomShare = page.getByRole("navigation", { name: "Share", exact: true });
+  await expect(sideShare).toBeVisible();
+  await expect(bottomShare).toBeVisible();
+
+  await expect(sideShare.getByLabel("Share on X")).toHaveAttribute(
+    "href",
+    /https%3A%2F%2Fvelowrite\.app%2Fdocs%2Fmarkdown/,
+  );
+  await expect(bottomShare.getByLabel("Share on LinkedIn")).toHaveAttribute(
+    "href",
+    /https%3A%2F%2Fvelowrite\.app%2Fdocs%2Fmarkdown/,
+  );
+  await expect(page.getByRole("button", { name: /Share article|Link copied/ })).toHaveCount(0);
 });
 
 test("docs publishes the local-first Markdown article and sync guidance", async ({ page }) => {

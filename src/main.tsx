@@ -33,7 +33,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.1.12";
+const downloadVersion = "0.1.13";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -141,6 +141,7 @@ const docPageRoutes = {
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/local-first-markdown",
+  "/docs/markdown",
   "/docs/markdown-basics",
   "/docs/markdown-code-blocks",
   "/docs/markdown-for-developers",
@@ -155,7 +156,7 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
   "/docs/markdown": {
     title: "What Is Markdown? Plain Text Writing for Notes, Docs, and Blogs",
     description:
-      "Learn what Markdown is, why plain text writing still matters, and how VeloWrite helps you write, preview, and export Markdown quickly.",
+      "Learn what Markdown is, how it compares with rich text and HTML, where it works best, and how to start writing portable Markdown documents.",
   },
   "/docs/markdown-history": {
     title: "A Short History of Markdown - From Plain Text to Modern Writing",
@@ -501,7 +502,7 @@ function SeoManager({ config }: { config: SeoConfig }) {
         "@id": `${siteUrl}${config.canonicalPath}#article`,
         headline: config.title,
         description: config.description,
-        dateModified: "2026-07-25",
+        dateModified: "2026-07-30",
         mainEntityOfPage: `${siteUrl}${config.canonicalPath}`,
         author: { "@id": `${siteUrl}/#organization` },
         publisher: { "@id": `${siteUrl}/#organization` },
@@ -564,6 +565,27 @@ const downloads = [
   },
 ];
 
+const roadmapRecommendations = [
+  {
+    priority: "Next best free improvement",
+    title: "Sharper outline and structure map",
+    reason:
+      "It improves long-document writing immediately, supports writers and developers, and builds on the outline sync work already in the preview.",
+  },
+  {
+    priority: "Next quality pass",
+    title: "More app-like desktop polish",
+    reason:
+      "First impressions still matter for a desktop writing tool. Reducing chrome, improving focus mode, and making resume behavior clearer should raise trust before Pro work.",
+  },
+  {
+    priority: "Next workflow proof",
+    title: "Cleaner web-to-desktop handoff",
+    reason:
+      "The browser is the acquisition surface and desktop is the retention surface. A clearer handoff turns trial users into serious local-file users without requiring accounts.",
+  },
+];
+
 const publicRoadmapItems = [
   {
     title: "Markdown learning library",
@@ -572,7 +594,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "Seven staged articles are now published under /docs, including the local-first workflow guide and a practical KaTeX math guide. Example blocks can now open directly in the web editor, so readers can move from learning to trying without copying text manually.",
+      "The staged article library is now active under /docs, including a top-level Markdown introduction, local-first workflow guidance, advanced maintainability practices, code blocks, math, and Markdown-to-blog workflow guidance. Example blocks can open directly in the web editor, so readers can move from learning to trying without copying text manually.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -595,11 +617,11 @@ const publicRoadmapItems = [
   {
     title: "Outline and structure map",
     request: "Writers need a clearer way to understand document structure before turning notes into a finished draft.",
-    status: "Designing",
-    target: "0.2.x",
+    status: "Free foundation shipped",
+    target: "0.1.x / 0.2.x",
     classification: "Free structure workflow first",
     decision:
-      "The first step should be a better outline panel with folding, active-section clarity, and a read-only structure map generated from Markdown headings. Editable visual mapping and AI-assisted outline expansion can be evaluated later.",
+      "The editor now includes a read-only structure map with total H1/H2/H3 counts plus active heading clarity after outline navigation. Folding, richer section diagnostics, editable visual mapping, and AI-assisted outline expansion can be evaluated later.",
   },
   {
     title: "Better local history recovery",
@@ -671,7 +693,7 @@ const docGroups = [
     title: "Understand Markdown",
     description: "Foundational articles for people comparing writing formats and editor workflows.",
     items: [
-      { title: "What Is Markdown?", href: "/docs/markdown", status: "Planned" },
+      { title: "What Is Markdown?", href: "/docs/markdown", status: "Published" },
       { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Planned" },
       { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Planned" },
     ],
@@ -881,48 +903,108 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Markdown fundamentals",
     title: "What Is Markdown?",
     intro:
-      "Markdown is a plain text writing format that lets you create readable documents with simple symbols instead of heavy formatting controls. It is popular because the source stays clean, portable, and easy to edit in almost any tool.",
-    updated: "July 21, 2026",
+      "Markdown is a plain text writing format for notes, documentation, articles, READMEs, and drafts that need to stay easy to read before and after rendering.",
+    updated: "July 30, 2026",
     directory: [
       { label: "Definition", href: "#definition" },
       { label: "Why it works", href: "#why-it-works" },
+      { label: "Markdown vs rich text", href: "#markdown-vs-rich-text" },
+      { label: "Core syntax", href: "#core-syntax" },
       { label: "Where it fits", href: "#where-it-fits" },
+      { label: "Limits", href: "#limits" },
+      { label: "Start writing", href: "#start-writing" },
     ],
     sections: [
       {
         id: "definition",
         title: "Markdown is readable source plus structured output",
         body: [
-          "A Markdown document is still plain text. A heading starts with #, a list starts with - or a number, links use brackets and parentheses, and code blocks use fences. The same file can be read directly or rendered into HTML, PDF, documentation, or a blog post.",
-          "That balance is the reason Markdown survived. It is simple enough for notes and powerful enough for technical documentation.",
+          "A Markdown document is still plain text. You write a small amount of structure into the file: a heading starts with #, a list starts with - or a number, links use brackets and parentheses, and code blocks use fences.",
+          "That source can be read directly, but it can also be rendered into HTML, documentation pages, blog posts, PDF-style output, or a clean preview inside an editor. The format works because the source and the output both remain useful.",
         ],
         example: {
           label: "Readable Markdown source",
           markdown:
-            "# Product Notes\n\n## Goals\n\n- Write quickly\n- Preview clearly\n- Keep files portable\n\n[Open VeloWrite](https://velowrite.app)",
-          note: "The source is readable even before it is rendered.",
+            "# Product Notes\n\n## Goals\n\n- Write quickly\n- Preview clearly\n- Keep files portable\n\nRead the [VeloWrite guide](/guide) when the draft needs more structure.",
+          note: "The source is readable before it is rendered, and the preview still has clear structure.",
         },
       },
       {
         id: "why-it-works",
         title: "Why plain text still matters",
         body: [
-          "Plain text files are easy to back up, compare, search, version, and move between tools. Developers like Markdown because it fits Git. Writers like it because the formatting does not interrupt the draft.",
-          "VeloWrite keeps that idea intact: try the workflow in the browser, then move serious files into the desktop app when local storage and history matter.",
+          "Plain text files are easy to back up, compare, search, version, and move between tools. They do not depend on one account, one database, or one vendor-specific document format.",
+          "Developers like Markdown because it fits Git and code review. Writers like it because the formatting does not interrupt the draft. Teams like it because the same file can move from a note to a README, a help article, or a release note without being rewritten from scratch.",
         ],
+      },
+      {
+        id: "markdown-vs-rich-text",
+        title: "Markdown is not the same job as a rich text editor",
+        body: [
+          "A rich text editor asks you to style while you write: font size, spacing, colors, page breaks, pasted formatting, and layout controls. Markdown asks you to describe structure first: this is a heading, this is a list, this is a link, this is code.",
+          "That makes Markdown a better drafting format for documents that change often. It is usually not the best final layout tool for page-perfect brochures or heavily designed reports. A practical workflow is to draft in Markdown, preview while writing, then export or publish when the content is stable.",
+        ],
+        example: {
+          label: "Structure instead of styling",
+          markdown:
+            "## Decision\n\nUse Markdown for the draft because the content will change during review.\n\n## Final output\n\nExport the finished version only after the structure and wording are stable.",
+          note: "Markdown keeps the decision and the final output as separate concerns.",
+        },
+      },
+      {
+        id: "core-syntax",
+        title: "The core syntax is small on purpose",
+        body: [
+          "Most daily Markdown work uses a small set of patterns: headings, paragraphs, lists, links, blockquotes, fenced code blocks, images, and tables. You do not need to memorize everything before writing useful documents.",
+          "The better habit is to learn the few structures you use every day, then add math, code tabs, reference links, and document templates when the document genuinely needs them.",
+        ],
+        example: {
+          label: "Small daily syntax set",
+          markdown:
+            "## Meeting notes\n\n> Keep the note short enough to review later.\n\n1. Confirm the decision\n2. Record the owner\n3. Link the follow-up issue\n\n```bash\nnpm run build\n```",
+          note: "A few reliable patterns cover most working documents.",
+        },
       },
       {
         id: "where-it-fits",
         title: "Where Markdown fits best",
         body: [
-          "Markdown works well for notes, READMEs, specs, changelogs, study guides, knowledge-base articles, product docs, launch copy, and blog drafts.",
-          "It is less ideal when the document needs page-perfect print layout from the first minute. In that case, Markdown is still useful as a clean drafting format before final design.",
+          "Markdown works well for notes, READMEs, specs, changelogs, study guides, knowledge-base articles, product docs, launch copy, and blog drafts. It is strongest when the document needs to stay editable and searchable.",
+          "It also works well when a document may have several destinations. The same source can start as a private note, become a review draft, and later turn into a public article or support document.",
         ],
+        example: {
+          label: "One source, several outputs",
+          markdown:
+            "| Source document | Possible output |\n| --- | --- |\n| README draft | GitHub project page |\n| Product note | Help center article |\n| Launch checklist | Internal runbook |\n| Blog outline | Published article |",
+          note: "Markdown is useful when the source needs to outlive one export format.",
+        },
+      },
+      {
+        id: "limits",
+        title: "Know what Markdown does not try to solve",
+        body: [
+          "Markdown is not a full design system, database, spreadsheet, whiteboard, or collaborative workspace by itself. Some editors add those layers, but the format remains strongest when the plain text file is still understandable.",
+          "This matters when choosing tools. If you need heavy real-time collaboration, complex permissions, or database views, a larger workspace product may fit better. If you need private writing, readable files, preview, export, and local history, Markdown is a lighter and more durable base.",
+        ],
+      },
+      {
+        id: "start-writing",
+        title: "Start in the browser, then move important files local",
+        body: [
+          "The fastest way to learn Markdown is to write a real document, not read a syntax chart for an hour. Start with a title, a few headings, and one short list. Then preview the document and adjust the structure.",
+          "VeloWrite's web editor is designed for that first draft. When the document becomes important, the desktop app is the better place for native open and save, offline writing, recent files, and local history snapshots.",
+        ],
+        example: {
+          label: "First useful draft",
+          markdown:
+            "# Draft title\n\n## What changed\n\nWrite the short version first.\n\n## Why it matters\n\nAdd the reason readers should care.\n\n## Next step\n\n- Review the preview\n- Save the Markdown file\n- Share or export when ready",
+          note: "A useful Markdown document starts with shape, not decoration.",
+        },
       },
     ],
     cta: {
       primary: { href: "/web?utm_source=markdown_article&utm_medium=cta", label: "Open Web Editor" },
-      secondary: { href: "/guide?utm_source=markdown_article&utm_medium=resource", label: "Read Guide" },
+      secondary: { href: "/docs/markdown-basics?utm_source=markdown_article&utm_medium=resource", label: "Read Markdown Basics" },
     },
   },
   markdownHistory: {
@@ -2042,6 +2124,7 @@ const contentPages: Record<string, ContentPage> = {
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
     updated: "July 25, 2026",
     directory: [
+      { label: "0.1.13", href: "#v0113" },
       { label: "Unreleased", href: "#unreleased" },
       { label: "0.1.12", href: "#v0112" },
       { label: "0.1.11", href: "#v0111" },
@@ -2062,10 +2145,19 @@ const contentPages: Record<string, ContentPage> = {
         id: "unreleased",
         title: "Unreleased",
         body: [
-          "Published Markdown Math with KaTeX as the next staged Markdown library article for inline formulas, block equations, symbol tables, and formula review workflow.",
-          "Prepared desktop last-session restore so the app can reopen the most recent local Markdown file after launch when no system Open With file is pending.",
-          "Published Markdown to Blog with a practical draft, preview, export, print, and source-of-truth workflow.",
-          "Added Print / Save PDF for browser drafts, opening a clean rendered document for the browser print dialog.",
+          "Next preview work will continue improving document structure workflows, desktop polish, and web-to-desktop handoff clarity.",
+        ],
+      },
+      {
+        id: "v0113",
+        title: "0.1.13 preview",
+        body: [
+          "Added article sharing links to Markdown docs with side and bottom share surfaces for X, LinkedIn, Reddit, Facebook, and Hacker News.",
+          "Published the top-level What Is Markdown article and added static SEO HTML for the route.",
+          "Added Roadmap recommended priorities so visitors can see the next practical product direction before reading the full list.",
+          "Added a document structure map to the editor outline with total H1/H2/H3 counts and active heading clarity after outline navigation.",
+          "Updated the roadmap status for outline and structure map work to show that the free foundation has shipped.",
+          "Kept the security hardening from the previous preview line, including stricter desktop file safety, CSP, API input limits, and waitlist/feedback protections.",
         ],
       },
       {
@@ -3164,6 +3256,26 @@ function RoadmapPage() {
           </article>
         </section>
 
+        <section className="roadmap-recommendations" aria-label="Recommended roadmap priorities">
+          <div className="section-heading">
+            <span>Recommended next</span>
+            <h2>The next work should make daily writing feel safer and clearer.</h2>
+            <p>
+              These priorities are intentionally practical: improve the free editor foundation
+              first, then use that trust to decide which Pro workflows deserve deeper work.
+            </p>
+          </div>
+          <div className="roadmap-recommendation-grid">
+            {roadmapRecommendations.map((item) => (
+              <article key={item.title}>
+                <span>{item.priority}</span>
+                <h3>{item.title}</h3>
+                <p>{item.reason}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section className="roadmap-list" aria-label="Recorded user requests">
           {publicRoadmapItems.map((item) => (
             <article className="roadmap-item" key={item.title}>
@@ -3416,6 +3528,10 @@ function LegalPage({ page }: { page: keyof typeof legalPages }) {
 
 function ContentPage({ page }: { page: keyof typeof contentPages }) {
   const content = contentPages[page];
+  const shareUrl = `${siteUrl}${normalizePath(window.location.pathname)}`;
+  const shareTitle = content.title;
+  const shareDescription = content.intro;
+  const showShareLinks = page !== "changelog";
 
   return (
     <div className="content-page">
@@ -3513,12 +3629,96 @@ function ContentPage({ page }: { page: keyof typeof contentPages }) {
                 {content.cta.secondary.label} <FileText size={17} />
               </a>
             </section>
+            {showShareLinks && (
+              <ArticleShareLinks
+                layout="bottom"
+                title={shareTitle}
+                url={shareUrl}
+                description={shareDescription}
+              />
+            )}
           </article>
         </div>
       </main>
 
+      {showShareLinks && (
+        <ArticleShareLinks
+          layout="side"
+          title={shareTitle}
+          url={shareUrl}
+          description={shareDescription}
+        />
+      )}
       <SiteFooter />
     </div>
+  );
+}
+
+function ArticleShareLinks({
+  description,
+  layout,
+  title,
+  url,
+}: {
+  description: string;
+  layout: "side" | "bottom";
+  title: string;
+  url: string;
+}) {
+  const encodedUrl = encodeURIComponent(url);
+  const encodedTitle = encodeURIComponent(title);
+  const encodedSummary = encodeURIComponent(description);
+  const links = [
+    {
+      label: "X",
+      mark: "X",
+      href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+    },
+    {
+      label: "LinkedIn",
+      mark: "in",
+      href: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}&summary=${encodedSummary}`,
+    },
+    {
+      label: "Reddit",
+      mark: "R",
+      href: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
+    },
+    {
+      label: "Facebook",
+      mark: "f",
+      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+    },
+    {
+      label: "Hacker News",
+      mark: "HN",
+      href: `https://news.ycombinator.com/submitlink?u=${encodedUrl}&t=${encodedTitle}`,
+    },
+  ];
+
+  return (
+    <nav
+      className={`article-share article-share-${layout}`}
+      aria-label={layout === "side" ? "Share article links" : "Share"}
+    >
+      <span>Share</span>
+      <div>
+        {links.map((link) => (
+          <a
+            className="article-share-link"
+            href={link.href}
+            key={link.label}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Share on ${link.label}`}
+            title={`Share on ${link.label}`}
+          >
+            <strong>{link.mark}</strong>
+            <small>{link.label}</small>
+          </a>
+        ))}
+      </div>
+    </nav>
   );
 }
 

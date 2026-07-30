@@ -7,7 +7,7 @@ const distDir = path.join(repoRoot, "dist");
 const indexPath = path.join(distDir, "index.html");
 const version = JSON.parse(fs.readFileSync(path.join(repoRoot, "package.json"), "utf8")).version;
 const siteUrl = "https://velowrite.app";
-const today = "2026-07-25";
+const today = "2026-07-30";
 
 const defaultTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultDescription =
@@ -115,6 +115,15 @@ const routes = [
       "Explore VeloWrite Markdown articles covering basics, history, writing workflows, code blocks, math, local-first editing, and editor comparisons.",
     priority: "0.8",
     changefreq: "weekly",
+  },
+  {
+    path: "/docs/markdown",
+    title: "What Is Markdown? Plain Text Writing for Notes, Docs, and Blogs",
+    description:
+      "Learn what Markdown is, how it compares with rich text and HTML, where it works best, and how to start writing portable Markdown documents.",
+    priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
   },
   {
     path: "/docs/online-markdown-editor",

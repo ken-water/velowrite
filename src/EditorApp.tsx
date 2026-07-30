@@ -979,6 +979,7 @@ export default function EditorApp({
   const [sidebarOpen, setSidebarOpen] = React.useState(() => surface !== "desktop");
   const [startPanelDismissed, setStartPanelDismissed] = React.useState(false);
   const [editorScrollTarget, setEditorScrollTarget] = React.useState<{ line: number; nonce: number } | null>(null);
+  const [activeHeadingId, setActiveHeadingId] = React.useState<string | null>(null);
   const [desktopPrompt, setDesktopPrompt] = React.useState<string | null>(null);
   const [focusMode, setFocusMode] = React.useState(false);
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
@@ -986,6 +987,22 @@ export default function EditorApp({
   });
   const [dragActive, setDragActive] = React.useState(false);
   const headings = React.useMemo(() => extractHeadings(markdown), [markdown]);
+  const headingSummary = React.useMemo(() => {
+    const counts = headings.reduce(
+      (summary, heading) => {
+        if (heading.level === 1) summary.h1 += 1;
+        if (heading.level === 2) summary.h2 += 1;
+        if (heading.level === 3) summary.h3 += 1;
+        return summary;
+      },
+      { h1: 0, h2: 0, h3: 0 },
+    );
+
+    return {
+      ...counts,
+      total: headings.length,
+    };
+  }, [headings]);
   const metrics = React.useMemo(() => getMetrics(markdown), [markdown]);
   const rendered = React.useMemo(() => renderMarkdown(markdown, headings), [headings, markdown]);
   const dirty = markdown !== savedMarkdown;
@@ -1984,6 +2001,7 @@ export default function EditorApp({
 
   function scrollToHeading(id: string) {
     const line = findHeadingLine(markdown, id);
+    setActiveHeadingId(id);
     suppressPreviewSync.current = true;
     if (viewMode !== "split") {
       setViewMode("split");
@@ -2128,6 +2146,24 @@ export default function EditorApp({
 
         <section className="outline-panel" aria-label="Document outline">
           <div className="outline-title">Outline</div>
+          <div className="structure-map" aria-label="Document structure map">
+            <div>
+              <strong>{headingSummary.total}</strong>
+              <span>Headings</span>
+            </div>
+            <div>
+              <strong>{headingSummary.h1}</strong>
+              <span>H1</span>
+            </div>
+            <div>
+              <strong>{headingSummary.h2}</strong>
+              <span>H2</span>
+            </div>
+            <div>
+              <strong>{headingSummary.h3}</strong>
+              <span>H3</span>
+            </div>
+          </div>
           {headings.length > 0 ? (
             <div className="outline-list">
               {headings.map((heading) => (
@@ -2135,8 +2171,11 @@ export default function EditorApp({
                   key={heading.id}
                   className="outline-item"
                   data-level={heading.level}
+                  data-active={activeHeadingId === heading.id ? "true" : undefined}
+                  aria-current={activeHeadingId === heading.id ? "location" : undefined}
                   onClick={() => scrollToHeading(heading.id)}
                 >
+                  <span>H{heading.level}</span>
                   {heading.text}
                 </button>
               ))}
