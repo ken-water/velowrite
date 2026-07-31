@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.1.13"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.0"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -35,7 +35,38 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   expect(markdownHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/markdown" />',
   );
-  expect(markdownHtml).toContain('"dateModified": "2026-07-30"');
+  expect(markdownHtml).toContain('"dateModified": "2026-07-31"');
+
+  const markdownHistoryHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/markdown-history/index.html"),
+    "utf8",
+  );
+
+  expect(markdownHistoryHtml).toContain(
+    "<title>A Short History of Markdown - From Plain Text to Modern Writing</title>",
+  );
+  expect(markdownHistoryHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/markdown-history" />',
+  );
+  expect(markdownHistoryHtml).toContain('"@type": "Article"');
+
+  const typoraHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/typora-alternative/index.html"),
+    "utf8",
+  );
+  expect(typoraHtml).toContain("<title>Typora Alternative - Lightweight Local-First Markdown Editing</title>");
+  expect(typoraHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/typora-alternative" />',
+  );
+
+  const windowsHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/markdown-editor-for-windows/index.html"),
+    "utf8",
+  );
+  expect(windowsHtml).toContain("<title>Markdown Editor for Windows - VeloWrite Desktop Preview</title>");
+  expect(windowsHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/markdown-editor-for-windows" />',
+  );
 });
 
 test("static deployment includes a friendly 404 without SPA catch-all rewrites", async ({ page }) => {
@@ -78,6 +109,18 @@ test("roadmap shows recommended next priorities", async ({ page }) => {
 
   await expect(page.getByRole("heading", { name: "What we are building next." })).toBeVisible();
   await expect(page.getByText("Recommended next")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "See what has shipped, what is active, and what may become Pro later." }),
+  ).toBeVisible();
+  await expect(page.locator(".roadmap-stage-grid article", { hasText: "Shipped" })).toContainText(
+    "Markdown learning library",
+  );
+  await expect(page.locator(".roadmap-stage-grid article", { hasText: "In progress" })).toContainText(
+    "Editor and preview sync scrolling",
+  );
+  await expect(page.locator(".roadmap-stage-grid article", { hasText: "Pro candidates" })).toContainText(
+    "AI writing, publishing, and advanced export research",
+  );
   await expect(page.getByRole("heading", { name: "Sharper outline and structure map" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "More app-like desktop polish" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Cleaner web-to-desktop handoff" })).toBeVisible();
@@ -162,6 +205,7 @@ test("public pages keep compact desktop titles and responsive layouts", async ({
     "/roadmap",
     "/docs",
     "/docs/markdown",
+    "/docs/markdown-history",
     "/docs/online-markdown-editor",
     "/docs/markdown-basics",
     "/docs/markdown-for-writers",
@@ -170,6 +214,8 @@ test("public pages keep compact desktop titles and responsive layouts", async ({
     "/docs/markdown-math",
     "/docs/local-first-markdown",
     "/docs/markdown-to-blog",
+    "/docs/typora-alternative",
+    "/docs/markdown-editor-for-windows",
     "/guide",
     "/changelog",
     "/faq",
@@ -227,12 +273,32 @@ test("web editor explains when desktop is better for local files", async ({ page
   await page.getByRole("button", { name: "Download Markdown copy" }).click();
   await download;
 
-  await expect(page.getByLabel("Desktop upgrade prompt")).toBeVisible();
-  await expect(page.getByText("Need native local files?")).toBeVisible();
-  await expect(page.getByRole("link", { name: /Download Desktop/i })).toHaveAttribute(
+  const prompt = page.getByLabel("Desktop upgrade prompt");
+  await expect(prompt).toBeVisible();
+  await expect(prompt.getByText("Continue in Desktop", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Open in Desktop/i })).toHaveAttribute(
+    "href",
+    /^velowrite:\/\/import/,
+  );
+  await expect(page.getByRole("button", { name: /Download backup/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Get app/i })).toHaveAttribute(
     "href",
     /\/download/,
   );
+});
+
+test("docs index publishes the Markdown history article", async ({ page }) => {
+  await page.goto("/docs");
+
+  const historyLink = page.getByRole("link", { name: "A Short History of Markdown" });
+  await expect(historyLink).toHaveAttribute("href", "/docs/markdown-history");
+  await expect(historyLink.locator("..")).toContainText("Published");
+
+  await historyLink.click();
+  await expect(page.getByRole("heading", { name: "A Short History of Markdown" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Why Markdown appeared" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Why Markdown variants exist" })).toBeVisible();
+  await expect(page.locator(".content-example").first()).toContainText("Plain text that still has structure");
 });
 
 test("web editor opens a clean print document for browser PDF saving", async ({ page }) => {
@@ -255,11 +321,14 @@ test("desktop shell opens in focused editing mode", async ({ page }) => {
   await expect(page.getByLabel("VeloWrite editor")).toHaveClass(/desktop-focus/);
   await expect(page.locator(".sidebar")).toBeHidden();
   await expect(page.getByLabel("Markdown editor")).toBeVisible();
+  await expect(page.getByLabel("Current file status")).toBeVisible();
+  await expect(page.getByLabel("Current file status")).toContainText("Draft has not been saved to a local file yet");
+  await expect(page.getByLabel("Current file status")).toContainText("0 / 3 draft snapshots");
   await expect(page.getByLabel("Desktop start")).toBeVisible();
   await expect(page.getByText("Continue writing")).toBeVisible();
   await expect(page.getByRole("button", { name: /Continue Draft/i })).toBeVisible();
   await expect(page.getByText("Unsaved local draft")).toBeVisible();
-  await expect(page.getByText(/0 \/ 3 draft snapshots/)).toBeVisible();
+  await expect(page.getByLabel("Desktop start")).toContainText("0 / 3 recovery snapshots");
 
   await page.getByRole("button", { name: "Show workspace" }).click();
   await expect(page.getByLabel("VeloWrite editor")).not.toHaveClass(/desktop-focus/);
@@ -275,7 +344,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.1.13");
+  await expect(aboutDialog).toContainText("0.2.0");
 });
 
 test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
@@ -537,7 +606,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.1\.13_aarch64\.dmg/,
+    /VeloWrite_0\.2\.0_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
@@ -641,6 +710,7 @@ test("docs publishes the top-level Markdown introduction", async ({ page }) => {
 });
 
 test("docs article shows side and bottom share links with canonical URLs", async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto("/docs/markdown?utm_source=e2e&utm_medium=share");
 
   const sideShare = page.getByRole("navigation", { name: "Share article links" });
@@ -657,6 +727,25 @@ test("docs article shows side and bottom share links with canonical URLs", async
     /https%3A%2F%2Fvelowrite\.app%2Fdocs%2Fmarkdown/,
   );
   await expect(page.getByRole("button", { name: /Share article|Link copied/ })).toHaveCount(0);
+});
+
+test("docs side share buttons only appear when they have enough breathing room", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/docs/markdown-history");
+  await expect(page.locator(".article-share-side")).toBeHidden();
+
+  await page.setViewportSize({ width: 1600, height: 900 });
+  await page.goto("/docs/markdown-history");
+  await expect(page.locator(".article-share-side")).toBeVisible();
+
+  const gap = await page.evaluate(() => {
+    const article = document.querySelector(".content-article");
+    const share = document.querySelector(".article-share-side");
+    if (!article || !share) return 0;
+    return share.getBoundingClientRect().left - article.getBoundingClientRect().right;
+  });
+
+  expect(gap).toBeGreaterThanOrEqual(28);
 });
 
 test("docs publishes the local-first Markdown article and sync guidance", async ({ page }) => {
@@ -680,6 +769,37 @@ test("docs publishes the local-first Markdown article and sync guidance", async 
   await expect(page.getByRole("heading", { name: "Sync should preserve folder ownership" })).toBeVisible();
   await expect(page.getByText("basic local history recovery in the free foundation")).toBeVisible();
   await expect(page.getByText("Many users already have a sync habit")).toBeVisible();
+});
+
+test("docs publishes comparison and Windows installer guidance", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "Typora Alternative" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Typora Alternative" })).toContainText("Published");
+  await expect(page.getByRole("link", { name: "Markdown Editor for Windows" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Markdown Editor for Windows" })).toContainText("Published");
+
+  await page.goto("/docs/typora-alternative");
+  await expect(page.getByRole("heading", { name: "Typora Alternative", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Decision guide" })).toHaveAttribute("href", "#decision-guide");
+  await expect(page.getByRole("heading", { name: "A practical decision guide" })).toBeVisible();
+  await expect(page.locator(".markdown-body table").first()).toBeVisible();
+
+  await page.goto("/docs/markdown-editor-for-windows");
+  await expect(page.getByRole("heading", { name: "Markdown Editor for Windows" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open with" })).toHaveAttribute("href", "#open-with");
+  await expect(page.getByRole("heading", { name: "If VeloWrite does not appear in Open with" })).toBeVisible();
+  await expect(page.getByText("old VeloMD shortcuts")).toBeVisible();
+});
+
+test("docs examples can open their Markdown directly in the web editor", async ({ page }) => {
+  await page.goto("/docs/typora-alternative");
+
+  await page.getByRole("button", { name: "Try this in VeloWrite" }).first().click();
+
+  await expect(page).toHaveURL(/\/web\?utm_source=docs_example&utm_medium=cta&example=docs/);
+  await expect(page.locator(".cm-content").first()).toContainText("Editor Trial Note");
+  await expect(page.getByLabel("Rendered preview")).toContainText("Use the editor only if the file still feels like yours.");
 });
 
 test("docs publishes the Markdown math article with rendered KaTeX examples", async ({ page }) => {

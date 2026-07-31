@@ -19,7 +19,7 @@ export default function RenderedMarkdownExample({ example }: { example: Markdown
       <div className="content-example-header">
         <span>{example.label}</span>
         <button type="button" onClick={openInEditor}>
-          Open in Web Editor
+          Try this in VeloWrite
         </button>
       </div>
       <div className="content-example-grid">

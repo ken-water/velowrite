@@ -7,7 +7,7 @@ const distDir = path.join(repoRoot, "dist");
 const indexPath = path.join(distDir, "index.html");
 const version = JSON.parse(fs.readFileSync(path.join(repoRoot, "package.json"), "utf8")).version;
 const siteUrl = "https://velowrite.app";
-const today = "2026-07-30";
+const today = "2026-07-31";
 
 const defaultTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultDescription =
@@ -126,6 +126,15 @@ const routes = [
     schema: ["article"],
   },
   {
+    path: "/docs/markdown-history",
+    title: "A Short History of Markdown - From Plain Text to Modern Writing",
+    description:
+      "A practical history of Markdown, why it became popular with writers and developers, why variants exist, and what modern Markdown editors should preserve.",
+    priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
     path: "/docs/online-markdown-editor",
     title: "Online Markdown Editor - Write, Preview, and Download Markdown",
     description:
@@ -175,6 +184,24 @@ const routes = [
     title: "Local-First Markdown Editing - Private Files and Offline Writing",
     description:
       "Understand local-first Markdown editing, why user-owned files matter, and when to move from a browser editor to a desktop app.",
+    priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/typora-alternative",
+    title: "Typora Alternative - Lightweight Local-First Markdown Editing",
+    description:
+      "Compare VeloWrite as a Typora alternative for quick browser trials, lightweight Tauri desktop builds, local files, recovery history, and public roadmap transparency.",
+    priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/markdown-editor-for-windows",
+    title: "Markdown Editor for Windows - VeloWrite Desktop Preview",
+    description:
+      "Try VeloWrite on Windows for Markdown editing, native local files, recent documents, local history, Open with workflows, and preview installer guidance.",
     priority: "0.75",
     changefreq: "monthly",
     schema: ["article"],

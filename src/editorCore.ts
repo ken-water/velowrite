@@ -57,7 +57,7 @@ export const editorFontSizeKey = "velowrite:editor-font-size";
 export const defaultViewModeKey = "velowrite:default-view-mode";
 export const browserHistoryKey = "velowrite:browser-history";
 export const draftHistoryKey = "velowrite:draft-history";
-export const appVersion = "0.1.13";
+export const appVersion = "0.2.0";
 export const freeHistorySnapshotLimit = 3;
 
 const lastLocalFileKey = "velowrite:last-local-file";

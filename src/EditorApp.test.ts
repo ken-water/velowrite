@@ -10,6 +10,7 @@ import {
   getInitialViewMode,
   getStoredLastLocalFile,
   getStoredEditorFontSize,
+  getStoredRecentFiles,
   getStoredThemeMode,
   limitHistorySnapshots,
   normalizeMarkdownFileName,
@@ -17,7 +18,10 @@ import {
   readBrowserHistory,
   readDraftHistory,
   readLocalHistory,
+  storeRecentFiles,
   storeLastLocalFile,
+  writeBrowserHistory,
+  writeDraftHistory,
   writeLocalHistory,
 } from "./editorCore";
 
@@ -245,6 +249,37 @@ describe("free preview history policy", () => {
     ]);
   });
 
+  it("writes browser and draft history through their scoped helpers", () => {
+    const snapshot = {
+      entry: {
+        id: "browser-1",
+        file_path: "browser:draft",
+        file_name: "Browser.md",
+        snapshot_path: "localStorage:velowrite:browser-history:browser-1",
+        created_at: 1,
+        size: 7,
+      },
+      contents: "browser",
+    };
+    const draftSnapshot = {
+      entry: {
+        id: "draft-1",
+        file_path: "desktop:unsaved-draft",
+        file_name: "Draft.md",
+        snapshot_path: "localStorage:velowrite:draft-history:draft-1",
+        created_at: 2,
+        size: 5,
+      },
+      contents: "draft",
+    };
+
+    writeBrowserHistory([snapshot]);
+    writeDraftHistory([draftSnapshot]);
+
+    expect(readBrowserHistory().map((item) => item.contents)).toEqual(["browser"]);
+    expect(readDraftHistory().map((item) => item.contents)).toEqual(["draft"]);
+  });
+
   it("deduplicates non-adjacent local snapshots with matching contents", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.123456);
 
@@ -281,5 +316,39 @@ describe("last local file restore", () => {
 
     localStorage.setItem("velowrite:last-local-file", "not-json");
     expect(getStoredLastLocalFile()).toBeNull();
+  });
+});
+
+describe("recent files", () => {
+  it("stores recent files using the preview list limit", () => {
+    const files = Array.from({ length: 10 }, (_, index) => ({
+      path: `/notes/${index}.md`,
+      name: `${index}.md`,
+    }));
+
+    storeRecentFiles(files);
+
+    expect(getStoredRecentFiles()).toHaveLength(8);
+    expect(getStoredRecentFiles()[0]).toEqual({ path: "/notes/0.md", name: "0.md" });
+  });
+
+  it("ignores invalid recent file records", () => {
+    localStorage.setItem(
+      "velowrite:recent-files",
+      JSON.stringify([
+        { path: "/notes/valid.md", name: "valid.md" },
+        { path: "", name: "empty.md" },
+        { path: "/notes/missing-name.md" },
+        null,
+      ]),
+    );
+
+    expect(getStoredRecentFiles()).toEqual([{ path: "/notes/valid.md", name: "valid.md" }]);
+
+    localStorage.setItem("velowrite:recent-files", JSON.stringify({ path: "/notes/not-array.md" }));
+    expect(getStoredRecentFiles()).toEqual([]);
+
+    localStorage.setItem("velowrite:recent-files", "{");
+    expect(getStoredRecentFiles()).toEqual([]);
   });
 });

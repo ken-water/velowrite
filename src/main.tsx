@@ -33,7 +33,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.1.13";
+const downloadVersion = "0.2.0";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -142,6 +142,7 @@ const docPageRoutes = {
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/local-first-markdown",
   "/docs/markdown",
+  "/docs/markdown-history",
   "/docs/markdown-basics",
   "/docs/markdown-code-blocks",
   "/docs/markdown-for-developers",
@@ -150,6 +151,8 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-math",
   "/docs/markdown-to-blog",
   "/docs/online-markdown-editor",
+  "/docs/typora-alternative",
+  "/docs/markdown-editor-for-windows",
 ]);
 
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
@@ -204,9 +207,9 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
       "Understand local-first Markdown editing, why user-owned files matter, and when to move from a browser editor to a desktop app.",
   },
   "/docs/typora-alternative": {
-    title: "Typora Alternative - A Lightweight Markdown Workflow with VeloWrite",
+    title: "Typora Alternative - Lightweight Local-First Markdown Editing",
     description:
-      "Compare VeloWrite with Typora-style Markdown editing for browser trials, local-first desktop work, preview builds, and future AI workflows.",
+      "Compare VeloWrite as a Typora alternative for quick browser trials, lightweight Tauri desktop builds, local files, recovery history, and public roadmap transparency.",
   },
   "/docs/online-markdown-editor": {
     title: "Online Markdown Editor - Write, Preview, and Download Markdown",
@@ -219,9 +222,9 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
       "A practical Markdown-to-blog workflow for drafting, previewing, exporting HTML, and preparing future static publishing automation.",
   },
   "/docs/markdown-editor-for-windows": {
-    title: "Markdown Editor for Windows - Fast Local Writing with VeloWrite",
+    title: "Markdown Editor for Windows - VeloWrite Desktop Preview",
     description:
-      "Use VeloWrite as a lightweight Markdown editor for Windows with browser preview, desktop files, local history, and HTML export.",
+      "Try VeloWrite on Windows for Markdown editing, native local files, recent documents, local history, Open with workflows, and preview installer guidance.",
   },
   "/docs/markdown-editor-for-mac": {
     title: "Markdown Editor for Mac - Local-First Markdown Writing",
@@ -644,11 +647,11 @@ const publicRoadmapItems = [
   {
     title: "Web to desktop draft handoff",
     request: "Start quickly in the browser, then continue in the desktop app without manual copy and paste.",
-    status: "Direct import prepared",
+    status: "Free foundation shipped",
     target: "0.1.x / 0.2.x",
     classification: "Free handoff first",
     decision:
-      "The web editor can download the current Markdown draft and now has a velowrite:// direct-import path for the next desktop build. The next useful step is a clearer handoff model before any heavier account-based sync is considered.",
+      "The web editor can download the current Markdown draft and now exposes a clearer desktop handoff with a velowrite:// direct-import path plus a Markdown backup fallback. Account-based sync remains a later decision.",
   },
   {
     title: "Private, no-account sync",
@@ -688,13 +691,36 @@ const publicRoadmapItems = [
   },
 ];
 
+const roadmapStages = [
+  {
+    label: "Shipped",
+    description: "Available in the current free preview or already reflected in public docs.",
+    items: publicRoadmapItems.filter((item) => ["Shipped", "Free foundation shipped"].includes(item.status)),
+  },
+  {
+    label: "In progress",
+    description: "Core preview work that should improve the free editor before Pro features expand.",
+    items: publicRoadmapItems.filter((item) => item.status === "In progress"),
+  },
+  {
+    label: "Next / designing",
+    description: "Useful follow-up work that needs more product detail or validation before release.",
+    items: publicRoadmapItems.filter((item) => ["Designing", "Researching"].includes(item.status)),
+  },
+  {
+    label: "Pro candidates",
+    description: "Later workflows that may become paid once the free writing foundation is stable.",
+    items: publicRoadmapItems.filter((item) => item.status === "Later"),
+  },
+];
+
 const docGroups = [
   {
     title: "Understand Markdown",
     description: "Foundational articles for people comparing writing formats and editor workflows.",
     items: [
       { title: "What Is Markdown?", href: "/docs/markdown", status: "Published" },
-      { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Planned" },
+      { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Published" },
       { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Planned" },
     ],
   },
@@ -722,9 +748,9 @@ const docGroups = [
     description: "Conversion-focused pages for users searching by platform, workflow, or alternative.",
     items: [
       { title: "Online Markdown Editor", href: "/docs/online-markdown-editor", status: "Published" },
-      { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Planned" },
+      { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Published" },
       { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Published" },
-      { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Planned" },
+      { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Published" },
       { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Planned" },
       { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Planned" },
     ],
@@ -1011,28 +1037,75 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Markdown fundamentals",
     title: "A Short History of Markdown",
     intro:
-      "Markdown became popular because it solved a practical problem: people wanted to write for the web without writing raw HTML all day. Its best ideas are still useful in modern editors.",
-    updated: "July 21, 2026",
+      "Markdown became popular because it solved a practical problem: people wanted readable plain text that could become clean web pages. Its best ideas still shape modern writing tools.",
+    updated: "July 31, 2026",
+    directory: [
+      { label: "Why Markdown appeared", href: "#why-markdown-appeared" },
+      { label: "Why it spread", href: "#why-it-spread" },
+      { label: "GitHub and docs", href: "#github-and-docs" },
+      { label: "Why variants exist", href: "#why-variants-exist" },
+      { label: "What stayed useful", href: "#what-stayed-useful" },
+      { label: "Modern editor lessons", href: "#modern-editor-lessons" },
+    ],
     sections: [
       {
-        title: "The original need was web writing",
+        id: "why-markdown-appeared",
+        title: "Why Markdown appeared",
         body: [
-          "Markdown was created to make structured writing easier to read as plain text and easier to convert to HTML. That origin still shapes the format: headings, links, lists, quotes, and code all map naturally to web content.",
-          "The format spread because it was easy to type in email, text editors, issue trackers, READMEs, and documentation sites.",
+          "Before Markdown became a default writing format, publishing for the web often meant either writing HTML by hand or using a rich text editor that hid the structure. Neither option felt good for everyday notes, emails, documentation, or essays.",
+          "Markdown's useful compromise was simple: keep the source readable as plain text, then convert that source into HTML when needed. A heading still looks like a heading, a list still looks like a list, and a link is still understandable before it is rendered.",
+        ],
+        example: {
+          label: "Plain text that still has structure",
+          markdown:
+            "# Release Notes\n\n## Fixed\n\n- Faster preview rendering\n- Clearer history restore state\n\n[Download the preview](https://velowrite.app/download)",
+          note: "The source is readable in any text editor, while the preview becomes a structured page.",
+        },
+      },
+      {
+        id: "why-it-spread",
+        title: "Why Markdown spread beyond blogs",
+        body: [
+          "Markdown spread because it did not ask people to change their whole workflow. It worked in simple text editors, email drafts, issue trackers, code comments, Git repositories, documentation generators, and static-site tools.",
+          "That portability matters. A Markdown file can live in a folder, move through Git, become a blog post, or sit inside a project repository without needing a proprietary database.",
         ],
       },
       {
-        title: "Developers made Markdown a documentation standard",
+        id: "github-and-docs",
+        title: "GitHub made Markdown daily infrastructure",
         body: [
-          "GitHub, static site generators, documentation platforms, and code hosting pushed Markdown into daily developer work. READMEs, release notes, API docs, design notes, and runbooks all became natural Markdown documents.",
-          "This is why modern Markdown editors need strong code blocks, tables, math, and preview behavior, not only basic headings.",
+          "Code hosting turned Markdown from a lightweight publishing syntax into daily project infrastructure. READMEs, changelogs, pull request notes, API examples, runbooks, and release checklists all became natural Markdown documents.",
+          "This developer adoption also raised expectations. A modern Markdown editor needs reliable fenced code blocks, tables, links, images, math rendering, and long-document navigation. Basic bold and headings are no longer enough.",
+        ],
+        example: {
+          label: "Project documentation pattern",
+          markdown:
+            "## Install\n\n```bash\nnpm install\nnpm run build\n```\n\n## API example\n\n```js\nexport function formatTitle(value) {\n  return value.trim().replace(/\\s+/g, \" \");\n}\n```",
+          note: "Technical Markdown depends on predictable code fences and readable rendered output.",
+        },
+      },
+      {
+        id: "why-variants-exist",
+        title: "Why Markdown variants exist",
+        body: [
+          "Markdown was intentionally small, so communities added features for their own needs. GitHub-Flavored Markdown popularized tables, task lists, and fenced code blocks. Documentation systems added front matter, anchors, callouts, diagrams, and math.",
+          "Variants are not a failure of Markdown. They are a sign that people use plain text as a foundation for many workflows. The practical lesson is to keep core syntax portable and treat advanced extensions as workflow choices.",
         ],
       },
       {
-        title: "The next step is local-first and workflow-aware",
+        id: "what-stayed-useful",
+        title: "What stayed useful after all these years",
         body: [
-          "The future is not just another syntax variant. The useful direction is better writing flow: instant preview, local files, history recovery, export, publishing, and eventually AI commands that respect user-owned content.",
-          "VeloWrite is built around that path: fast web trial first, then a lightweight desktop app for serious local Markdown work.",
+          "The most durable Markdown idea is not a specific symbol. It is the belief that source text should remain understandable without the editor. That is why Markdown still feels trustworthy for notes, specs, drafts, and long-lived documentation.",
+          "Another durable idea is separation of writing from presentation. You can draft in a clean plain-text structure, then export to HTML, print to PDF, publish to a site, or apply a style later.",
+        ],
+      },
+      {
+        id: "modern-editor-lessons",
+        title: "What this history means for modern editors",
+        body: [
+          "A good Markdown editor should not make the file feel trapped. It should make writing faster while preserving plain text ownership. Preview, history recovery, export, and navigation should support the file instead of replacing it.",
+          "VeloWrite follows that direction: quick browser editing for first contact, a lightweight desktop path for serious local files, and a roadmap that adds AI, export, and publishing only after the editing foundation feels dependable.",
         ],
       },
     ],
@@ -1789,26 +1862,75 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Editor comparison",
     title: "Typora Alternative",
     intro:
-      "Typora helped make focused Markdown editing feel mainstream. VeloWrite takes a different early path: browser trial first, lightweight Tauri desktop builds, local-first files, and a roadmap for AI-native workflows.",
-    updated: "July 21, 2026",
+      "Typora helped make focused Markdown editing feel mainstream. VeloWrite takes a different early path: browser trial first, lightweight Tauri desktop builds, local-first files, visible recovery, and a public roadmap for AI-native workflows.",
+    updated: "July 31, 2026",
+    directory: [
+      { label: "Who this is for", href: "#who-this-is-for" },
+      { label: "Different path", href: "#different-path" },
+      { label: "Useful today", href: "#useful-today" },
+      { label: "Where it is early", href: "#where-it-is-early" },
+      { label: "Decision guide", href: "#decision-guide" },
+      { label: "Try the workflow", href: "#try-the-workflow" },
+    ],
     sections: [
       {
+        id: "who-this-is-for",
+        title: "Who should consider a Typora alternative",
+        body: [
+          "You may not need a different Markdown editor if your current setup is stable and already fits your workflow. A useful alternative should earn attention by solving a specific problem, not by claiming every mature editor is wrong.",
+          "VeloWrite is most relevant if you want a quick browser trial before installing anything, a lightweight desktop app built with Tauri, local-first files, basic recovery history, and a product roadmap that explains what is ready and what is not.",
+        ],
+      },
+      {
+        id: "different-path",
         title: "What VeloWrite is trying to improve",
         body: [
           "The goal is not to copy every mature Typora feature immediately. The early goal is a fast preview editor that feels honest: try it online, download desktop when local files matter, and see public roadmap status before expecting Pro workflows.",
+          "That approach gives new users a low-risk first step. You can paste Markdown into the web editor, check rendering, export or download a file, and then decide whether the desktop app deserves a place in your daily workflow.",
         ],
+        example: {
+          label: "Evaluate an editor with a real note",
+          markdown:
+            "# Editor Trial Note\n\n## What matters\n\n- Opens quickly\n- Keeps Markdown readable\n- Shows preview clearly\n- Saves a local copy\n- Makes recovery understandable\n\n## Decision\n\nUse the editor only if the file still feels like yours.",
+          note: "A practical comparison starts with a document you would actually keep, not only a feature list.",
+        },
       },
       {
+        id: "useful-today",
         title: "Where VeloWrite is already useful",
         body: [
           "The current preview supports browser editing, live preview, Markdown download, HTML export, desktop open and save, recent files, local history snapshots, math rendering, code highlighting, and tabbed examples.",
+          "For quick notes, README drafts, technical snippets, study notes, and article outlines, that is enough to test the core flow. The desktop app is the better path when the draft becomes a real file you plan to reopen.",
         ],
       },
       {
+        id: "where-it-is-early",
         title: "Where Typora is still ahead",
         body: [
-          "VeloWrite is still preview software. Continuous sync scrolling, history diff preview, richer image handling, Mermaid, PDF export, signed installers, and advanced polish are still on the roadmap.",
+          "VeloWrite is still preview software. Continuous sync scrolling, richer image handling, Mermaid, advanced PDF export, signed installers, and deeper polish are still on the roadmap.",
           "That transparency matters: users should know what is ready before depending on a new editor.",
+        ],
+      },
+      {
+        id: "decision-guide",
+        title: "A practical decision guide",
+        body: [
+          "Choose the editor that reduces friction for the documents you actually write. If you mostly need a mature paid desktop editor today, keep using the tool that already works. If you want to follow a lighter local-first Markdown editor while it is being built in public, VeloWrite is worth testing.",
+          "For teams and creators, the key question is not only price. It is whether the editor makes source files portable, recovery visible, and export predictable without turning every note into a cloud account.",
+        ],
+        example: {
+          label: "Comparison checklist",
+          markdown:
+            "| Question | Why it matters |\n| --- | --- |\n| Can I try it without installing? | Low-friction evaluation |\n| Can I keep a real .md file? | File ownership |\n| Can I recover a bad edit? | Writing safety |\n| Can I export when finished? | Sharing workflow |\n| Is the roadmap public? | Preview trust |",
+          note: "A clear checklist helps users compare workflows without pretending one editor fits everyone.",
+        },
+      },
+      {
+        id: "try-the-workflow",
+        title: "Try the workflow before switching",
+        body: [
+          "Start with the web editor. Paste a real Markdown draft, switch between Write, Split, and Preview, then export HTML or download the Markdown copy. If the draft becomes important, move it to the desktop app for local files and history.",
+          "This keeps the decision reversible. You can evaluate the writing surface without moving your whole note system on day one.",
         ],
       },
     ],
@@ -1914,25 +2036,75 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Platform guide",
     title: "Markdown Editor for Windows",
     intro:
-      "Windows users can try VeloWrite in the browser first, then install the desktop preview for native local files, recent documents, local history, and offline writing.",
-    updated: "July 21, 2026",
+      "Windows users can try VeloWrite in the browser first, then install the desktop preview for native local files, recent documents, local history, offline writing, and Open with workflows.",
+    updated: "July 31, 2026",
+    directory: [
+      { label: "Quick test", href: "#quick-test" },
+      { label: "Desktop files", href: "#desktop-files" },
+      { label: "Open with", href: "#open-with" },
+      { label: "If it does not appear", href: "#missing-open-with" },
+      { label: "Old app cleanup", href: "#old-app-cleanup" },
+      { label: "Installer status", href: "#installer-status" },
+    ],
     sections: [
       {
+        id: "quick-test",
         title: "Use the web editor for a quick test",
         body: [
           "If you only need to paste Markdown, preview it, and download a copy, the browser editor is the fastest starting point. No account is required.",
+          "This is useful before installing anything on a work machine. You can confirm the preview style, code blocks, math rendering, and export flow first.",
         ],
       },
       {
+        id: "desktop-files",
         title: "Use desktop for real files",
         body: [
           "The Windows preview adds native open and save, recent files, HTML export, and local history snapshots. It is better for documents you plan to keep editing.",
+          "Once installed, the app can receive Markdown files from the operating system. Opening a .md file with VeloWrite should load the file directly into the editor instead of showing the marketing website.",
+        ],
+        example: {
+          label: "A local Windows note",
+          markdown:
+            "# Windows Test Note\n\n## Verify\n\n- Open this file with VeloWrite\n- Edit a line\n- Save the file\n- Reopen it from the recent list\n\n## Expected result\n\nThe file path is visible and the editor shows local history status.",
+          note: "Use a small test file first so you can verify open, save, recent files, and history without risking important notes.",
+        },
+      },
+      {
+        id: "open-with",
+        title: "How Open with should work",
+        body: [
+          "The preview installer declares Markdown file associations for .md, .markdown, and .mdown files. Windows may still require you to choose VeloWrite once from the Open with menu before it appears as a familiar option.",
+          "A normal test is simple: right-click a Markdown file, choose Open with, select VeloWrite, and confirm the document opens in the editor. If the app is already running, the existing window should focus and open the selected file.",
         ],
       },
       {
+        id: "missing-open-with",
+        title: "If VeloWrite does not appear in Open with",
+        body: [
+          "First confirm that the current VeloWrite preview is installed. Windows can hide newly installed apps from the short Open with list, so choose More apps or Choose another app, then browse for VeloWrite if needed.",
+          "If the file association still looks wrong, reinstall the current preview build and test with a new .md file. Corporate Windows policies can also restrict default-app changes, so a work computer may behave differently from a personal machine.",
+        ],
+        example: {
+          label: "Open with checklist",
+          markdown:
+            "## Windows Open with check\n\n1. Install the current VeloWrite preview\n2. Create `open-with-test.md`\n3. Right-click the file\n4. Choose Open with -> VeloWrite\n5. Confirm the editor opens the file path\n6. Save and reopen from Recent",
+          note: "This checklist separates app behavior from Windows default-app registration.",
+        },
+      },
+      {
+        id: "old-app-cleanup",
+        title: "Remove old app remnants if you tested earlier builds",
+        body: [
+          "Early testers may still see old VeloMD shortcuts or app names if an older preview was installed before the rename. Those entries are separate from the current VeloWrite installer and can confuse Open with testing.",
+          "Uninstall older preview builds from Windows Apps, remove stale desktop shortcuts, then install the current VeloWrite release again. After that, retest Open with using a fresh Markdown file.",
+        ],
+      },
+      {
+        id: "installer-status",
         title: "Installer status",
         body: [
           "The current Windows installer is unsigned, so SmartScreen may warn during install. That is expected for the preview stage and will be revisited before broader stable promotion.",
+          "Unsigned status does not mean the file association is disabled. It only means Windows may ask for extra confirmation before install or first launch.",
         ],
       },
     ],
@@ -2122,10 +2294,11 @@ const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "July 25, 2026",
+    updated: "July 31, 2026",
     directory: [
-      { label: "0.1.13", href: "#v0113" },
+      { label: "0.2.0", href: "#v020" },
       { label: "Unreleased", href: "#unreleased" },
+      { label: "0.1.13", href: "#v0113" },
       { label: "0.1.12", href: "#v0112" },
       { label: "0.1.11", href: "#v0111" },
       { label: "0.1.10", href: "#v0110" },
@@ -2146,6 +2319,20 @@ const contentPages: Record<string, ContentPage> = {
         title: "Unreleased",
         body: [
           "Next preview work will continue improving document structure workflows, desktop polish, and web-to-desktop handoff clarity.",
+        ],
+      },
+      {
+        id: "v020",
+        title: "0.2.0 preview",
+        body: [
+          "Published A Short History of Markdown, Typora Alternative, and Markdown Editor for Windows as user-facing documentation and SEO pages.",
+          "Added a Roadmap status map that groups feedback into shipped, in-progress, next/designing, and Pro-candidate work.",
+          "Improved the web-to-desktop handoff prompt with direct Open in Desktop, Markdown backup, and app download options.",
+          "Added a desktop current-file status strip showing file name, path or draft state, local history scope, and save state.",
+          "Improved docs article sharing so side share buttons only appear on wide screens with enough spacing from the article body.",
+          "Renamed docs example actions to Try this in VeloWrite and covered the handoff into the web editor with end-to-end tests.",
+          "Expanded Windows Open with guidance for Markdown file associations, old VeloMD shortcut cleanup, and unsigned installer expectations.",
+          "Raised automated coverage around editor history helpers, recent files, docs publishing, roadmap grouping, and desktop status UI.",
         ],
       },
       {
@@ -3271,6 +3458,32 @@ function RoadmapPage() {
                 <span>{item.priority}</span>
                 <h3>{item.title}</h3>
                 <p>{item.reason}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="roadmap-stages" aria-label="Roadmap by stage">
+          <div className="section-heading">
+            <span>Status map</span>
+            <h2>See what has shipped, what is active, and what may become Pro later.</h2>
+            <p>
+              The roadmap is grouped by product status so users can quickly see whether a
+              request is already available, actively improving, still being designed, or
+              reserved for a later paid workflow.
+            </p>
+          </div>
+          <div className="roadmap-stage-grid">
+            {roadmapStages.map((stage) => (
+              <article key={stage.label}>
+                <span>{stage.label}</span>
+                <strong>{stage.items.length} items</strong>
+                <p>{stage.description}</p>
+                <ul>
+                  {stage.items.slice(0, 4).map((item) => (
+                    <li key={item.title}>{item.title}</li>
+                  ))}
+                </ul>
               </article>
             ))}
           </div>

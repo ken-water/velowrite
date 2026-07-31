@@ -981,6 +981,7 @@ export default function EditorApp({
   const [editorScrollTarget, setEditorScrollTarget] = React.useState<{ line: number; nonce: number } | null>(null);
   const [activeHeadingId, setActiveHeadingId] = React.useState<string | null>(null);
   const [desktopPrompt, setDesktopPrompt] = React.useState<string | null>(null);
+  const [desktopHandoffUrl, setDesktopHandoffUrl] = React.useState<string | null>(null);
   const [focusMode, setFocusMode] = React.useState(false);
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
     return localStorage.getItem(autoSaveFileKey) === "true";
@@ -1024,6 +1025,7 @@ export default function EditorApp({
     : filePath
       ? `${historyCountLabel} file snapshots`
       : `${historyCountLabel} draft snapshots`;
+  const desktopPathLabel = filePath || "Draft has not been saved to a local file yet";
 
   React.useEffect(() => {
     if (!browserMode) return;
@@ -1529,7 +1531,8 @@ export default function EditorApp({
     downloadMarkdown();
     setSavedMarkdown(markdown);
     setStatus("Downloaded Markdown copy");
-    setDesktopPrompt("Desktop saves directly to your local files, keeps history snapshots, and works offline.");
+    setDesktopHandoffUrl(createDesktopHandoffUrl(fileName, markdown));
+    setDesktopPrompt("Keep this Markdown backup, then continue in Desktop for native files, local history, and offline work.");
   }
 
   function getSaveStatus(keptPreviousVersion: boolean, historyWasFull: boolean, silent: boolean) {
@@ -1595,6 +1598,7 @@ export default function EditorApp({
 
   function handoffToDesktop() {
     const handoffUrl = createDesktopHandoffUrl(fileName, markdown);
+    setDesktopHandoffUrl(handoffUrl);
     if (!handoffUrl) {
       downloadMarkdown();
       setSavedMarkdown(markdown);
@@ -2366,6 +2370,27 @@ export default function EditorApp({
           </div>
         </header>
 
+        {desktopSurface && (
+          <section className="desktop-file-state" aria-label="Current file status">
+            <div>
+              <span>File</span>
+              <strong>{fileName}</strong>
+            </div>
+            <div>
+              <span>{filePath ? "Path" : "Draft"}</span>
+              <strong title={desktopPathLabel}>{desktopPathLabel}</strong>
+            </div>
+            <div>
+              <span>History</span>
+              <strong>{historyTrustLabel}</strong>
+            </div>
+            <div>
+              <span>Save</span>
+              <strong>{saveTrustLabel}</strong>
+            </div>
+          </section>
+        )}
+
         {showDesktopStart && (
           <DesktopStartPanel
             recentFiles={recentFiles}
@@ -2442,12 +2467,22 @@ export default function EditorApp({
             </button>
             <MonitorDown size={18} />
             <div>
-              <strong>Need native local files?</strong>
+              <strong>Continue in Desktop</strong>
               <p>{desktopPrompt}</p>
             </div>
-            <a href={desktopDownloadHref}>
-              Download Desktop <Download size={14} />
-            </a>
+            <div className="desktop-prompt-actions">
+              {desktopHandoffUrl && (
+                <a href={desktopHandoffUrl}>
+                  Open in Desktop <ExternalLink size={14} />
+                </a>
+              )}
+              <button onClick={downloadMarkdown} type="button">
+                Download backup <Download size={14} />
+              </button>
+              <a href={desktopDownloadHref}>
+                Get app <MonitorDown size={14} />
+              </a>
+            </div>
           </aside>
         )}
         {dragActive && <div className="drop-overlay">Drop Markdown file to open</div>}
