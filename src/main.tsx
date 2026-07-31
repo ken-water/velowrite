@@ -2297,7 +2297,7 @@ const contentPages: Record<string, ContentPage> = {
     updated: "July 31, 2026",
     directory: [
       { label: "0.2.0", href: "#v020" },
-      { label: "Unreleased", href: "#unreleased" },
+      { label: "Planned next", href: "#planned-next" },
       { label: "0.1.13", href: "#v0113" },
       { label: "0.1.12", href: "#v0112" },
       { label: "0.1.11", href: "#v0111" },
@@ -2315,10 +2315,10 @@ const contentPages: Record<string, ContentPage> = {
     ],
     sections: [
       {
-        id: "unreleased",
-        title: "Unreleased",
+        id: "planned-next",
+        title: "Planned next",
         body: [
-          "Next preview work will continue improving document structure workflows, desktop polish, and web-to-desktop handoff clarity.",
+          "Future updates will continue improving document structure, desktop polish, web-to-desktop handoff, export workflows, and the Pro feature path after the free preview foundation stays stable.",
         ],
       },
       {
