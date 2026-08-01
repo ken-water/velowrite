@@ -314,6 +314,9 @@ test("docs index publishes the Markdown history article", async ({ page }) => {
 
   await historyLink.click();
   await expect(page.getByRole("heading", { name: "A Short History of Markdown" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Timeline" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Timeline" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "2004 and the first release" })).toBeVisible();
   await expect(page.getByRole("link", { name: "2004 and the first release" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Aaron Swartz and early feedback" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Why variants and CommonMark appeared" })).toBeVisible();

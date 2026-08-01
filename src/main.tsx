@@ -1081,6 +1081,7 @@ const contentPages: Record<string, ContentPage> = {
       "Markdown began in 2004 as a readable plain-text format for web writing. John Gruber wrote the first converter in Perl, Aaron Swartz helped shape the syntax, and later CommonMark tried to reduce the ambiguity that accumulated across implementations.",
     updated: "July 31, 2026",
     directory: [
+      { label: "Timeline", href: "#timeline" },
       { label: "2004 and the first release", href: "#2004-and-the-first-release" },
       { label: "Aaron Swartz and early feedback", href: "#aaron-swartz-and-early-feedback" },
       { label: "Why it spread", href: "#why-it-spread" },
@@ -1089,6 +1090,15 @@ const contentPages: Record<string, ContentPage> = {
       { label: "Modern editor lessons", href: "#modern-editor-lessons" },
     ],
     sections: [
+      {
+        id: "timeline",
+        title: "Timeline",
+        body: [
+          "2004: John Gruber introduces Markdown as a text-to-HTML tool for readable plain-text writing.",
+          "December 17, 2004: Markdown 1.0.1 is published as the early public release.",
+          "Later: Aaron Swartz's feedback helps shape the syntax, and CommonMark appears to reduce ambiguity across implementations.",
+        ],
+      },
       {
         id: "2004-and-the-first-release",
         title: "2004 and the first release",
