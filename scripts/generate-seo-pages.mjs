@@ -127,9 +127,9 @@ const routes = [
   },
   {
     path: "/docs/markdown-history",
-    title: "A Short History of Markdown - From Plain Text to Modern Writing",
+    title: "A Short History of Markdown - 2004, Aaron Swartz, and CommonMark",
     description:
-      "A practical history of Markdown, why it became popular with writers and developers, why variants exist, and what modern Markdown editors should preserve.",
+      "A short history of Markdown's 2004 origin, its first Perl converter, Aaron Swartz's influence, and why CommonMark later became necessary.",
     priority: "0.75",
     changefreq: "monthly",
     schema: ["article"],

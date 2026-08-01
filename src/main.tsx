@@ -164,9 +164,9 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
       "Learn what Markdown is, how it compares with rich text and HTML, where it works best, and how to start writing portable Markdown documents.",
   },
   "/docs/markdown-history": {
-    title: "A Short History of Markdown - From Plain Text to Modern Writing",
+    title: "A Short History of Markdown - 2004, Aaron Swartz, and CommonMark",
     description:
-      "A practical history of Markdown, why it became popular with writers and developers, and where modern Markdown editors are heading.",
+      "A short history of Markdown's 2004 origin, its first Perl converter, Aaron Swartz's influence, and why CommonMark later became necessary.",
   },
   "/docs/future-of-markdown": {
     title: "The Future of Markdown Writing - Local Files, AI, and Export Readiness",
@@ -1078,23 +1078,23 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Markdown fundamentals",
     title: "A Short History of Markdown",
     intro:
-      "Markdown became popular because it solved a practical problem: people wanted readable plain text that could become clean web pages. Its best ideas still shape modern writing tools.",
+      "Markdown began in 2004 as a readable plain-text format for web writing. John Gruber wrote the first converter in Perl, Aaron Swartz helped shape the syntax, and later CommonMark tried to reduce the ambiguity that accumulated across implementations.",
     updated: "July 31, 2026",
     directory: [
-      { label: "Why Markdown appeared", href: "#why-markdown-appeared" },
+      { label: "2004 and the first release", href: "#2004-and-the-first-release" },
+      { label: "Aaron Swartz and early feedback", href: "#aaron-swartz-and-early-feedback" },
       { label: "Why it spread", href: "#why-it-spread" },
-      { label: "GitHub and docs", href: "#github-and-docs" },
-      { label: "Why variants exist", href: "#why-variants-exist" },
+      { label: "Why variants and CommonMark", href: "#why-variants-and-commonmark" },
       { label: "What stayed useful", href: "#what-stayed-useful" },
       { label: "Modern editor lessons", href: "#modern-editor-lessons" },
     ],
     sections: [
       {
-        id: "why-markdown-appeared",
-        title: "Why Markdown appeared",
+        id: "2004-and-the-first-release",
+        title: "2004 and the first release",
         body: [
-          "Before Markdown became a default writing format, publishing for the web often meant either writing HTML by hand or using a rich text editor that hid the structure. Neither option felt good for everyday notes, emails, documentation, or essays.",
-          "Markdown's useful compromise was simple: keep the source readable as plain text, then convert that source into HTML when needed. A heading still looks like a heading, a list still looks like a list, and a link is still understandable before it is rendered.",
+          "Markdown was introduced in 2004 by John Gruber as a text-to-HTML tool for web writers. The first public release, Markdown 1.0.1, was published on December 17, 2004.",
+          "Its core idea was simple: keep the source readable as plain text, then convert that source into HTML when needed. A heading still looks like a heading, a list still looks like a list, and a link is still understandable before it is rendered.",
         ],
         example: {
           label: "Plain text that still has structure",
@@ -1104,33 +1104,27 @@ const contentPages: Record<string, ContentPage> = {
         },
       },
       {
+        id: "aaron-swartz-and-early-feedback",
+        title: "Aaron Swartz and early feedback",
+        body: [
+          "Aaron Swartz gave Markdown a lot of the feedback and testing that helped the syntax settle into something practical. Gruber credits Aaron directly in the original Markdown page acknowledgements.",
+          "That matters historically because Markdown was never just a solo syntax design. It was shaped early by real use, discussion, and iteration around how people naturally write in plain text.",
+        ],
+      },
+      {
         id: "why-it-spread",
-        title: "Why Markdown spread beyond blogs",
+        title: "Why Markdown spread",
         body: [
           "Markdown spread because it did not ask people to change their whole workflow. It worked in simple text editors, email drafts, issue trackers, code comments, Git repositories, documentation generators, and static-site tools.",
           "That portability matters. A Markdown file can live in a folder, move through Git, become a blog post, or sit inside a project repository without needing a proprietary database.",
         ],
       },
       {
-        id: "github-and-docs",
-        title: "GitHub made Markdown daily infrastructure",
+        id: "why-variants-and-commonmark",
+        title: "Why variants and CommonMark appeared",
         body: [
-          "Code hosting turned Markdown from a lightweight publishing syntax into daily project infrastructure. READMEs, changelogs, pull request notes, API examples, runbooks, and release checklists all became natural Markdown documents.",
-          "This developer adoption also raised expectations. A modern Markdown editor needs reliable fenced code blocks, tables, links, images, math rendering, and long-document navigation. Basic bold and headings are no longer enough.",
-        ],
-        example: {
-          label: "Project documentation pattern",
-          markdown:
-            "## Install\n\n```bash\nnpm install\nnpm run build\n```\n\n## API example\n\n```js\nexport function formatTitle(value) {\n  return value.trim().replace(/\\s+/g, \" \");\n}\n```",
-          note: "Technical Markdown depends on predictable code fences and readable rendered output.",
-        },
-      },
-      {
-        id: "why-variants-exist",
-        title: "Why Markdown variants exist",
-        body: [
-          "Markdown was intentionally small, so communities added features for their own needs. GitHub-Flavored Markdown popularized tables, task lists, and fenced code blocks. Documentation systems added front matter, anchors, callouts, diagrams, and math.",
-          "Variants are not a failure of Markdown. They are a sign that people use plain text as a foundation for many workflows. The practical lesson is to keep core syntax portable and treat advanced extensions as workflow choices.",
+          "Markdown was intentionally small, so many platforms and tools extended it for their own needs. Over time, syntax drift made the same document render differently across implementations.",
+          "CommonMark was later created to give Markdown a stronger, testable specification. In practice, that meant trying to reduce ambiguity that had built up around the original syntax and its buggy first implementation.",
         ],
       },
       {

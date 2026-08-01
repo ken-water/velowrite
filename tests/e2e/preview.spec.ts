@@ -43,7 +43,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   );
 
   expect(markdownHistoryHtml).toContain(
-    "<title>A Short History of Markdown - From Plain Text to Modern Writing</title>",
+    "<title>A Short History of Markdown - 2004, Aaron Swartz, and CommonMark</title>",
   );
   expect(markdownHistoryHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/markdown-history" />',
@@ -314,8 +314,9 @@ test("docs index publishes the Markdown history article", async ({ page }) => {
 
   await historyLink.click();
   await expect(page.getByRole("heading", { name: "A Short History of Markdown" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Why Markdown appeared" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Why Markdown variants exist" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "2004 and the first release" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Aaron Swartz and early feedback" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Why variants and CommonMark appeared" })).toBeVisible();
   await expect(page.locator(".content-example").first()).toContainText("Plain text that still has structure");
 });
 
