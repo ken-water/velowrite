@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use base64::{engine::general_purpose, Engine as _};
 use serde::{Deserialize, Serialize};
 use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
 use tauri::{AppHandle, Emitter, Manager, Runtime};
@@ -12,6 +13,7 @@ const FREE_HISTORY_SNAPSHOT_LIMIT: usize = 3;
 const GLOBAL_HISTORY_INDEX_LIMIT: usize = 120;
 const MAX_MARKDOWN_BYTES: usize = 10 * 1024 * 1024;
 const MAX_HTML_EXPORT_BYTES: usize = 20 * 1024 * 1024;
+const MAX_PDF_EXPORT_BYTES: usize = 30 * 1024 * 1024;
 static SNAPSHOT_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Serialize)]
@@ -73,7 +75,7 @@ fn read_markdown_file_from_path(path: String) -> Result<MarkdownFile, String> {
         .to_string();
 
     Ok(MarkdownFile {
-        path: path.to_string_lossy().to_string(),
+        path: display_path(&path),
         name,
         contents,
     })
@@ -87,6 +89,35 @@ fn write_markdown_file(path: String, contents: String) -> Result<String, String>
 #[tauri::command]
 fn write_html_file(path: String, contents: String) -> Result<String, String> {
     write_text_file(path, contents, is_html_path, MAX_HTML_EXPORT_BYTES, "HTML")
+}
+
+#[tauri::command]
+fn write_pdf_file(path: String, contents_base64: String) -> Result<String, String> {
+    let path = PathBuf::from(path);
+    if !is_pdf_path(&path) {
+        return Err("Only PDF files can be saved".to_string());
+    }
+    if contents_base64.len() > MAX_PDF_EXPORT_BYTES * 2 {
+        return Err("PDF data is too large to export".to_string());
+    }
+    if let Some(parent) = path.parent() {
+        if !parent.is_dir() {
+            return Err("The selected folder is not available".to_string());
+        }
+    }
+
+    let bytes = general_purpose::STANDARD
+        .decode(contents_base64)
+        .map_err(|error| format!("PDF data could not be decoded: {error}"))?;
+    if bytes.len() > MAX_PDF_EXPORT_BYTES {
+        return Err("The generated PDF is too large to save".to_string());
+    }
+    if !bytes.starts_with(b"%PDF-") {
+        return Err("Generated data is not a valid PDF".to_string());
+    }
+
+    fs::write(&path, bytes).map_err(|error| error.to_string())?;
+    Ok(display_path(&path))
 }
 
 fn canonical_markdown_path(path: &str) -> Result<PathBuf, String> {
@@ -121,7 +152,16 @@ fn write_text_file(
     }
 
     fs::write(&path, contents).map_err(|error| error.to_string())?;
-    Ok(path.to_string_lossy().to_string())
+    Ok(display_path(&path))
+}
+
+fn display_path(path: &Path) -> String {
+    let value = path.to_string_lossy().to_string();
+    value
+        .strip_prefix(r"\\?\UNC\")
+        .map(|path| format!(r"\\{}", path))
+        .or_else(|| value.strip_prefix(r"\\?\").map(ToString::to_string))
+        .unwrap_or(value)
 }
 
 fn ensure_file_size(path: &Path, max_bytes: u64) -> Result<(), String> {
@@ -157,6 +197,16 @@ fn is_html_path(path: &Path) -> bool {
     )
 }
 
+fn is_pdf_path(path: &Path) -> bool {
+    matches!(
+        path.extension()
+            .and_then(|extension| extension.to_str())
+            .map(|extension| extension.to_ascii_lowercase())
+            .as_deref(),
+        Some("pdf")
+    )
+}
+
 fn markdown_paths_from_args(args: Vec<String>) -> Vec<String> {
     args.into_iter()
         .filter_map(|arg| markdown_path_from_arg(&arg))
@@ -177,12 +227,8 @@ fn markdown_path_from_arg(arg: &str) -> Option<String> {
         return None;
     }
 
-    Some(
-        fs::canonicalize(&path)
-            .unwrap_or(path)
-            .to_string_lossy()
-            .to_string(),
-    )
+    let canonical_path = fs::canonicalize(&path).unwrap_or(path);
+    Some(display_path(&canonical_path))
 }
 
 #[tauri::command]
@@ -495,6 +541,27 @@ mod tests {
     }
 
     #[test]
+    fn native_pdf_helper_writes_valid_pdf_bytes_only() {
+        let dir = std::env::temp_dir().join(format!("velowrite-pdf-test-{}", now_ms()));
+        fs::create_dir_all(&dir).expect("create temp directory");
+        let pdf_path = dir.join("notes.pdf");
+        let text_path = dir.join("notes.txt");
+        let pdf_base64 = general_purpose::STANDARD.encode(b"%PDF-1.4\n% VeloWrite test\n");
+
+        write_pdf_file(pdf_path.to_string_lossy().to_string(), pdf_base64.clone())
+            .expect("write pdf file");
+        assert!(pdf_path.exists());
+        assert!(write_pdf_file(text_path.to_string_lossy().to_string(), pdf_base64).is_err());
+        assert!(write_pdf_file(
+            pdf_path.to_string_lossy().to_string(),
+            general_purpose::STANDARD.encode(b"not a pdf"),
+        )
+        .is_err());
+
+        let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
     fn snapshot_ids_do_not_collide_within_the_same_millisecond() {
         let first = new_snapshot_id("/docs/notes.md", 1);
         let second = new_snapshot_id("/docs/notes.md", 1);
@@ -515,6 +582,9 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
         .build(manager)?;
     let export_html = MenuItemBuilder::with_id("export_html", "Export HTML...")
         .accelerator("CmdOrCtrl+Shift+E")
+        .build(manager)?;
+    let export_pdf = MenuItemBuilder::with_id("export_pdf", "Export PDF...")
+        .accelerator("CmdOrCtrl+Shift+P")
         .build(manager)?;
     let clear_recent = MenuItemBuilder::with_id("clear_recent", "Clear Recent")
         .build(manager)?;
@@ -541,6 +611,7 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
         .item(&save_file)
         .separator()
         .item(&export_html)
+        .item(&export_pdf)
         .separator()
         .item(&clear_recent)
         .item(&show_history)
@@ -599,6 +670,7 @@ pub fn run() {
                     "open_file" => Some("open"),
                     "save_file" => Some("save"),
                     "export_html" => Some("export-html"),
+                    "export_pdf" => Some("export-pdf"),
                     "clear_recent" => Some("clear-recent"),
                     "show_history" => Some("show-history"),
                     "view_write" => Some("view-write"),
@@ -629,6 +701,7 @@ pub fn run() {
             read_recent_markdown_file,
             write_markdown_file,
             write_html_file,
+            write_pdf_file,
             create_history_snapshot,
             list_history_snapshots,
             read_history_snapshot,

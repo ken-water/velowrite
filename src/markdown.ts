@@ -8,6 +8,7 @@ import javascript from "highlight.js/lib/languages/javascript";
 import python from "highlight.js/lib/languages/python";
 import typescript from "highlight.js/lib/languages/typescript";
 import MarkdownIt from "markdown-it";
+import type { TableExportStyle } from "./editorCore";
 
 const tabLanguages = new Set(["python", "bash", "java", "javascript"]);
 
@@ -244,7 +245,16 @@ function normalizeLanguage(language: string) {
   return aliases[value] ?? value;
 }
 
-export function buildHtmlDocument(title: string, body: string) {
+export function buildHtmlDocument(
+  title: string,
+  body: string,
+  tableStyle: TableExportStyle = {
+    header: "tinted",
+    rows: "striped",
+    borders: "strong",
+    color: "green",
+  },
+) {
   const exportedAt = new Intl.DateTimeFormat("en", {
     year: "numeric",
     month: "short",
@@ -341,14 +351,30 @@ export function buildHtmlDocument(title: string, body: string) {
       a { color: #2c6e62; }
       img { max-width: 100%; border-radius: 8px; }
       table {
-        display: block;
+        display: table;
+        table-layout: fixed;
         width: 100%;
         margin: 22px 0;
-        overflow: auto;
-        border-collapse: collapse;
+        border: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: #ffffff;
       }
-      th, td { border: 1px solid #ded9d0; padding: 9px 10px; text-align: left; }
-      th { background: #f4f1ea; color: #253833; }
+      thead { display: table-header-group; }
+      th, td { border: 0; border-top: 1.2px solid #9faaa4; border-left: 1.2px solid #9faaa4; padding: 9px 10px; color: #253833; text-align: left; vertical-align: top; overflow-wrap: anywhere; word-break: normal; }
+      th:last-child, td:last-child { border-right: 1.2px solid #9faaa4; }
+      tr:last-child td { border-bottom: 1.2px solid #9faaa4; }
+      thead tr:last-child th { border-bottom: 1.2px solid #9faaa4; }
+      th { background: #e8eee9; color: #102820; font-weight: 850; }
+      tr:nth-child(even) td { background: #f7f9f7; }
+      .table-color-blue th { background: #e8f0fb; }
+      .table-color-blue tr:nth-child(even) td { background: #f5f8fd; }
+      .table-color-gray th { background: #eeeeec; }
+      .table-color-gray tr:nth-child(even) td { background: #f7f7f5; }
+      .table-header-plain th { background: #ffffff; }
+      .table-rows-plain tr:nth-child(even) td { background: #ffffff; }
+      .table-borders-light th,
+      .table-borders-light td { border-color: #d9dfda; border-width: 1px; }
       .code-tabset { overflow: hidden; margin: 18px 0; border: 1px solid #ded9d0; border-radius: 8px; background: #fff; }
       .code-tabset-tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #ded9d0; padding: 9px; background: #f8f6f1; }
       .code-tabset-tabs input { display: none; }
@@ -381,6 +407,7 @@ export function buildHtmlDocument(title: string, body: string) {
       @media print {
         :root { background: #fff; }
         body { background: #fff; }
+        * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
         .document-shell { max-width: none; padding: 0; }
         .document-cover { margin-bottom: 18px; padding-bottom: 14px; }
         .document-title { font-size: 32px; }
@@ -404,7 +431,7 @@ export function buildHtmlDocument(title: string, body: string) {
     </style>
   </head>
   <body>
-    <main class="document-shell">
+      <main class="document-shell table-header-${tableStyle.header} table-rows-${tableStyle.rows} table-borders-${tableStyle.borders} table-color-${tableStyle.color}">
       <header class="document-cover">
         <div class="document-kicker">VeloWrite export</div>
         <h1 class="document-title">${escapeHtml(title)}</h1>
@@ -416,7 +443,7 @@ export function buildHtmlDocument(title: string, body: string) {
       </header>
       <article class="document-content">${body}</article>
       <footer class="document-footer">
-        Created with VeloWrite. Keep the Markdown source as the editable original.
+        Created with VeloWrite Preview. Pro exports will remove this preview mark.
       </footer>
     </main>
   </body>

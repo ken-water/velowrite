@@ -153,14 +153,34 @@ puts "<unsafe>"
 
     expect(html).toContain("<!doctype html>");
     expect(html).toContain("<title>Doc &lt;One&gt;</title>");
-    expect(html).toContain('<main class="document-shell">');
+    expect(html).toContain(
+      'class="document-shell table-header-tinted table-rows-striped table-borders-strong table-color-green"',
+    );
     expect(html).toContain('<article class="document-content"><h1>Doc</h1></article>');
     expect(html).toContain('<div class="document-kicker">VeloWrite export</div>');
     expect(html).toContain("Markdown source preserved");
     expect(html).toContain("Created with VeloWrite");
     expect(html).toContain("@media print");
     expect(html).toContain("break-inside: avoid");
+    expect(html).toContain("border-collapse: separate");
+    expect(html).toContain("th:last-child, td:last-child");
+    expect(html).toContain("thead { display: table-header-group; }");
+    expect(html).toContain("print-color-adjust: exact");
     expect(html).toContain(".code-tabset-tabs { display: none; }");
     expect(html).not.toContain("cdn.jsdelivr.net");
+  });
+
+  it("applies table export preferences to HTML output", () => {
+    const html = buildHtmlDocument("Styled", "<table><thead><tr><th>Head</th></tr></thead></table>", {
+      header: "plain",
+      rows: "plain",
+      borders: "light",
+      color: "blue",
+    });
+
+    expect(html).toContain("table-header-plain");
+    expect(html).toContain("table-rows-plain");
+    expect(html).toContain("table-borders-light");
+    expect(html).toContain("table-color-blue");
   });
 });

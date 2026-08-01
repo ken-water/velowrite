@@ -11,6 +11,9 @@ import {
   getStoredLastLocalFile,
   getStoredEditorFontSize,
   getStoredRecentFiles,
+  getRecentFileContext,
+  getStoredTableExportStyle,
+  normalizeDisplayedPath,
   getStoredThemeMode,
   limitHistorySnapshots,
   normalizeMarkdownFileName,
@@ -330,6 +333,53 @@ describe("recent files", () => {
 
     expect(getStoredRecentFiles()).toHaveLength(8);
     expect(getStoredRecentFiles()[0]).toEqual({ path: "/notes/0.md", name: "0.md" });
+  });
+
+  it("deduplicates repeated recent file paths", () => {
+    storeRecentFiles([
+      { path: "/notes/plan.md", name: "plan.md" },
+      { path: "/notes/plan.md", name: "plan.md" },
+      { path: "/notes/archive/plan.md", name: "plan.md" },
+    ]);
+
+    expect(getStoredRecentFiles()).toEqual([
+      { path: "/notes/plan.md", name: "plan.md" },
+      { path: "/notes/archive/plan.md", name: "plan.md" },
+    ]);
+  });
+
+  it("derives a short folder context for same-name recent files", () => {
+    expect(getRecentFileContext("/notes/archive/plan.md")).toBe("archive");
+    expect(getRecentFileContext("plan.md")).toBe("plan.md");
+  });
+
+  it("hides the Windows extended path prefix from displayed paths", () => {
+    expect(normalizeDisplayedPath(String.raw`\\?\C:\Users\dell\Downloads\plan.md`)).toBe(
+      String.raw`C:\Users\dell\Downloads\plan.md`,
+    );
+    expect(normalizeDisplayedPath(String.raw`\\?\UNC\server\share\plan.md`)).toBe(
+      String.raw`\\server\share\plan.md`,
+    );
+  });
+
+  it("loads and normalizes table export preferences", () => {
+    expect(getStoredTableExportStyle()).toEqual({
+      header: "tinted",
+      rows: "striped",
+      borders: "strong",
+      color: "green",
+    });
+
+    localStorage.setItem(
+      "velowrite:table-export-style",
+      JSON.stringify({ header: "plain", rows: "plain", borders: "light", color: "blue" }),
+    );
+    expect(getStoredTableExportStyle()).toEqual({
+      header: "plain",
+      rows: "plain",
+      borders: "light",
+      color: "blue",
+    });
   });
 
   it("ignores invalid recent file records", () => {

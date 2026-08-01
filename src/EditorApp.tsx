@@ -24,8 +24,8 @@ import {
   Bot,
   Braces,
   Check,
-  ClipboardCopy,
   Code2,
+  Copy,
   Download,
   ExternalLink,
   FileText,
@@ -44,7 +44,6 @@ import {
   PanelLeftOpen,
   Maximize2,
   Minimize2,
-  Printer,
 } from "lucide-react";
 import {
   buildHtmlDocument,
@@ -71,6 +70,10 @@ import {
   getStoredEditorFontSize,
   getStoredLastLocalFile,
   getStoredRecentFiles,
+  getRecentFileContext,
+  getStoredTableExportStyle,
+  normalizeDisplayedPath,
+  tableExportStyleKey,
   getStoredThemeMode,
   parseDesktopHandoffUrl,
   readBrowserHistory,
@@ -88,6 +91,7 @@ import {
   type HistorySnapshot,
   type NativeFile,
   type RecentFile,
+  type TableExportStyle,
   type ThemeMode,
   type ViewMode,
 } from "./editorCore";
@@ -97,6 +101,7 @@ type NativeApi = {
   openRecentMarkdownFile: (path: string) => Promise<NativeFile>;
   saveMarkdownFile: (path: string | null, contents: string) => Promise<string | null>;
   exportHtmlFile: (defaultName: string, html: string) => Promise<string | null>;
+  exportPdfFile: (defaultName: string, contentsBase64: string) => Promise<string | null>;
   createHistorySnapshot: (
     filePath: string,
     fileName: string,
@@ -115,6 +120,14 @@ type NativeApi = {
   closeWindow: () => Promise<void>;
   setWindowTitle: (title: string) => Promise<void>;
 };
+
+function FormatIcon({ label }: { label: "HTML" | "PDF" }) {
+  return (
+    <span className={`format-icon format-icon-${label.toLowerCase()}`} aria-hidden="true">
+      <span>{label}</span>
+    </span>
+  );
+}
 
 type EditorTemplate = {
   label: string;
@@ -288,6 +301,14 @@ function useNativeApi(): NativeApi | null {
           });
           if (!target) return null;
           return invoke<string>("write_html_file", { path: target, contents: html });
+        },
+        async exportPdfFile(defaultName, contentsBase64) {
+          const target = await dialog.save({
+            defaultPath: defaultName,
+            filters: [{ name: "PDF", extensions: ["pdf"] }],
+          });
+          if (!target) return null;
+          return invoke<string>("write_pdf_file", { path: target, contentsBase64 });
         },
         async createHistorySnapshot(filePath, fileName, contents) {
           return invoke<HistoryEntry>("create_history_snapshot", {
@@ -464,17 +485,21 @@ function SettingsPanel({
   themeMode,
   editorFontSize,
   defaultViewMode,
+  tableExportStyle,
   onThemeModeChange,
   onEditorFontSizeChange,
   onDefaultViewModeChange,
+  onTableExportStyleChange,
   onClose,
 }: {
   themeMode: ThemeMode;
   editorFontSize: number;
   defaultViewMode: ViewMode;
+  tableExportStyle: TableExportStyle;
   onThemeModeChange: (mode: ThemeMode) => void;
   onEditorFontSizeChange: (size: number) => void;
   onDefaultViewModeChange: (mode: ViewMode) => void;
+  onTableExportStyleChange: (style: TableExportStyle) => void;
   onClose: () => void;
 }) {
   return (
@@ -495,7 +520,7 @@ function SettingsPanel({
 
         <div className="settings-group">
           <label>Theme</label>
-          <div className="settings-segment">
+          <div className="settings-segment" aria-label="Theme">
             {(["system", "light", "dark"] as const).map((mode) => (
               <button
                 key={mode}
@@ -526,12 +551,76 @@ function SettingsPanel({
 
         <div className="settings-group">
           <label>Default view</label>
-          <div className="settings-segment">
+          <div className="settings-segment" aria-label="Default view">
             {(["write", "split", "preview"] as const).map((mode) => (
               <button
                 key={mode}
                 className={defaultViewMode === mode ? "active" : ""}
                 onClick={() => onDefaultViewModeChange(mode)}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="settings-group">
+          <label>Export table header</label>
+          <div className="settings-segment" aria-label="Export table header">
+            {(["tinted", "plain"] as const).map((mode) => (
+              <button
+                key={mode}
+                className={tableExportStyle.header === mode ? "active" : ""}
+                onClick={() => onTableExportStyleChange({ ...tableExportStyle, header: mode })}
+                type="button"
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="settings-group">
+          <label>Export table rows</label>
+          <div className="settings-segment" aria-label="Export table rows">
+            {(["striped", "plain"] as const).map((mode) => (
+              <button
+                key={mode}
+                className={tableExportStyle.rows === mode ? "active" : ""}
+                onClick={() => onTableExportStyleChange({ ...tableExportStyle, rows: mode })}
+                type="button"
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="settings-group">
+          <label>Export table borders</label>
+          <div className="settings-segment" aria-label="Export table borders">
+            {(["strong", "light"] as const).map((mode) => (
+              <button
+                key={mode}
+                className={tableExportStyle.borders === mode ? "active" : ""}
+                onClick={() => onTableExportStyleChange({ ...tableExportStyle, borders: mode })}
+                type="button"
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="settings-group">
+          <label>Export table color</label>
+          <div className="settings-segment" aria-label="Export table color">
+            {(["green", "blue", "gray"] as const).map((mode) => (
+              <button
+                key={mode}
+                className={tableExportStyle.color === mode ? "active" : ""}
+                onClick={() => onTableExportStyleChange({ ...tableExportStyle, color: mode })}
+                type="button"
               >
                 {mode}
               </button>
@@ -874,17 +963,32 @@ function ExportReadinessPanel({
         ))}
       </div>
       <div className="export-readiness-actions" aria-label="Export actions">
-        <button onClick={onDownloadMarkdown} type="button">
+        <button
+          aria-label="Download Markdown file"
+          title="Download Markdown file"
+          onClick={onDownloadMarkdown}
+          type="button"
+        >
           <FileText size={13} />
           MD
         </button>
-        <button onClick={onExportHtml} type="button">
-          <Download size={13} />
+        <button
+          aria-label="Export HTML file"
+          title="Export HTML file"
+          onClick={onExportHtml}
+          type="button"
+        >
+          <FormatIcon label="HTML" />
           HTML
         </button>
         {showPrint && (
-          <button onClick={onPrintPdf} type="button">
-            <Printer size={13} />
+          <button
+            aria-label="Export PDF file"
+            title="Export PDF file"
+            onClick={onPrintPdf}
+            type="button"
+          >
+            <FormatIcon label="PDF" />
             PDF
           </button>
         )}
@@ -1036,6 +1140,7 @@ export default function EditorApp({
   const [recentFiles, setRecentFiles] = React.useState(getStoredRecentFiles);
   const [savedMarkdown, setSavedMarkdown] = React.useState(markdown);
   const [status, setStatus] = React.useState("Draft restored");
+  const [statusToast, setStatusToast] = React.useState("");
   const [launchFilesChecked, setLaunchFilesChecked] = React.useState(false);
   const [viewMode, setViewMode] = React.useState<ViewMode>(() => {
     return getInitialViewMode(surface, initialViewMode);
@@ -1045,6 +1150,9 @@ export default function EditorApp({
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
   });
   const [editorFontSize, setEditorFontSize] = React.useState(getStoredEditorFontSize);
+  const [tableExportStyle, setTableExportStyle] = React.useState<TableExportStyle>(
+    getStoredTableExportStyle,
+  );
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [aboutOpen, setAboutOpen] = React.useState(false);
   const [historyOpen, setHistoryOpen] = React.useState(false);
@@ -1061,6 +1169,13 @@ export default function EditorApp({
     return localStorage.getItem(autoSaveFileKey) === "true";
   });
   const [dragActive, setDragActive] = React.useState(false);
+  const recentNameCounts = React.useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const file of recentFiles) {
+      counts.set(file.name, (counts.get(file.name) ?? 0) + 1);
+    }
+    return counts;
+  }, [recentFiles]);
   const headings = React.useMemo(() => extractHeadings(markdown), [markdown]);
   const headingSummary = React.useMemo(() => {
     const counts = headings.reduce(
@@ -1122,7 +1237,9 @@ export default function EditorApp({
     : filePath
       ? `${historyCountLabel} file snapshots`
       : `${historyCountLabel} draft snapshots`;
-  const desktopPathLabel = filePath || "Draft has not been saved to a local file yet";
+  const desktopPathLabel = filePath
+    ? normalizeDisplayedPath(filePath)
+    : "Draft has not been saved to a local file yet";
 
   React.useEffect(() => {
     if (!browserMode) return;
@@ -1173,8 +1290,21 @@ export default function EditorApp({
   }, [editorFontSize]);
 
   React.useEffect(() => {
+    localStorage.setItem(tableExportStyleKey, JSON.stringify(tableExportStyle));
+  }, [tableExportStyle]);
+
+  React.useEffect(() => {
     localStorage.setItem(defaultViewModeKey, viewMode);
   }, [viewMode]);
+
+  React.useEffect(() => {
+    const quietStatuses = new Set(["Draft restored", "Draft autosaved", "Saved"]);
+    if (quietStatuses.has(status)) return undefined;
+
+    setStatusToast(status);
+    const timer = window.setTimeout(() => setStatusToast(""), 2400);
+    return () => window.clearTimeout(timer);
+  }, [status]);
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -1301,6 +1431,11 @@ export default function EditorApp({
         void exportHtml();
       }
 
+      if (event.shiftKey && event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        void printOrSavePdf();
+      }
+
       if (event.key === "1") {
         event.preventDefault();
         setViewMode("write");
@@ -1326,6 +1461,7 @@ export default function EditorApp({
       if (command === "open") void openFileWithGuard();
       if (command === "save") void saveFile();
       if (command === "export-html") void exportHtml();
+      if (command === "export-pdf") void printOrSavePdf();
       if (command === "clear-recent") clearRecentFiles();
       if (command === "show-history") void openHistoryPanel();
       if (command === "view-write") setViewMode("write");
@@ -1476,6 +1612,11 @@ export default function EditorApp({
       storeRecentFiles(next);
       return next;
     });
+  }
+
+  function getRecentFileLabel(file: RecentFile) {
+    if ((recentNameCounts.get(file.name) ?? 0) <= 1) return file.name;
+    return `${file.name} · ${getRecentFileContext(file.path)}`;
   }
 
   function loadDocument(nextFile: NativeFile, nextStatus = "Opened") {
@@ -1720,7 +1861,7 @@ export default function EditorApp({
 
   async function exportHtml() {
     const baseName = fileName.replace(/\.(md|markdown|mdown)$/i, "") || "Untitled";
-    const html = buildHtmlDocument(baseName, rendered);
+    const html = buildHtmlDocument(baseName, rendered, tableExportStyle);
 
     if (nativeApi) {
       try {
@@ -1737,19 +1878,32 @@ export default function EditorApp({
     setDesktopPrompt("Desktop is better for repeated export work because it can keep files, drafts, and history together.");
   }
 
-  function printOrSavePdf() {
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      setStatus("Allow pop-ups to print or save PDF");
-      return;
-    }
-
+  async function printOrSavePdf() {
     const baseName = fileName.replace(/\.(md|markdown|mdown)$/i, "") || "VeloWrite Document";
-    printWindow.document.write(buildHtmlDocument(baseName, rendered));
-    printWindow.document.close();
-    printWindow.focus();
-    window.setTimeout(() => printWindow.print(), 250);
-    setStatus("Print view opened");
+    try {
+      const { createMarkdownPdf, pdfBytesToBase64, savePdfInBrowser } = await import("./pdfExport");
+      const pdfBytes = createMarkdownPdf({
+        markdown,
+        title: baseName,
+        tableStyle: tableExportStyle,
+        previewMark: true,
+      });
+
+      if (nativeApi) {
+        const savedPath = await nativeApi.exportPdfFile(
+          `${baseName}.pdf`,
+          pdfBytesToBase64(pdfBytes),
+        );
+        if (savedPath) setStatus("Exported PDF");
+        return;
+      }
+
+      savePdfInBrowser(`${baseName}.pdf`, pdfBytes);
+      setStatus("Downloaded PDF export");
+      setDesktopPrompt("Desktop can save PDFs directly beside your local Markdown files.");
+    } catch (error) {
+      setErrorStatus("Export PDF", error);
+    }
   }
 
   async function copyText(label: string, contents: string) {
@@ -1760,7 +1914,7 @@ export default function EditorApp({
 
     try {
       await navigator.clipboard.writeText(contents);
-      setStatus(`${label} copied`);
+      setStatus(`${label} copied to clipboard`);
     } catch (error) {
       setErrorStatus(`Copy ${label}`, error);
     }
@@ -2220,11 +2374,11 @@ export default function EditorApp({
                 <button
                   key={file.path}
                   className="recent-item"
-                  title={file.path}
+                  title={normalizeDisplayedPath(file.path)}
                   onClick={() => void openRecentFile(file.path)}
                 >
                   <FileText size={14} />
-                  <span>{file.name}</span>
+                  <span>{getRecentFileLabel(file)}</span>
                 </button>
               ))}
               <button className="recent-clear" onClick={clearRecentFiles}>
@@ -2290,8 +2444,8 @@ export default function EditorApp({
           readiness={exportReadiness}
           onDownloadMarkdown={downloadMarkdown}
           onExportHtml={() => void exportHtml()}
-          onPrintPdf={printOrSavePdf}
-          showPrint={browserMode}
+          onPrintPdf={() => void printOrSavePdf()}
+          showPrint
         />
 
         <div className="sync-panel">
@@ -2366,7 +2520,9 @@ export default function EditorApp({
           </div>
           <div className="search">
             <Search size={15} />
-            <span>{filePath || fileName}</span>
+            <span>
+              {filePath ? desktopPathLabel : fileName}
+            </span>
           </div>
           <div className="actions">
             {browserMode && (
@@ -2395,83 +2551,102 @@ export default function EditorApp({
                 Preview
               </button>
             </div>
-            <button
-              aria-label="New file"
-              title="New file"
-              onClick={() => void newFileWithGuard()}
-            >
-              <FileText size={17} />
-            </button>
-            <button
-              aria-label="Open file"
-              title="Open file"
-              onClick={() => void openFileWithGuard()}
-            >
-              <FolderOpen size={17} />
-            </button>
-            <button
-              aria-label={browserMode ? "Download Markdown copy" : "Save file"}
-              title={browserMode ? "Download Markdown copy" : "Save file"}
-              onClick={() => void saveFile()}
-            >
-              <Save size={17} />
-            </button>
-            <button
-              aria-label="Export HTML"
-              title="Export HTML"
-              onClick={() => void exportHtml()}
-            >
-              <Download size={17} />
-            </button>
-            {browserMode && (
+            <div className="action-group file-actions" aria-label="File actions">
               <button
-                aria-label="Print or save PDF"
-                title="Print or save PDF"
-                className="optional-action"
-                onClick={printOrSavePdf}
+                aria-label="New file"
+                title="New file"
+                className="new-file-action"
+                onClick={() => void newFileWithGuard()}
+                type="button"
               >
-                <Printer size={17} />
+                <FileText size={17} />
               </button>
-            )}
-            <button
-              aria-label="Copy Markdown"
-              title="Copy Markdown"
-              className="optional-action"
-              onClick={copyMarkdown}
-            >
-              <ClipboardCopy size={17} />
-            </button>
-            <button
-              aria-label="Copy rendered HTML"
-              title="Copy rendered HTML"
-              className="optional-action"
-              onClick={copyRenderedHtml}
-            >
-              <Code2 size={17} />
-            </button>
-            <button aria-label="AI assist" title="AI assist coming soon" disabled>
-              <Bot size={17} />
-            </button>
-            <button
-              aria-label="History"
-              title="History"
-              onClick={() => void openHistoryPanel()}
-            >
-              <GitBranch size={17} />
-            </button>
-            <button aria-label="Publish" title="Publish coming soon" disabled>
-              <Rocket size={17} />
-            </button>
-            <button
-              aria-label="Settings"
-              title="Settings"
-              onClick={() => setSettingsOpen(true)}
-            >
-              <Settings size={17} />
-            </button>
-            <button aria-label="About" title="About" onClick={() => setAboutOpen(true)}>
-              <Info size={17} />
-            </button>
+              <button
+                aria-label="Open file"
+                title="Open file"
+                className="open-file-action"
+                onClick={() => void openFileWithGuard()}
+                type="button"
+              >
+                <FolderOpen size={17} />
+              </button>
+              <button
+                aria-label={browserMode ? "Download Markdown file" : "Save Markdown file"}
+                title={browserMode ? "Download Markdown file" : "Save Markdown file"}
+                className="save-file-action"
+                onClick={() => void saveFile()}
+                type="button"
+              >
+                <Save size={17} />
+              </button>
+            </div>
+            <div className="action-group export-actions" aria-label="Output actions">
+              <button
+                aria-label={browserMode ? "Download HTML file" : "Export HTML file"}
+                title={browserMode ? "Download HTML file" : "Export HTML file"}
+                className="export-html-action"
+                onClick={() => void exportHtml()}
+                type="button"
+              >
+                <FormatIcon label="HTML" />
+              </button>
+              <button
+                aria-label="Export PDF file"
+                title="Export PDF file"
+                className="optional-action print-pdf-action"
+                onClick={() => void printOrSavePdf()}
+                type="button"
+              >
+                <FormatIcon label="PDF" />
+              </button>
+              <button
+                aria-label="Copy Markdown to clipboard"
+                title="Copy Markdown to clipboard"
+                className="optional-action copy-markdown-action"
+                onClick={copyMarkdown}
+                type="button"
+              >
+                <Copy size={17} />
+              </button>
+              <button
+                aria-label="Copy rendered HTML to clipboard"
+                title="Copy rendered HTML to clipboard"
+                className="optional-action copy-html-action"
+                onClick={copyRenderedHtml}
+                type="button"
+              >
+                <Code2 size={17} />
+              </button>
+            </div>
+            <div className="action-group workspace-actions" aria-label="Workspace actions">
+              <button className="ai-action" aria-label="AI assist" title="AI assist coming soon" disabled>
+                <Bot size={17} />
+              </button>
+              <button
+                aria-label="History"
+                title="History"
+                className="history-action"
+                onClick={() => void openHistoryPanel()}
+                type="button"
+              >
+                <GitBranch size={17} />
+              </button>
+              <button className="publish-action" aria-label="Publish" title="Publish coming soon" disabled>
+                <Rocket size={17} />
+              </button>
+              <button
+                aria-label="Settings"
+                title="Settings"
+                className="settings-action"
+                onClick={() => setSettingsOpen(true)}
+                type="button"
+              >
+                <Settings size={17} />
+              </button>
+              <button className="about-action" aria-label="About" title="About" onClick={() => setAboutOpen(true)} type="button">
+                <Info size={17} />
+              </button>
+            </div>
           </div>
         </header>
 
@@ -2560,6 +2735,12 @@ export default function EditorApp({
           <span>{metrics.lines} lines</span>
           <span>{metrics.readingMinutes} min read</span>
         </footer>
+        {statusToast && (
+          <div className="status-toast" role="status" aria-live="polite">
+            <Check size={14} />
+            <span>{statusToast}</span>
+          </div>
+        )}
         {browserMode && desktopPrompt && (
           <aside className="desktop-prompt" aria-label="Desktop upgrade prompt">
             <button
@@ -2596,9 +2777,11 @@ export default function EditorApp({
             themeMode={themeMode}
             editorFontSize={editorFontSize}
             defaultViewMode={viewMode}
+            tableExportStyle={tableExportStyle}
             onThemeModeChange={setThemeMode}
             onEditorFontSizeChange={setEditorFontSize}
             onDefaultViewModeChange={setViewMode}
+            onTableExportStyleChange={setTableExportStyle}
             onClose={() => setSettingsOpen(false)}
           />
         )}

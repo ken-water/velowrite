@@ -1,6 +1,12 @@
 export type ViewMode = "split" | "write" | "preview";
 export type ThemeMode = "light" | "dark" | "system";
 export type EditorSurface = "desktop" | "web" | "embedded";
+export type TableExportStyle = {
+  header: "tinted" | "plain";
+  rows: "striped" | "plain";
+  borders: "strong" | "light";
+  color: "green" | "blue" | "gray";
+};
 
 export type NativeFile = {
   path: string;
@@ -55,10 +61,17 @@ export const autoSaveFileKey = "velowrite:auto-save-file";
 export const themeModeKey = "velowrite:theme-mode";
 export const editorFontSizeKey = "velowrite:editor-font-size";
 export const defaultViewModeKey = "velowrite:default-view-mode";
+export const tableExportStyleKey = "velowrite:table-export-style";
 export const browserHistoryKey = "velowrite:browser-history";
 export const draftHistoryKey = "velowrite:draft-history";
-export const appVersion = "0.2.1";
+export const appVersion = "0.2.2";
 export const freeHistorySnapshotLimit = 3;
+export const defaultTableExportStyle: TableExportStyle = {
+  header: "tinted",
+  rows: "striped",
+  borders: "strong",
+  color: "green",
+};
 
 const lastLocalFileKey = "velowrite:last-local-file";
 const desktopHandoffUrlLimit = 12000;
@@ -364,24 +377,48 @@ export function getStoredRecentFiles(): RecentFile[] {
     if (!value) return [];
     const parsed = JSON.parse(value);
     if (!Array.isArray(parsed)) return [];
-
-    return parsed
-      .filter((item): item is RecentFile => {
+    return dedupeRecentFiles(
+      parsed.filter((item): item is RecentFile => {
         return (
           item &&
           typeof item.path === "string" &&
           item.path.length > 0 &&
           typeof item.name === "string"
         );
-      })
-      .slice(0, 8);
+      }),
+    ).slice(0, 8);
   } catch {
     return [];
   }
 }
 
 export function storeRecentFiles(files: RecentFile[]) {
-  localStorage.setItem(recentFilesKey, JSON.stringify(files.slice(0, 8)));
+  localStorage.setItem(recentFilesKey, JSON.stringify(dedupeRecentFiles(files).slice(0, 8)));
+}
+
+function dedupeRecentFiles(files: RecentFile[]) {
+  const seen = new Set<string>();
+  const unique: RecentFile[] = [];
+
+  for (const file of files) {
+    if (seen.has(file.path)) continue;
+    seen.add(file.path);
+    unique.push(file);
+  }
+
+  return unique;
+}
+
+export function getRecentFileContext(path: string) {
+  const segments = path.split(/[\\/]+/).filter(Boolean);
+  if (segments.length < 2) return path;
+  return segments[segments.length - 2];
+}
+
+export function normalizeDisplayedPath(path: string) {
+  return path
+    .replace(/^\\\\\?\\UNC\\/i, "\\\\")
+    .replace(/^\\\\\?\\/i, "");
 }
 
 export function getStoredLastLocalFile(): RecentFile | null {
@@ -427,4 +464,20 @@ export function getStoredEditorFontSize() {
   const value = Number(localStorage.getItem(editorFontSizeKey));
   if (!Number.isFinite(value)) return 15;
   return Math.min(22, Math.max(12, value));
+}
+
+export function getStoredTableExportStyle(): TableExportStyle {
+  try {
+    const value = localStorage.getItem(tableExportStyleKey);
+    if (!value) return defaultTableExportStyle;
+    const parsed = JSON.parse(value);
+    return {
+      header: parsed?.header === "plain" ? "plain" : "tinted",
+      rows: parsed?.rows === "plain" ? "plain" : "striped",
+      borders: parsed?.borders === "light" ? "light" : "strong",
+      color: parsed?.color === "blue" || parsed?.color === "gray" ? parsed.color : "green",
+    };
+  } catch {
+    return defaultTableExportStyle;
+  }
 }

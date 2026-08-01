@@ -1,0 +1,58 @@
+import { describe, expect, it } from "vitest";
+import { buildPdfBlocks, createMarkdownPdf, pdfBytesToBase64 } from "./pdfExport";
+import { defaultTableExportStyle } from "./editorCore";
+
+describe("PDF export engine", () => {
+  it("parses common Markdown structures for paged PDF rendering", () => {
+    const blocks = buildPdfBlocks(`# Title
+
+A short paragraph with **bold** text.
+
+- One
+- Two
+
+> A useful quote.
+
+| Name | Value |
+| --- | --- |
+| Alpha | 1 |
+
+\`\`\`python
+print("hello")
+\`\`\`
+`);
+
+    expect(blocks.map((block) => block.type)).toEqual([
+      "heading",
+      "paragraph",
+      "list",
+      "quote",
+      "table",
+      "code",
+    ]);
+    expect(blocks).toContainEqual({
+      type: "table",
+      headers: ["Name", "Value"],
+      rows: [["Alpha", "1"]],
+    });
+  });
+
+  it("creates a valid PDF without browser print headers", () => {
+    const bytes = createMarkdownPdf({
+      markdown: "# Plan\n\nContent that should be rendered by VeloWrite.",
+      title: "Plan",
+      tableStyle: defaultTableExportStyle,
+    });
+    const text = new TextDecoder("latin1").decode(bytes.slice(0, 1200));
+
+    expect(bytes.length).toBeGreaterThan(1000);
+    expect(text.startsWith("%PDF-")).toBe(true);
+    expect(text).not.toContain("tauri.localhost");
+  });
+
+  it("encodes PDF bytes as base64 for native saving", () => {
+    const bytes = new Uint8Array([37, 80, 68, 70, 45]);
+
+    expect(pdfBytesToBase64(bytes)).toBe("JVBERi0=");
+  });
+});

@@ -1,6 +1,6 @@
 {
   "name": "velowrite",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -38,6 +38,7 @@
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "highlight.js": "^11.11.1",
+    "jspdf": "^4.2.1",
     "katex": "^0.18.0",
     "lucide-react": "^0.468.0",
     "markdown-it": "^14.3.0",

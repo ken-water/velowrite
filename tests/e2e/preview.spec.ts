@@ -288,7 +288,7 @@ test("web editor explains when desktop is better for local files", async ({ page
   await page.goto("/web?utm_source=e2e&utm_medium=desktop_prompt");
 
   const download = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download Markdown copy" }).click();
+  await page.getByRole("button", { name: "Download Markdown file" }).click();
   await download;
 
   const prompt = page.getByLabel("Desktop upgrade prompt");
@@ -303,6 +303,27 @@ test("web editor explains when desktop is better for local files", async ({ page
     "href",
     /\/download/,
   );
+});
+
+test("web editor confirms clipboard copy actions", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: async (text: string) => {
+          window.localStorage.setItem("velowrite:e2e-clipboard", text);
+        },
+      },
+    });
+  });
+  await page.goto("/web?utm_source=e2e&utm_medium=clipboard");
+
+  await page.getByRole("button", { name: "Copy Markdown to clipboard" }).click();
+
+  await expect(page.getByRole("status")).toContainText("Markdown copied to clipboard");
+  await expect
+    .poll(() => page.evaluate(() => window.localStorage.getItem("velowrite:e2e-clipboard")))
+    .toContain("#");
 });
 
 test("docs index publishes the Markdown history article", async ({ page }) => {
@@ -323,21 +344,68 @@ test("docs index publishes the Markdown history article", async ({ page }) => {
   await expect(page.locator(".content-example").first()).toContainText("Plain text that still has structure");
 });
 
-test("web editor opens a clean print document for browser PDF saving", async ({ page }) => {
-  await page.goto("/web?utm_source=e2e&utm_medium=print");
-
-  const popupPromise = page.waitForEvent("popup");
-  await page.getByRole("button", { name: "Print or save PDF" }).click();
-  const popup = await popupPromise;
-
-  await expect.poll(() => popup.title()).toBe("Untitled");
-  await expect(popup.locator(".document-kicker")).toHaveText("VeloWrite export");
-  await expect(popup.locator(".document-title")).toHaveText("Untitled");
-  await expect(popup.locator(".document-content h1")).toHaveText("Start Writing");
-  await expect(popup.locator(".document-footer")).toContainText("Created with VeloWrite");
-  await expect(popup.locator("style").evaluate((element) => element.textContent)).resolves.toContain(
-    "@media print",
+test("web editor exports a PDF without browser print headers", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.print = () => {
+      window.localStorage.setItem("velowrite:e2e-print-called", "true");
+    };
+  });
+  await page.goto("/web?utm_source=e2e&utm_medium=pdf");
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText(
+    "# PDF Table\n\n| Column | Meaning |\n| --- | --- |\n| MD | Markdown source |\n| PDF | Export review copy |",
   );
+
+  const downloadPromise = page.waitForEvent("download");
+  await page
+    .getByLabel("Output actions")
+    .getByRole("button", { name: "Export PDF file" })
+    .click();
+  const download = await downloadPromise;
+
+  expect(download.suggestedFilename()).toBe("Untitled.pdf");
+  await expect(page.locator(".print-export-root")).toHaveCount(0);
+  await expect(page.getByRole("status")).toContainText("Downloaded PDF export");
+  await expect
+    .poll(() => page.evaluate(() => window.localStorage.getItem("velowrite:e2e-print-called")))
+    .toBeNull();
+});
+
+test("PDF table export preferences are kept for the dedicated PDF engine", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.print = () => {
+      window.localStorage.setItem("velowrite:e2e-print-called", "true");
+    };
+  });
+  await page.goto("/web?utm_source=e2e&utm_medium=print-preferences");
+
+  await page.getByRole("button", { name: "Settings" }).click();
+  const settings = page.getByRole("dialog", { name: "Settings" });
+  await settings.getByLabel("Export table header").getByRole("button", { name: "plain" }).click();
+  await settings.getByLabel("Export table rows").getByRole("button", { name: "plain" }).click();
+  await settings.getByLabel("Export table borders").getByRole("button", { name: "light" }).click();
+  await settings.getByLabel("Export table color").getByRole("button", { name: "blue" }).click();
+  await page.getByRole("button", { name: "Close settings" }).click();
+
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText("# PDF Table\n\n| Column | Meaning |\n| --- | --- |\n| PDF | Review copy |");
+
+  const downloadPromise = page.waitForEvent("download");
+  await page
+    .getByLabel("Output actions")
+    .getByRole("button", { name: "Export PDF file" })
+    .click();
+  const download = await downloadPromise;
+
+  expect(download.suggestedFilename()).toBe("Untitled.pdf");
+  await expect
+    .poll(() => page.evaluate(() => window.localStorage.getItem("velowrite:table-export-style")))
+    .toContain('"color":"blue"');
+  await expect
+    .poll(() => page.evaluate(() => window.localStorage.getItem("velowrite:e2e-print-called")))
+    .toBeNull();
 });
 
 test("desktop shell opens in focused editing mode", async ({ page }) => {
@@ -392,7 +460,7 @@ test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
 test("desktop toolbar shows immediate icon tooltips", async ({ page }) => {
   await page.goto("/app");
 
-  const saveButton = page.getByRole("button", { name: "Save file" });
+  const saveButton = page.getByRole("button", { name: "Save Markdown file" });
   await saveButton.hover();
 
   await expect
@@ -403,7 +471,23 @@ test("desktop toolbar shows immediate icon tooltips", async ({ page }) => {
   const tooltipContent = await saveButton.evaluate((element) =>
     window.getComputedStyle(element, "::after").content,
   );
-  expect(tooltipContent).toContain("Save file");
+  expect(tooltipContent).toContain("Save Markdown file");
+
+  await expect(page.getByRole("button", { name: "Export HTML file" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Export PDF file" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy Markdown to clipboard" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "History" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Show workspace" }).click();
+  const sidebarHtmlButton = page.getByLabel("Export actions").getByRole("button", {
+    name: "Export HTML file",
+  });
+  await sidebarHtmlButton.hover();
+  await expect
+    .poll(async () =>
+      sidebarHtmlButton.evaluate((element) => window.getComputedStyle(element, "::after").opacity),
+    )
+    .toBe("1");
 });
 
 test("web editor keeps browser-local history snapshots", async ({ page }) => {

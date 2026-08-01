@@ -4,6 +4,30 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
+## [0.2.2] - 2026-08-02
+
+### Added
+
+- Published Markdown Math with KaTeX as the next staged Markdown library article for inline formulas, block equations, symbol tables, and formula review workflow.
+- Prepared desktop last-session restore so the app can reopen the most recent local Markdown file after launch when no system Open With file is pending.
+- Published Markdown to Blog with a practical draft, preview, export, print, and source-of-truth workflow.
+- Added a dedicated VeloWrite PDF layout engine for Markdown exports so PDF output no longer depends on browser print headers or WebView page chrome.
+- Added native desktop PDF saving through Tauri after the app generates validated PDF bytes.
+- Added report-style wide-table cards for PDF exports so roadmap and planning tables stay readable on A4 pages.
+- Added direct HTML and PDF format icons for export controls.
+- Added `/.well-known/opsprobe-verification.txt` for external uptime ownership verification.
+
+### Changed
+
+- Changed the PDF export action from browser printing to application-generated PDF download/save.
+- Lazy-load the PDF engine so normal editing startup remains lightweight.
+- Keep preview PDF exports watermarked while preserving a clean path for future Pro exports without the preview mark.
+
+### Fixed
+
+- Removed `tauri.localhost` and other browser print headers from VeloWrite-generated PDF exports.
+- Fixed PDF table rendering so tinted headers, row backgrounds, borders, and wide tables remain readable.
+
 ## [0.2.1] - 2026-08-01
 
 ### Added
@@ -14,15 +38,6 @@ This project follows semantic versioning while it is pre-1.0. During `0.x`, mino
 - Added public preview regression checks for Windows 11, macOS Apple Silicon, and Linux on the download page.
 - Added a public preview quality bar to the roadmap so the free preview requirements stay visible before Pro work takes over.
 - Published The Future of Markdown Writing with export readiness guidance and updated the public docs metadata.
-
-## Unreleased
-
-### Added
-
-- Published Markdown Math with KaTeX as the next staged Markdown library article for inline formulas, block equations, symbol tables, and formula review workflow.
-- Prepared desktop last-session restore so the app can reopen the most recent local Markdown file after launch when no system Open With file is pending.
-- Published Markdown to Blog with a practical draft, preview, export, print, and source-of-truth workflow.
-- Added Print / Save PDF for browser drafts, opening a clean rendered document for the browser print dialog.
 
 ## [0.1.12] - 2026-07-25
 
