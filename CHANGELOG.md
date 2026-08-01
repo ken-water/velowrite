@@ -4,6 +4,17 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
+## [0.2.1] - 2026-08-01
+
+### Added
+
+- Added a polished standalone HTML export layout with a document cover, export metadata, printable page rules, and a VeloWrite footer.
+- Added export readiness actions and next-step guidance for Markdown, HTML, and PDF review copies inside the editor sidebar.
+- Added focused history comparison controls for longer documents, including a jump to the first change.
+- Added public preview regression checks for Windows 11, macOS Apple Silicon, and Linux on the download page.
+- Added a public preview quality bar to the roadmap so the free preview requirements stay visible before Pro work takes over.
+- Published The Future of Markdown Writing with export readiness guidance and updated the public docs metadata.
+
 ## Unreleased
 
 ### Added

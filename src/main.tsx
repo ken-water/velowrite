@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import {
   ChevronRight,
+  CheckCircle2,
   Clock3,
   Cloud,
   Code2,
@@ -33,7 +34,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.2.0";
+const downloadVersion = "0.2.1";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -143,6 +144,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/local-first-markdown",
   "/docs/markdown",
   "/docs/markdown-history",
+  "/docs/future-of-markdown",
   "/docs/markdown-basics",
   "/docs/markdown-code-blocks",
   "/docs/markdown-for-developers",
@@ -167,9 +169,9 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
       "A practical history of Markdown, why it became popular with writers and developers, and where modern Markdown editors are heading.",
   },
   "/docs/future-of-markdown": {
-    title: "The Future of Markdown Writing - Local Files, AI, and Publishing",
+    title: "The Future of Markdown Writing - Local Files, AI, and Export Readiness",
     description:
-      "Explore how Markdown writing is evolving around local-first files, AI assistance, publishing workflows, and cross-platform editors.",
+      "Explore where Markdown writing is heading: local-first files, safer recovery, AI inside the document flow, export readiness, and publishing workflows.",
   },
   "/docs/markdown-basics": {
     title: "Markdown Basics - Headings, Lists, Links, Tables, Code, and Math",
@@ -505,7 +507,7 @@ function SeoManager({ config }: { config: SeoConfig }) {
         "@id": `${siteUrl}${config.canonicalPath}#article`,
         headline: config.title,
         description: config.description,
-        dateModified: "2026-07-30",
+        dateModified: "2026-08-01",
         mainEntityOfPage: `${siteUrl}${config.canonicalPath}`,
         author: { "@id": `${siteUrl}/#organization` },
         publisher: { "@id": `${siteUrl}/#organization` },
@@ -535,7 +537,7 @@ const downloads = [
     badge: "Recommended",
   },
   {
-    platform: "macOS Apple Silicon",
+    platform: "macOS Apple Silicon preview",
     format: "DMG package",
     fileName: `VeloWrite_${downloadVersion}_aarch64.dmg`,
     note: "For M-series Macs that want to test the native workflow.",
@@ -568,25 +570,64 @@ const downloads = [
   },
 ];
 
+const platformRegressionChecks = [
+  {
+    platform: "Windows 11",
+    checks: [
+      "Install with the NSIS package from GitHub Releases.",
+      "Open a .md file through Open with -> VeloWrite.",
+      "Save, close from the window button or File -> Exit, and reopen the same file.",
+      "Confirm local history keeps the latest 3 snapshots after repeated saves.",
+    ],
+  },
+  {
+    platform: "macOS Apple Silicon",
+    checks: [
+      "Install from the DMG and use the explicit open action while the preview remains unsigned.",
+      "Open a local Markdown file and verify the editor starts directly in the writing workspace.",
+      "Export HTML and use Print / Save PDF for a clean review copy.",
+      "Confirm recent files and history are visible after reopening the app.",
+    ],
+  },
+  {
+    platform: "Linux",
+    checks: [
+      "Test AppImage for portable use and DEB/RPM packages for native install flows.",
+      "Open, edit, save, and reopen a Markdown file from a normal user folder.",
+      "Check dark mode readability for preview code blocks and tabbed examples.",
+      "Confirm the app closes without leaving a terminal-owned process behind.",
+    ],
+  },
+];
+
 const roadmapRecommendations = [
   {
     priority: "Next best free improvement",
-    title: "Sharper outline and structure map",
+    title: "Native-feeling desktop preview",
     reason:
-      "It improves long-document writing immediately, supports writers and developers, and builds on the outline sync work already in the preview.",
+      "The preview should open like a writing app first. The editor now starts directly in the workspace, with the start panel moved out of the first impression.",
   },
   {
     priority: "Next quality pass",
-    title: "More app-like desktop polish",
+    title: "Long-document recovery clarity",
     reason:
-      "First impressions still matter for a desktop writing tool. Reducing chrome, improving focus mode, and making resume behavior clearer should raise trust before Pro work.",
+      "Basic history is free, so comparison needs to be understandable on real drafts. The next pass adds clearer change navigation before deeper Pro history is designed.",
   },
   {
     priority: "Next workflow proof",
-    title: "Cleaner web-to-desktop handoff",
+    title: "Export readiness before Pro export",
     reason:
-      "The browser is the acquisition surface and desktop is the retention surface. A clearer handoff turns trial users into serious local-file users without requiring accounts.",
+      "Users should know whether a Markdown file is ready to share. A free readiness panel is the foundation before branded templates, DOCX, or publishing workflows.",
   },
+];
+
+const previewAcceptanceChecks = [
+  "Open directly into the editor without a marketing-style first screen.",
+  "Open, save, close, and reopen Markdown files on Windows, Linux, and macOS preview builds.",
+  "Keep editor, outline, and rendered preview aligned well enough for long-document navigation.",
+  "Compare and restore the latest 3 local snapshots without hiding the important changes.",
+  "Export Markdown and HTML, then use browser Print / Save PDF for clean review copies.",
+  "Keep the public docs, roadmap, changelog, and feedback loop current after each release.",
 ];
 
 const publicRoadmapItems = [
@@ -611,11 +652,11 @@ const publicRoadmapItems = [
   {
     title: "Focused writing polish",
     request: "The desktop app should feel like a calm native writing tool, not a website inside a window.",
-    status: "In progress",
+    status: "Free foundation shipped",
     target: "0.1.x / 0.2.x",
     classification: "Free core experience",
     decision:
-      "The desktop preview now opens directly into the editor and now prepares a last-local-file restore path so returning writers can resume faster. The next polish pass should keep reducing chrome, tighten hover states, improve first-run templates, and make focus mode feel natural for daily writing.",
+      "The desktop preview now opens directly into the editor, keeps the workspace sidebar hidden by default, and prepares a last-local-file restore path so returning writers can resume faster. Further native polish remains ongoing, but the first impression is now editor-first.",
   },
   {
     title: "Outline and structure map",
@@ -633,7 +674,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free safety workflow",
     decision:
-      "Basic local history and restore preview stay free because recovery is part of document safety. The current free preview keeps the latest 3 local snapshots so the rule is clear before deeper Pro history controls are designed.",
+      "Basic local history and restore preview stay free because recovery is part of document safety. The current free preview keeps the latest 3 local snapshots and the history dialog now includes focused comparison plus a jump to the first change for longer drafts.",
   },
   {
     title: "Advanced history and recovery controls",
@@ -676,9 +717,9 @@ const publicRoadmapItems = [
     request: "Users need finished documents that look good when shared outside the editor.",
     target: "0.2.x / 0.3.x",
     classification: "Free export baseline, Pro workflow later",
-    status: "In progress",
+    status: "Free foundation shipped",
     decision:
-      "The web editor now opens a clean rendered Print / Save PDF document, alongside Markdown download and HTML export. DOCX, branded templates, batch export, and one-click publishing are stronger candidates for future workflow packaging.",
+      "The editor now includes Markdown download, HTML export, clean Print / Save PDF, and an export readiness panel for title, structure, links, images, and code blocks. The panel also suggests the next fix before sharing. DOCX, branded templates, batch export, and one-click publishing remain stronger candidates for future workflow packaging.",
   },
   {
     title: "AI writing, publishing, and advanced export research",
@@ -721,7 +762,7 @@ const docGroups = [
     items: [
       { title: "What Is Markdown?", href: "/docs/markdown", status: "Published" },
       { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Published" },
-      { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Planned" },
+      { title: "The Future of Markdown Writing", href: "/docs/future-of-markdown", status: "Published" },
     ],
   },
   {
@@ -1118,28 +1159,81 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Markdown direction",
     title: "The Future of Markdown Writing",
     intro:
-      "Markdown will stay useful because it is portable, but the editor around it is changing. The next wave is local-first, AI-assisted, and publishing-aware without hiding files behind a heavy cloud workspace.",
-    updated: "July 21, 2026",
+      "Markdown will stay useful because it is portable, but the editor around it is changing. The next wave is local-first, AI-assisted, publishing-aware, and clearer about what stays on the user's device.",
+    updated: "August 1, 2026",
+    directory: [
+      { label: "Local files", href: "#local-files" },
+      { label: "Recovery", href: "#recovery" },
+      { label: "AI inside writing", href: "#ai-inside-writing" },
+      { label: "Export readiness", href: "#export-readiness" },
+      { label: "Publishing", href: "#publishing" },
+      { label: "What should not change", href: "#what-should-not-change" },
+    ],
     sections: [
       {
+        id: "local-files",
         title: "Local files remain the source of truth",
         body: [
           "People trust Markdown because the file is inspectable. You can open it in another editor, store it in Git, copy it to a folder, or keep it in a private vault. Future editors should preserve that trust instead of forcing every note through an account system.",
           "For VeloWrite, that means desktop local files, recent documents, and local history stay part of the free core workflow.",
         ],
+        example: {
+          label: "A future-proof source file",
+          markdown:
+            "# Project Brief\n\n## Source of truth\n\nKeep the Markdown file in the project folder.\n\n## Why it matters\n\n- It can be backed up\n- It can be opened by another editor\n- It can become HTML, PDF, or a docs page later",
+          note: "The source file should remain useful even if the publishing target changes.",
+        },
       },
       {
+        id: "recovery",
+        title: "Recovery becomes part of the writing surface",
+        body: [
+          "The future of Markdown editing is not only about faster rendering. It is also about helping users trust long edits. A local history panel, clear restore preview, and visible snapshot limits make the editor feel safer without forcing every document into a cloud account.",
+          "This is why VeloWrite keeps basic local history in the free preview foundation. Recovery is part of document safety, not a luxury feature that should be hidden until the user pays.",
+        ],
+      },
+      {
+        id: "ai-inside-writing",
         title: "AI should work inside the document flow",
         body: [
           "AI is useful when it can polish a paragraph, summarize a section, continue a draft, explain code, or generate Mermaid diagrams from context. It is less useful when it feels like a separate chat window pasted onto the side.",
           "That is why AI commands are on the VeloWrite Pro roadmap only after the basic editor feels trustworthy.",
         ],
+        example: {
+          label: "Task-based AI prompt shape",
+          markdown:
+            "## Draft task\n\nTurn these meeting notes into a short update for the team.\n\n### Source notes\n\n- Decision made\n- Risk still open\n- Follow-up owner assigned\n\n### Output style\n\nConcise, factual, and ready to paste into a project channel.",
+          note: "AI is most useful when the document already contains the task, source, and target style.",
+        },
       },
       {
+        id: "export-readiness",
+        title: "Editors will explain whether a draft is ready to export",
+        body: [
+          "Many writers do not need a complex publishing system on day one. They need to know whether the current draft has a title, enough structure, working links, readable code blocks, and the right output path.",
+          "VeloWrite now treats export preparation as part of the free foundation: Markdown download, HTML export, clean Print / Save PDF, and an export readiness panel that makes basic document shape visible before the user shares the file.",
+        ],
+        example: {
+          label: "Export readiness checklist",
+          markdown:
+            "## Before sharing\n\n- [ ] The document has one clear H1 title\n- [ ] The sections match the reader's path\n- [ ] Links and images have context\n- [ ] Code blocks have language labels\n- [ ] The chosen export format matches the next step",
+          note: "The goal is not to block export. The goal is to make the document state visible before sharing.",
+        },
+      },
+      {
+        id: "publishing",
         title: "Publishing should become a natural last step",
         body: [
           "Many Markdown documents eventually become blog posts, docs pages, release notes, or knowledge-base articles. The future editor should help export and publish without making the writing surface heavier.",
           "VeloWrite's roadmap keeps this as a later workflow: write and preview first, then add publishing automation when the core editor is stable.",
+        ],
+      },
+      {
+        id: "what-should-not-change",
+        title: "What should not change",
+        body: [
+          "Markdown should not lose the boring advantages that made it durable: readable source, predictable structure, and the ability to move files between tools. New AI, sync, and publishing features should support that foundation instead of replacing it.",
+          "A good future Markdown editor should feel modern without making the user's notes feel captured. That is the product line VeloWrite should keep defending.",
         ],
       },
     ],
@@ -2294,8 +2388,9 @@ const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "July 31, 2026",
+    updated: "August 1, 2026",
     directory: [
+      { label: "0.2.1", href: "#v021" },
       { label: "0.2.0", href: "#v020" },
       { label: "Planned next", href: "#planned-next" },
       { label: "0.1.13", href: "#v0113" },
@@ -2314,6 +2409,19 @@ const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v021",
+        title: "0.2.1 preview",
+        body: [
+          "Made the desktop preview open directly into the writing workspace so the first impression feels more like a focused app than a website shell.",
+          "Upgraded HTML export and Print / Save PDF output with a polished standalone document layout, cover metadata, print rules, table handling, code styling, and a VeloWrite export footer.",
+          "Added export readiness actions and next-step guidance for Markdown, HTML, and PDF review copies inside the editor sidebar.",
+          "Improved history comparison for longer documents with focused diff mode plus a Jump to first change control.",
+          "Published The Future of Markdown Writing and updated SEO, sitemap, and llms.txt metadata for the new document route.",
+          "Added public preview regression checks for Windows, macOS Apple Silicon, and Linux on the download page so testers know exactly what to verify.",
+          "Updated the public roadmap to show the free preview quality bar before Pro work becomes the main focus.",
+        ],
+      },
       {
         id: "planned-next",
         title: "Planned next",
@@ -3489,6 +3597,26 @@ function RoadmapPage() {
           </div>
         </section>
 
+        <section className="preview-acceptance" aria-label="Preview acceptance checklist">
+          <div>
+            <span>Preview quality bar</span>
+            <h2>What should be true before Pro work becomes the main focus.</h2>
+            <p>
+              The free preview should feel dependable for everyday Markdown reading,
+              editing, recovery, and export. These checks keep the product honest
+              before larger paid workflows are promoted.
+            </p>
+          </div>
+          <ul>
+            {previewAcceptanceChecks.map((check) => (
+              <li key={check}>
+                <CheckCircle2 size={16} />
+                <span>{check}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <section className="roadmap-list" aria-label="Recorded user requests">
           {publicRoadmapItems.map((item) => (
             <article className="roadmap-item" key={item.title}>
@@ -3614,7 +3742,7 @@ function DownloadPage() {
             <h2>Works Today</h2>
             <ul>
               <li>Online Markdown editing, preview, and local browser draft autosave</li>
-              <li>Desktop open, save, export HTML, recent files, and local history snapshots</li>
+              <li>Desktop open, save, polished HTML export, recent files, and local history snapshots</li>
               <li>Windows, macOS Apple Silicon, and Linux preview packages</li>
               <li>Privacy policy, cookie consent, and waitlist email handling</li>
             </ul>
@@ -3638,6 +3766,33 @@ function DownloadPage() {
               <li>Advanced export, themes, and commercial licensing</li>
             </ul>
           </article>
+        </section>
+
+        <section className="platform-checks" aria-label="Platform preview checks">
+          <div className="section-heading">
+            <span>Preview regression checks</span>
+            <h2>What we verify before calling a desktop preview usable.</h2>
+            <p>
+              These checks focus on the free preview: install, open local Markdown,
+              save safely, close normally, reopen recent work, and recover from local
+              history. Signing and notarization remain separate release trust work.
+            </p>
+          </div>
+          <div className="platform-check-grid">
+            {platformRegressionChecks.map((group) => (
+              <article key={group.platform}>
+                <h3>{group.platform}</h3>
+                <ul>
+                  {group.checks.map((check) => (
+                    <li key={check}>
+                      <CheckCircle2 size={15} />
+                      <span>{check}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="download-notes" aria-label="Install safety notes">

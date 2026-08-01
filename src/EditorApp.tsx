@@ -567,6 +567,7 @@ function HistoryPanel({
   onClose: () => void;
 }) {
   const [diffMode, setDiffMode] = React.useState<"focused" | "full">("focused");
+  const firstChangeRef = React.useRef<HTMLDivElement | null>(null);
   const diff = selectedSnapshot
     ? buildLineDiff(currentMarkdown, selectedSnapshot.contents)
     : [];
@@ -574,6 +575,13 @@ function HistoryPanel({
   const removedCount = diff.filter((line) => line.type === "removed").length;
   const changeCount = addedCount + removedCount;
   const visibleDiff = diffMode === "focused" ? buildFocusedLineDiff(diff) : diff;
+  const firstVisibleChangeIndex = visibleDiff.findIndex(
+    (line) => line.type === "added" || line.type === "removed",
+  );
+
+  function jumpToFirstChange() {
+    firstChangeRef.current?.scrollIntoView({ block: "center" });
+  }
 
   return (
     <div className="settings-backdrop" role="presentation" onMouseDown={onClose}>
@@ -637,6 +645,11 @@ function HistoryPanel({
                     </div>
                     <span>{addedCount} older lines</span>
                     <span>{removedCount} current lines</span>
+                    {changeCount > 0 && (
+                      <button className="history-jump-button" onClick={jumpToFirstChange}>
+                        Jump to first change
+                      </button>
+                    )}
                     <div className="history-diff-toggle" aria-label="Diff view mode">
                       <button
                         className={diffMode === "focused" ? "active" : ""}
@@ -660,7 +673,11 @@ function HistoryPanel({
                             {line.text}
                           </div>
                         ) : (
-                          <div className={`history-diff-line ${line.type}`} key={`${line.type}-${index}`}>
+                          <div
+                            ref={index === firstVisibleChangeIndex ? firstChangeRef : undefined}
+                            className={`history-diff-line ${line.type}`}
+                            key={`${line.type}-${index}`}
+                          >
                             <span className="history-diff-sign">
                               {line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}
                             </span>
@@ -815,6 +832,63 @@ function WelcomePanel({
         <p>Browser preview mode can import and download files. Desktop mode enables native save dialogs and history.</p>
       )}
       {nativeReady && !hasRecentFiles && <p>Recent files will appear here after your first desktop save.</p>}
+    </section>
+  );
+}
+
+function ExportReadinessPanel({
+  readiness,
+  onDownloadMarkdown,
+  onExportHtml,
+  onPrintPdf,
+  showPrint,
+}: {
+  readiness: {
+    ready: boolean;
+    items: Array<{ label: string; done: boolean; value: string }>;
+  };
+  onDownloadMarkdown: () => void;
+  onExportHtml: () => void;
+  onPrintPdf: () => void;
+  showPrint: boolean;
+}) {
+  const missing = readiness.items.filter((item) => !item.done).map((item) => item.label);
+  const nextHint = readiness.ready
+    ? "Ready for a clean Markdown or HTML export."
+    : `Add ${missing.slice(0, 2).join(" and ").toLowerCase()} before sharing.`;
+
+  return (
+    <section className="export-readiness-panel" aria-label="Export readiness">
+      <div className="outline-title">Export readiness</div>
+      <div className={readiness.ready ? "export-readiness-state ready" : "export-readiness-state"}>
+        <Check size={14} />
+        <span>{readiness.ready ? "Ready baseline" : "Draft baseline"}</span>
+      </div>
+      <p className="export-readiness-hint">{nextHint}</p>
+      <div className="export-readiness-list">
+        {readiness.items.map((item) => (
+          <div key={item.label} data-ready={item.done ? "true" : undefined}>
+            <span>{item.label}</span>
+            <strong title={item.value}>{item.value}</strong>
+          </div>
+        ))}
+      </div>
+      <div className="export-readiness-actions" aria-label="Export actions">
+        <button onClick={onDownloadMarkdown} type="button">
+          <FileText size={13} />
+          MD
+        </button>
+        <button onClick={onExportHtml} type="button">
+          <Download size={13} />
+          HTML
+        </button>
+        {showPrint && (
+          <button onClick={onPrintPdf} type="button">
+            <Printer size={13} />
+            PDF
+          </button>
+        )}
+      </div>
     </section>
   );
 }
@@ -1006,13 +1080,36 @@ export default function EditorApp({
   }, [headings]);
   const metrics = React.useMemo(() => getMetrics(markdown), [markdown]);
   const rendered = React.useMemo(() => renderMarkdown(markdown, headings), [headings, markdown]);
+  const exportReadiness = React.useMemo(() => {
+    const title = headings.find((heading) => heading.level === 1)?.text ?? "";
+    const links = (markdown.match(/(?<!!)\[[^\]]+\]\([^)]+\)/g) ?? []).length;
+    const images = (markdown.match(/!\[[^\]]*\]\([^)]+\)/g) ?? []).length;
+    const codeBlocks = Math.floor((markdown.match(/^```/gm) ?? []).length / 2);
+    const hasStructure = headings.length >= 2;
+    const ready = Boolean(title) && hasStructure;
+
+    return {
+      title,
+      links,
+      images,
+      codeBlocks,
+      ready,
+      items: [
+        { label: "H1 title", done: Boolean(title), value: title || "Missing" },
+        { label: "Sections", done: hasStructure, value: String(headings.length) },
+        { label: "Links", done: links > 0, value: String(links) },
+        { label: "Images", done: images > 0, value: String(images) },
+        { label: "Code blocks", done: codeBlocks > 0, value: String(codeBlocks) },
+      ],
+    };
+  }, [headings, markdown]);
   const dirty = markdown !== savedMarkdown;
   const desktopSurface = surface === "desktop";
   const browserMode = !nativeApi && !desktopSurface;
   const webSurface = surface === "web";
   const draftHistoryMode = !browserMode && !filePath;
   const resolvedTheme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
-  const showDesktopStart = desktopSurface && !focusMode && !filePath && !startPanelDismissed;
+  const showDesktopStart = false;
   const fileTrustLabel = browserMode
     ? "Browser-local draft"
     : filePath
@@ -2188,6 +2285,14 @@ export default function EditorApp({
             <p>No headings yet</p>
           )}
         </section>
+
+        <ExportReadinessPanel
+          readiness={exportReadiness}
+          onDownloadMarkdown={downloadMarkdown}
+          onExportHtml={() => void exportHtml()}
+          onPrintPdf={printOrSavePdf}
+          showPrint={browserMode}
+        />
 
         <div className="sync-panel">
           <label className="toggle-row">

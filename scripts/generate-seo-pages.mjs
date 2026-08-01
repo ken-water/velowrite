@@ -7,7 +7,7 @@ const distDir = path.join(repoRoot, "dist");
 const indexPath = path.join(distDir, "index.html");
 const version = JSON.parse(fs.readFileSync(path.join(repoRoot, "package.json"), "utf8")).version;
 const siteUrl = "https://velowrite.app";
-const today = "2026-07-31";
+const today = "2026-08-01";
 
 const defaultTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultDescription =
@@ -130,6 +130,15 @@ const routes = [
     title: "A Short History of Markdown - From Plain Text to Modern Writing",
     description:
       "A practical history of Markdown, why it became popular with writers and developers, why variants exist, and what modern Markdown editors should preserve.",
+    priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/future-of-markdown",
+    title: "The Future of Markdown Writing - Local Files, AI, and Export Readiness",
+    description:
+      "Explore where Markdown writing is heading: local-first files, safer recovery, AI inside the document flow, export readiness, and publishing workflows.",
     priority: "0.75",
     changefreq: "monthly",
     schema: ["article"],

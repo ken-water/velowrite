@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.0"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.1"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -35,7 +35,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   expect(markdownHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/markdown" />',
   );
-  expect(markdownHtml).toContain('"dateModified": "2026-07-31"');
+  expect(markdownHtml).toContain('"dateModified": "2026-08-01"');
 
   const markdownHistoryHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/markdown-history/index.html"),
@@ -49,6 +49,17 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
     '<link rel="canonical" href="https://velowrite.app/docs/markdown-history" />',
   );
   expect(markdownHistoryHtml).toContain('"@type": "Article"');
+
+  const futureHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/future-of-markdown/index.html"),
+    "utf8",
+  );
+  expect(futureHtml).toContain(
+    "<title>The Future of Markdown Writing - Local Files, AI, and Export Readiness</title>",
+  );
+  expect(futureHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/future-of-markdown" />',
+  );
 
   const typoraHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/typora-alternative/index.html"),
@@ -121,9 +132,15 @@ test("roadmap shows recommended next priorities", async ({ page }) => {
   await expect(page.locator(".roadmap-stage-grid article", { hasText: "Pro candidates" })).toContainText(
     "AI writing, publishing, and advanced export research",
   );
-  await expect(page.getByRole("heading", { name: "Sharper outline and structure map" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "More app-like desktop polish" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Cleaner web-to-desktop handoff" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Native-feeling desktop preview" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Long-document recovery clarity" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Export readiness before Pro export" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "What should be true before Pro work becomes the main focus." }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Preview acceptance checklist")).toContainText(
+    "Open directly into the editor without a marketing-style first screen.",
+  );
 });
 
 test("web editor switches between writing, split, and preview modes", async ({ page }) => {
@@ -206,6 +223,7 @@ test("public pages keep compact desktop titles and responsive layouts", async ({
     "/docs",
     "/docs/markdown",
     "/docs/markdown-history",
+    "/docs/future-of-markdown",
     "/docs/online-markdown-editor",
     "/docs/markdown-basics",
     "/docs/markdown-for-writers",
@@ -309,7 +327,10 @@ test("web editor opens a clean print document for browser PDF saving", async ({ 
   const popup = await popupPromise;
 
   await expect.poll(() => popup.title()).toBe("Untitled");
-  await expect(popup.locator("main h1")).toHaveText("Start Writing");
+  await expect(popup.locator(".document-kicker")).toHaveText("VeloWrite export");
+  await expect(popup.locator(".document-title")).toHaveText("Untitled");
+  await expect(popup.locator(".document-content h1")).toHaveText("Start Writing");
+  await expect(popup.locator(".document-footer")).toContainText("Created with VeloWrite");
   await expect(popup.locator("style").evaluate((element) => element.textContent)).resolves.toContain(
     "@media print",
   );
@@ -324,15 +345,19 @@ test("desktop shell opens in focused editing mode", async ({ page }) => {
   await expect(page.getByLabel("Current file status")).toBeVisible();
   await expect(page.getByLabel("Current file status")).toContainText("Draft has not been saved to a local file yet");
   await expect(page.getByLabel("Current file status")).toContainText("0 / 3 draft snapshots");
-  await expect(page.getByLabel("Desktop start")).toBeVisible();
-  await expect(page.getByText("Continue writing")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Continue Draft/i })).toBeVisible();
+  await expect(page.getByLabel("Desktop start")).toHaveCount(0);
   await expect(page.getByText("Unsaved local draft")).toBeVisible();
-  await expect(page.getByLabel("Desktop start")).toContainText("0 / 3 recovery snapshots");
 
   await page.getByRole("button", { name: "Show workspace" }).click();
   await expect(page.getByLabel("VeloWrite editor")).not.toHaveClass(/desktop-focus/);
   await expect(page.locator(".sidebar")).toBeVisible();
+  await expect(page.getByLabel("Export readiness")).toBeVisible();
+  await expect(page.getByLabel("Export readiness")).toContainText("Ready baseline");
+  await expect(page.getByLabel("Export readiness")).toContainText("Ready for a clean Markdown or HTML export.");
+  await expect(page.getByLabel("Export readiness")).toContainText("H1 title");
+  await expect(page.getByLabel("Export readiness")).toContainText("Code blocks");
+  await expect(page.getByLabel("Export actions")).toContainText("MD");
+  await expect(page.getByLabel("Export actions")).toContainText("HTML");
 });
 
 test("desktop about panel shows the installed app version", async ({ page }) => {
@@ -344,7 +369,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.0");
+  await expect(aboutDialog).toContainText("0.2.1");
 });
 
 test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
@@ -395,6 +420,7 @@ test("web editor keeps browser-local history snapshots", async ({ page }) => {
   await page.locator(".history-summary").first().click();
   await expect(page.getByLabel("Snapshot diff preview")).toBeVisible();
   await expect(page.getByText("Restore preview")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Jump to first change" })).toBeVisible();
 });
 
 test("web editor history UI explains and enforces the three snapshot preview limit", async ({ page }) => {
@@ -599,19 +625,25 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "macOS Apple Silicon" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "macOS Apple Silicon", exact: true })).toBeVisible();
   await expect(
     page.locator(".download-card", { hasText: "macOS Apple Silicon" }).getByRole("link", {
       name: "Download",
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.0_aarch64\.dmg/,
+    /VeloWrite_0\.2\.1_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Planned Pro Path" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Install Safety Notes" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What we verify before calling a desktop preview usable." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Windows 11", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "macOS Apple Silicon preview", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Linux", exact: true })).toBeVisible();
+  await expect(page.getByText("Open, save, close, and reopen Markdown files")).toHaveCount(0);
+  await expect(page.getByText("Open a .md file through Open with -> VeloWrite.")).toBeVisible();
   await expect(page.getByText("official GitHub Releases page")).toBeVisible();
   await expect(page.getByText("Windows builds are not code-signed yet")).toBeVisible();
   await expect(page.getByText("Free preview keeps the latest 3 local history snapshots")).toBeVisible();
@@ -769,6 +801,25 @@ test("docs publishes the local-first Markdown article and sync guidance", async 
   await expect(page.getByRole("heading", { name: "Sync should preserve folder ownership" })).toBeVisible();
   await expect(page.getByText("basic local history recovery in the free foundation")).toBeVisible();
   await expect(page.getByText("Many users already have a sync habit")).toBeVisible();
+});
+
+test("docs publishes the Future of Markdown article with export readiness guidance", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "The Future of Markdown Writing" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "The Future of Markdown Writing" })).toContainText(
+    "Published",
+  );
+
+  await page.goto("/docs/future-of-markdown");
+  await expect(page.getByRole("heading", { name: "The Future of Markdown Writing" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Export readiness" })).toHaveAttribute(
+    "href",
+    "#export-readiness",
+  );
+  await expect(page.getByRole("heading", { name: "Editors will explain whether a draft is ready to export" })).toBeVisible();
+  await expect(page.locator(".content-example").first()).toContainText("A future-proof source file");
+  await expect(page.getByText("clean Print / Save PDF")).toBeVisible();
 });
 
 test("docs publishes comparison and Windows installer guidance", async ({ page }) => {

@@ -891,6 +891,7 @@ p {
   --border-soft: #e2dbcf;
   --accent: #d84f2a;
   --accent-strong: #8a3a22;
+  --success: #3d8a68;
   --active-line: rgba(216, 79, 42, 0.06);
   --selection: rgba(61, 138, 104, 0.24);
   display: grid;
@@ -969,6 +970,7 @@ p {
   --border-soft: #3b443c;
   --accent: #f06f45;
   --accent-strong: #ff9a78;
+  --success: #62ab86;
   --active-line: rgba(240, 111, 69, 0.11);
   --selection: rgba(98, 171, 134, 0.32);
 }
@@ -1533,6 +1535,106 @@ p {
   margin: 0;
   color: var(--muted);
   font-size: 12px;
+}
+
+.export-readiness-panel {
+  border-top: 1px solid var(--border);
+  padding: 12px 12px 10px;
+}
+
+.export-readiness-state {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0 8px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  color: var(--muted-strong);
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.export-readiness-state.ready {
+  border-color: color-mix(in srgb, var(--success) 32%, var(--border));
+  background: color-mix(in srgb, var(--success) 9%, var(--surface));
+  color: var(--text);
+}
+
+.export-readiness-hint {
+  margin: 8px 0 0;
+  color: var(--muted-strong);
+  font-size: 11px;
+  font-weight: 720;
+  line-height: 1.45;
+}
+
+.export-readiness-list {
+  display: grid;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.export-readiness-list div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  min-width: 0;
+  border-radius: 7px;
+  padding: 6px 8px;
+  background: color-mix(in srgb, var(--surface) 56%, transparent);
+}
+
+.export-readiness-list div[data-ready="true"] {
+  background: color-mix(in srgb, var(--success) 8%, var(--surface));
+}
+
+.export-readiness-list span,
+.export-readiness-list strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.export-readiness-list span {
+  color: var(--muted);
+  font-weight: 780;
+}
+
+.export-readiness-list strong {
+  max-width: 112px;
+  color: var(--editor-text);
+  font-weight: 850;
+}
+
+.export-readiness-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.export-readiness-actions button {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.export-readiness-actions button:hover {
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--border));
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
 }
 
 .sync-row {
@@ -2403,6 +2505,19 @@ pre,
   color: var(--muted-strong);
   font-size: 12px;
   font-weight: 750;
+  white-space: nowrap;
+}
+
+.history-jump-button {
+  min-height: 28px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 999px;
+  padding: 0 10px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 850;
   white-space: nowrap;
 }
 
@@ -3799,6 +3914,67 @@ pre,
   content: "";
 }
 
+.preview-acceptance {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  gap: 24px;
+  align-items: start;
+  margin: 0 0 30px;
+  border: 1px solid rgba(21, 54, 45, 0.15);
+  border-radius: 8px;
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 14px 36px rgba(38, 52, 47, 0.08);
+}
+
+.preview-acceptance span:first-child {
+  color: #47635b;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.preview-acceptance h2 {
+  margin: 8px 0 10px;
+  color: #15362d;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.preview-acceptance p {
+  margin: 0;
+  color: #4f5f59;
+  font-size: 15px;
+  line-height: 1.66;
+}
+
+.preview-acceptance ul {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.preview-acceptance li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  border: 1px solid rgba(21, 54, 45, 0.11);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(247, 245, 240, 0.72);
+  color: #253833;
+  font-size: 14px;
+  line-height: 1.42;
+}
+
+.preview-acceptance li svg {
+  margin-top: 2px;
+  color: #3d8a68;
+}
+
 .roadmap-item {
   display: grid;
   gap: 16px;
@@ -4167,6 +4343,59 @@ pre,
   border-radius: 50%;
   background: #3d8a68;
   content: "";
+}
+
+.platform-checks {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.platform-checks .section-heading {
+  max-width: 760px;
+}
+
+.platform-check-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.platform-check-grid article {
+  border: 1px solid rgba(21, 54, 45, 0.15);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow: 0 12px 30px rgba(38, 52, 47, 0.07);
+}
+
+.platform-check-grid h3 {
+  margin: 0 0 14px;
+  color: #15362d;
+  font-size: 19px;
+}
+
+.platform-check-grid ul {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.platform-check-grid li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  color: #4f5f59;
+  font-size: 14px;
+  line-height: 1.46;
+}
+
+.platform-check-grid li svg {
+  margin-top: 2px;
+  color: #3d8a68;
 }
 
 .download-notes {
@@ -5187,6 +5416,10 @@ pre,
     font-size: 48px;
   }
 
+  .preview-acceptance {
+    grid-template-columns: 1fr;
+  }
+
   .input-row {
     grid-template-columns: auto minmax(0, 1fr);
   }
@@ -5325,6 +5558,10 @@ pre,
     padding-top: 38px;
   }
 
+  .platform-check-grid {
+    grid-template-columns: 1fr;
+  }
+
   .compare-card {
     padding: 16px;
   }
@@ -5356,6 +5593,15 @@ pre,
 
   .roadmap-hero h1 {
     font-size: 42px;
+  }
+
+  .preview-acceptance {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .preview-acceptance h2 {
+    font-size: 24px;
   }
 
   .roadmap-item-head {
