@@ -34,7 +34,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.2.1";
+const downloadVersion = "0.2.2";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -585,7 +585,7 @@ const platformRegressionChecks = [
     checks: [
       "Install from the DMG and use the explicit open action while the preview remains unsigned.",
       "Open a local Markdown file and verify the editor starts directly in the writing workspace.",
-      "Export HTML and use Print / Save PDF for a clean review copy.",
+      "Export HTML and PDF for clean review copies.",
       "Confirm recent files and history are visible after reopening the app.",
     ],
   },
@@ -626,7 +626,7 @@ const previewAcceptanceChecks = [
   "Open, save, close, and reopen Markdown files on Windows, Linux, and macOS preview builds.",
   "Keep editor, outline, and rendered preview aligned well enough for long-document navigation.",
   "Compare and restore the latest 3 local snapshots without hiding the important changes.",
-  "Export Markdown and HTML, then use browser Print / Save PDF for clean review copies.",
+  "Export Markdown, HTML, and dedicated PDF review copies.",
   "Keep the public docs, roadmap, changelog, and feedback loop current after each release.",
 ];
 
@@ -719,7 +719,7 @@ const publicRoadmapItems = [
     classification: "Free export baseline, Pro workflow later",
     status: "Free foundation shipped",
     decision:
-      "The editor now includes Markdown download, HTML export, clean Print / Save PDF, and an export readiness panel for title, structure, links, images, and code blocks. The panel also suggests the next fix before sharing. DOCX, branded templates, batch export, and one-click publishing remain stronger candidates for future workflow packaging.",
+      "The editor now includes Markdown download, HTML export, dedicated PDF export, and an export readiness panel for title, structure, links, images, and code blocks. The panel also suggests the next fix before sharing. DOCX, branded templates, batch export, and one-click publishing remain stronger candidates for future workflow packaging.",
   },
   {
     title: "AI writing, publishing, and advanced export research",
@@ -1215,7 +1215,7 @@ const contentPages: Record<string, ContentPage> = {
         title: "Editors will explain whether a draft is ready to export",
         body: [
           "Many writers do not need a complex publishing system on day one. They need to know whether the current draft has a title, enough structure, working links, readable code blocks, and the right output path.",
-          "VeloWrite now treats export preparation as part of the free foundation: Markdown download, HTML export, clean Print / Save PDF, and an export readiness panel that makes basic document shape visible before the user shares the file.",
+          "VeloWrite now treats export preparation as part of the free foundation: Markdown download, HTML export, dedicated PDF export, and an export readiness panel that makes basic document shape visible before the user shares the file.",
         ],
         example: {
           label: "Export readiness checklist",
@@ -2099,12 +2099,12 @@ const contentPages: Record<string, ContentPage> = {
         title: "Choose the output that fits the next step",
         body: [
           "Download Markdown when the next tool accepts source files or when you want a durable local copy. Export HTML when you need to paste a structured draft into a site builder, documentation tool, or static site workflow.",
-          "Use Print / Save PDF when someone needs a readable review copy, a handout, or an attachment. It opens a clean document instead of printing the editor interface, and your browser can save that document as a PDF.",
+          "Export PDF when someone needs a readable review copy, a handout, or an attachment. VeloWrite generates a dedicated PDF document instead of printing the editor interface.",
         ],
         example: {
           label: "Output decision",
           markdown:
-            "| Need | Best next step |\n| --- | --- |\n| Keep editing later | Download Markdown |\n| Move into a CMS or static site | Export HTML |\n| Send a review copy | Print or Save PDF |\n| Publish automatically | Keep the source and wait for a later publishing workflow |",
+            "| Need | Best next step |\n| --- | --- |\n| Keep editing later | Download Markdown |\n| Move into a CMS or static site | Export HTML |\n| Send a review copy | Export PDF |\n| Publish automatically | Keep the source and wait for a later publishing workflow |",
           note: "The output should match the next job, not force every draft into the same format.",
         },
       },
@@ -2392,8 +2392,9 @@ const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "August 1, 2026",
+    updated: "August 2, 2026",
     directory: [
+      { label: "0.2.2", href: "#v022" },
       { label: "0.2.1", href: "#v021" },
       { label: "0.2.0", href: "#v020" },
       { label: "Planned next", href: "#planned-next" },
@@ -2413,6 +2414,17 @@ const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v022",
+        title: "0.2.2 preview",
+        body: [
+          "Added a dedicated VeloWrite PDF layout engine so Markdown exports no longer depend on browser print headers or WebView page chrome.",
+          "Added native desktop PDF saving after the app generates validated PDF bytes.",
+          "Changed wide Markdown tables in PDF exports into readable report-style cards on A4 pages.",
+          "Replaced generic HTML and PDF toolbar icons with direct file-format icons.",
+          "Fixed PDF output so tauri.localhost and browser print headers no longer appear in VeloWrite-generated PDF exports.",
+        ],
+      },
       {
         id: "v021",
         title: "0.2.1 preview",
@@ -3746,7 +3758,7 @@ function DownloadPage() {
             <h2>Works Today</h2>
             <ul>
               <li>Online Markdown editing, preview, and local browser draft autosave</li>
-              <li>Desktop open, save, polished HTML export, recent files, and local history snapshots</li>
+              <li>Desktop open, save, polished HTML export, dedicated PDF export, recent files, and local history snapshots</li>
               <li>Windows, macOS Apple Silicon, and Linux preview packages</li>
               <li>Privacy policy, cookie consent, and waitlist email handling</li>
             </ul>
@@ -3767,7 +3779,7 @@ function DownloadPage() {
               <li>AI writing commands, rewrite tools, and Mermaid generation</li>
               <li>Private sync and multi-device workflows</li>
               <li>One-click publishing to GitHub Pages or Vercel</li>
-              <li>Advanced export, themes, and commercial licensing</li>
+              <li>DOCX export, themes, custom styling, and commercial licensing</li>
             </ul>
           </article>
         </section>

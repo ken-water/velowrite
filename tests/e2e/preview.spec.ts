@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.1"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.2"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -441,7 +441,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.1");
+  await expect(aboutDialog).toContainText("0.2.2");
 });
 
 test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
@@ -720,7 +720,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.1_aarch64\.dmg/,
+    /VeloWrite_0\.2\.2_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
@@ -907,7 +907,7 @@ test("docs publishes the Future of Markdown article with export readiness guidan
   );
   await expect(page.getByRole("heading", { name: "Editors will explain whether a draft is ready to export" })).toBeVisible();
   await expect(page.locator(".content-example").first()).toContainText("A future-proof source file");
-  await expect(page.getByText("clean Print / Save PDF")).toBeVisible();
+  await expect(page.getByText("dedicated PDF export")).toBeVisible();
 });
 
 test("docs publishes comparison and Windows installer guidance", async ({ page }) => {
@@ -1008,7 +1008,7 @@ test("docs publishes the Markdown to Blog workflow", async ({ page }) => {
     "#choose-an-output",
   );
   await expect(page.getByRole("heading", { name: "Choose the output that fits the next step" })).toBeVisible();
-  await expect(page.getByText("Print / Save PDF")).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Export PDF" })).toBeVisible();
   await expect(page.locator(".markdown-body table").first()).toBeVisible();
 });
 

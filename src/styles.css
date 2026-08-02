@@ -2012,7 +2012,7 @@ p {
 }
 
 .app-shell.desktop-focus .editor-grid.mode-write .editor-pane {
-  width: min(100%, 900px);
+  width: min(100%, 1180px);
   margin: 0 auto;
   border-right: 0;
 }
@@ -2076,7 +2076,7 @@ kbd,
 }
 
 .app-shell.desktop-focus .code-editor .cm-line {
-  padding: 0 18px;
+  padding: 0 clamp(18px, 3vw, 40px);
 }
 
 .app-shell.desktop-focus .code-editor .cm-content {
@@ -2089,7 +2089,10 @@ kbd,
 }
 
 .app-shell.desktop-focus .editor-grid.mode-write .cm-activeLine {
-  border-radius: 6px;
+  position: relative;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--accent) 42%, transparent);
 }
 
 .code-editor .cm-tooltip,
