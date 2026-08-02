@@ -4,7 +4,7 @@ import type { TableExportStyle } from "./editorCore";
 type PdfBlock =
   | { type: "heading"; level: number; text: string }
   | { type: "paragraph"; text: string }
-  | { type: "list"; items: string[]; ordered: boolean }
+  | { type: "list"; items: string[]; ordered: boolean; start: number }
   | { type: "quote"; text: string }
   | { type: "code"; language: string; code: string }
   | { type: "table"; headers: string[]; rows: string[][] };
@@ -148,6 +148,7 @@ export function buildPdfBlocks(markdown: string): PdfBlock[] {
     if (listMarker) {
       flushParagraph();
       const ordered = /\d+\./.test(listMarker[1]);
+      const start = ordered ? Number.parseInt(listMarker[1], 10) : 1;
       const items: string[] = [];
       while (index < lines.length) {
         const item = /^((?:[-*+])|(?:\d+\.))\s+(.+)$/.exec(lines[index].trim());
@@ -155,7 +156,7 @@ export function buildPdfBlocks(markdown: string): PdfBlock[] {
         items.push(cleanInlineMarkdown(item[2]));
         index += 1;
       }
-      blocks.push({ type: "list", items, ordered });
+      blocks.push({ type: "list", items, ordered, start });
       continue;
     }
 
@@ -275,7 +276,7 @@ function drawList(doc: jsPDF, block: Extract<PdfBlock, { type: "list" }>, theme:
   setText(doc, theme.muted);
 
   for (let index = 0; index < block.items.length; index += 1) {
-    const marker = block.ordered ? `${index + 1}.` : "•";
+    const marker = block.ordered ? `${block.start + index}.` : "•";
     const lines = doc.splitTextToSize(block.items[index], contentWidth - 28);
     y = ensureSpace(doc, y, lines.length * 16 + 8, theme);
     doc.text(marker, page.marginX + 12, y);

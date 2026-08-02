@@ -12,6 +12,8 @@ import {
   getStoredEditorFontSize,
   getStoredRecentFiles,
   getRecentFileContext,
+  getStoredReadingFont,
+  getStoredReadingPalette,
   getStoredTableExportStyle,
   normalizeDisplayedPath,
   getStoredThemeMode,
@@ -134,6 +136,21 @@ describe("editor preferences", () => {
 
     localStorage.setItem("velowrite:editor-font-size", "bad");
     expect(getStoredEditorFontSize()).toBe(15);
+  });
+
+  it("uses a focused reading palette and validates reading font preferences", () => {
+    expect(getStoredReadingPalette()).toBe("focus");
+    expect(getStoredReadingFont()).toBe("system");
+
+    localStorage.setItem("velowrite:reading-palette", "paper");
+    localStorage.setItem("velowrite:reading-font", "serif");
+    expect(getStoredReadingPalette()).toBe("paper");
+    expect(getStoredReadingFont()).toBe("serif");
+
+    localStorage.setItem("velowrite:reading-palette", "invalid");
+    localStorage.setItem("velowrite:reading-font", "invalid");
+    expect(getStoredReadingPalette()).toBe("focus");
+    expect(getStoredReadingFont()).toBe("system");
   });
 });
 

@@ -61,6 +61,15 @@ const answer = 42;
     expect(html).toContain("answer");
   });
 
+  it("wraps rendered tables for constrained preview panes", () => {
+    const html = renderMarkdown(`| Feature | Notes |
+| --- | --- |
+| Split preview | Wide tables should stay inside the preview pane. |`);
+
+    expect(html).toContain('<div class="markdown-table-scroll"><table>');
+    expect(html).toContain("</table></div>");
+  });
+
   it("groups consecutive supported code fences into a tabset", () => {
     const html = renderMarkdown(`\`\`\`python
 print("hello")

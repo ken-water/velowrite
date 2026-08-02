@@ -109,7 +109,7 @@ export function renderMarkdown(markdown: string, headings = extractHeadings(mark
     return self.renderToken(tokens, index, options);
   };
 
-  return wrapCodeTabSets(renderer.render(markdown));
+  return wrapMarkdownTables(wrapCodeTabSets(renderer.render(markdown)));
 }
 
 export function highlightCode(value: string, language: string) {
@@ -194,6 +194,12 @@ function wrapCodeTabSets(html: string) {
 
   parts.push(html.slice(lastIndex));
   return parts.join("");
+}
+
+function wrapMarkdownTables(html: string) {
+  return html
+    .replace(/<table>/g, '<div class="markdown-table-scroll"><table>')
+    .replace(/<\/table>/g, "</table></div>");
 }
 
 function buildCodeTabset(

@@ -4,6 +4,26 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
+## [0.2.3] - 2026-08-02
+
+### Added
+
+- Added reading palettes for Focus, Paper, Mist, Night, and high-contrast preferences.
+- Added preview reading font choices for system sans, serif, and monospace reading styles.
+- Added bidirectional split-scroll synchronization so the editor follows preview scrolling and the preview follows editor scrolling.
+
+### Changed
+
+- Made the focused reading palette the default visual treatment for calmer long-form reading.
+- Kept reading palette and font preferences locally between sessions.
+- Constrained wide Markdown tables inside a dedicated horizontal scroll area in preview and split layouts.
+
+### Fixed
+
+- Fixed PDF exports to preserve explicit ordered-list numbering across separate Markdown lists.
+- Replaced broad active-line color fills with a restrained left-side focus indicator to reduce visible scroll traces.
+- Widened the focused desktop writing column and reduced line padding so large displays no longer wrap text prematurely.
+
 ## [0.2.2] - 2026-08-02
 
 ### Added

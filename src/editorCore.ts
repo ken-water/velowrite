@@ -1,5 +1,7 @@
 export type ViewMode = "split" | "write" | "preview";
 export type ThemeMode = "light" | "dark" | "system";
+export type ReadingPalette = "focus" | "paper" | "mist" | "night" | "contrast";
+export type ReadingFont = "system" | "serif" | "mono";
 export type EditorSurface = "desktop" | "web" | "embedded";
 export type TableExportStyle = {
   header: "tinted" | "plain";
@@ -59,6 +61,8 @@ export const draftNameKey = "velowrite:draft-name";
 export const recentFilesKey = "velowrite:recent-files";
 export const autoSaveFileKey = "velowrite:auto-save-file";
 export const themeModeKey = "velowrite:theme-mode";
+export const readingPaletteKey = "velowrite:reading-palette";
+export const readingFontKey = "velowrite:reading-font";
 export const editorFontSizeKey = "velowrite:editor-font-size";
 export const defaultViewModeKey = "velowrite:default-view-mode";
 export const tableExportStyleKey = "velowrite:table-export-style";
@@ -458,6 +462,28 @@ export function getInitialViewMode(surface: EditorSurface, initialViewMode?: Vie
 export function getStoredThemeMode(): ThemeMode {
   const value = localStorage.getItem(themeModeKey);
   return value === "dark" || value === "system" || value === "light" ? value : "system";
+}
+
+export function getStoredReadingPalette(): ReadingPalette {
+  const value = localStorage.getItem(readingPaletteKey);
+  if (
+    value === "focus" ||
+    value === "paper" ||
+    value === "mist" ||
+    value === "night" ||
+    value === "contrast"
+  ) {
+    return value;
+  }
+  return "focus";
+}
+
+export function getStoredReadingFont(): ReadingFont {
+  const value = localStorage.getItem(readingFontKey);
+  if (value === "serif" || value === "mono" || value === "system") {
+    return value;
+  }
+  return "system";
 }
 
 export function getStoredEditorFontSize() {

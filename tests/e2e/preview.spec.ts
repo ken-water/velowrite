@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.2"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.3"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -162,6 +162,40 @@ test("web editor switches between writing, split, and preview modes", async ({ p
   await expect(page.locator(".editor-grid")).toHaveClass(/mode-split/);
 });
 
+test("split mode syncs scrolling in both directions", async ({ page }) => {
+  const longMarkdown = Array.from(
+    { length: 36 },
+    (_, index) => `## Section ${index + 1}\n\nA long paragraph for scroll synchronization testing. VeloWrite keeps the editor and rendered preview aligned while the document moves through a realistic reading length.\n`,
+  ).join("\n");
+
+  await page.goto("/web?utm_source=e2e&utm_medium=scroll_sync");
+  await page.evaluate((markdown) => {
+    localStorage.setItem("velowrite:draft", markdown);
+    localStorage.setItem("velowrite:draft-name", "scroll-sync.md");
+  }, longMarkdown);
+  await page.reload();
+
+  await page.getByRole("button", { name: "Split", exact: true }).click();
+  const editorScroller = page.locator(".cm-scroller").first();
+  const preview = page.locator(".markdown-body").first();
+
+  await preview.evaluate((element) => {
+    element.scrollTop = element.scrollHeight * 0.55;
+    element.dispatchEvent(new Event("scroll", { bubbles: true }));
+  });
+  await expect
+    .poll(() => editorScroller.evaluate((element) => Math.round(element.scrollTop)))
+    .toBeGreaterThan(0);
+
+  await editorScroller.evaluate((element) => {
+    element.scrollTop = element.scrollHeight * 0.2;
+    element.dispatchEvent(new Event("scroll", { bubbles: true }));
+  });
+  await expect
+    .poll(() => preview.evaluate((element) => Math.round(element.scrollTop)))
+    .toBeGreaterThan(0);
+});
+
 test("web editor brand link returns to the homepage", async ({ page }) => {
   await page.goto("/web?utm_source=e2e&utm_medium=brand");
 
@@ -288,7 +322,10 @@ test("web editor explains when desktop is better for local files", async ({ page
   await page.goto("/web?utm_source=e2e&utm_medium=desktop_prompt");
 
   const download = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download Markdown file" }).click();
+  await page
+    .getByLabel("File actions")
+    .getByRole("button", { name: "Download Markdown file" })
+    .click();
   await download;
 
   const prompt = page.getByLabel("Desktop upgrade prompt");
@@ -720,7 +757,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.2_aarch64\.dmg/,
+    /VeloWrite_0\.2\.3_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();

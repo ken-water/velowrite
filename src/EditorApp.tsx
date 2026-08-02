@@ -69,10 +69,14 @@ import {
   getInitialViewMode,
   getStoredEditorFontSize,
   getStoredLastLocalFile,
+  getStoredReadingFont,
+  getStoredReadingPalette,
   getStoredRecentFiles,
   getRecentFileContext,
   getStoredTableExportStyle,
   normalizeDisplayedPath,
+  readingFontKey,
+  readingPaletteKey,
   tableExportStyleKey,
   getStoredThemeMode,
   parseDesktopHandoffUrl,
@@ -90,6 +94,8 @@ import {
   type HistoryScope,
   type HistorySnapshot,
   type NativeFile,
+  type ReadingFont,
+  type ReadingPalette,
   type RecentFile,
   type TableExportStyle,
   type ThemeMode,
@@ -213,7 +219,8 @@ function createEditorTheme(fontSize: number) {
     color: "var(--muted)",
   },
   ".cm-activeLine": {
-    backgroundColor: "var(--active-line)",
+    backgroundColor: "transparent",
+    boxShadow: "inset 2px 0 0 var(--accent-soft)",
   },
   ".cm-activeLineGutter": {
     backgroundColor: "var(--active-line)",
@@ -391,17 +398,20 @@ function MarkdownEditor({
   onScroll,
   fontSize,
   scrollTarget,
+  scrollRatio,
 }: {
   value: string;
   onChange: (value: string) => void;
   onScroll: (ratio: number) => void;
   fontSize: number;
   scrollTarget: { line: number; nonce: number } | null;
+  scrollRatio: number | null;
 }) {
   const container = React.useRef<HTMLDivElement>(null);
   const view = React.useRef<EditorView | null>(null);
   const onChangeRef = React.useRef(onChange);
   const onScrollRef = React.useRef(onScroll);
+  const suppressScrollRef = React.useRef(false);
 
   React.useEffect(() => {
     onChangeRef.current = onChange;
@@ -433,6 +443,10 @@ function MarkdownEditor({
     function handleScroll() {
       const scrollElement = nextView.scrollDOM;
       const scrollRange = scrollElement.scrollHeight - scrollElement.clientHeight;
+      if (suppressScrollRef.current) {
+        suppressScrollRef.current = false;
+        return;
+      }
       onScrollRef.current(scrollRange > 0 ? scrollElement.scrollTop / scrollRange : 0);
     }
 
@@ -444,6 +458,19 @@ function MarkdownEditor({
       view.current = null;
     };
   }, [fontSize]);
+
+  React.useEffect(() => {
+    const currentView = view.current;
+    if (!currentView || scrollRatio === null) return;
+
+    const scrollElement = currentView.scrollDOM;
+    const scrollRange = scrollElement.scrollHeight - scrollElement.clientHeight;
+    suppressScrollRef.current = true;
+    scrollElement.scrollTop = scrollRange > 0 ? scrollRange * scrollRatio : 0;
+    window.requestAnimationFrame(() => {
+      suppressScrollRef.current = false;
+    });
+  }, [scrollRatio]);
 
   React.useEffect(() => {
     const currentView = view.current;
@@ -483,20 +510,28 @@ function MarkdownEditor({
 
 function SettingsPanel({
   themeMode,
+  readingPalette,
+  readingFont,
   editorFontSize,
   defaultViewMode,
   tableExportStyle,
   onThemeModeChange,
+  onReadingPaletteChange,
+  onReadingFontChange,
   onEditorFontSizeChange,
   onDefaultViewModeChange,
   onTableExportStyleChange,
   onClose,
 }: {
   themeMode: ThemeMode;
+  readingPalette: ReadingPalette;
+  readingFont: ReadingFont;
   editorFontSize: number;
   defaultViewMode: ViewMode;
   tableExportStyle: TableExportStyle;
   onThemeModeChange: (mode: ThemeMode) => void;
+  onReadingPaletteChange: (mode: ReadingPalette) => void;
+  onReadingFontChange: (mode: ReadingFont) => void;
   onEditorFontSizeChange: (size: number) => void;
   onDefaultViewModeChange: (mode: ViewMode) => void;
   onTableExportStyleChange: (style: TableExportStyle) => void;
@@ -526,6 +561,38 @@ function SettingsPanel({
                 key={mode}
                 className={themeMode === mode ? "active" : ""}
                 onClick={() => onThemeModeChange(mode)}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="settings-group">
+          <label>Reading palette</label>
+          <div className="settings-segment wrap" aria-label="Reading palette">
+            {(["focus", "paper", "mist", "night", "contrast"] as const).map((mode) => (
+              <button
+                key={mode}
+                className={readingPalette === mode ? "active" : ""}
+                onClick={() => onReadingPaletteChange(mode)}
+                type="button"
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="settings-group">
+          <label>Reading font</label>
+          <div className="settings-segment" aria-label="Reading font">
+            {(["system", "serif", "mono"] as const).map((mode) => (
+              <button
+                key={mode}
+                className={readingFont === mode ? "active" : ""}
+                onClick={() => onReadingFontChange(mode)}
+                type="button"
               >
                 {mode}
               </button>
@@ -1120,6 +1187,7 @@ export default function EditorApp({
   const previewRef = React.useRef<HTMLElement>(null);
   const previewScrollFrame = React.useRef<number | null>(null);
   const suppressPreviewSync = React.useRef(false);
+  const scrollSource = React.useRef<"editor" | "preview" | null>(null);
   const suppressBeforeUnload = React.useRef(false);
   const autoSaveTimer = React.useRef<number | null>(null);
   const browserHistoryTimer = React.useRef<number | null>(null);
@@ -1146,6 +1214,10 @@ export default function EditorApp({
     return getInitialViewMode(surface, initialViewMode);
   });
   const [themeMode, setThemeMode] = React.useState<ThemeMode>(getStoredThemeMode);
+  const [readingPalette, setReadingPalette] = React.useState<ReadingPalette>(
+    getStoredReadingPalette,
+  );
+  const [readingFont, setReadingFont] = React.useState<ReadingFont>(getStoredReadingFont);
   const [systemDark, setSystemDark] = React.useState(() => {
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
   });
@@ -1161,6 +1233,7 @@ export default function EditorApp({
   const [sidebarOpen, setSidebarOpen] = React.useState(() => surface !== "desktop");
   const [startPanelDismissed, setStartPanelDismissed] = React.useState(false);
   const [editorScrollTarget, setEditorScrollTarget] = React.useState<{ line: number; nonce: number } | null>(null);
+  const [editorScrollRatio, setEditorScrollRatio] = React.useState<number | null>(null);
   const [activeHeadingId, setActiveHeadingId] = React.useState<string | null>(null);
   const [desktopPrompt, setDesktopPrompt] = React.useState<string | null>(null);
   const [desktopHandoffUrl, setDesktopHandoffUrl] = React.useState<string | null>(null);
@@ -1284,6 +1357,14 @@ export default function EditorApp({
   React.useEffect(() => {
     localStorage.setItem(themeModeKey, themeMode);
   }, [themeMode]);
+
+  React.useEffect(() => {
+    localStorage.setItem(readingPaletteKey, readingPalette);
+  }, [readingPalette]);
+
+  React.useEffect(() => {
+    localStorage.setItem(readingFontKey, readingFont);
+  }, [readingFont]);
 
   React.useEffect(() => {
     localStorage.setItem(editorFontSizeKey, String(editorFontSize));
@@ -2223,11 +2304,16 @@ export default function EditorApp({
 
   function syncPreviewScroll(ratio: number) {
     if (suppressPreviewSync.current) return;
+    if (scrollSource.current === "preview") {
+      scrollSource.current = null;
+      return;
+    }
 
     if (previewScrollFrame.current) {
       window.cancelAnimationFrame(previewScrollFrame.current);
     }
 
+    scrollSource.current = "editor";
     previewScrollFrame.current = window.requestAnimationFrame(() => {
       const preview = previewRef.current;
       if (!preview) return;
@@ -2235,6 +2321,16 @@ export default function EditorApp({
       const scrollRange = preview.scrollHeight - preview.clientHeight;
       preview.scrollTop = scrollRange > 0 ? scrollRange * ratio : 0;
     });
+  }
+
+  function syncEditorScroll(ratio: number) {
+    if (scrollSource.current === "editor") {
+      scrollSource.current = null;
+      return;
+    }
+
+    scrollSource.current = "preview";
+    setEditorScrollRatio(ratio);
   }
 
   function scrollEditorToLine(line: number) {
@@ -2282,7 +2378,7 @@ export default function EditorApp({
 
   return (
     <main
-      className={`app-shell theme-${resolvedTheme}${browserMode ? " browser-surface" : " desktop-surface"}${desktopSurface && !sidebarOpen ? " desktop-focus" : ""}${focusMode ? " writing-focus" : ""}${dragActive ? " drag-active" : ""}`}
+      className={`app-shell theme-${resolvedTheme} reading-palette-${readingPalette} reading-font-${readingFont}${browserMode ? " browser-surface" : " desktop-surface"}${desktopSurface && !sidebarOpen ? " desktop-focus" : ""}${focusMode ? " writing-focus" : ""}${dragActive ? " drag-active" : ""}`}
       aria-label="VeloWrite editor"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -2702,6 +2798,7 @@ export default function EditorApp({
               onScroll={syncPreviewScroll}
               fontSize={editorFontSize}
               scrollTarget={editorScrollTarget}
+              scrollRatio={editorScrollRatio}
             />
           </section>
 
@@ -2712,6 +2809,11 @@ export default function EditorApp({
             <article
               ref={previewRef}
               className="markdown-body"
+              onScroll={(event) => {
+                const preview = event.currentTarget;
+                const scrollRange = preview.scrollHeight - preview.clientHeight;
+                syncEditorScroll(scrollRange > 0 ? preview.scrollTop / scrollRange : 0);
+              }}
               dangerouslySetInnerHTML={{ __html: rendered }}
             />
           </section>
@@ -2775,10 +2877,14 @@ export default function EditorApp({
         {settingsOpen && (
           <SettingsPanel
             themeMode={themeMode}
+            readingPalette={readingPalette}
+            readingFont={readingFont}
             editorFontSize={editorFontSize}
             defaultViewMode={viewMode}
             tableExportStyle={tableExportStyle}
             onThemeModeChange={setThemeMode}
+            onReadingPaletteChange={setReadingPalette}
+            onReadingFontChange={setReadingFont}
             onEditorFontSizeChange={setEditorFontSize}
             onDefaultViewModeChange={setViewMode}
             onTableExportStyleChange={setTableExportStyle}

@@ -37,6 +37,20 @@ print("hello")
     });
   });
 
+  it("preserves explicit ordered-list starts across separate Markdown lists", () => {
+    const blocks = buildPdfBlocks(`1. First wedge
+
+2. Second wedge
+
+3. Third wedge`);
+
+    expect(blocks.filter((block) => block.type === "list")).toEqual([
+      { type: "list", items: ["First wedge"], ordered: true, start: 1 },
+      { type: "list", items: ["Second wedge"], ordered: true, start: 2 },
+      { type: "list", items: ["Third wedge"], ordered: true, start: 3 },
+    ]);
+  });
+
   it("creates a valid PDF without browser print headers", () => {
     const bytes = createMarkdownPdf({
       markdown: "# Plan\n\nContent that should be rendered by VeloWrite.",

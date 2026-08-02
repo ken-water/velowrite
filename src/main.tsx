@@ -34,7 +34,7 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.2.2";
+const downloadVersion = "0.2.3";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
@@ -2394,6 +2394,7 @@ const contentPages: Record<string, ContentPage> = {
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
     updated: "August 2, 2026",
     directory: [
+      { label: "0.2.3", href: "#v023" },
       { label: "0.2.2", href: "#v022" },
       { label: "0.2.1", href: "#v021" },
       { label: "0.2.0", href: "#v020" },
@@ -2414,6 +2415,18 @@ const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v023",
+        title: "0.2.3 preview",
+        body: [
+          "Added focused long-form reading preferences with Focus, Paper, Mist, Night, and high-contrast palettes plus system, serif, and monospace preview fonts.",
+          "Kept reading preferences locally so a chosen palette and font return in the next session.",
+          "Added bidirectional split scrolling so moving through the preview also moves the editor to the corresponding document position.",
+          "Kept wide Markdown tables inside an internal scroll area in preview and split mode instead of allowing them to push content beyond the window.",
+          "Fixed dedicated PDF export to preserve explicit ordered-list numbering across separate Markdown lists.",
+          "Reduced broad active-line fills and widened the focused desktop writing column for calmer large-screen writing.",
+        ],
+      },
       {
         id: "v022",
         title: "0.2.2 preview",
