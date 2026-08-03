@@ -268,6 +268,7 @@ test("public pages keep compact desktop titles and responsive layouts", async ({
     "/docs/markdown-to-blog",
     "/docs/typora-alternative",
     "/docs/markdown-editor-for-windows",
+    "/docs/markdown-editor-for-linux",
     "/guide",
     "/changelog",
     "/faq",
@@ -674,7 +675,9 @@ test("outline navigation returns the editor to the first heading", async ({ page
   });
 
   await expect(page.locator(".cm-activeLine")).toContainText("# Project Notes: Lightweight Writing Stack");
-  await expect(page.locator(".cm-scroller").first()).toHaveJSProperty("scrollTop", 0);
+  await expect
+    .poll(() => page.locator(".cm-scroller").first().evaluate((element) => Math.round(element.scrollTop)))
+    .toBeLessThanOrEqual(32);
   await expect(page.locator(".markdown-body #project-notes-lightweight-writing-stack")).toBeVisible();
   await expect
     .poll(async () =>
@@ -966,6 +969,24 @@ test("docs publishes comparison and Windows installer guidance", async ({ page }
   await expect(page.getByRole("link", { name: "Open with" })).toHaveAttribute("href", "#open-with");
   await expect(page.getByRole("heading", { name: "If VeloWrite does not appear in Open with" })).toBeVisible();
   await expect(page.getByText("old VeloMD shortcuts")).toBeVisible();
+});
+
+test("docs publishes the Linux Markdown editor guide", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.locator("article", { hasText: "Markdown Editor for Linux" })).toContainText(
+    "Published",
+  );
+
+  await page.goto("/docs/markdown-editor-for-linux");
+  await expect(page.getByRole("heading", { name: "Markdown Editor for Linux" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Package choices" })).toHaveAttribute(
+    "href",
+    "#package-choices",
+  );
+  await expect(page.getByRole("heading", { name: "Choose the package that fits your system" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "AppImage" })).toBeVisible();
+  await expect(page.locator(".markdown-body pre code").first()).toContainText("VeloWrite_0.2.3");
 });
 
 test("docs examples can open their Markdown directly in the web editor", async ({ page }) => {

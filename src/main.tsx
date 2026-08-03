@@ -155,6 +155,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/online-markdown-editor",
   "/docs/typora-alternative",
   "/docs/markdown-editor-for-windows",
+  "/docs/markdown-editor-for-linux",
 ]);
 
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
@@ -793,7 +794,7 @@ const docGroups = [
       { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Published" },
       { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Published" },
       { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Planned" },
-      { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Planned" },
+      { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Published" },
     ],
   },
 ] as const;
@@ -2246,25 +2247,66 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Platform guide",
     title: "Markdown Editor for Linux",
     intro:
-      "Linux users are a natural fit for a lightweight Markdown editor because they often value portable files, local-first workflows, and low-overhead desktop software.",
-    updated: "July 21, 2026",
+      "Linux users are a natural fit for a lightweight Markdown editor because they often value portable files, local-first workflows, predictable packages, and low-overhead desktop software.",
+    updated: "August 3, 2026",
+    directory: [
+      { label: "Package choices", href: "#package-choices" },
+      { label: "Local files", href: "#local-files" },
+      { label: "Preview workflow", href: "#preview-workflow" },
+      { label: "Export checks", href: "#export-checks" },
+      { label: "When desktop wins", href: "#when-desktop-wins" },
+    ],
     sections: [
       {
+        id: "package-choices",
         title: "Choose the package that fits your system",
         body: [
           "VeloWrite publishes Linux preview builds as AppImage, DEB, and RPM assets. AppImage is portable, DEB fits Debian and Ubuntu families, and RPM fits Fedora, RHEL, and similar distributions.",
+          "The practical choice is usually simple: use DEB or RPM when you want normal package-manager behavior, and use AppImage when you want to test the app without installing it system-wide.",
+        ],
+        example: {
+          label: "Package decision note",
+          markdown:
+            "| Package | Best fit |\n| --- | --- |\n| AppImage | Portable testing |\n| DEB | Debian and Ubuntu families |\n| RPM | Fedora, RHEL, and similar systems |",
+          note: "Keep package notes close to the project README so future testers know which file to download.",
+        },
+      },
+      {
+        id: "local-files",
+        title: "Keep Markdown files in normal folders",
+        body: [
+          "A good Linux Markdown workflow should not fight the file system. Keep project notes beside code, keep drafts in a writing folder, or keep documentation inside the repository where it belongs.",
+          "This keeps backups, Git, search tools, and shell scripts useful. The editor should add comfort, preview, export, and recovery without taking ownership away from the user.",
         ],
       },
       {
+        id: "preview-workflow",
         title: "Why Tauri matters on Linux",
         body: [
           "A Tauri desktop app can keep the package smaller than many Electron-style tools while still offering a modern interface. The goal is a fast Markdown surface without a heavy runtime feel.",
+          "For a writing tool, that matters because the app may stay open beside a terminal, browser, source tree, or PDF viewer for hours. Lower overhead is not just a benchmark; it changes whether the tool feels welcome in a daily workspace.",
         ],
       },
       {
-        title: "Use local files as the foundation",
+        id: "export-checks",
+        title: "Check export before the document matters",
         body: [
-          "Linux users often already have strong backup, Git, and folder workflows. VeloWrite should fit those habits instead of hiding documents behind a cloud-only account model.",
+          "Before a Markdown file becomes important, test the export path with the kinds of content you actually write: numbered lists, tables, code blocks, links, and long headings.",
+          "VeloWrite's dedicated PDF export is designed to avoid browser print headers. The current preview also keeps wide tables readable and preserves explicit ordered-list numbering.",
+        ],
+        example: {
+          label: "Export sanity check",
+          markdown:
+            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.3_amd64.AppImage\n```",
+          note: "A small export test catches layout problems before the real document is due.",
+        },
+      },
+      {
+        id: "when-desktop-wins",
+        title: "When the desktop app is better than the browser",
+        body: [
+          "The web editor is still the fastest way to try VeloWrite. The desktop app becomes the better choice when the document should live as a real local file, reopen later, work offline, or keep local history snapshots.",
+          "That split is intentional. Use the browser for low-friction evaluation, then move serious Markdown files into a local-first desktop workflow.",
         ],
       },
     ],

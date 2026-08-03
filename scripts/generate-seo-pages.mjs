@@ -216,6 +216,15 @@ const routes = [
     schema: ["article"],
   },
   {
+    path: "/docs/markdown-editor-for-linux",
+    title: "Markdown Editor for Linux - AppImage, DEB, RPM, and Local Files",
+    description:
+      "Use VeloWrite as a Linux Markdown editor with AppImage, DEB, RPM, browser editing, local files, export checks, and a lightweight Tauri desktop workflow.",
+    priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
     path: "/changelog",
     title: "VeloWrite Changelog - Release Notes and Preview Updates",
     description:
