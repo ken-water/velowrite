@@ -35,7 +35,7 @@ const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
 const downloadVersion = "0.2.3";
-const downloadReleaseDate = "August 3, 2026";
+const downloadReleaseDate = "August 2, 2026";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";

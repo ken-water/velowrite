@@ -748,7 +748,7 @@ test("download page presents user-facing preview information", async ({ page }) 
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
   await expect(page.getByLabel("Latest release information")).toContainText("v0.2.3");
-  await expect(page.getByLabel("Latest release information")).toContainText("August 3, 2026");
+  await expect(page.getByLabel("Latest release information")).toContainText("August 2, 2026");
   await expect(page.getByLabel("Latest improvements")).toContainText(
     "External file changes now trigger a reload prompt",
   );
