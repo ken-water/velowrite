@@ -27,6 +27,12 @@ export type PdfExportInput = {
   previewMark?: boolean;
 };
 
+const unicodeFontName = "VeloWriteUnicode";
+const unicodeFontUrl = "/fonts/droid-sans-fallback-full.ttf";
+let unicodeFontLoadPromise: Promise<string | null> | null = null;
+let pdfBodyFont = "helvetica";
+let pdfMonoFont = "courier";
+
 const page = {
   width: 595.28,
   height: 841.89,
@@ -168,8 +174,43 @@ export function buildPdfBlocks(markdown: string): PdfBlock[] {
   return blocks;
 }
 
-export function createMarkdownPdf(input: PdfExportInput): Uint8Array {
+async function preparePdfFonts(doc: jsPDF) {
+  if (!unicodeFontLoadPromise) {
+    unicodeFontLoadPromise = fetch(unicodeFontUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then((buffer) => {
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        const chunkSize = 0x8000;
+        for (let index = 0; index < bytes.length; index += chunkSize) {
+          binary += String.fromCharCode(...bytes.slice(index, index + chunkSize));
+        }
+        return btoa(binary);
+      })
+      .catch(() => null);
+  }
+
+  const fontBase64 = await unicodeFontLoadPromise;
+  if (!fontBase64) return;
+
+  doc.addFileToVFS(`${unicodeFontName}.ttf`, fontBase64);
+  doc.addFont(`${unicodeFontName}.ttf`, unicodeFontName, "normal");
+  doc.addFont(`${unicodeFontName}.ttf`, unicodeFontName, "bold");
+  pdfBodyFont = unicodeFontName;
+  pdfMonoFont = unicodeFontName;
+}
+
+export async function createMarkdownPdf(input: PdfExportInput): Promise<Uint8Array> {
   const doc = new jsPDF({ unit: "pt", format: "a4", compress: true });
+  const needsUnicodeFont = /[^\u0000-\u007f]/.test(input.markdown);
+  pdfBodyFont = needsUnicodeFont ? unicodeFontName : "helvetica";
+  pdfMonoFont = needsUnicodeFont ? unicodeFontName : "courier";
+  if (needsUnicodeFont) {
+    await preparePdfFonts(doc);
+  }
   const theme = themes[input.tableStyle.color];
   const blocks = buildPdfBlocks(input.markdown);
   let y = page.marginTop;
@@ -222,7 +263,7 @@ export function savePdfInBrowser(fileName: string, bytes: Uint8Array) {
 }
 
 function drawCover(doc: jsPDF, title: string, theme: PdfTheme, y: number) {
-  doc.setFont("helvetica", "bold");
+  doc.setFont(pdfBodyFont, "bold");
   doc.setFontSize(11);
   setText(doc, theme.accent);
   doc.text("VELOWRITE EXPORT", page.marginX, y);
@@ -236,7 +277,7 @@ function drawCover(doc: jsPDF, title: string, theme: PdfTheme, y: number) {
   });
   y += title.length > 42 ? 62 : 42;
 
-  doc.setFont("helvetica", "normal");
+  doc.setFont(pdfBodyFont, "normal");
   doc.setFontSize(10);
   setText(doc, theme.muted);
   doc.text("Markdown source preserved", page.marginX, y);
@@ -252,7 +293,7 @@ function drawHeading(doc: jsPDF, block: Extract<PdfBlock, { type: "heading" }>, 
   const before = block.level === 1 ? 18 : 15;
   y = ensureSpace(doc, y + before, 48, theme);
 
-  doc.setFont("helvetica", "bold");
+  doc.setFont(pdfBodyFont, "bold");
   doc.setFontSize(size);
   setText(doc, theme.ink);
   const lines = doc.splitTextToSize(block.text, contentWidth);
@@ -261,7 +302,7 @@ function drawHeading(doc: jsPDF, block: Extract<PdfBlock, { type: "heading" }>, 
 }
 
 function drawParagraph(doc: jsPDF, text: string, theme: PdfTheme, y: number) {
-  doc.setFont("helvetica", "normal");
+  doc.setFont(pdfBodyFont, "normal");
   doc.setFontSize(11.5);
   setText(doc, theme.muted);
   const lines = doc.splitTextToSize(text, contentWidth);
@@ -271,7 +312,7 @@ function drawParagraph(doc: jsPDF, text: string, theme: PdfTheme, y: number) {
 }
 
 function drawList(doc: jsPDF, block: Extract<PdfBlock, { type: "list" }>, theme: PdfTheme, y: number) {
-  doc.setFont("helvetica", "normal");
+  doc.setFont(pdfBodyFont, "normal");
   doc.setFontSize(11.5);
   setText(doc, theme.muted);
 
@@ -297,7 +338,7 @@ function drawQuote(doc: jsPDF, text: string, theme: PdfTheme, y: number) {
   doc.roundedRect(page.marginX, y - 12, width, height, 6, 6, "F");
   setFill(doc, theme.accent);
   doc.rect(page.marginX, y - 12, 3, height, "F");
-  doc.setFont("helvetica", "normal");
+  doc.setFont(pdfBodyFont, "normal");
   doc.setFontSize(11);
   setText(doc, theme.muted);
   doc.text(lines, page.marginX + 16, y + 4, { lineHeightFactor: 1.42 });
@@ -305,7 +346,8 @@ function drawQuote(doc: jsPDF, text: string, theme: PdfTheme, y: number) {
 }
 
 function drawCode(doc: jsPDF, block: Extract<PdfBlock, { type: "code" }>, theme: PdfTheme, y: number) {
-  doc.setFont("courier", "normal");
+  const codeFont = /[^\u0000-\u007f]/.test(block.code) ? pdfBodyFont : pdfMonoFont;
+  doc.setFont(codeFont, "normal");
   doc.setFontSize(9.2);
   const rawLines = block.code.split("\n");
   const lines = rawLines.flatMap((line) => doc.splitTextToSize(line || " ", contentWidth - 28));
@@ -320,11 +362,11 @@ function drawCode(doc: jsPDF, block: Extract<PdfBlock, { type: "code" }>, theme:
     setFill(doc, theme.codeBg);
     setDraw(doc, theme.rule);
     doc.roundedRect(page.marginX, y - 12, contentWidth, height, 7, 7, "FD");
-    doc.setFont("helvetica", "bold");
+    doc.setFont(pdfBodyFont, "bold");
     doc.setFontSize(8);
     setText(doc, theme.accent);
     doc.text(block.language.toUpperCase(), page.marginX + 12, y + 2);
-    doc.setFont("courier", "normal");
+    doc.setFont(codeFont, "normal");
     doc.setFontSize(9.2);
     setText(doc, [42, 52, 48]);
     doc.text(chunk.length ? chunk : [" "], page.marginX + 12, y + 19, {
@@ -354,7 +396,7 @@ function drawTable(
     tableStyle.borders === "strong" ? [150, 164, 156] : theme.rule;
 
   function drawRow(cells: string[], isHeader: boolean, rowIndex: number) {
-    doc.setFont("helvetica", isHeader ? "bold" : "normal");
+    doc.setFont(pdfBodyFont, isHeader ? "bold" : "normal");
     doc.setFontSize(isHeader ? 9.8 : 9.4);
     const wrapped = Array.from({ length: columnCount }, (_, index) =>
       doc.splitTextToSize(cleanInlineMarkdown(cells[index] ?? ""), columnWidth - rowPadding * 2),
@@ -421,7 +463,7 @@ function drawWideTableCards(
     setFill(doc, theme.accentSoft);
     doc.roundedRect(page.marginX, y - 12, contentWidth, 34, 7, 7, "F");
     doc.rect(page.marginX, y + 10, contentWidth, 12, "F");
-    doc.setFont("helvetica", "bold");
+    doc.setFont(pdfBodyFont, "bold");
     doc.setFontSize(12);
     setText(doc, theme.ink);
     doc.text(`${block.headers[0]} ${cleanInlineMarkdown(row[0] ?? "")}`, page.marginX + 14, y + 10);
@@ -461,12 +503,12 @@ function drawFieldPair(
   valueWidth: number,
   theme: PdfTheme,
 ) {
-  doc.setFont("helvetica", "bold");
+  doc.setFont(pdfBodyFont, "bold");
   doc.setFontSize(8.5);
   setText(doc, theme.accent);
   doc.text(field.label, x, y);
 
-  doc.setFont("helvetica", "normal");
+  doc.setFont(pdfBodyFont, "normal");
   doc.setFontSize(9.4);
   setText(doc, theme.muted);
   const lines = doc.splitTextToSize(field.value || "-", valueWidth);
@@ -487,7 +529,7 @@ function drawFooters(doc: jsPDF, previewMark: boolean, theme: PdfTheme) {
     doc.setPage(index);
     setDraw(doc, theme.rule);
     doc.line(page.marginX, page.height - 42, page.width - page.marginX, page.height - 42);
-    doc.setFont("helvetica", "normal");
+    doc.setFont(pdfBodyFont, "normal");
     doc.setFontSize(8.5);
     setText(doc, theme.muted);
     doc.text(`Page ${index} / ${pageCount}`, page.width - page.marginX, page.height - 25, {

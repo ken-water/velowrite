@@ -893,11 +893,23 @@ p {
   color: var(--text);
 }
 
+.app-shell.desktop-surface {
+  grid-template-columns: 320px minmax(0, 1fr);
+}
+
 .app-shell.desktop-focus {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.app-shell.writing-focus {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .app-shell.desktop-focus .sidebar {
+  display: none;
+}
+
+.app-shell.writing-focus .sidebar {
   display: none;
 }
 
@@ -909,6 +921,11 @@ p {
 .app-shell.writing-focus .topbar,
 .app-shell.writing-focus .statusbar,
 .app-shell.writing-focus .desktop-start-panel {
+  display: none;
+}
+
+.app-shell.writing-focus .desktop-update-banner,
+.app-shell.writing-focus .file-change-banner {
   display: none;
 }
 
@@ -1823,8 +1840,8 @@ p {
 
 .workspace {
   position: relative;
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
@@ -1946,6 +1963,61 @@ p {
   font-weight: 780;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.desktop-update-banner,
+.file-change-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 18px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--app-bg));
+}
+
+.desktop-update-banner strong,
+.file-change-banner strong {
+  display: block;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 820;
+}
+
+.desktop-update-banner span,
+.file-change-banner span {
+  color: var(--muted-strong);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.desktop-update-banner a,
+.file-change-actions button {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0 10px;
+  background: var(--text);
+  color: var(--surface);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.file-change-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.file-change-actions button:last-child {
+  background: var(--surface);
+  color: var(--text);
 }
 
 .actions {
@@ -2094,6 +2166,7 @@ p {
 
 .editor-grid {
   display: grid;
+  flex: 1 1 auto;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-height: 0;
   overflow: hidden;
@@ -2126,6 +2199,15 @@ p {
   max-width: none;
   width: 100%;
   margin: 0;
+}
+
+.editor-grid.mode-preview .markdown-body h1,
+.editor-grid.mode-preview .markdown-body h2,
+.editor-grid.mode-preview .markdown-body h3,
+.editor-grid.mode-preview .markdown-body p,
+.editor-grid.mode-preview .markdown-body li,
+.editor-grid.mode-preview .markdown-body blockquote {
+  max-width: min(100%, 1180px);
 }
 
 .editor-pane,
@@ -4613,6 +4695,39 @@ pre,
   gap: 14px;
 }
 
+.download-release-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0 0;
+}
+
+.download-release-summary > div,
+.download-release-summary > a {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(21, 54, 45, 0.14);
+  border-radius: 8px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.66);
+  color: #26342f;
+}
+
+.download-release-summary span {
+  color: #65756f;
+  font-size: 12px;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.download-release-summary strong {
+  color: #17201c;
+  font-size: 14px;
+  font-weight: 850;
+}
+
 .download-card {
   display: grid;
   gap: 14px;
@@ -4677,6 +4792,14 @@ pre,
 .download-card .download-detail {
   color: #697973;
   font-size: 13px;
+}
+
+.download-card .download-version-line {
+  border-top: 1px solid rgba(21, 54, 45, 0.1);
+  padding-top: 10px;
+  color: #55635d;
+  font-size: 12px;
+  font-weight: 760;
 }
 
 .download-card a,

@@ -61,6 +61,7 @@ import {
   createBrowserHistorySnapshot,
   createDesktopHandoffUrl,
   createDraftHistorySnapshot,
+  compareSemver,
   defaultViewModeKey,
   draftKey,
   draftNameKey,
@@ -108,6 +109,7 @@ type NativeApi = {
   saveMarkdownFile: (path: string | null, contents: string) => Promise<string | null>;
   exportHtmlFile: (defaultName: string, html: string) => Promise<string | null>;
   exportPdfFile: (defaultName: string, contentsBase64: string) => Promise<string | null>;
+  getMarkdownFileStamp: (path: string) => Promise<FileStamp | null>;
   createHistorySnapshot: (
     filePath: string,
     fileName: string,
@@ -124,8 +126,20 @@ type NativeApi = {
   listenCloseRequested: (handler: () => Promise<boolean>) => Promise<() => void>;
   listenPathDrop: (handler: (paths: string[]) => void) => Promise<() => void>;
   closeWindow: () => Promise<void>;
+  setWindowFullscreen: (fullscreen: boolean) => Promise<void>;
   setWindowTitle: (title: string) => Promise<void>;
 };
+
+type FileStamp = {
+  modifiedAt: number;
+  size: number;
+};
+
+type UpdateNotice =
+  | { state: "checking" }
+  | { state: "current" }
+  | { state: "available"; latestVersion: string; releaseDate: string; releaseUrl: string }
+  | { state: "error"; message: string };
 
 function FormatIcon({ label }: { label: "HTML" | "PDF" }) {
   return (
@@ -317,6 +331,9 @@ function useNativeApi(): NativeApi | null {
           if (!target) return null;
           return invoke<string>("write_pdf_file", { path: target, contentsBase64 });
         },
+        async getMarkdownFileStamp(path) {
+          return invoke<FileStamp | null>("get_markdown_file_stamp", { path });
+        },
         async createHistorySnapshot(filePath, fileName, contents) {
           return invoke<HistoryEntry>("create_history_snapshot", {
             filePath,
@@ -376,6 +393,9 @@ function useNativeApi(): NativeApi | null {
         },
         async closeWindow() {
           await invoke<void>("force_close_app");
+        },
+        async setWindowFullscreen(fullscreen) {
+          await invoke<void>("set_window_fullscreen", { fullscreen });
         },
         async setWindowTitle(title) {
           await appWindow.setTitle(title);
@@ -1189,6 +1209,7 @@ export default function EditorApp({
   const suppressPreviewSync = React.useRef(false);
   const scrollSource = React.useRef<"editor" | "preview" | null>(null);
   const suppressBeforeUnload = React.useRef(false);
+  const fileStampRef = React.useRef<FileStamp | null>(null);
   const autoSaveTimer = React.useRef<number | null>(null);
   const browserHistoryTimer = React.useRef<number | null>(null);
   const browserHistoryBaseline = React.useRef<string | null>(null);
@@ -1237,6 +1258,8 @@ export default function EditorApp({
   const [activeHeadingId, setActiveHeadingId] = React.useState<string | null>(null);
   const [desktopPrompt, setDesktopPrompt] = React.useState<string | null>(null);
   const [desktopHandoffUrl, setDesktopHandoffUrl] = React.useState<string | null>(null);
+  const [fileChangeNotice, setFileChangeNotice] = React.useState<string | null>(null);
+  const [updateNotice, setUpdateNotice] = React.useState<UpdateNotice>({ state: "checking" });
   const [focusMode, setFocusMode] = React.useState(false);
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
     return localStorage.getItem(autoSaveFileKey) === "true";
@@ -1456,6 +1479,116 @@ export default function EditorApp({
   React.useEffect(() => {
     localStorage.setItem(autoSaveFileKey, String(autoSaveFile));
   }, [autoSaveFile]);
+
+  React.useEffect(() => {
+    if (!nativeApi || !desktopSurface) return;
+
+    let cancelled = false;
+
+    async function checkUpdate() {
+      try {
+        const response = await fetch(
+          "https://api.github.com/repos/ken-water/velowrite/releases/latest",
+          { headers: { Accept: "application/vnd.github+json" } },
+        );
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const release = (await response.json()) as {
+          tag_name?: string;
+          html_url?: string;
+          published_at?: string;
+        };
+        if (cancelled) return;
+
+        const latestVersion = String(release.tag_name ?? "").replace(/^v/i, "");
+        if (latestVersion && compareSemver(latestVersion, appVersion) > 0) {
+          const releaseDate = release.published_at
+            ? new Intl.DateTimeFormat(undefined, {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              }).format(new Date(release.published_at))
+            : "Recently";
+          setUpdateNotice({
+            state: "available",
+            latestVersion,
+            releaseDate,
+            releaseUrl: release.html_url || "https://github.com/ken-water/velowrite/releases",
+          });
+        } else {
+          setUpdateNotice({ state: "current" });
+        }
+      } catch (error) {
+        if (cancelled) return;
+        setUpdateNotice({
+          state: "error",
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
+    void checkUpdate();
+    return () => {
+      cancelled = true;
+    };
+  }, [desktopSurface, nativeApi]);
+
+  React.useEffect(() => {
+    if (!nativeApi || !desktopSurface || !filePath) {
+      setFileChangeNotice(null);
+      return undefined;
+    }
+
+    const activeNativeApi = nativeApi;
+    const activeFilePath = filePath;
+    let cancelled = false;
+    let pending = false;
+
+    async function checkFileChange() {
+      if (pending) return;
+      pending = true;
+      try {
+        const stamp = await activeNativeApi.getMarkdownFileStamp(activeFilePath);
+        if (cancelled || !stamp) return;
+
+        const previous = fileStampRef.current;
+        fileStampRef.current = stamp;
+        if (previous && (previous.modifiedAt !== stamp.modifiedAt || previous.size !== stamp.size)) {
+          setFileChangeNotice(
+            `${normalizeDisplayedPath(activeFilePath)} changed on disk. Reload to get the latest content.`,
+          );
+        }
+      } catch {
+        // Ignore transient read failures.
+      } finally {
+        pending = false;
+      }
+    }
+
+    void checkFileChange();
+    const timer = window.setInterval(() => {
+      void checkFileChange();
+    }, 4000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [desktopSurface, filePath, nativeApi]);
+
+  React.useEffect(() => {
+    if (!nativeApi || !desktopSurface) return undefined;
+    void nativeApi.setWindowFullscreen(focusMode).catch((error) => {
+      setErrorStatus("Fullscreen", error);
+    });
+
+    return () => {
+      if (focusMode) {
+        void nativeApi.setWindowFullscreen(false).catch((error) => {
+          setErrorStatus("Fullscreen", error);
+        });
+      }
+    };
+  }, [desktopSurface, focusMode, nativeApi]);
 
   React.useEffect(() => {
     if (!nativeApi || !autoSaveFile || !filePath || !dirty) return;
@@ -1710,7 +1843,32 @@ export default function EditorApp({
     if (!nativeApi) browserHistoryBaseline.current = nextFile.contents;
     storeLastLocalFile({ path: nextFile.path, name: nextFile.name || "Untitled.md" });
     rememberRecentFile(nextFile.path, nextFile.name || "Untitled.md");
+    setFileChangeNotice(null);
     void refreshHistory(nextFile.path);
+    void refreshFileStamp(nextFile.path);
+  }
+
+  async function refreshFileStamp(path: string) {
+    if (!nativeApi) return;
+    try {
+      const stamp = await nativeApi.getMarkdownFileStamp(path);
+      fileStampRef.current = stamp;
+    } catch (error) {
+      setErrorStatus("Check file status", error);
+    }
+  }
+
+  async function reloadFileFromDisk() {
+    if (!nativeApi || !filePath) return;
+    if (!(await confirmDiscardChanges())) return;
+
+    try {
+      const nextFile = await nativeApi.openRecentMarkdownFile(filePath);
+      loadDocument(nextFile, "Reloaded from disk");
+      setFileChangeNotice(null);
+    } catch (error) {
+      setErrorStatus("Reload", error);
+    }
   }
 
   async function importHandoffDraft(draft: HandoffDraft) {
@@ -1722,6 +1880,8 @@ export default function EditorApp({
     setFileName(draft.name);
     setHistoryEntries([]);
     setSelectedHistory(null);
+    setFileChangeNotice(null);
+    fileStampRef.current = null;
     setHistoryOpen(false);
     setStartPanelDismissed(true);
     browserHistoryBaseline.current = draft.markdown;
@@ -1892,8 +2052,10 @@ export default function EditorApp({
       setFileName(savedName);
       setSavedMarkdown(markdown);
       setStatus(getSaveStatus(keptPreviousVersion, historyWasFull, Boolean(options?.silent)));
+      setFileChangeNotice(null);
       rememberRecentFile(savedPath, savedName);
       await refreshHistory(savedPath);
+      await refreshFileStamp(savedPath);
     } catch (error) {
       setErrorStatus("Save", error);
     }
@@ -1963,7 +2125,7 @@ export default function EditorApp({
     const baseName = fileName.replace(/\.(md|markdown|mdown)$/i, "") || "VeloWrite Document";
     try {
       const { createMarkdownPdf, pdfBytesToBase64, savePdfInBrowser } = await import("./pdfExport");
-      const pdfBytes = createMarkdownPdf({
+      const pdfBytes = await createMarkdownPdf({
         markdown,
         title: baseName,
         tableStyle: tableExportStyle,
@@ -2103,6 +2265,8 @@ export default function EditorApp({
     setFileName(editorTemplates[0].fileName);
     setHistoryEntries([]);
     setSelectedHistory(null);
+    setFileChangeNotice(null);
+    fileStampRef.current = null;
     setStartPanelDismissed(true);
     browserHistoryBaseline.current = blankDocument;
     draftHistoryBaseline.current = blankDocument;
@@ -2117,6 +2281,8 @@ export default function EditorApp({
     setFileName(template.fileName);
     setHistoryEntries([]);
     setSelectedHistory(null);
+    setFileChangeNotice(null);
+    fileStampRef.current = null;
     setStartPanelDismissed(true);
     browserHistoryBaseline.current = template.markdown;
     draftHistoryBaseline.current = template.markdown;
@@ -2136,6 +2302,7 @@ export default function EditorApp({
       setSavedMarkdown(snapshot.contents);
       setFileName(snapshot.entry.file_name);
       setSelectedHistory(null);
+      setFileChangeNotice(null);
       setHistoryOpen(false);
       browserHistoryBaseline.current = snapshot.contents;
       setStatus("Browser history restored");
@@ -2156,6 +2323,7 @@ export default function EditorApp({
       setFilePath(null);
       setFileName(snapshot.entry.file_name);
       setSelectedHistory(null);
+      setFileChangeNotice(null);
       setHistoryOpen(false);
       draftHistoryBaseline.current = snapshot.contents;
       setStatus("Draft history restored");
@@ -2173,6 +2341,7 @@ export default function EditorApp({
       setFilePath(snapshot.entry.file_path);
       setFileName(snapshot.entry.file_name);
       setStatus("History restored");
+      setFileChangeNotice(null);
       setHistoryOpen(false);
       await refreshHistory(snapshot.entry.file_path);
     } catch (error) {
@@ -2431,16 +2600,16 @@ export default function EditorApp({
           </section>
         )}
 
-        <nav className="nav-list" aria-label="Documents">
-          <button className="nav-item active" onClick={() => void newFileWithGuard()}>
-            <FileText size={16} />
-            {fileName}
-          </button>
-          <button className="nav-item muted" disabled>
-            <Braces size={16} />
-            AI commands soon
-          </button>
-          {browserMode && (
+        {!desktopSurface && (
+          <nav className="nav-list" aria-label="Documents">
+            <button className="nav-item active" onClick={() => void newFileWithGuard()}>
+              <FileText size={16} />
+              {fileName}
+            </button>
+            <button className="nav-item muted" disabled>
+              <Braces size={16} />
+              AI commands soon
+            </button>
             <button
               className="nav-item muted"
               onClick={() => {
@@ -2451,18 +2620,15 @@ export default function EditorApp({
               <FolderPlus size={16} />
               Open folder
             </button>
-          )}
-          <button
-            className="nav-item"
-            onClick={() => void openHistoryPanel()}
-          >
-            <GitBranch size={16} />
-            History
-            {historyEntries.length > 0 && <span>{historyEntries.length}</span>}
-          </button>
-        </nav>
+            <button className="nav-item" onClick={() => void openHistoryPanel()}>
+              <GitBranch size={16} />
+              History
+              {historyEntries.length > 0 && <span>{historyEntries.length}</span>}
+            </button>
+          </nav>
+        )}
 
-        {nativeApi && recentFiles.length > 0 && (
+        {!desktopSurface && nativeApi && recentFiles.length > 0 && (
           <section className="recent-panel" aria-label="Recent files">
             <div className="outline-title">Recent</div>
             <div className="recent-list">
@@ -2485,7 +2651,7 @@ export default function EditorApp({
           </section>
         )}
 
-        {recentFiles.length === 0 && (
+        {!desktopSurface && recentFiles.length === 0 && (
           <WelcomePanel
             nativeReady={Boolean(nativeApi)}
             hasRecentFiles={recentFiles.length > 0}
@@ -2536,41 +2702,45 @@ export default function EditorApp({
           )}
         </section>
 
-        <ExportReadinessPanel
-          readiness={exportReadiness}
-          onDownloadMarkdown={downloadMarkdown}
-          onExportHtml={() => void exportHtml()}
-          onPrintPdf={() => void printOrSavePdf()}
-          showPrint
-        />
-
-        <div className="sync-panel">
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              checked={autoSaveFile}
-              disabled={!nativeApi || !filePath}
-              onChange={(event) => setAutoSaveFile(event.target.checked)}
+        {!desktopSurface && (
+          <>
+            <ExportReadinessPanel
+              readiness={exportReadiness}
+              onDownloadMarkdown={downloadMarkdown}
+              onExportHtml={() => void exportHtml()}
+              onPrintPdf={() => void printOrSavePdf()}
+              showPrint
             />
-            <span>Autosave file</span>
-          </label>
-          <div className="sync-row">
-            <Check size={16} />
-            <span>{status}</span>
-          </div>
-          <div className="sync-row muted">
-            <UploadCloud size={16} />
-            <span>{browserMode ? "Browser history stays local" : "Private sync planned"}</span>
-          </div>
-        </div>
+
+            <div className="sync-panel">
+              <label className="toggle-row">
+                <input
+                  type="checkbox"
+                  checked={autoSaveFile}
+                  disabled={!nativeApi || !filePath}
+                  onChange={(event) => setAutoSaveFile(event.target.checked)}
+                />
+                <span>Autosave file</span>
+              </label>
+              <div className="sync-row">
+                <Check size={16} />
+                <span>{status}</span>
+              </div>
+              <div className="sync-row muted">
+                <UploadCloud size={16} />
+                <span>{browserMode ? "Browser history stays local" : "Private sync planned"}</span>
+              </div>
+            </div>
+          </>
+        )}
       </aside>
 
       <section className="workspace">
         {desktopSurface && focusMode && (
           <button
             className="focus-exit"
-            aria-label="Exit focus mode"
-            title="Exit focus mode"
+            aria-label="Exit fullscreen focus"
+            title="Exit fullscreen focus"
             onClick={() => setFocusMode(false)}
             type="button"
           >
@@ -2600,8 +2770,8 @@ export default function EditorApp({
             {desktopSurface && (
               <button
                 className="sidebar-toggle"
-                aria-label={focusMode ? "Exit focus mode" : "Enter focus mode"}
-                title={focusMode ? "Exit focus mode" : "Enter focus mode"}
+                aria-label={focusMode ? "Exit fullscreen focus" : "Enter fullscreen focus"}
+                title={focusMode ? "Exit fullscreen focus" : "Enter fullscreen focus"}
                 onClick={() => setFocusMode((current) => !current)}
                 type="button"
               >
@@ -2745,6 +2915,37 @@ export default function EditorApp({
             </div>
           </div>
         </header>
+
+        {desktopSurface && updateNotice.state === "available" && (
+          <aside className="desktop-update-banner" aria-label="Update available">
+            <div>
+              <strong>Update available</strong>
+              <span>
+                V{updateNotice.latestVersion} is out since {updateNotice.releaseDate}.
+              </span>
+            </div>
+            <a href={updateNotice.releaseUrl} target="_blank" rel="noreferrer">
+              View release
+            </a>
+          </aside>
+        )}
+
+        {desktopSurface && fileChangeNotice && (
+          <aside className="file-change-banner" aria-label="File changed on disk">
+            <div>
+              <strong>File changed on disk</strong>
+              <span>{fileChangeNotice}</span>
+            </div>
+            <div className="file-change-actions">
+              <button onClick={() => void reloadFileFromDisk()} type="button">
+                Reload
+              </button>
+              <button onClick={() => setFileChangeNotice(null)} type="button">
+                Keep current
+              </button>
+            </div>
+          </aside>
+        )}
 
         {desktopSurface && (
           <section className="desktop-file-state" aria-label="Current file status">

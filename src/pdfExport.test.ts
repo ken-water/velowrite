@@ -51,8 +51,8 @@ print("hello")
     ]);
   });
 
-  it("creates a valid PDF without browser print headers", () => {
-    const bytes = createMarkdownPdf({
+  it("creates a valid PDF without browser print headers", async () => {
+    const bytes = await createMarkdownPdf({
       markdown: "# Plan\n\nContent that should be rendered by VeloWrite.",
       title: "Plan",
       tableStyle: defaultTableExportStyle,
@@ -62,6 +62,16 @@ print("hello")
     expect(bytes.length).toBeGreaterThan(1000);
     expect(text.startsWith("%PDF-")).toBe(true);
     expect(text).not.toContain("tauri.localhost");
+  });
+
+  it("renders non-Latin text without throwing", async () => {
+    const bytes = await createMarkdownPdf({
+      markdown: "# 计划\n\n中文段落应该可以进入 PDF。\n\n- 第一项\n- 第二项",
+      title: "计划",
+      tableStyle: defaultTableExportStyle,
+    });
+
+    expect(bytes.length).toBeGreaterThan(1000);
   });
 
   it("encodes PDF bytes as base64 for native saving", () => {

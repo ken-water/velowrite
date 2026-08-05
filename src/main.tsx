@@ -35,7 +35,9 @@ const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
 const downloadVersion = "0.2.3";
+const downloadReleaseDate = "August 3, 2026";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
+const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
 const downloadHref = "/download?utm_source=landing&utm_medium=cta";
 const analyticsConsentKey = "velowrite:analytics-consent";
@@ -57,6 +59,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/markdown-for-developers": "Markdown for Developers",
   "/docs/markdown-math": "Markdown Math",
   "/docs/markdown-to-blog": "Markdown to Blog",
+  "/docs/markdown-editor-for-mac": "Markdown Editor for Mac",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -155,6 +158,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/online-markdown-editor",
   "/docs/typora-alternative",
   "/docs/markdown-editor-for-windows",
+  "/docs/markdown-editor-for-mac",
   "/docs/markdown-editor-for-linux",
 ]);
 
@@ -793,7 +797,7 @@ const docGroups = [
       { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Published" },
       { title: "Markdown to Blog", href: "/docs/markdown-to-blog", status: "Published" },
       { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Published" },
-      { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Planned" },
+      { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Published" },
       { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Published" },
     ],
   },
@@ -2216,31 +2220,81 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Platform guide",
     title: "Markdown Editor for Mac",
     intro:
-      "VeloWrite is designed to support Mac users with a lightweight local-first Markdown workflow. The Apple Silicon DMG is built through GitHub Actions and appears on the download page after a successful build.",
-    updated: "July 21, 2026",
+      "Mac users often want a Markdown editor that feels quiet, fast, and local. This guide explains how to evaluate VeloWrite on macOS while the desktop build is still a preview.",
+    updated: "August 5, 2026",
+    directory: [
+      { label: "Browser first", href: "#browser-first" },
+      { label: "DMG status", href: "#dmg-status" },
+      { label: "Local workflow", href: "#local-workflow" },
+      { label: "What to test", href: "#what-to-test" },
+      { label: "Update checks", href: "#update-checks" },
+      { label: "Preview limits", href: "#preview-limits" },
+    ],
     sections: [
       {
-        title: "Start in the browser today",
+        id: "browser-first",
+        title: "Start in the browser before installing",
         body: [
-          "Mac users can use the web editor immediately for writing, preview, Markdown download, and HTML export. It is the safest way to evaluate the workflow before installing anything.",
+          "The web editor is the fastest way to decide whether VeloWrite's writing model fits you. Paste Markdown, switch between Write, Split, and Preview, then download a Markdown or HTML copy without creating an account.",
+          "This browser-first path is useful on a shared or locked-down Mac because it avoids installation friction. Once a draft becomes something you want to keep editing, the desktop app is the better place for local files and offline work.",
+        ],
+        example: {
+          label: "A quick Mac test note",
+          markdown:
+            "# Mac Writing Check\n\n## What I want to verify\n\n- The editor opens quickly\n- Split preview keeps up while I scroll\n- Code blocks and tables stay readable\n- Export gives me a clean file\n\n## Next step\n\nIf this draft matters, move it to the desktop app and save it as a local `.md` file.",
+          note: "Use a short document first, then test a longer file with headings, tables, and code.",
+        },
+      },
+      {
+        id: "dmg-status",
+        title: "Understand the current DMG status",
+        body: [
+          "The Apple Silicon DMG is published only after a successful GitHub Actions build and after the release asset exists. The download page should not show a placeholder asset that users cannot actually install.",
+          "The current macOS preview is unsigned and not notarized. Gatekeeper may require an explicit open action during early testing. That is a release-trust limitation, not a Markdown editing limitation.",
         ],
       },
       {
-        title: "Desktop expectations",
+        id: "local-workflow",
+        title: "Use desktop when the Markdown file matters",
         body: [
-          "The desktop direction is the same as other platforms: local files, offline writing, recent documents, and local history snapshots. The preview is not code-signed or notarized yet.",
+          "The desktop app is designed for native open and save, recent files, offline work, and local history snapshots. Those features matter more on real documents than on quick browser drafts.",
+          "A good Mac Markdown workflow should make the file path clear, keep the source text portable, and avoid hiding your notes inside an account-only database. VeloWrite keeps that local-first direction visible in the current preview.",
+        ],
+        example: {
+          label: "Local-first file habit",
+          markdown:
+            "# Project Notes\n\n## Local file\n\nSave this document as `project-notes.md` inside a folder that is backed up by your normal system.\n\n## Recovery habit\n\nBefore major edits, save once so the previous version becomes available in local history.",
+          note: "The goal is not to replace your backup system. It is to make everyday editing less fragile.",
+        },
+      },
+      {
+        id: "what-to-test",
+        title: "What Mac testers should check first",
+        body: [
+          "Start with the practical path: open a Markdown file, edit a paragraph, save it, reopen it from Recent, export HTML, export PDF, and verify local history after a second save.",
+          "Also test long reading sessions. Switch the reading palette and preview font in Settings, then use Preview mode on a longer document. A Markdown editor should stay comfortable after the first five minutes, not only look good in a screenshot.",
         ],
       },
       {
-        title: "DMG status",
+        id: "update-checks",
+        title: "Version visibility matters on desktop",
         body: [
-          "The macOS DMG is intentionally only shown on the download page after the release asset exists. That avoids broken links and keeps the public download page honest.",
+          "A desktop preview should tell users what version they are running and whether a newer release exists. VeloWrite shows the installed version in About, and the download page lists the latest public installer version with its release date.",
+          "Automatic update installation will require a signed update channel before it becomes a fully trusted stable workflow. Until then, the safer preview path is visible update detection plus a clear link back to the official download page.",
+        ],
+      },
+      {
+        id: "preview-limits",
+        title: "Preview limits to keep in mind",
+        body: [
+          "Treat the current DMG as an early preview. Back up important Markdown files, expect extra Gatekeeper friction, and report any file handling, export, or layout issue through the feedback form.",
+          "The priority is to make the free preview dependable for reading, editing, export, and recovery before paid Pro workflows become the main focus.",
         ],
       },
     ],
     cta: {
-      primary: { href: "/web?utm_source=mac_article_cta&utm_medium=cta", label: "Try Web Editor" },
-      secondary: { href: "/download?utm_source=mac_article_cta&utm_medium=resource", label: "Check Downloads" },
+      primary: { href: "/download?utm_source=mac_article_cta&utm_medium=cta", label: "Download Mac Preview" },
+      secondary: { href: "/web?utm_source=mac_article_cta&utm_medium=resource", label: "Try Web Editor" },
     },
   },
   markdownEditorForLinux: {
@@ -3771,6 +3825,19 @@ function DownloadPage() {
             Get the current preview build for native Markdown reading, editing,
             preview, HTML export, recent files, and local history snapshots.
           </p>
+          <div className="download-release-summary" aria-label="Latest release information">
+            <div>
+              <span>Latest version</span>
+              <strong>v{downloadVersion}</strong>
+            </div>
+            <div>
+              <span>Released</span>
+              <strong>{downloadReleaseDate}</strong>
+            </div>
+            <a href={releaseTagUrl} target="_blank" rel="noreferrer">
+              View release <Github size={15} />
+            </a>
+          </div>
           <div className="hero-actions">
             <a className="primary-link" href="/web?utm_source=download_hero&utm_medium=cta">
               Try Web Editor <ChevronRight size={17} />
@@ -3793,6 +3860,7 @@ function DownloadPage() {
               </div>
               <p>{item.note}</p>
               <p className="download-detail">{item.detail}</p>
+              <p className="download-version-line">Current asset: v{downloadVersion} · {downloadReleaseDate}</p>
               {item.fileName ? (
                 <a
                   className="download-action"

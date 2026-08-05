@@ -68,7 +68,7 @@ export const defaultViewModeKey = "velowrite:default-view-mode";
 export const tableExportStyleKey = "velowrite:table-export-style";
 export const browserHistoryKey = "velowrite:browser-history";
 export const draftHistoryKey = "velowrite:draft-history";
-export const appVersion = "0.2.2";
+export const appVersion = "0.2.3";
 export const freeHistorySnapshotLimit = 3;
 export const defaultTableExportStyle: TableExportStyle = {
   header: "tinted",
@@ -79,6 +79,16 @@ export const defaultTableExportStyle: TableExportStyle = {
 
 const lastLocalFileKey = "velowrite:last-local-file";
 const desktopHandoffUrlLimit = 12000;
+
+export function compareSemver(left: string, right: string) {
+  const parse = (value: string) => value.split("-")[0].split(".").map((part) => Number.parseInt(part, 10) || 0);
+  const [leftMajor, leftMinor, leftPatch] = parse(left);
+  const [rightMajor, rightMinor, rightPatch] = parse(right);
+
+  if (leftMajor !== rightMajor) return leftMajor - rightMajor;
+  if (leftMinor !== rightMinor) return leftMinor - rightMinor;
+  return leftPatch - rightPatch;
+}
 
 function encodeBase64Url(value: string) {
   const bytes = new TextEncoder().encode(value);

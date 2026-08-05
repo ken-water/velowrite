@@ -23,6 +23,13 @@ struct MarkdownFile {
     contents: String,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct FileStamp {
+    modified_at: u128,
+    size: u64,
+}
+
 #[derive(Deserialize, Serialize, Clone)]
 struct HistoryEntry {
     id: String,
@@ -50,6 +57,14 @@ fn force_close_app(app: AppHandle) {
 }
 
 #[tauri::command]
+fn set_window_fullscreen(app: AppHandle, fullscreen: bool) -> Result<(), String> {
+    let window = app
+        .get_webview_window("main")
+        .ok_or_else(|| "Main window not found".to_string())?;
+    window.set_fullscreen(fullscreen).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
 fn read_markdown_file(path: String) -> Result<MarkdownFile, String> {
     read_markdown_file_from_path(path)
 }
@@ -62,6 +77,27 @@ fn get_launch_files() -> Vec<String> {
 #[tauri::command]
 fn read_recent_markdown_file(path: String) -> Result<MarkdownFile, String> {
     read_markdown_file_from_path(path)
+}
+
+#[tauri::command]
+fn get_markdown_file_stamp(path: String) -> Result<Option<FileStamp>, String> {
+    let path = PathBuf::from(path);
+    if !path.is_file() || !is_markdown_path(&path) {
+        return Ok(None);
+    }
+
+    let metadata = fs::metadata(&path).map_err(|error| error.to_string())?;
+    let modified_at = metadata
+        .modified()
+        .ok()
+        .and_then(|time| time.duration_since(UNIX_EPOCH).ok())
+        .map(|duration| duration.as_millis())
+        .unwrap_or_default();
+
+    Ok(Some(FileStamp {
+        modified_at,
+        size: metadata.len(),
+    }))
 }
 
 fn read_markdown_file_from_path(path: String) -> Result<MarkdownFile, String> {
@@ -695,14 +731,16 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             app_ready,
-            force_close_app,
-            get_launch_files,
-            read_markdown_file,
-            read_recent_markdown_file,
-            write_markdown_file,
-            write_html_file,
-            write_pdf_file,
-            create_history_snapshot,
+        force_close_app,
+        get_launch_files,
+        get_markdown_file_stamp,
+        read_markdown_file,
+        read_recent_markdown_file,
+        write_markdown_file,
+        write_html_file,
+        write_pdf_file,
+        set_window_fullscreen,
+        create_history_snapshot,
             list_history_snapshots,
             read_history_snapshot,
             delete_history_snapshot

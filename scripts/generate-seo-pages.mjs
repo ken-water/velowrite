@@ -7,7 +7,7 @@ const distDir = path.join(repoRoot, "dist");
 const indexPath = path.join(distDir, "index.html");
 const version = JSON.parse(fs.readFileSync(path.join(repoRoot, "package.json"), "utf8")).version;
 const siteUrl = "https://velowrite.app";
-const today = "2026-08-01";
+const today = "2026-08-05";
 
 const defaultTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultDescription =
@@ -211,6 +211,15 @@ const routes = [
     title: "Markdown Editor for Windows - VeloWrite Desktop Preview",
     description:
       "Try VeloWrite on Windows for Markdown editing, native local files, recent documents, local history, Open with workflows, and preview installer guidance.",
+    priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/markdown-editor-for-mac",
+    title: "Markdown Editor for Mac - Local-First Markdown Writing",
+    description:
+      "Evaluate VeloWrite on macOS with browser-first Markdown editing, Apple Silicon DMG preview notes, local files, history, export checks, and update visibility.",
     priority: "0.75",
     changefreq: "monthly",
     schema: ["article"],

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildFocusedLineDiff,
   buildLineDiff,
+  compareSemver,
   createBrowserHistorySnapshot,
   createDesktopHandoffUrl,
   createDraftHistorySnapshot,
@@ -136,6 +137,12 @@ describe("editor preferences", () => {
 
     localStorage.setItem("velowrite:editor-font-size", "bad");
     expect(getStoredEditorFontSize()).toBe(15);
+  });
+
+  it("compares semantic versions numerically for update checks", () => {
+    expect(compareSemver("0.2.10", "0.2.9")).toBeGreaterThan(0);
+    expect(compareSemver("0.3.0", "0.2.99")).toBeGreaterThan(0);
+    expect(compareSemver("0.2.3", "0.2.3")).toBe(0);
   });
 
   it("uses a focused reading palette and validates reading font preferences", () => {

@@ -35,7 +35,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   expect(markdownHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/markdown" />',
   );
-  expect(markdownHtml).toContain('"dateModified": "2026-08-01"');
+  expect(markdownHtml).toContain('"dateModified": "2026-08-05"');
 
   const markdownHistoryHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/markdown-history/index.html"),
@@ -461,13 +461,9 @@ test("desktop shell opens in focused editing mode", async ({ page }) => {
   await page.getByRole("button", { name: "Show workspace" }).click();
   await expect(page.getByLabel("VeloWrite editor")).not.toHaveClass(/desktop-focus/);
   await expect(page.locator(".sidebar")).toBeVisible();
-  await expect(page.getByLabel("Export readiness")).toBeVisible();
-  await expect(page.getByLabel("Export readiness")).toContainText("Ready baseline");
-  await expect(page.getByLabel("Export readiness")).toContainText("Ready for a clean Markdown or HTML export.");
-  await expect(page.getByLabel("Export readiness")).toContainText("H1 title");
-  await expect(page.getByLabel("Export readiness")).toContainText("Code blocks");
-  await expect(page.getByLabel("Export actions")).toContainText("MD");
-  await expect(page.getByLabel("Export actions")).toContainText("HTML");
+  await expect(page.getByLabel("Document outline")).toBeVisible();
+  await expect(page.getByLabel("Document structure map")).toContainText("Headings");
+  await expect(page.getByLabel("Export readiness")).toHaveCount(0);
 });
 
 test("desktop about panel shows the installed app version", async ({ page }) => {
@@ -479,18 +475,18 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.2");
+  await expect(aboutDialog).toContainText("0.2.3");
 });
 
 test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
   await page.goto("/app");
 
-  await page.getByRole("button", { name: "Enter focus mode" }).click();
+  await page.getByRole("button", { name: "Enter fullscreen focus" }).click();
   await expect(page.getByLabel("VeloWrite editor")).toHaveClass(/writing-focus/);
   await expect(page.locator(".topbar")).toBeHidden();
-  await expect(page.getByRole("button", { name: "Exit focus mode" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Exit fullscreen focus" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Exit focus mode" }).click();
+  await page.getByRole("button", { name: "Exit fullscreen focus" }).click();
   await expect(page.getByLabel("VeloWrite editor")).not.toHaveClass(/writing-focus/);
   await expect(page.locator(".topbar")).toBeVisible();
 });
@@ -516,14 +512,11 @@ test("desktop toolbar shows immediate icon tooltips", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Copy Markdown to clipboard" })).toBeVisible();
   await expect(page.getByRole("button", { name: "History" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Show workspace" }).click();
-  const sidebarHtmlButton = page.getByLabel("Export actions").getByRole("button", {
-    name: "Export HTML file",
-  });
-  await sidebarHtmlButton.hover();
+  const htmlButton = page.getByRole("button", { name: "Export HTML file" });
+  await htmlButton.hover();
   await expect
     .poll(async () =>
-      sidebarHtmlButton.evaluate((element) => window.getComputedStyle(element, "::after").opacity),
+      htmlButton.evaluate((element) => window.getComputedStyle(element, "::after").opacity),
     )
     .toBe("1");
 });
@@ -753,6 +746,8 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
+  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.3");
+  await expect(page.getByLabel("Latest release information")).toContainText("August 3, 2026");
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon", exact: true })).toBeVisible();
   await expect(
     page.locator(".download-card", { hasText: "macOS Apple Silicon" }).getByRole("link", {
@@ -957,6 +952,8 @@ test("docs publishes comparison and Windows installer guidance", async ({ page }
   await expect(page.locator("article", { hasText: "Typora Alternative" })).toContainText("Published");
   await expect(page.getByRole("link", { name: "Markdown Editor for Windows" })).toBeVisible();
   await expect(page.locator("article", { hasText: "Markdown Editor for Windows" })).toContainText("Published");
+  await expect(page.getByRole("link", { name: "Markdown Editor for Mac" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Markdown Editor for Mac" })).toContainText("Published");
 
   await page.goto("/docs/typora-alternative");
   await expect(page.getByRole("heading", { name: "Typora Alternative", exact: true })).toBeVisible();
@@ -969,6 +966,12 @@ test("docs publishes comparison and Windows installer guidance", async ({ page }
   await expect(page.getByRole("link", { name: "Open with" })).toHaveAttribute("href", "#open-with");
   await expect(page.getByRole("heading", { name: "If VeloWrite does not appear in Open with" })).toBeVisible();
   await expect(page.getByText("old VeloMD shortcuts")).toBeVisible();
+
+  await page.goto("/docs/markdown-editor-for-mac");
+  await expect(page.getByRole("heading", { name: "Markdown Editor for Mac" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "DMG status" })).toHaveAttribute("href", "#dmg-status");
+  await expect(page.getByRole("heading", { name: "Version visibility matters on desktop" })).toBeVisible();
+  await expect(page.getByText(/Automatic update installation will require a signed update channel/)).toBeVisible();
 });
 
 test("docs publishes the Linux Markdown editor guide", async ({ page }) => {
