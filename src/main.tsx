@@ -2488,7 +2488,7 @@ const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "August 2, 2026",
+    updated: "August 5, 2026",
     directory: [
       { label: "0.2.3", href: "#v023" },
       { label: "0.2.2", href: "#v022" },
