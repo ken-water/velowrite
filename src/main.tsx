@@ -3838,6 +3838,18 @@ function DownloadPage() {
               View release <Github size={15} />
             </a>
           </div>
+          <div className="download-highlights" aria-label="Latest improvements">
+            <div className="download-highlights-copy">
+              <span>Latest improvements</span>
+              <p>
+                External file changes now trigger a reload prompt, fullscreen focus mode is
+                cleaner, and PDF export handles Chinese and other Unicode text more reliably.
+              </p>
+            </div>
+            <a href="/changelog?utm_source=download_page&utm_medium=resource#v023">
+              See changelog details <ChevronRight size={15} />
+            </a>
+          </div>
           <div className="hero-actions">
             <a className="primary-link" href="/web?utm_source=download_hero&utm_medium=cta">
               Try Web Editor <ChevronRight size={17} />

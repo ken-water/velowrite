@@ -3193,6 +3193,32 @@ pre,
   font-size: 13px;
 }
 
+.about-contact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 38px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: var(--app-bg);
+  gap: 12px;
+}
+
+.about-contact span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.about-contact a {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 750;
+}
+
 .about-links {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4725,6 +4751,49 @@ pre,
 .download-release-summary strong {
   color: #17201c;
   font-size: 14px;
+  font-weight: 850;
+}
+
+.download-highlights {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  max-width: 840px;
+  margin-top: 14px;
+  border: 1px solid rgba(21, 54, 45, 0.14);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.download-highlights-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.download-highlights span {
+  color: #65756f;
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.download-highlights p {
+  margin: 0;
+  max-width: 620px;
+  color: #26342f;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.download-highlights a {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  color: #15362d;
+  font-size: 13px;
   font-weight: 850;
 }
 

@@ -476,6 +476,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
   await expect(aboutDialog).toContainText("0.2.3");
+  await expect(aboutDialog).toContainText("kenwater89@gmail.com");
 });
 
 test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
@@ -748,6 +749,13 @@ test("download page presents user-facing preview information", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
   await expect(page.getByLabel("Latest release information")).toContainText("v0.2.3");
   await expect(page.getByLabel("Latest release information")).toContainText("August 3, 2026");
+  await expect(page.getByLabel("Latest improvements")).toContainText(
+    "External file changes now trigger a reload prompt",
+  );
+  await expect(page.getByLabel("Latest improvements").getByRole("link", { name: "See changelog details" })).toHaveAttribute(
+    "href",
+    "/changelog?utm_source=download_page&utm_medium=resource#v023",
+  );
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon", exact: true })).toBeVisible();
   await expect(
     page.locator(".download-card", { hasText: "macOS Apple Silicon" }).getByRole("link", {

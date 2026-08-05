@@ -944,6 +944,11 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
           <strong>{appVersion}</strong>
         </div>
 
+        <div className="about-contact">
+          <span>Author contact</span>
+          <a href="mailto:kenwater89@gmail.com">kenwater89@gmail.com</a>
+        </div>
+
         <div className="about-links">
           {links.map(([label, href]) => (
             <a key={href} href={href} target="_blank" rel="noreferrer">
