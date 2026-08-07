@@ -35,7 +35,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   expect(markdownHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/markdown" />',
   );
-  expect(markdownHtml).toContain('"dateModified": "2026-08-05"');
+  expect(markdownHtml).toContain('"dateModified": "2026-08-07"');
 
   const markdownHistoryHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/markdown-history/index.html"),
@@ -49,6 +49,19 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
     '<link rel="canonical" href="https://velowrite.app/docs/markdown-history" />',
   );
   expect(markdownHistoryHtml).toContain('"@type": "Article"');
+
+  const releasePolicyHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/preview-release-policy/index.html"),
+    "utf8",
+  );
+
+  expect(releasePolicyHtml).toContain(
+    "<title>How VeloWrite Preview Releases Work - Versions, Downloads, and Changelog</title>",
+  );
+  expect(releasePolicyHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/preview-release-policy" />',
+  );
+  expect(releasePolicyHtml).toContain('"dateModified": "2026-08-07"');
 
   const futureHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/future-of-markdown/index.html"),
@@ -269,6 +282,7 @@ test("public pages keep compact desktop titles and responsive layouts", async ({
     "/docs/typora-alternative",
     "/docs/markdown-editor-for-windows",
     "/docs/markdown-editor-for-linux",
+    "/docs/preview-release-policy",
     "/guide",
     "/changelog",
     "/faq",
@@ -370,6 +384,11 @@ test("docs index publishes the Markdown history article", async ({ page }) => {
   const historyLink = page.getByRole("link", { name: "A Short History of Markdown" });
   await expect(historyLink).toHaveAttribute("href", "/docs/markdown-history");
   await expect(historyLink.locator("..")).toContainText("Published");
+  await expect(page.getByRole("heading", { name: "Release Trust" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "How VeloWrite Preview Releases Work" })).toHaveAttribute(
+    "href",
+    "/docs/preview-release-policy",
+  );
 
   await historyLink.click();
   await expect(page.getByRole("heading", { name: "A Short History of Markdown" })).toBeVisible();
@@ -1062,6 +1081,23 @@ test("docs publishes advanced Markdown guidance with practical rendered examples
     page.locator(".markdown-body p").filter({ hasText: "VeloWrite keeps the source file local by default." }),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Decision: Store documents as local Markdown" })).toBeVisible();
+});
+
+test("docs publishes the preview release policy article", async ({ page }) => {
+  await page.goto("/docs/preview-release-policy");
+
+  await expect(page.getByRole("heading", { name: "How VeloWrite Preview Releases Work" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What counts as a VeloWrite preview release?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "How do I check whether I have the newest app?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "A quick checklist before downloading" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Check Downloads" })).toHaveAttribute(
+    "href",
+    "/download?utm_source=release_policy_cta&utm_medium=cta",
+  );
+  await expect(page.getByRole("link", { name: "Read Changelog" })).toHaveAttribute(
+    "href",
+    "/changelog?utm_source=release_policy_cta&utm_medium=resource",
+  );
 });
 
 test("docs publishes the Markdown to Blog workflow", async ({ page }) => {

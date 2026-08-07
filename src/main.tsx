@@ -60,6 +60,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/markdown-math": "Markdown Math",
   "/docs/markdown-to-blog": "Markdown to Blog",
   "/docs/markdown-editor-for-mac": "Markdown Editor for Mac",
+  "/docs/preview-release-policy": "Preview Release Policy",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -141,6 +142,7 @@ const docPageRoutes = {
   "/docs/markdown-editor-for-windows": "markdownEditorForWindows",
   "/docs/markdown-editor-for-mac": "markdownEditorForMac",
   "/docs/markdown-editor-for-linux": "markdownEditorForLinux",
+  "/docs/preview-release-policy": "previewReleasePolicy",
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
@@ -160,6 +162,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-editor-for-windows",
   "/docs/markdown-editor-for-mac",
   "/docs/markdown-editor-for-linux",
+  "/docs/preview-release-policy",
 ]);
 
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
@@ -242,6 +245,11 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
     title: "Markdown Editor for Linux - AppImage, DEB, RPM, and Local Files",
     description:
       "Use VeloWrite as a Linux Markdown editor with AppImage, DEB, RPM, browser editing, local files, and a lightweight Tauri desktop workflow.",
+  },
+  "/docs/preview-release-policy": {
+    title: "How VeloWrite Preview Releases Work - Versions, Downloads, and Changelog",
+    description:
+      "Understand how VeloWrite preview versions, GitHub Releases, installer assets, changelog entries, and download page dates fit together.",
   },
 };
 
@@ -512,7 +520,7 @@ function SeoManager({ config }: { config: SeoConfig }) {
         "@id": `${siteUrl}${config.canonicalPath}#article`,
         headline: config.title,
         description: config.description,
-        dateModified: "2026-08-01",
+        dateModified: "2026-08-07",
         mainEntityOfPage: `${siteUrl}${config.canonicalPath}`,
         author: { "@id": `${siteUrl}/#organization` },
         publisher: { "@id": `${siteUrl}/#organization` },
@@ -799,6 +807,17 @@ const docGroups = [
       { title: "Markdown Editor for Windows", href: "/docs/markdown-editor-for-windows", status: "Published" },
       { title: "Markdown Editor for Mac", href: "/docs/markdown-editor-for-mac", status: "Published" },
       { title: "Markdown Editor for Linux", href: "/docs/markdown-editor-for-linux", status: "Published" },
+    ],
+  },
+  {
+    title: "Release Trust",
+    description: "Preview release notes for downloads, installer assets, PDF export expectations, and troubleshooting.",
+    items: [
+      { title: "How VeloWrite Preview Releases Work", href: "/docs/preview-release-policy", status: "Published" },
+      { title: "PDF Export Notes", href: "/docs/pdf-export-notes", status: "Planned" },
+      { title: "Preview Build Limitations", href: "/docs/preview-build-limitations", status: "Planned" },
+      { title: "Troubleshooting Guide", href: "/docs/troubleshooting", status: "Planned" },
+      { title: "Download Safety", href: "/docs/download-safety", status: "Planned" },
     ],
   },
 ] as const;
@@ -2367,6 +2386,75 @@ const contentPages: Record<string, ContentPage> = {
     cta: {
       primary: { href: "/download?utm_source=linux_article_cta&utm_medium=cta", label: "Download Linux" },
       secondary: { href: "/docs/local-first-markdown?utm_source=linux_article_cta&utm_medium=resource", label: "Local-First Workflow" },
+    },
+  },
+  previewReleasePolicy: {
+    eyebrow: "Release trust",
+    title: "How VeloWrite Preview Releases Work",
+    intro:
+      "VeloWrite is still in preview, so it is important to separate code changes, local builds, GitHub Releases, installer assets, and the download page. This guide explains what users can trust when deciding whether to download or update.",
+    updated: "August 7, 2026",
+    directory: [
+      { label: "What counts", href: "#what-counts-as-a-release" },
+      { label: "Why commits differ", href: "#why-commits-and-downloads-can-differ" },
+      { label: "Version checks", href: "#how-to-check-your-version" },
+      { label: "Release dates", href: "#what-the-download-date-means" },
+      { label: "Known fixes", href: "#when-a-fix-is-in-code-but-not-in-the-installer" },
+      { label: "User checklist", href: "#download-checklist" },
+    ],
+    sections: [
+      {
+        id: "what-counts-as-a-release",
+        title: "What counts as a VeloWrite preview release?",
+        body: [
+          "A VeloWrite preview release means a versioned GitHub Release exists and its installer assets are attached for the supported platforms. A commit on the main branch is not enough. A successful local build is not enough. A GitHub Actions artifact is also not enough unless it is uploaded to the release that the download page links to.",
+          "For users, the practical rule is simple: the version on the download page should match the latest GitHub Release tag, and the installer file name should use that same version number.",
+        ],
+      },
+      {
+        id: "why-commits-and-downloads-can-differ",
+        title: "Why can today's commits differ from the downloadable app?",
+        body: [
+          "During preview development, the website, web editor, documentation, and desktop app can move at different speeds. A documentation fix can go live on the website quickly, while a desktop installer needs a new version, platform builds, release assets, and download links before users can install it.",
+          "That distinction matters for bug fixes. For example, a PDF export fix may be present in source code after a commit, but Windows, macOS, and Linux users will not receive it until a new installer release is published.",
+        ],
+      },
+      {
+        id: "how-to-check-your-version",
+        title: "How do I check whether I have the newest app?",
+        body: [
+          "Open VeloWrite Desktop and check the About panel for the installed version. Then compare it with the version shown on the download page and the latest GitHub Release. If all three agree, you are on the current public preview build.",
+          "If the website mentions a fix but your installed app still behaves like the older version, check the changelog date and the release tag. The fix may be documented as shipped in source code but not yet packaged into a new installer.",
+        ],
+      },
+      {
+        id: "what-the-download-date-means",
+        title: "What does the download page release date mean?",
+        body: [
+          "The download page release date should describe the public installer assets, not every website edit. If the site receives a wording change today but the installer files were uploaded earlier, the download date should remain tied to the release assets users actually download.",
+          "The changelog has a separate Last updated field because release notes can be clarified after the installer was published. That page update date should be honest about documentation changes, while the download card should be honest about installer age.",
+        ],
+      },
+      {
+        id: "when-a-fix-is-in-code-but-not-in-the-installer",
+        title: "What if a fix is in code but not in the installer yet?",
+        body: [
+          "This can happen in a preview product. The honest answer is to say where the fix currently lives: main branch, local build, GitHub Actions artifact, or public release. Only the last one is a normal user download.",
+          "When the fix affects a user-visible desktop bug, VeloWrite should usually create the next patch release instead of leaving users to guess. That is especially true for export bugs, data safety bugs, save problems, close behavior, update visibility, and platform installer issues.",
+        ],
+      },
+      {
+        id: "download-checklist",
+        title: "A quick checklist before downloading",
+        body: [
+          "Check the download page version, open the linked GitHub Release, and confirm the installer file name matches your platform. On Windows, expect SmartScreen warnings until code signing is ready. On macOS, expect Gatekeeper friction until signing and notarization are ready.",
+          "If you are testing an important fix, read the latest changelog entry before downloading. If the changelog says a fix is planned or present only in source, wait for the next installer release or use the web editor where the fix is already deployed.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/download?utm_source=release_policy_cta&utm_medium=cta", label: "Check Downloads" },
+      secondary: { href: "/changelog?utm_source=release_policy_cta&utm_medium=resource", label: "Read Changelog" },
     },
   },
   guide: {

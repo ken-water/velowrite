@@ -7,7 +7,7 @@ const distDir = path.join(repoRoot, "dist");
 const indexPath = path.join(distDir, "index.html");
 const version = JSON.parse(fs.readFileSync(path.join(repoRoot, "package.json"), "utf8")).version;
 const siteUrl = "https://velowrite.app";
-const today = "2026-08-05";
+const today = "2026-08-07";
 
 const defaultTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultDescription =
@@ -230,6 +230,15 @@ const routes = [
     description:
       "Use VeloWrite as a Linux Markdown editor with AppImage, DEB, RPM, browser editing, local files, export checks, and a lightweight Tauri desktop workflow.",
     priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/preview-release-policy",
+    title: "How VeloWrite Preview Releases Work - Versions, Downloads, and Changelog",
+    description:
+      "Understand how VeloWrite preview versions, GitHub Releases, installer assets, changelog entries, and download page dates fit together.",
+    priority: "0.72",
     changefreq: "monthly",
     schema: ["article"],
   },
