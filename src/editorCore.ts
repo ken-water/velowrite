@@ -68,7 +68,7 @@ export const defaultViewModeKey = "velowrite:default-view-mode";
 export const tableExportStyleKey = "velowrite:table-export-style";
 export const browserHistoryKey = "velowrite:browser-history";
 export const draftHistoryKey = "velowrite:draft-history";
-export const appVersion = "0.2.3";
+export const appVersion = "0.2.4";
 export const freeHistorySnapshotLimit = 3;
 export const defaultTableExportStyle: TableExportStyle = {
   header: "tinted",

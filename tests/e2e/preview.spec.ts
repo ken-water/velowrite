@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.3"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.4"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -494,7 +494,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.3");
+  await expect(aboutDialog).toContainText("0.2.4");
   await expect(aboutDialog).toContainText("kenwater89@gmail.com");
 });
 
@@ -766,14 +766,14 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
-  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.3");
-  await expect(page.getByLabel("Latest release information")).toContainText("August 2, 2026");
+  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.4");
+  await expect(page.getByLabel("Latest release information")).toContainText("August 7, 2026");
   await expect(page.getByLabel("Latest improvements")).toContainText(
     "External file changes now trigger a reload prompt",
   );
   await expect(page.getByLabel("Latest improvements").getByRole("link", { name: "See changelog details" })).toHaveAttribute(
     "href",
-    "/changelog?utm_source=download_page&utm_medium=resource#v023",
+    "/changelog?utm_source=download_page&utm_medium=resource#v024",
   );
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon", exact: true })).toBeVisible();
   await expect(
@@ -782,7 +782,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.3_aarch64\.dmg/,
+    /VeloWrite_0\.2\.4_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
@@ -1016,7 +1016,7 @@ test("docs publishes the Linux Markdown editor guide", async ({ page }) => {
   );
   await expect(page.getByRole("heading", { name: "Choose the package that fits your system" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "AppImage" })).toBeVisible();
-  await expect(page.locator(".markdown-body pre code").first()).toContainText("VeloWrite_0.2.3");
+  await expect(page.locator(".markdown-body pre code").first()).toContainText("VeloWrite_0.2.4");
 });
 
 test("docs examples can open their Markdown directly in the web editor", async ({ page }) => {

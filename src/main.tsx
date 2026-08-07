@@ -34,8 +34,8 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.2.3";
-const downloadReleaseDate = "August 2, 2026";
+const downloadVersion = "0.2.4";
+const downloadReleaseDate = "August 7, 2026";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -2240,7 +2240,7 @@ const contentPages: Record<string, ContentPage> = {
     title: "Markdown Editor for Mac",
     intro:
       "Mac users often want a Markdown editor that feels quiet, fast, and local. This guide explains how to evaluate VeloWrite on macOS while the desktop build is still a preview.",
-    updated: "August 5, 2026",
+    updated: "August 7, 2026",
     directory: [
       { label: "Browser first", href: "#browser-first" },
       { label: "DMG status", href: "#dmg-status" },
@@ -2370,7 +2370,7 @@ const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Export sanity check",
           markdown:
-            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.3_amd64.AppImage\n```",
+            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.4_amd64.AppImage\n```",
           note: "A small export test catches layout problems before the real document is due.",
         },
       },
@@ -2576,8 +2576,9 @@ const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "August 5, 2026",
+    updated: "August 7, 2026",
     directory: [
+      { label: "0.2.4", href: "#v024" },
       { label: "0.2.3", href: "#v023" },
       { label: "0.2.2", href: "#v022" },
       { label: "0.2.1", href: "#v021" },
@@ -2599,6 +2600,17 @@ const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v024",
+        title: "0.2.4 preview",
+        body: [
+          "Hardened dedicated PDF export so Chinese and other Unicode text require the bundled Unicode font before export continues.",
+          "Changed Unicode PDF font loading failures into clear export errors instead of producing a PDF that appears successful but renders garbled text.",
+          "Added automated PDF export coverage that verifies the bundled Unicode font is embedded for Chinese text.",
+          "Added a release policy article that explains how commits, local builds, GitHub Actions artifacts, GitHub Releases, installer assets, download dates, and changelog updates fit together.",
+          "Updated the download page and release-facing metadata for the 0.2.4 preview package set.",
+        ],
+      },
       {
         id: "v023",
         title: "0.2.3 preview",
@@ -3934,7 +3946,7 @@ function DownloadPage() {
                 cleaner, and PDF export handles Chinese and other Unicode text more reliably.
               </p>
             </div>
-            <a href="/changelog?utm_source=download_page&utm_medium=resource#v023">
+            <a href="/changelog?utm_source=download_page&utm_medium=resource#v024">
               See changelog details <ChevronRight size={15} />
             </a>
           </div>
