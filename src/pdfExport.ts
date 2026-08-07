@@ -174,7 +174,7 @@ export function buildPdfBlocks(markdown: string): PdfBlock[] {
   return blocks;
 }
 
-async function preparePdfFonts(doc: jsPDF) {
+async function loadUnicodeFontBase64() {
   if (!unicodeFontLoadPromise) {
     unicodeFontLoadPromise = fetch(unicodeFontUrl)
       .then((response) => {
@@ -190,26 +190,37 @@ async function preparePdfFonts(doc: jsPDF) {
         }
         return btoa(binary);
       })
-      .catch(() => null);
+      .catch(() => {
+        unicodeFontLoadPromise = null;
+        return null;
+      });
   }
 
-  const fontBase64 = await unicodeFontLoadPromise;
-  if (!fontBase64) return;
+  return unicodeFontLoadPromise;
+}
+
+async function preparePdfFonts(doc: jsPDF) {
+  const fontBase64 = await loadUnicodeFontBase64();
+  if (!fontBase64) return false;
 
   doc.addFileToVFS(`${unicodeFontName}.ttf`, fontBase64);
   doc.addFont(`${unicodeFontName}.ttf`, unicodeFontName, "normal");
   doc.addFont(`${unicodeFontName}.ttf`, unicodeFontName, "bold");
   pdfBodyFont = unicodeFontName;
   pdfMonoFont = unicodeFontName;
+  return true;
 }
 
 export async function createMarkdownPdf(input: PdfExportInput): Promise<Uint8Array> {
   const doc = new jsPDF({ unit: "pt", format: "a4", compress: true });
   const needsUnicodeFont = /[^\u0000-\u007f]/.test(input.markdown);
-  pdfBodyFont = needsUnicodeFont ? unicodeFontName : "helvetica";
-  pdfMonoFont = needsUnicodeFont ? unicodeFontName : "courier";
+  pdfBodyFont = "helvetica";
+  pdfMonoFont = "courier";
   if (needsUnicodeFont) {
-    await preparePdfFonts(doc);
+    const fontReady = await preparePdfFonts(doc);
+    if (!fontReady) {
+      throw new Error("Unicode PDF font could not be loaded. Please retry export or reinstall VeloWrite.");
+    }
   }
   const theme = themes[input.tableStyle.color];
   const blocks = buildPdfBlocks(input.markdown);
@@ -237,6 +248,12 @@ export async function createMarkdownPdf(input: PdfExportInput): Promise<Uint8Arr
 
   drawFooters(doc, input.previewMark ?? true, theme);
   return new Uint8Array(doc.output("arraybuffer"));
+}
+
+export function resetPdfFontCacheForTests() {
+  unicodeFontLoadPromise = null;
+  pdfBodyFont = "helvetica";
+  pdfMonoFont = "courier";
 }
 
 export function pdfBytesToBase64(bytes: Uint8Array) {

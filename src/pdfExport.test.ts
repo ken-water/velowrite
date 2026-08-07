@@ -1,8 +1,27 @@
-import { describe, expect, it } from "vitest";
-import { buildPdfBlocks, createMarkdownPdf, pdfBytesToBase64 } from "./pdfExport";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  buildPdfBlocks,
+  createMarkdownPdf,
+  pdfBytesToBase64,
+  resetPdfFontCacheForTests,
+} from "./pdfExport";
 import { defaultTableExportStyle } from "./editorCore";
 
+const unicodeFontPath = path.join(process.cwd(), "public/fonts/droid-sans-fallback-full.ttf");
+
+async function mockBundledUnicodeFont() {
+  const font = await fs.readFile(unicodeFontPath);
+  vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(font));
+}
+
 describe("PDF export engine", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    resetPdfFontCacheForTests();
+  });
+
   it("parses common Markdown structures for paged PDF rendering", () => {
     const blocks = buildPdfBlocks(`# Title
 
@@ -64,14 +83,31 @@ print("hello")
     expect(text).not.toContain("tauri.localhost");
   });
 
-  it("renders non-Latin text without throwing", async () => {
+  it("embeds the bundled Unicode font when rendering Chinese text", async () => {
+    await mockBundledUnicodeFont();
+
     const bytes = await createMarkdownPdf({
       markdown: "# 计划\n\n中文段落应该可以进入 PDF。\n\n- 第一项\n- 第二项",
       title: "计划",
       tableStyle: defaultTableExportStyle,
     });
+    const text = new TextDecoder("latin1").decode(bytes);
 
     expect(bytes.length).toBeGreaterThan(1000);
+    expect(globalThis.fetch).toHaveBeenCalledWith("/fonts/droid-sans-fallback-full.ttf");
+    expect(text).toContain("VeloWriteUnicode");
+  });
+
+  it("fails clearly instead of exporting a garbled Unicode PDF when the font is unavailable", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("offline"));
+
+    await expect(
+      createMarkdownPdf({
+        markdown: "# 计划\n\n中文段落应该可以进入 PDF。",
+        title: "计划",
+        tableStyle: defaultTableExportStyle,
+      }),
+    ).rejects.toThrow("Unicode PDF font could not be loaded");
   });
 
   it("encodes PDF bytes as base64 for native saving", () => {
