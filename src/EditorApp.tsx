@@ -70,15 +70,15 @@ import {
   getInitialViewMode,
   getStoredEditorFontSize,
   getStoredLastLocalFile,
+  getStoredPdfExportStyle,
   getStoredReadingFont,
   getStoredReadingPalette,
   getStoredRecentFiles,
   getRecentFileContext,
-  getStoredTableExportStyle,
   normalizeDisplayedPath,
+  pdfExportStyleKey,
   readingFontKey,
   readingPaletteKey,
-  tableExportStyleKey,
   getStoredThemeMode,
   parseDesktopHandoffUrl,
   readBrowserHistory,
@@ -95,10 +95,10 @@ import {
   type HistoryScope,
   type HistorySnapshot,
   type NativeFile,
+  type PdfExportStyle,
   type ReadingFont,
   type ReadingPalette,
   type RecentFile,
-  type TableExportStyle,
   type ThemeMode,
   type ViewMode,
 } from "./editorCore";
@@ -158,7 +158,7 @@ type EditorTemplate = {
 
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
-const friendlyDefaultMarkdown = `# Start Writing
+const friendlyDefaultMarkdown = `## Start Writing
 
 Use this page as a quick Markdown draft. Write on the left, then switch to Preview when you want to read the result.
 
@@ -179,28 +179,28 @@ Use this page as a quick Markdown draft. Write on the left, then switch to Previ
 const editorTemplates: EditorTemplate[] = [
   {
     label: "Quick Note",
-    description: "A clean scratchpad for ideas, todos, or meeting follow-up.",
+    description: "A small scratchpad for ideas, todos, or meeting follow-up.",
     fileName: "Quick Note.md",
     markdown:
       "# Quick Note\n\n## Summary\n\nWrite the main idea in one or two sentences.\n\n## Notes\n\n- First point\n- Second point\n\n## Next Actions\n\n- [ ] Follow up\n",
   },
   {
     label: "Meeting Notes",
-    description: "Agenda, decisions, owners, and action items in one page.",
+    description: "Agenda, decisions, owners, and action items on one page.",
     fileName: "Meeting Notes.md",
     markdown:
       "# Meeting Notes\n\n**Date:** Today  \n**Attendees:** \n\n## Agenda\n\n1. Topic one\n2. Topic two\n\n## Decisions\n\n- Decision one\n\n## Action Items\n\n- [ ] Owner: next step\n",
   },
   {
     label: "README",
-    description: "A practical project README with install, usage, and roadmap sections.",
+    description: "A project README with install, usage, and roadmap sections.",
     fileName: "README.md",
     markdown:
       "# Project Name\n\nA short description of what this project does and who it helps.\n\n## Install\n\n```bash\nnpm install\n```\n\n## Usage\n\n```bash\nnpm run dev\n```\n\n## Roadmap\n\n- [ ] First milestone\n- [ ] Next milestone\n",
   },
   {
     label: "Article Draft",
-    description: "A lightweight outline for tutorials, product notes, and essays.",
+    description: "A simple outline for tutorials, product notes, and essays.",
     fileName: "Article Draft.md",
     markdown:
       "# Article Title\n\nStart with the reader's problem, then show the path forward.\n\n## Why this matters\n\nExplain the context in plain language.\n\n## Practical workflow\n\n1. Step one\n2. Step two\n3. Step three\n\n## Final notes\n\nSummarize what changed for the reader.\n",
@@ -534,13 +534,13 @@ function SettingsPanel({
   readingFont,
   editorFontSize,
   defaultViewMode,
-  tableExportStyle,
+  pdfExportStyle,
   onThemeModeChange,
   onReadingPaletteChange,
   onReadingFontChange,
   onEditorFontSizeChange,
   onDefaultViewModeChange,
-  onTableExportStyleChange,
+  onPdfExportStyleChange,
   onClose,
 }: {
   themeMode: ThemeMode;
@@ -548,15 +548,26 @@ function SettingsPanel({
   readingFont: ReadingFont;
   editorFontSize: number;
   defaultViewMode: ViewMode;
-  tableExportStyle: TableExportStyle;
+  pdfExportStyle: PdfExportStyle;
   onThemeModeChange: (mode: ThemeMode) => void;
   onReadingPaletteChange: (mode: ReadingPalette) => void;
   onReadingFontChange: (mode: ReadingFont) => void;
   onEditorFontSizeChange: (size: number) => void;
   onDefaultViewModeChange: (mode: ViewMode) => void;
-  onTableExportStyleChange: (style: TableExportStyle) => void;
+  onPdfExportStyleChange: (style: PdfExportStyle) => void;
   onClose: () => void;
 }) {
+  const tableExportStyle = pdfExportStyle.table;
+  const [activePane, setActivePane] = React.useState<"writing" | "reading" | "pdf" | "tables">("writing");
+
+  function updatePdfExportStyle(partial: Partial<PdfExportStyle>) {
+    onPdfExportStyleChange({ ...pdfExportStyle, ...partial });
+  }
+
+  function updateTableExportStyle(table: PdfExportStyle["table"]) {
+    onPdfExportStyleChange({ ...pdfExportStyle, table });
+  }
+
   return (
     <div className="settings-backdrop" role="presentation" onMouseDown={onClose}>
       <section
@@ -573,147 +584,287 @@ function SettingsPanel({
           </button>
         </header>
 
-        <div className="settings-group">
-          <label>Theme</label>
-          <div className="settings-segment" aria-label="Theme">
-            {(["system", "light", "dark"] as const).map((mode) => (
-              <button
-                key={mode}
-                className={themeMode === mode ? "active" : ""}
-                onClick={() => onThemeModeChange(mode)}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
+        <div className="settings-tabs" role="tablist" aria-label="Settings sections">
+          {([
+            ["writing", "Writing"],
+            ["reading", "Reading"],
+            ["pdf", "PDF"],
+            ["tables", "Tables"],
+          ] as const).map(([pane, label]) => (
+            <button
+              key={pane}
+              className={activePane === pane ? "active" : ""}
+              onClick={() => setActivePane(pane)}
+              role="tab"
+              aria-selected={activePane === pane}
+              type="button"
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
-        <div className="settings-group">
-          <label>Reading palette</label>
-          <div className="settings-segment wrap" aria-label="Reading palette">
-            {(["focus", "paper", "mist", "night", "contrast"] as const).map((mode) => (
-              <button
-                key={mode}
-                className={readingPalette === mode ? "active" : ""}
-                onClick={() => onReadingPaletteChange(mode)}
-                type="button"
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-        </div>
+        {activePane === "writing" && (
+          <div className="settings-pane" role="tabpanel">
+            <p className="settings-section-note">Choose how the editor opens and how text feels while typing.</p>
+            <div className="settings-group">
+              <label htmlFor="font-size">Editor font size</label>
+              <div className="range-row">
+                <input
+                  id="font-size"
+                  type="range"
+                  min="12"
+                  max="22"
+                  step="1"
+                  value={editorFontSize}
+                  onChange={(event) => onEditorFontSizeChange(Number(event.target.value))}
+                />
+                <span>{editorFontSize}px</span>
+              </div>
+            </div>
 
-        <div className="settings-group">
-          <label>Reading font</label>
-          <div className="settings-segment" aria-label="Reading font">
-            {(["system", "serif", "mono"] as const).map((mode) => (
-              <button
-                key={mode}
-                className={readingFont === mode ? "active" : ""}
-                onClick={() => onReadingFontChange(mode)}
-                type="button"
-              >
-                {mode}
-              </button>
-            ))}
+            <div className="settings-group">
+              <label>Default view</label>
+              <div className="settings-segment" aria-label="Default view">
+                {(["write", "split", "preview"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={defaultViewMode === mode ? "active" : ""}
+                    onClick={() => onDefaultViewModeChange(mode)}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="settings-group">
-          <label htmlFor="font-size">Editor font size</label>
-          <div className="range-row">
-            <input
-              id="font-size"
-              type="range"
-              min="12"
-              max="22"
-              step="1"
-              value={editorFontSize}
-              onChange={(event) => onEditorFontSizeChange(Number(event.target.value))}
-            />
-            <span>{editorFontSize}px</span>
-          </div>
-        </div>
+        {activePane === "reading" && (
+          <div className="settings-pane" role="tabpanel">
+            <p className="settings-section-note">Tune the reading surface for long sessions.</p>
+            <div className="settings-group">
+              <label>Theme</label>
+              <div className="settings-segment" aria-label="Theme">
+                {(["system", "light", "dark"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={themeMode === mode ? "active" : ""}
+                    onClick={() => onThemeModeChange(mode)}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        <div className="settings-group">
-          <label>Default view</label>
-          <div className="settings-segment" aria-label="Default view">
-            {(["write", "split", "preview"] as const).map((mode) => (
-              <button
-                key={mode}
-                className={defaultViewMode === mode ? "active" : ""}
-                onClick={() => onDefaultViewModeChange(mode)}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-        </div>
+            <div className="settings-group">
+              <label>Reading palette</label>
+              <div className="settings-segment wrap" aria-label="Reading palette">
+                {(["focus", "paper", "mist", "night", "contrast"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={readingPalette === mode ? "active" : ""}
+                    onClick={() => onReadingPaletteChange(mode)}
+                    type="button"
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        <div className="settings-group">
-          <label>Export table header</label>
-          <div className="settings-segment" aria-label="Export table header">
-            {(["tinted", "plain"] as const).map((mode) => (
-              <button
-                key={mode}
-                className={tableExportStyle.header === mode ? "active" : ""}
-                onClick={() => onTableExportStyleChange({ ...tableExportStyle, header: mode })}
-                type="button"
-              >
-                {mode}
-              </button>
-            ))}
+            <div className="settings-group">
+              <label>Reading font</label>
+              <div className="settings-segment" aria-label="Reading font">
+                {(["system", "serif", "mono"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={readingFont === mode ? "active" : ""}
+                    onClick={() => onReadingFontChange(mode)}
+                    type="button"
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="settings-group">
-          <label>Export table rows</label>
-          <div className="settings-segment" aria-label="Export table rows">
-            {(["striped", "plain"] as const).map((mode) => (
-              <button
-                key={mode}
-                className={tableExportStyle.rows === mode ? "active" : ""}
-                onClick={() => onTableExportStyleChange({ ...tableExportStyle, rows: mode })}
-                type="button"
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-        </div>
+        {activePane === "pdf" && (
+          <div className="settings-pane" role="tabpanel">
+            <p className="settings-section-note">PDF choices are remembered and reused on the next export.</p>
+            <div className="settings-group">
+              <label>PDF paper</label>
+              <div className="settings-segment" aria-label="PDF paper">
+                {(["a4", "letter"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={pdfExportStyle.pageSize === mode ? "active" : ""}
+                    onClick={() => updatePdfExportStyle({ pageSize: mode })}
+                    type="button"
+                  >
+                    {mode.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        <div className="settings-group">
-          <label>Export table borders</label>
-          <div className="settings-segment" aria-label="Export table borders">
-            {(["strong", "light"] as const).map((mode) => (
-              <button
-                key={mode}
-                className={tableExportStyle.borders === mode ? "active" : ""}
-                onClick={() => onTableExportStyleChange({ ...tableExportStyle, borders: mode })}
-                type="button"
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-        </div>
+            <div className="settings-group">
+              <label>PDF margins</label>
+              <div className="settings-segment" aria-label="PDF margins">
+                {(["comfortable", "compact"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={pdfExportStyle.margins === mode ? "active" : ""}
+                    onClick={() => updatePdfExportStyle({ margins: mode })}
+                    type="button"
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        <div className="settings-group">
-          <label>Export table color</label>
-          <div className="settings-segment" aria-label="Export table color">
-            {(["green", "blue", "gray"] as const).map((mode) => (
-              <button
-                key={mode}
-                className={tableExportStyle.color === mode ? "active" : ""}
-                onClick={() => onTableExportStyleChange({ ...tableExportStyle, color: mode })}
-                type="button"
-              >
-                {mode}
-              </button>
-            ))}
+            <div className="settings-group">
+              <label>PDF page numbers</label>
+              <div className="settings-segment" aria-label="PDF page numbers">
+                {([true, false] as const).map((enabled) => (
+                  <button
+                    key={String(enabled)}
+                    className={pdfExportStyle.pageNumbers === enabled ? "active" : ""}
+                    onClick={() => updatePdfExportStyle({ pageNumbers: enabled })}
+                    type="button"
+                  >
+                    {enabled ? "show" : "hide"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-group">
+              <label>Page number anchor</label>
+              <div className="settings-segment" aria-label="Page number anchor">
+                {(["left", "center", "right"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={pdfExportStyle.pageNumberAnchor === mode ? "active" : ""}
+                    onClick={() => updatePdfExportStyle({ pageNumberAnchor: mode })}
+                    type="button"
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-group">
+              <label>Page number format</label>
+              <div className="settings-segment" aria-label="Page number format">
+                {([
+                  ["fraction", "Page 1 / 9"],
+                  ["label", "Page 1"],
+                  ["simple", "1"],
+                ] as const).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    className={pdfExportStyle.pageNumberFormat === mode ? "active" : ""}
+                    onClick={() => updatePdfExportStyle({ pageNumberFormat: mode })}
+                    type="button"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-group">
+              <label>Preview watermark</label>
+              <div className="settings-segment" aria-label="Preview watermark">
+                {([true, false] as const).map((enabled) => (
+                  <button
+                    key={String(enabled)}
+                    className={pdfExportStyle.previewMark === enabled ? "active" : ""}
+                    onClick={() => updatePdfExportStyle({ previewMark: enabled })}
+                    type="button"
+                  >
+                    {enabled ? "show" : "hide"}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {activePane === "tables" && (
+          <div className="settings-pane" role="tabpanel">
+            <p className="settings-section-note">These options affect tables in PDF exports.</p>
+            <div className="settings-group">
+              <label>Export table header</label>
+              <div className="settings-segment" aria-label="Export table header">
+                {(["tinted", "plain"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={tableExportStyle.header === mode ? "active" : ""}
+                    onClick={() => updateTableExportStyle({ ...tableExportStyle, header: mode })}
+                    type="button"
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-group">
+              <label>Export table rows</label>
+              <div className="settings-segment" aria-label="Export table rows">
+                {(["striped", "plain"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={tableExportStyle.rows === mode ? "active" : ""}
+                    onClick={() => updateTableExportStyle({ ...tableExportStyle, rows: mode })}
+                    type="button"
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-group">
+              <label>Export table borders</label>
+              <div className="settings-segment" aria-label="Export table borders">
+                {(["strong", "light"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={tableExportStyle.borders === mode ? "active" : ""}
+                    onClick={() => updateTableExportStyle({ ...tableExportStyle, borders: mode })}
+                    type="button"
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="settings-group">
+              <label>Export table color</label>
+              <div className="settings-segment" aria-label="Export table color">
+                {(["green", "blue", "gray"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={tableExportStyle.color === mode ? "active" : ""}
+                    onClick={() => updateTableExportStyle({ ...tableExportStyle, color: mode })}
+                    type="button"
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
@@ -934,9 +1085,9 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
         </header>
 
         <p>
-          A lightweight, local-first Markdown editor built with Tauri. Current
-          focus: fast editing, clean preview, reliable local files, and
-          recoverable history.
+          A small, local-first Markdown editor built with Tauri. Current focus:
+          fast editing, clean preview, reliable local files, and recoverable
+          history.
         </p>
 
         <div className="about-version">
@@ -961,8 +1112,8 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
         <div className="about-note">
           <strong>Feedback wanted</strong>
           <span>
-            If a Markdown workflow feels slow, fragile, or confusing, please
-            send feedback. Real usage reports will shape the next release.
+            If a Markdown workflow feels slow, fragile, or confusing, send
+            feedback. Real usage reports will shape the next release.
           </span>
         </div>
       </section>
@@ -1010,9 +1161,9 @@ function WelcomePanel({
         ))}
       </div>
       {!nativeReady && (
-        <p>Browser preview mode can import and download files. Desktop mode enables native save dialogs and history.</p>
+        <p>Browser preview mode can import and download files. Desktop mode adds native save dialogs and history.</p>
       )}
-      {nativeReady && !hasRecentFiles && <p>Recent files will appear here after your first desktop save.</p>}
+      {nativeReady && !hasRecentFiles && <p>Recent files appear here after your first desktop save.</p>}
     </section>
   );
 }
@@ -1248,8 +1399,8 @@ export default function EditorApp({
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
   });
   const [editorFontSize, setEditorFontSize] = React.useState(getStoredEditorFontSize);
-  const [tableExportStyle, setTableExportStyle] = React.useState<TableExportStyle>(
-    getStoredTableExportStyle,
+  const [pdfExportStyle, setPdfExportStyle] = React.useState<PdfExportStyle>(
+    getStoredPdfExportStyle,
   );
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [aboutOpen, setAboutOpen] = React.useState(false);
@@ -1296,6 +1447,7 @@ export default function EditorApp({
   }, [headings]);
   const metrics = React.useMemo(() => getMetrics(markdown), [markdown]);
   const rendered = React.useMemo(() => renderMarkdown(markdown, headings), [headings, markdown]);
+  const tableExportStyle = pdfExportStyle.table;
   const exportReadiness = React.useMemo(() => {
     const title = headings.find((heading) => heading.level === 1)?.text ?? "";
     const links = (markdown.match(/(?<!!)\[[^\]]+\]\([^)]+\)/g) ?? []).length;
@@ -1399,8 +1551,8 @@ export default function EditorApp({
   }, [editorFontSize]);
 
   React.useEffect(() => {
-    localStorage.setItem(tableExportStyleKey, JSON.stringify(tableExportStyle));
-  }, [tableExportStyle]);
+    localStorage.setItem(pdfExportStyleKey, JSON.stringify(pdfExportStyle));
+  }, [pdfExportStyle]);
 
   React.useEffect(() => {
     localStorage.setItem(defaultViewModeKey, viewMode);
@@ -2133,8 +2285,7 @@ export default function EditorApp({
       const pdfBytes = await createMarkdownPdf({
         markdown,
         title: baseName,
-        tableStyle: tableExportStyle,
-        previewMark: true,
+        exportStyle: pdfExportStyle,
       });
 
       if (nativeApi) {
@@ -3087,13 +3238,13 @@ export default function EditorApp({
             readingFont={readingFont}
             editorFontSize={editorFontSize}
             defaultViewMode={viewMode}
-            tableExportStyle={tableExportStyle}
+            pdfExportStyle={pdfExportStyle}
             onThemeModeChange={setThemeMode}
             onReadingPaletteChange={setReadingPalette}
             onReadingFontChange={setReadingFont}
             onEditorFontSizeChange={setEditorFontSize}
             onDefaultViewModeChange={setViewMode}
-            onTableExportStyleChange={setTableExportStyle}
+            onPdfExportStyleChange={setPdfExportStyle}
             onClose={() => setSettingsOpen(false)}
           />
         )}

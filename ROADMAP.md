@@ -1,6 +1,6 @@
 # VeloWrite Roadmap
 
-This roadmap is intentionally practical. VeloWrite should become useful for daily Markdown work before growing into AI publishing workflows.
+This roadmap is practical. VeloWrite should be useful for daily Markdown work before it grows into AI publishing workflows.
 
 ## Now: 0.1.x
 

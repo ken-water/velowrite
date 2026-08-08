@@ -56,6 +56,33 @@ print("hello")
     });
   });
 
+  it("keeps mixed Chinese and English text as one readable paragraph block", () => {
+    const blocks = buildPdfBlocks("This title uses English and 中文 together in one paragraph.");
+
+    expect(blocks).toEqual([
+      {
+        type: "paragraph",
+        text: "This title uses English and 中文 together in one paragraph.",
+      },
+    ]);
+  });
+
+  it("preserves tables with uneven column widths for better PDF layout", () => {
+    const blocks = buildPdfBlocks(`| Field | Description | Notes |
+| --- | --- | --- |
+| Title | A very long description that should not collapse into a narrow column | Short note |`);
+
+    expect(blocks).toContainEqual({
+      type: "table",
+      headers: ["Field", "Description", "Notes"],
+      rows: [[
+        "Title",
+        "A very long description that should not collapse into a narrow column",
+        "Short note",
+      ]],
+    });
+  });
+
   it("preserves explicit ordered-list starts across separate Markdown lists", () => {
     const blocks = buildPdfBlocks(`1. First wedge
 
@@ -70,11 +97,25 @@ print("hello")
     ]);
   });
 
+  it("renders Markdown horizontal rules as layout rules instead of plain text", () => {
+    const blocks = buildPdfBlocks("# One\n\n---\n\n# Two");
+
+    expect(blocks.map((block) => block.type)).toEqual(["heading", "rule", "heading"]);
+  });
+
   it("creates a valid PDF without browser print headers", async () => {
     const bytes = await createMarkdownPdf({
       markdown: "# Plan\n\nContent that should be rendered by VeloWrite.",
       title: "Plan",
-      tableStyle: defaultTableExportStyle,
+      exportStyle: {
+        previewMark: true,
+        pageNumbers: true,
+        pageNumberFormat: "fraction",
+        pageNumberAnchor: "right",
+        pageSize: "a4",
+        margins: "comfortable",
+        table: defaultTableExportStyle,
+      },
     });
     const text = new TextDecoder("latin1").decode(bytes.slice(0, 1200));
 
@@ -89,7 +130,15 @@ print("hello")
     const bytes = await createMarkdownPdf({
       markdown: "# 计划\n\n中文段落应该可以进入 PDF。\n\n- 第一项\n- 第二项",
       title: "计划",
-      tableStyle: defaultTableExportStyle,
+      exportStyle: {
+        previewMark: true,
+        pageNumbers: true,
+        pageNumberFormat: "fraction",
+        pageNumberAnchor: "right",
+        pageSize: "a4",
+        margins: "comfortable",
+        table: defaultTableExportStyle,
+      },
     });
     const text = new TextDecoder("latin1").decode(bytes);
 
@@ -105,7 +154,15 @@ print("hello")
       createMarkdownPdf({
         markdown: "# 计划\n\n中文段落应该可以进入 PDF。",
         title: "计划",
-        tableStyle: defaultTableExportStyle,
+        exportStyle: {
+          previewMark: true,
+          pageNumbers: true,
+          pageNumberFormat: "fraction",
+          pageNumberAnchor: "right",
+          pageSize: "a4",
+          margins: "comfortable",
+          table: defaultTableExportStyle,
+        },
       }),
     ).rejects.toThrow("Unicode PDF font could not be loaded");
   });

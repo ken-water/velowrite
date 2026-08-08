@@ -31,7 +31,7 @@ export default function RenderedMarkdownExample({ example }: { example: Markdown
           <strong>Rendered preview</strong>
           <div
             className="content-example-preview markdown-body"
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(example.markdown) }}
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(example.markdown, undefined, 1) }}
           />
         </div>
       </div>

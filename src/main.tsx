@@ -34,8 +34,8 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.2.4";
-const downloadReleaseDate = "August 7, 2026";
+const downloadVersion = "0.2.5";
+const downloadReleaseDate = "August 8, 2026";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -45,7 +45,7 @@ const exampleMarkdownKey = "velowrite:example-markdown";
 const siteUrl = "https://velowrite.app";
 const defaultSeoTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultSeoDescription =
-  "VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.";
+  "VeloWrite is a private Markdown editor for browser drafts, live preview, clean export, local history, and lightweight desktop files.";
 const breadcrumbLabels: Record<string, string> = {
   "/web": "Web Editor",
   "/download": "Download",
@@ -53,13 +53,22 @@ const breadcrumbLabels: Record<string, string> = {
   "/pro": "Pro Roadmap",
   "/roadmap": "Feedback Roadmap",
   "/docs": "Markdown Library",
+  "/docs/markdown": "What Is Markdown",
+  "/docs/markdown-history": "Markdown History",
+  "/docs/future-of-markdown": "Future of Markdown",
   "/docs/online-markdown-editor": "Online Markdown Editor",
   "/docs/markdown-basics": "Markdown Basics",
   "/docs/markdown-for-writers": "Markdown for Writers",
   "/docs/markdown-for-developers": "Markdown for Developers",
+  "/docs/advanced-markdown": "Advanced Markdown",
   "/docs/markdown-math": "Markdown Math",
+  "/docs/markdown-code-blocks": "Markdown Code Blocks",
+  "/docs/local-first-markdown": "Local-First Markdown",
+  "/docs/typora-alternative": "Typora Alternative",
   "/docs/markdown-to-blog": "Markdown to Blog",
+  "/docs/markdown-editor-for-windows": "Markdown Editor for Windows",
   "/docs/markdown-editor-for-mac": "Markdown Editor for Mac",
+  "/docs/markdown-editor-for-linux": "Markdown Editor for Linux",
   "/docs/preview-release-policy": "Preview Release Policy",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
@@ -179,7 +188,7 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
   "/docs/future-of-markdown": {
     title: "The Future of Markdown Writing - Local Files, AI, and Export Readiness",
     description:
-      "Explore where Markdown writing is heading: local-first files, safer recovery, AI inside the document flow, export readiness, and publishing workflows.",
+      "Read how Markdown writing is changing around local files, safer recovery, AI inside the document, export checks, and publishing.",
   },
   "/docs/markdown-basics": {
     title: "Markdown Basics - Headings, Lists, Links, Tables, Code, and Math",
@@ -194,12 +203,12 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
   "/docs/markdown-for-developers": {
     title: "Markdown for Developers - READMEs, Specs, Docs, and Release Notes",
     description:
-      "A developer-focused Markdown guide for README files, technical specs, API notes, code examples, changelogs, and documentation workflows.",
+      "A Markdown guide for README files, technical specs, API notes, code examples, changelogs, and documentation.",
   },
   "/docs/advanced-markdown": {
     title: "Advanced Markdown - Portable, Reviewable, Maintainable Documents",
     description:
-      "Advanced Markdown practices for portable, reviewable documents: semantic line breaks, reference links, escaped technical text, stable anchors, and reusable document templates.",
+      "Advanced Markdown practices for portable, reviewable documents: semantic line breaks, reference links, escaped text, stable anchors, and reusable templates.",
   },
   "/docs/markdown-math": {
     title: "Markdown Math with KaTeX - Inline and Block Formula Examples",
@@ -229,22 +238,22 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
   "/docs/markdown-to-blog": {
     title: "Markdown to Blog - Draft Locally, Preview Clearly, Publish Later",
     description:
-      "A practical Markdown-to-blog workflow for drafting, previewing, exporting HTML, and preparing future static publishing automation.",
+      "Draft blog posts in Markdown, preview the structure, export HTML, and keep the source file ready for later publishing.",
   },
   "/docs/markdown-editor-for-windows": {
     title: "Markdown Editor for Windows - VeloWrite Desktop Preview",
     description:
-      "Try VeloWrite on Windows for Markdown editing, native local files, recent documents, local history, Open with workflows, and preview installer guidance.",
+      "Try VeloWrite on Windows for Markdown editing, local files, recent documents, local history, Open with support, and installer notes.",
   },
   "/docs/markdown-editor-for-mac": {
     title: "Markdown Editor for Mac - Local-First Markdown Writing",
     description:
-      "What Mac users should expect from VeloWrite's Markdown workflow, Apple Silicon DMG status, local-first editing, and future signing plans.",
+      "What Mac users should expect from VeloWrite, including Apple Silicon DMG status, local files, preview limits, and future signing plans.",
   },
   "/docs/markdown-editor-for-linux": {
     title: "Markdown Editor for Linux - AppImage, DEB, RPM, and Local Files",
     description:
-      "Use VeloWrite as a Linux Markdown editor with AppImage, DEB, RPM, browser editing, local files, and a lightweight Tauri desktop workflow.",
+      "Use VeloWrite on Linux with AppImage, DEB, RPM, browser editing, local files, and a lightweight Tauri desktop app.",
   },
   "/docs/preview-release-policy": {
     title: "How VeloWrite Preview Releases Work - Versions, Downloads, and Changelog",
@@ -279,7 +288,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "Download VeloWrite - Windows, macOS, and Linux Markdown App",
       description:
-        "Download the VeloWrite desktop preview for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux workflows.",
+        "Download the VeloWrite desktop preview for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux.",
       canonicalPath: "/download",
     };
   }
@@ -297,7 +306,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
         title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
         description:
-        "Explore the planned VeloWrite Pro path, early pricing preview, AI writing commands, advanced exports, recovery controls, and future workflow features.",
+        "See the planned VeloWrite Pro path: early pricing, AI writing commands, advanced exports, recovery controls, sync, and publishing.",
       canonicalPath: "/pro",
     };
   }
@@ -315,7 +324,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Markdown Library - Guides, Workflows, and Advanced Markdown",
       description:
-        "Explore VeloWrite Markdown articles covering basics, history, writing workflows, code blocks, math, local-first editing, and editor comparisons.",
+        "Read VeloWrite Markdown articles about basics, history, writing, code blocks, math, local files, and editor comparisons.",
       canonicalPath: "/docs",
     };
   }
@@ -324,7 +333,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Public Roadmap - User Feedback and Planned Improvements",
       description:
-        "See which VeloWrite user requests have been recorded, which preview fixes have shipped, and what local-first editor improvements are being researched next.",
+        "See recorded VeloWrite user requests, shipped preview fixes, and the local-file editor improvements being researched next.",
       canonicalPath: "/roadmap",
     };
   }
@@ -333,7 +342,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Markdown Guide - Practical Writing Examples",
       description:
-        "A practical Markdown guide showing headings, lists, tables, math, code tabs, and desktop workflows for VeloWrite users.",
+        "A Markdown guide with examples for headings, lists, tables, math, code tabs, and VeloWrite desktop use.",
       canonicalPath: "/guide",
     };
   }
@@ -342,7 +351,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Changelog - Release Notes and Preview Updates",
       description:
-        "Read the VeloWrite changelog for preview release notes, UI updates, SEO changes, guide improvements, and future roadmap notes.",
+        "Read the VeloWrite changelog for preview releases, UI fixes, SEO changes, guide updates, and roadmap notes.",
       canonicalPath: "/changelog",
     };
   }
@@ -351,7 +360,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite FAQ - Markdown Editor, Privacy, Desktop, and Pro",
       description:
-        "Answers about VeloWrite's online Markdown editor, Tauri desktop app, privacy model, platform support, preview limits, and future Pro workflows.",
+        "Answers about VeloWrite's online Markdown editor, Tauri desktop app, privacy model, platform support, preview limits, and planned Pro features.",
       canonicalPath: "/faq",
     };
   }
@@ -396,7 +405,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Feedback",
       description:
-        "Send feedback about VeloWrite web editor, desktop preview builds, Markdown workflows, packaging, and future Pro features.",
+        "Send feedback about the VeloWrite web editor, desktop preview builds, Markdown editing, installers, and planned Pro features.",
       canonicalPath: "/feedback",
       robots: "noindex, follow",
     };
@@ -618,19 +627,19 @@ const roadmapRecommendations = [
     priority: "Next best free improvement",
     title: "Native-feeling desktop preview",
     reason:
-      "The preview should open like a writing app first. The editor now starts directly in the workspace, with the start panel moved out of the first impression.",
+      "The preview should open like a writing app, not a website in a window. The editor now starts in the workspace, with the start panel moved out of the first impression.",
   },
   {
     priority: "Next quality pass",
     title: "Long-document recovery clarity",
     reason:
-      "Basic history is free, so comparison needs to be understandable on real drafts. The next pass adds clearer change navigation before deeper Pro history is designed.",
+      "Basic history is free, so compare and restore need to work on real drafts. The next pass should make changes easier to find before deeper Pro history is designed.",
   },
   {
-    priority: "Next workflow proof",
+    priority: "Next export proof",
     title: "Export readiness before Pro export",
     reason:
-      "Users should know whether a Markdown file is ready to share. A free readiness panel is the foundation before branded templates, DOCX, or publishing workflows.",
+      "Users should know whether a Markdown file is ready to share. The free readiness panel comes before branded templates, DOCX, or publishing.",
   },
 ];
 
@@ -651,7 +660,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "The staged article library is now active under /docs, including a top-level Markdown introduction, local-first workflow guidance, advanced maintainability practices, code blocks, math, and Markdown-to-blog workflow guidance. Example blocks can open directly in the web editor, so readers can move from learning to trying without copying text manually.",
+      "The article library is live under /docs. It now covers Markdown basics, history, local-file habits, maintainable documents, code blocks, math, and Markdown-to-blog writing. Example blocks can open in the web editor, so readers can try the syntax without copying it by hand.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -660,7 +669,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free core editor work",
     decision:
-      "Outline clicks now align both panes in the preview build. Continuous stable scroll matching for long documents should stay core editor work because it affects daily writing quality.",
+      "Outline clicks now align both panes in the preview build. Stable scroll matching for long documents stays core editor work because it affects everyday writing.",
   },
   {
     title: "Focused writing polish",
@@ -669,7 +678,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free core experience",
     decision:
-      "The desktop preview now opens directly into the editor, keeps the workspace sidebar hidden by default, and prepares a last-local-file restore path so returning writers can resume faster. Further native polish remains ongoing, but the first impression is now editor-first.",
+      "The desktop preview now opens directly into the editor, keeps the workspace sidebar hidden by default, and prepares a last-file restore path. More native polish is still needed, but the first screen is now editor-first.",
   },
   {
     title: "Outline and structure map",
@@ -678,7 +687,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free structure workflow first",
     decision:
-      "The editor now includes a read-only structure map with total H1/H2/H3 counts plus active heading clarity after outline navigation. Folding, richer section diagnostics, editable visual mapping, and AI-assisted outline expansion can be evaluated later.",
+      "The editor now has a read-only structure map with H1/H2/H3 counts and clearer active-heading feedback after outline navigation. Folding, section diagnostics, editable mapping, and AI outline expansion can be evaluated later.",
   },
   {
     title: "Better local history recovery",
@@ -687,7 +696,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free safety workflow",
     decision:
-      "Basic local history and restore preview stay free because recovery is part of document safety. The current free preview keeps the latest 3 local snapshots and the history dialog now includes focused comparison plus a jump to the first change for longer drafts.",
+      "Basic local history and restore preview stay free because recovery is part of document safety. The current free preview keeps the latest 3 local snapshots and the history dialog can jump to the first change in longer drafts.",
   },
   {
     title: "Advanced history and recovery controls",
@@ -696,7 +705,7 @@ const publicRoadmapItems = [
     target: "0.2.x / 0.3.x",
     classification: "Recovery policy design",
     decision:
-      "The free preview now keeps 3 local snapshots. Longer retention, richer recovery review, cross-device history, and exportable recovery archives remain candidates for later Pro design.",
+      "The free preview now keeps 3 local snapshots. Longer retention, richer review, cross-device history, and exportable recovery archives remain candidates for Pro.",
   },
   {
     title: "Web to desktop draft handoff",
@@ -705,7 +714,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free handoff first",
     decision:
-      "The web editor can download the current Markdown draft and now exposes a clearer desktop handoff with a velowrite:// direct-import path plus a Markdown backup fallback. Account-based sync remains a later decision.",
+      "The web editor can download the current Markdown draft and now offers a desktop handoff with a velowrite:// import path plus a Markdown backup fallback. Account-based sync remains a later decision.",
   },
   {
     title: "Private, no-account sync",
@@ -714,7 +723,7 @@ const publicRoadmapItems = [
     target: "0.3.x+",
     classification: "Local-first sync research",
     decision:
-      "The first sync direction should preserve folder-based ownership: clear import/export, predictable conflict handling, no hidden lock-in, and a documented path for users who already use Git, Syncthing, iCloud, Dropbox, or OneDrive.",
+      "The first sync design should preserve folder ownership: clear import and export, predictable conflict handling, no hidden lock-in, and a documented path for users who already use Git, Syncthing, iCloud, Dropbox, or OneDrive.",
   },
   {
     title: "More complete Markdown rendering",
@@ -723,7 +732,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free preview quality",
     decision:
-      "Rendering trust is part of the preview foundation. The published math and code-block guides now exercise KaTeX, tables, code highlighting, and tabbed examples, and the work should keep gaining tests before broader promotion.",
+      "Rendering trust is part of the preview. The published math and code-block guides now exercise KaTeX, tables, code highlighting, and tabbed examples. This area needs more tests before broader promotion.",
   },
   {
     title: "Better export and publishing preparation",
@@ -732,7 +741,7 @@ const publicRoadmapItems = [
     classification: "Free export baseline, Pro workflow later",
     status: "Free foundation shipped",
     decision:
-      "The editor now includes Markdown download, HTML export, dedicated PDF export, and an export readiness panel for title, structure, links, images, and code blocks. The panel also suggests the next fix before sharing. DOCX, branded templates, batch export, and one-click publishing remain stronger candidates for future workflow packaging.",
+      "The editor now includes Markdown download, HTML export, dedicated PDF export, and an export readiness panel for title, structure, links, images, and code blocks. The panel suggests the next fix before sharing. DOCX, branded templates, batch export, and one-click publishing remain stronger candidates for later packaging.",
   },
   {
     title: "AI writing, publishing, and advanced export research",
@@ -741,7 +750,7 @@ const publicRoadmapItems = [
     target: "0.3.x+",
     classification: "Future workflow research",
     decision:
-      "These workflows should stay behind core editor quality. The public roadmap tracks the user need; detailed packaging can live on the dedicated Pro page when it is ready.",
+      "These features should wait until the core editor is stronger. The public roadmap records the request; packaging details can live on the Pro page when they are ready.",
   },
 ];
 
@@ -763,7 +772,7 @@ const roadmapStages = [
   },
   {
     label: "Pro candidates",
-    description: "Later workflows that may become paid once the free writing foundation is stable.",
+    description: "Later features that may become paid once the free editor is stable.",
     items: publicRoadmapItems.filter((item) => item.status === "Later"),
   },
 ];
@@ -771,7 +780,7 @@ const roadmapStages = [
 const docGroups = [
   {
     title: "Understand Markdown",
-    description: "Foundational articles for people comparing writing formats and editor workflows.",
+    description: "Starter articles for people comparing writing formats and Markdown editors.",
     items: [
       { title: "What Is Markdown?", href: "/docs/markdown", status: "Published" },
       { title: "A Short History of Markdown", href: "/docs/markdown-history", status: "Published" },
@@ -789,7 +798,7 @@ const docGroups = [
   },
   {
     title: "Advanced Markdown",
-    description: "Deep dives for complex documents with math, code, tables, tabs, and local-first workflows.",
+    description: "Longer guides for documents with math, code, tables, tabs, and local files.",
     items: [
       { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Published" },
       { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Published" },
@@ -799,7 +808,7 @@ const docGroups = [
   },
   {
     title: "Choose a Markdown Editor",
-    description: "Conversion-focused pages for users searching by platform, workflow, or alternative.",
+    description: "Pages for users comparing platforms, browser editors, and desktop alternatives.",
     items: [
       { title: "Online Markdown Editor", href: "/docs/online-markdown-editor", status: "Published" },
       { title: "Typora Alternative", href: "/docs/typora-alternative", status: "Published" },
@@ -829,22 +838,22 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "What is VeloWrite?",
         answer:
-          "VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.",
+          "VeloWrite is a private Markdown editor for browser drafts, live preview, clean export, local history, and lightweight desktop files.",
       },
       {
         question: "Is VeloWrite a Typora alternative?",
         answer:
-          "VeloWrite is built for users who want a clean Typora-like Markdown workflow with a browser trial, lightweight desktop packaging, local-first files, and a planned AI-native path.",
+          "VeloWrite is for users who like a clean Typora-style Markdown editor but also want a browser trial, lightweight Tauri desktop builds, local files, and a public AI roadmap.",
       },
       {
         question: "What is the best lightweight Markdown editor for Windows?",
         answer:
-          "VeloWrite is designed for people who want a lightweight Markdown editor for Windows with browser preview, desktop files, recent documents, local history snapshots, and HTML export.",
+          "VeloWrite is a lightweight Markdown editor for Windows with browser preview, desktop files, recent documents, local history snapshots, and HTML export.",
       },
       {
         question: "Who is VeloWrite for?",
         answer:
-          "VeloWrite is for developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.",
+          "VeloWrite is for developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base articles.",
       },
     ],
   },
@@ -854,7 +863,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Can I try VeloWrite without installing anything?",
         answer:
-          "Yes. Open the web editor in your browser and start writing immediately. It is the fastest way to test the Markdown workflow before deciding whether the desktop app is worth installing.",
+          "Yes. Open the web editor and start writing in the browser. It is the quickest way to test VeloWrite before installing the desktop app.",
       },
       {
         question: "Can I edit Markdown online without uploading files?",
@@ -869,7 +878,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "What is the difference between the web editor and desktop app?",
         answer:
-          "The web editor is best for quick drafts, preview, Markdown download, and HTML export. The desktop app is better for real local files, native open and save, offline work, recent files, and local history snapshots.",
+          "Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use the desktop app for real local files, native open and save, offline work, recent files, and local history snapshots.",
       },
       {
         question: "Do I need an account to use it?",
@@ -879,12 +888,12 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Which platforms can I download right now?",
         answer:
-          "VeloWrite currently offers a web editor plus preview desktop installers for Windows x64, macOS Apple Silicon, Linux AppImage, Debian, and RPM-based Linux distributions.",
+          "VeloWrite has a web editor and preview desktop installers for Windows x64, macOS Apple Silicon, Linux AppImage, Debian, and RPM-based Linux distributions.",
       },
       {
         question: "Does VeloWrite work offline?",
         answer:
-          "The desktop preview is the offline path for real local files. The web editor is best for quick drafts, Markdown download, and HTML export while the browser is available.",
+          "The desktop preview is the offline option for real local files. The web editor is better for quick drafts, Markdown download, and HTML export while you are in the browser.",
       },
       {
         question: "Will the desktop installer trigger a warning?",
@@ -924,22 +933,22 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Is VeloWrite safe for private notes?",
         answer:
-          "VeloWrite is designed around private, local-first writing. Browser drafts stay in localStorage, and desktop files plus local history snapshots stay on the user's device by default.",
+          "VeloWrite keeps the normal editing path private. Browser drafts stay in localStorage, and desktop files plus local history snapshots stay on your device by default.",
       },
       {
         question: "Is VeloWrite free to use today?",
         answer:
-          "The current public build is a free preview for early testers. The first Pro direction focuses on AI writing workflows, advanced export, and deeper recovery while heavier cloud features remain later candidates.",
+          "The current public build is a free preview for early testers. The first Pro direction is AI writing actions, advanced export, and deeper recovery. Heavier cloud features remain later candidates.",
       },
       {
         question: "What will VeloWrite Pro include?",
         answer:
-          "The planned early Pro direction is $29/year with a $99 lifetime local-Pro option. It is expected to include AI writing actions with fair-use credits, BYOK AI, advanced export, and deeper local recovery. Checkout is not open yet.",
+          "The planned early Pro price is $29/year, with a $99 lifetime local-Pro option. Expected Pro features include AI writing actions with fair-use credits, BYOK AI, advanced export, and deeper local recovery. Checkout is not open yet.",
       },
       {
         question: "Where do I send feedback if something feels off?",
         answer:
-          "Use the feedback page to report rough edges, missing workflows, download problems, or features that would make VeloWrite worth paying for.",
+          "Use the feedback page to report rough edges, missing features, download problems, or anything that would make VeloWrite worth paying for.",
       },
     ],
   },
@@ -968,7 +977,7 @@ const landingFaqs = [
 const conversationalFaqCards = [
   {
     prompt: "I just need to edit a Markdown file quickly.",
-    answer: "Use the web editor first. It opens instantly, previews Markdown, and lets you download a .md or HTML copy without signing in.",
+    answer: "Use the web editor first. It opens in the browser, previews Markdown, and lets you download a .md or HTML copy without signing in.",
   },
   {
     prompt: "I care about private local notes.",
@@ -976,7 +985,7 @@ const conversationalFaqCards = [
   },
   {
     prompt: "I want to know what is not ready yet.",
-    answer: "AI commands, private sync, publishing automation, account-based sharing, and signed installers are still preview or roadmap items.",
+    answer: "AI commands, private sync, publishing, account-based sharing, and signed installers are still preview or roadmap items.",
   },
 ] as const;
 
@@ -1082,7 +1091,7 @@ const contentPages: Record<string, ContentPage> = {
         id: "start-writing",
         title: "Start in the browser, then move important files local",
         body: [
-          "The fastest way to learn Markdown is to write a real document, not read a syntax chart for an hour. Start with a title, a few headings, and one short list. Then preview the document and adjust the structure.",
+          "The easiest way to learn Markdown is to write a real document instead of reading syntax charts for an hour. Start with a title, a few headings, and one short list. Then preview the document and adjust the structure.",
           "VeloWrite's web editor is designed for that first draft. When the document becomes important, the desktop app is the better place for native open and save, offline writing, recent files, and local history snapshots.",
         ],
         example: {
@@ -1149,7 +1158,7 @@ const contentPages: Record<string, ContentPage> = {
         id: "why-it-spread",
         title: "Why Markdown spread",
         body: [
-          "Markdown spread because it did not ask people to change their whole workflow. It worked in simple text editors, email drafts, issue trackers, code comments, Git repositories, documentation generators, and static-site tools.",
+          "Markdown spread because it did not ask people to change their whole setup. It worked in simple text editors, email drafts, issue trackers, code comments, Git repositories, documentation generators, and static-site tools.",
           "That portability matters. A Markdown file can live in a folder, move through Git, become a blog post, or sit inside a project repository without needing a proprietary database.",
         ],
       },
@@ -1187,7 +1196,7 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Markdown direction",
     title: "The Future of Markdown Writing",
     intro:
-      "Markdown will stay useful because it is portable, but the editor around it is changing. The next wave is local-first, AI-assisted, publishing-aware, and clearer about what stays on the user's device.",
+      "Markdown will stay useful because the files are portable. The editor around it is changing: better local files, safer recovery, AI that works inside the document, and clearer rules about what stays on the user's device.",
     updated: "August 1, 2026",
     directory: [
       { label: "Local files", href: "#local-files" },
@@ -1203,7 +1212,7 @@ const contentPages: Record<string, ContentPage> = {
         title: "Local files remain the source of truth",
         body: [
           "People trust Markdown because the file is inspectable. You can open it in another editor, store it in Git, copy it to a folder, or keep it in a private vault. Future editors should preserve that trust instead of forcing every note through an account system.",
-          "For VeloWrite, that means desktop local files, recent documents, and local history stay part of the free core workflow.",
+          "For VeloWrite, that means desktop local files, recent documents, and local history stay part of the free editor.",
         ],
         example: {
           label: "A future-proof source file",
@@ -1253,7 +1262,7 @@ const contentPages: Record<string, ContentPage> = {
         title: "Publishing should become a natural last step",
         body: [
           "Many Markdown documents eventually become blog posts, docs pages, release notes, or knowledge-base articles. The future editor should help export and publish without making the writing surface heavier.",
-          "VeloWrite's roadmap keeps this as a later workflow: write and preview first, then add publishing automation when the core editor is stable.",
+          "VeloWrite keeps this as later work: write and preview first, then add publishing once the editor is stable.",
         ],
       },
       {
@@ -1261,7 +1270,7 @@ const contentPages: Record<string, ContentPage> = {
         title: "What should not change",
         body: [
           "Markdown should not lose the boring advantages that made it durable: readable source, predictable structure, and the ability to move files between tools. New AI, sync, and publishing features should support that foundation instead of replacing it.",
-          "A good future Markdown editor should feel modern without making the user's notes feel captured. That is the product line VeloWrite should keep defending.",
+          "A good future Markdown editor should feel modern without making the user's notes feel captured. That is the line VeloWrite should keep.",
         ],
       },
     ],
@@ -1467,7 +1476,7 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Developer workflow",
     title: "Markdown for Developers",
     intro:
-      "Developers use Markdown because it works with code, Git, issue trackers, documentation systems, and release workflows. A good Markdown workflow keeps technical notes close to the commands, examples, and decisions they explain.",
+      "Developers use Markdown because it works with code, Git, issue trackers, docs systems, and release notes. A good Markdown file keeps technical notes close to the commands, examples, and decisions they explain.",
     updated: "July 23, 2026",
     directory: [
       { label: "Repeatable docs", href: "#repeatable-docs" },
@@ -1484,7 +1493,7 @@ const contentPages: Record<string, ContentPage> = {
         title: "Use Markdown for repeatable technical documents",
         body: [
           "READMEs, architecture notes, API drafts, runbooks, changelogs, release plans, and onboarding guides all benefit from Markdown because the source is readable, diffable, and reviewable.",
-          "The goal is not to make every document formal. The goal is to make useful technical writing easy to start and easy to maintain.",
+          "Every document does not need to be formal. It just needs to be easy to start, review, and maintain.",
         ],
         example: {
           label: "Technical document shell",
@@ -1568,7 +1577,7 @@ const contentPages: Record<string, ContentPage> = {
         title: "Why local history matters",
         body: [
           "Developers already understand version control, but not every draft belongs in Git immediately. Local history snapshots help recover accidental edits before the document is committed or shared.",
-          "This is one reason VeloWrite keeps better local recovery in the free preview roadmap. Draft safety is part of the editor foundation, not a Pro-only luxury.",
+          "This is why VeloWrite keeps basic local recovery in the free preview. Draft safety belongs in the editor, not only in a paid tier.",
         ],
       },
     ],
@@ -1581,7 +1590,7 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Advanced Markdown",
     title: "Advanced Markdown for Maintainable Documents",
     intro:
-      "The advanced part of Markdown is not obscure syntax. It is writing files that stay readable in review, survive a move between tools, and still make sense six months later.",
+      "Advanced Markdown is not about obscure syntax. It is about files that stay readable in review, survive a move between tools, and still make sense six months later.",
     updated: "July 28, 2026",
     directory: [
       { label: "A source-first mindset", href: "#source-first" },
@@ -1598,7 +1607,7 @@ const contentPages: Record<string, ContentPage> = {
         title: "Think source-first, not preview-first",
         body: [
           "A polished preview matters, but the source file is the durable asset. An advanced Markdown workflow treats the .md file as something another person can edit in a plain text editor, review in Git, and publish through a different tool without a rescue operation.",
-          "That changes the question you ask before adding syntax: does this make the source clearer, or only make this one preview look clever? Prefer the first option for documents that will live beyond a single draft.",
+          "That changes the question you ask before adding syntax: does this make the source clearer, or only make this one preview look clever? For documents that will live beyond one draft, prefer the source.",
         ],
       },
       {
@@ -1689,7 +1698,7 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Technical writing",
     title: "Markdown Math with KaTeX",
     intro:
-      "Math support makes Markdown useful for study notes, engineering docs, product analysis, and research drafts. VeloWrite renders math with KaTeX in the preview, so you can keep formulas beside the plain-text source that explains them.",
+      "Math support makes Markdown useful for study notes, engineering docs, product analysis, and research drafts. VeloWrite renders math with KaTeX in the preview, so formulas can stay beside the plain text that explains them.",
     updated: "July 26, 2026",
     directory: [
       { label: "Inline math", href: "#inline-math" },
@@ -1984,7 +1993,7 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Editor comparison",
     title: "Typora Alternative",
     intro:
-      "Typora helped make focused Markdown editing feel mainstream. VeloWrite takes a different early path: browser trial first, lightweight Tauri desktop builds, local-first files, visible recovery, and a public roadmap for AI-native workflows.",
+      "Typora helped make focused Markdown editing feel mainstream. VeloWrite starts from a different place: browser trial first, lightweight Tauri desktop builds, local files, visible recovery, and a public AI roadmap.",
     updated: "July 31, 2026",
     directory: [
       { label: "Who this is for", href: "#who-this-is-for" },
@@ -2000,15 +2009,15 @@ const contentPages: Record<string, ContentPage> = {
         title: "Who should consider a Typora alternative",
         body: [
           "You may not need a different Markdown editor if your current setup is stable and already fits your workflow. A useful alternative should earn attention by solving a specific problem, not by claiming every mature editor is wrong.",
-          "VeloWrite is most relevant if you want a quick browser trial before installing anything, a lightweight desktop app built with Tauri, local-first files, basic recovery history, and a product roadmap that explains what is ready and what is not.",
+          "VeloWrite is most relevant if you want a quick browser trial before installing anything, a lightweight Tauri desktop app, local files, basic recovery history, and a roadmap that says what is ready and what is not.",
         ],
       },
       {
         id: "different-path",
         title: "What VeloWrite is trying to improve",
         body: [
-          "The goal is not to copy every mature Typora feature immediately. The early goal is a fast preview editor that feels honest: try it online, download desktop when local files matter, and see public roadmap status before expecting Pro workflows.",
-          "That approach gives new users a low-risk first step. You can paste Markdown into the web editor, check rendering, export or download a file, and then decide whether the desktop app deserves a place in your daily workflow.",
+          "The goal is not to copy every mature Typora feature immediately. The early goal is a fast preview editor with a clear path: try it online, download desktop when local files matter, and check the public roadmap before expecting Pro features.",
+          "That gives new users a low-risk first step. Paste Markdown into the web editor, check rendering, export or download a file, then decide whether the desktop app belongs in your daily setup.",
         ],
         example: {
           label: "Evaluate an editor with a real note",
@@ -2037,8 +2046,8 @@ const contentPages: Record<string, ContentPage> = {
         id: "decision-guide",
         title: "A practical decision guide",
         body: [
-          "Choose the editor that reduces friction for the documents you actually write. If you mostly need a mature paid desktop editor today, keep using the tool that already works. If you want to follow a lighter local-first Markdown editor while it is being built in public, VeloWrite is worth testing.",
-          "For teams and creators, the key question is not only price. It is whether the editor makes source files portable, recovery visible, and export predictable without turning every note into a cloud account.",
+          "Choose the editor that gets out of the way for the documents you actually write. If you need a mature paid desktop editor today, keep using the tool that already works. If you want to follow a lighter local-file Markdown editor while it is being built in public, VeloWrite is worth testing.",
+          "For teams and creators, the question is not only price. It is whether the editor keeps source files portable, makes recovery visible, and exports predictably without turning every note into a cloud account.",
         ],
         example: {
           label: "Comparison checklist",
@@ -2254,7 +2263,7 @@ const contentPages: Record<string, ContentPage> = {
         id: "browser-first",
         title: "Start in the browser before installing",
         body: [
-          "The web editor is the fastest way to decide whether VeloWrite's writing model fits you. Paste Markdown, switch between Write, Split, and Preview, then download a Markdown or HTML copy without creating an account.",
+          "The web editor is the quickest way to decide whether VeloWrite fits your writing style. Paste Markdown, switch between Write, Split, and Preview, then download a Markdown or HTML copy without creating an account.",
           "This browser-first path is useful on a shared or locked-down Mac because it avoids installation friction. Once a draft becomes something you want to keep editing, the desktop app is the better place for local files and offline work.",
         ],
         example: {
@@ -2370,7 +2379,7 @@ const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Export sanity check",
           markdown:
-            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.4_amd64.AppImage\n```",
+            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.5_amd64.AppImage\n```",
           note: "A small export test catches layout problems before the real document is due.",
         },
       },
@@ -2378,7 +2387,7 @@ const contentPages: Record<string, ContentPage> = {
         id: "when-desktop-wins",
         title: "When the desktop app is better than the browser",
         body: [
-          "The web editor is still the fastest way to try VeloWrite. The desktop app becomes the better choice when the document should live as a real local file, reopen later, work offline, or keep local history snapshots.",
+          "The web editor is still the quickest way to try VeloWrite. The desktop app becomes the better choice when the document should live as a real local file, reopen later, work offline, or keep local history snapshots.",
           "That split is intentional. Use the browser for low-friction evaluation, then move serious Markdown files into a local-first desktop workflow.",
         ],
       },
@@ -2576,8 +2585,9 @@ const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
-    updated: "August 7, 2026",
+    updated: "August 8, 2026",
     directory: [
+      { label: "0.2.5", href: "#v025" },
       { label: "0.2.4", href: "#v024" },
       { label: "0.2.3", href: "#v023" },
       { label: "0.2.2", href: "#v022" },
@@ -2600,6 +2610,17 @@ const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v025",
+        title: "0.2.5 preview",
+        body: [
+          "Improved the dedicated PDF layout engine with a designed cover page, stable contents page, PDF bookmarks, cleaner section starts, and better handling for long Chinese Markdown documents.",
+          "Added remembered PDF export preferences for paper size, margins, page numbers, page-number position, page-number format, preview watermark, and table styling.",
+          "Moved Settings into Writing, Reading, PDF, and Tables tabs so daily editing options are no longer mixed with advanced export controls.",
+          "Kept PDF table rendering readable with configurable header tint, row striping, border strength, and color style.",
+          "Updated installer metadata and download messaging for the 0.2.5 preview package set.",
+        ],
+      },
       {
         id: "v024",
         title: "0.2.4 preview",
@@ -3126,7 +3147,7 @@ function LandingPage() {
             </span>
             <span>
               <FolderOpen size={15} />
-              Desktop unlocks native files
+              Desktop opens native files
             </span>
           </div>
         </div>
@@ -3154,7 +3175,7 @@ function LandingPage() {
               <Code2 size={20} />
             </div>
             <h3>Online editor</h3>
-            <p>Best for opening a draft fast, editing Markdown, checking preview, and downloading a copy.</p>
+            <p>Use it to open a draft fast, edit Markdown, check the preview, and download a copy.</p>
             <ul>
               <li>Runs directly in the browser</li>
               <li>Drafts autosave locally in this browser</li>
@@ -3170,12 +3191,12 @@ function LandingPage() {
               <FolderOpen size={20} />
             </div>
             <h3>Desktop app</h3>
-            <p>Best when Markdown becomes real work: private files, local folders, offline editing, and native save workflows.</p>
+            <p>Use it when Markdown becomes real work: private files, local folders, offline editing, and native save.</p>
             <ul>
               <li>Open and save real files directly</li>
               <li>Work offline with local-first storage</li>
               <li>Use local history snapshots for recovery</li>
-              <li>Prepared for AI, sync, and publishing workflows</li>
+              <li>Ready to grow into AI, sync, and publishing</li>
             </ul>
             <a className="primary-link" href="/download?utm_source=compare&utm_medium=desktop">
               Download desktop <Download size={15} />
@@ -3187,7 +3208,7 @@ function LandingPage() {
       <section className="trust-band" aria-label="Why people can trust VeloWrite">
         <div className="section-heading">
           <span>Trust signals</span>
-          <h2>A preview build should still be clear about privacy, limits, and recovery.</h2>
+          <h2>A preview build should be clear about privacy, limits, and recovery.</h2>
         </div>
         <div className="trust-grid">
           <article>
@@ -3197,13 +3218,13 @@ function LandingPage() {
           </article>
           <article>
             <GitBranch size={20} />
-            <h3>Recovery is part of the foundation</h3>
-            <p>Local history and compare views are preview features today, because writers need rollback before they need cloud features.</p>
+            <h3>Recovery comes early</h3>
+            <p>Local history and compare views are in the preview because writers need rollback before they need cloud features.</p>
           </article>
           <article>
             <ListChecks size={20} />
             <h3>Roadmap is public</h3>
-            <p>Feedback from early users is tracked on the roadmap, with free preview work separated from future Pro workflows.</p>
+            <p>Early feedback is tracked on the roadmap, with free preview work separated from future Pro features.</p>
           </article>
           <article>
             <LockKeyhole size={20} />
@@ -3226,8 +3247,7 @@ function LandingPage() {
             <h3>From browser draft to desktop workflow</h3>
             <p>
               A short product demo covering the web editor, live preview,
-              export flow, privacy boundary, desktop preview, and future Pro
-              direction.
+              export, privacy, the desktop preview, and the planned Pro path.
             </p>
             <div className="hero-actions">
               <a className="primary-link" href="/web?utm_source=homepage_video&utm_medium=cta">
@@ -3250,17 +3270,17 @@ function LandingPage() {
         <div>
           <Sparkles size={21} />
           <h2>Fast first</h2>
-          <p>Use the web editor immediately, then keep a tiny native app for daily local work.</p>
+          <p>Start in the web editor, then keep the desktop app for daily local work.</p>
         </div>
         <div>
           <GitBranch size={21} />
           <h2>Recoverable writing</h2>
-          <p>Desktop history snapshots make rollback part of the writing workflow.</p>
+          <p>Desktop history snapshots give you a rollback point before a save replaces the file.</p>
         </div>
         <div>
           <Download size={21} />
-          <h2>Clear upgrade path</h2>
-          <p>The browser is the first touch; native folders, offline work, and history drive desktop adoption.</p>
+          <h2>Clear next step</h2>
+          <p>Use the browser first. Move to desktop when native folders, offline work, and history matter.</p>
         </div>
       </section>
 
@@ -3292,8 +3312,8 @@ function LandingPage() {
         <div className="resource-grid">
           <article className="resource-card">
             <FileText size={21} />
-            <h3>Markdown Library</h3>
-            <p>See the full article list: basics, advanced writing, editor comparisons, and today&apos;s published piece.</p>
+          <h3>Markdown Library</h3>
+            <p>Read the article list: basics, advanced writing, editor comparisons, and the latest published guide.</p>
             <a className="text-link" href="/docs?utm_source=homepage_resources&utm_medium=resource">
               Open library <ChevronRight size={15} />
             </a>
@@ -3309,7 +3329,7 @@ function LandingPage() {
           <article className="resource-card">
             <GitBranch size={21} />
             <h3>Release Notes</h3>
-            <p>See what changed in the current preview, what is stable today, and which Pro workflows are still planned.</p>
+            <p>See what changed in the current preview, what is stable today, and which Pro features are still planned.</p>
             <a className="text-link" href="/changelog?utm_source=homepage_resources&utm_medium=resource">
               Read changelog <ChevronRight size={15} />
             </a>
@@ -3317,7 +3337,7 @@ function LandingPage() {
           <article className="resource-card">
             <ListChecks size={21} />
             <h3>Public Roadmap</h3>
-            <p>See which user requests are recorded, what stays free, and which workflows may become Pro later.</p>
+            <p>See recorded user requests, what stays free, and which features may become Pro later.</p>
             <a className="text-link" href="/roadmap?utm_source=homepage_resources&utm_medium=resource">
               View roadmap <ChevronRight size={15} />
             </a>
@@ -3328,7 +3348,7 @@ function LandingPage() {
       <section className="landing-waitlist" aria-label="Private beta signup">
         <div>
           <span>Follow the desktop beta</span>
-          <h2>Get updates when bigger workflows land.</h2>
+          <h2>Get updates when larger features are ready.</h2>
         </div>
         <WaitlistForm />
       </section>
@@ -3341,7 +3361,7 @@ const demoSteps = [
   {
     title: "Write full screen",
     label: "Focused writing",
-    copy: "Open a dense Markdown document in write mode and edit without losing context.",
+    copy: "Open a dense Markdown document in write mode and edit without losing your place.",
     focus: "Full-screen Markdown editing",
   },
   {
@@ -3353,13 +3373,13 @@ const demoSteps = [
   {
     title: "Preview full screen",
     label: "Rendered output",
-    copy: "Switch to preview mode to inspect equations, tables, Mermaid code, and structured writing.",
+    copy: "Switch to preview mode to inspect equations, tables, Mermaid, and structured writing.",
     focus: "Full-screen rendered preview",
   },
   {
     title: "Export your work",
     label: "Take it with you",
-    copy: "Download Markdown or export clean HTML from the online editor.",
+    copy: "Download Markdown or export HTML from the online editor.",
     focus: "Markdown and HTML export",
   },
   {
@@ -3419,7 +3439,7 @@ function InteractiveDemoPage() {
             <p>
               Walk through the core writing flow: open the web editor, write
               Markdown, preview the rendered document, export your work, then
-              move serious local files to desktop.
+              move local files to desktop when they matter.
             </p>
           </div>
           <div className="demo-cta-panel">
@@ -3495,15 +3515,15 @@ function InteractiveDemoPage() {
             <Code2 size={21} />
             <h2>Free online editor</h2>
             <p>
-              Perfect for first contact: instant Markdown editing, live preview,
-              import, and export from the browser.
+              Good for a first test: Markdown editing, live preview, import,
+              and export from the browser.
             </p>
           </article>
           <article>
             <FolderOpen size={21} />
             <h2>Desktop preview</h2>
             <p>
-              The natural next step for real files, offline writing, recent
+              The better next step for real files, offline writing, recent
               documents, and local history snapshots.
             </p>
           </article>
@@ -3511,8 +3531,8 @@ function InteractiveDemoPage() {
             <Sparkles size={21} />
             <h2>Future Pro</h2>
             <p>
-              AI-native writing, private sync, and one-click publishing are the
-              paid workflow direction we want users to help shape.
+              AI writing, private sync, and one-click publishing are the paid
+              direction we want users to help shape.
             </p>
           </article>
         </section>
@@ -3528,7 +3548,7 @@ function ProPage() {
     {
       name: "Free Preview",
       price: "$0",
-      note: "Try the editor before trusting it with daily work.",
+    note: "Try the editor before trusting it with daily work.",
       features: [
         "Web and desktop Markdown editing",
         "Live preview and HTML export",
@@ -3539,7 +3559,7 @@ function ProPage() {
     {
       name: "Pro Yearly",
       price: "$29/year",
-      note: "Planned early-access price for the first paid users.",
+    note: "Planned early-access price for the first paid users.",
       features: [
         "AI writing actions with fair-use credits",
         "Deeper local history and named checkpoints",
@@ -3550,7 +3570,7 @@ function ProPage() {
     {
       name: "Lifetime Early",
       price: "$99",
-      note: "Planned early local-Pro license for people who prefer ownership.",
+    note: "Planned early local-Pro license for people who prefer ownership.",
       features: [
         "Lifetime local Pro features",
         "Advanced recovery and export features",
@@ -3587,8 +3607,8 @@ function ProPage() {
             <h1>Free now. Pro when it earns it.</h1>
             <p>
               VeloWrite is currently free to test. The first Pro direction is
-              intentionally focused: AI writing workflows, better export, and
-              deeper local recovery before heavier cloud features.
+              focused on AI writing, better export, and deeper local recovery
+              before heavier cloud features.
             </p>
             <div className="hero-actions">
               <a className="primary-link" href="/web?utm_source=pro_hero&utm_medium=cta">
@@ -3639,7 +3659,7 @@ function ProPage() {
           </div>
           <p className="pro-pricing-note">
             Hosted AI will use fair-use credits to keep the product sustainable.
-            Lifetime access is planned for local Pro features; unlimited hosted
+            Lifetime access is planned for local Pro features. Unlimited hosted
             AI is not planned.
           </p>
         </section>
@@ -3658,24 +3678,24 @@ function ProPage() {
           <article>
             <GitBranch size={22} />
             <h2>Advanced recovery</h2>
-            <p>Longer retention, named checkpoints, richer diff review, and safer restore workflows after the free baseline is stable.</p>
+            <p>Longer retention, named checkpoints, clearer diff review, and safer restore after the free baseline is stable.</p>
           </article>
           <article>
             <LockKeyhole size={22} />
             <h2>Local-first by default</h2>
-            <p>Keep basic files local while optional paid workflows add value without forcing every user into a hosted workspace.</p>
+            <p>Keep basic files local while paid features add value without forcing every user into a hosted workspace.</p>
           </article>
           <article>
             <Rocket size={22} />
             <h2>Later workflow options</h2>
-            <p>Private sync, one-click publishing, and team workflows remain possible after the individual writing workflow proves demand.</p>
+            <p>Private sync, one-click publishing, and team workflows remain possible after the individual writing flow proves demand.</p>
           </article>
         </section>
 
         <section className="pro-compare" aria-label="Free preview and future Pro comparison">
           <div className="section-heading">
             <span>Clear boundaries</span>
-            <h2>What users can rely on today, and what they can follow next.</h2>
+            <h2>What users can rely on today, and what is next.</h2>
           </div>
           <div className="pro-table">
             <div className="pro-row pro-row-head">
@@ -3684,8 +3704,8 @@ function ProPage() {
               <span>Future Pro direction</span>
             </div>
             {[
-              ["Markdown writing", "Web and desktop editing", "More structured writing workflows"],
-              ["Local files", "Native desktop open/save", "Vault workflows and workspace polish"],
+              ["Markdown writing", "Web and desktop editing", "More structured writing"],
+              ["Local files", "Native desktop open/save", "Vault-style workflows and workspace polish"],
               ["History recovery", "Basic local snapshots and restore preview", "Longer retention, more restore points, and cross-device recovery"],
               ["AI", "Not active", "Task-based writing actions with fair-use credits and BYOK"],
               ["Export", "Markdown download and HTML export", "Better PDF, DOCX, templates, and custom styling"],
@@ -3942,11 +3962,11 @@ function DownloadPage() {
             <div className="download-highlights-copy">
               <span>Latest improvements</span>
               <p>
-                External file changes now trigger a reload prompt, fullscreen focus mode is
-                cleaner, and PDF export handles Chinese and other Unicode text more reliably.
+                PDF export now has a designed cover, contents page, remembered page settings,
+                cleaner Chinese document layout, and a calmer tabbed Settings panel.
               </p>
             </div>
-            <a href="/changelog?utm_source=download_page&utm_medium=resource#v024">
+            <a href="/changelog?utm_source=download_page&utm_medium=resource#v025">
               See changelog details <ChevronRight size={15} />
             </a>
           </div>
@@ -4368,7 +4388,7 @@ function DocsIndexPage() {
           Markdown library
         </div>
         <h1>Markdown articles we are building for VeloWrite users.</h1>
-        <p className="legal-updated">Last updated: July 23, 2026</p>
+        <p className="legal-updated">Last updated: August 7, 2026</p>
         <p className="legal-intro">
           This library is the public version of the VeloWrite content plan. Published
           articles are available now; planned articles show what we will write next

@@ -88,7 +88,7 @@ function stableHash(value: string) {
   return (hash >>> 0).toString(36);
 }
 
-export function renderMarkdown(markdown: string, headings = extractHeadings(markdown)) {
+export function renderMarkdown(markdown: string, headings = extractHeadings(markdown), headingOffset = 0) {
   let headingIndex = 0;
   const renderer = new MarkdownIt({
     html: false,
@@ -109,7 +109,16 @@ export function renderMarkdown(markdown: string, headings = extractHeadings(mark
     return self.renderToken(tokens, index, options);
   };
 
-  return wrapMarkdownTables(wrapCodeTabSets(renderer.render(markdown)));
+  return offsetHeadingLevels(wrapMarkdownTables(wrapCodeTabSets(renderer.render(markdown))), headingOffset);
+}
+
+function offsetHeadingLevels(html: string, headingOffset: number) {
+  if (!headingOffset) return html;
+
+  return html.replace(/<\/?h([1-6])(\s[^>]*)?>/g, (tag, level, attributes = "") => {
+    const nextLevel = Math.min(6, Number(level) + headingOffset);
+    return tag.startsWith("</") ? `</h${nextLevel}>` : `<h${nextLevel}${attributes}>`;
+  });
 }
 
 export function highlightCode(value: string, language: string) {

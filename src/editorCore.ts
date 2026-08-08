@@ -10,6 +10,20 @@ export type TableExportStyle = {
   color: "green" | "blue" | "gray";
 };
 
+export type PdfPageSize = "a4" | "letter";
+export type PdfPageNumberFormat = "fraction" | "simple" | "label";
+export type PdfPageNumberAnchor = "left" | "center" | "right";
+export type PdfMarginPreset = "comfortable" | "compact";
+export type PdfExportStyle = {
+  previewMark: boolean;
+  pageNumbers: boolean;
+  pageNumberFormat: PdfPageNumberFormat;
+  pageNumberAnchor: PdfPageNumberAnchor;
+  pageSize: PdfPageSize;
+  margins: PdfMarginPreset;
+  table: TableExportStyle;
+};
+
 export type NativeFile = {
   path: string;
   name: string;
@@ -66,15 +80,26 @@ export const readingFontKey = "velowrite:reading-font";
 export const editorFontSizeKey = "velowrite:editor-font-size";
 export const defaultViewModeKey = "velowrite:default-view-mode";
 export const tableExportStyleKey = "velowrite:table-export-style";
+export const pdfExportStyleKey = "velowrite:pdf-export-style";
 export const browserHistoryKey = "velowrite:browser-history";
 export const draftHistoryKey = "velowrite:draft-history";
-export const appVersion = "0.2.4";
+export const appVersion = "0.2.5";
 export const freeHistorySnapshotLimit = 3;
 export const defaultTableExportStyle: TableExportStyle = {
   header: "tinted",
   rows: "striped",
   borders: "strong",
   color: "green",
+};
+
+export const defaultPdfExportStyle: PdfExportStyle = {
+  previewMark: true,
+  pageNumbers: true,
+  pageNumberFormat: "fraction",
+  pageNumberAnchor: "right",
+  pageSize: "a4",
+  margins: "comfortable",
+  table: defaultTableExportStyle,
 };
 
 const lastLocalFileKey = "velowrite:last-local-file";
@@ -515,5 +540,51 @@ export function getStoredTableExportStyle(): TableExportStyle {
     };
   } catch {
     return defaultTableExportStyle;
+  }
+}
+
+export function getStoredPdfExportStyle(): PdfExportStyle {
+  try {
+    const value = localStorage.getItem(pdfExportStyleKey);
+    if (!value) {
+      const legacyTableValue = localStorage.getItem(tableExportStyleKey);
+      if (!legacyTableValue) return defaultPdfExportStyle;
+      const legacyTable = JSON.parse(legacyTableValue);
+      return {
+        ...defaultPdfExportStyle,
+        table: {
+          header: legacyTable?.header === "plain" ? "plain" : "tinted",
+          rows: legacyTable?.rows === "plain" ? "plain" : "striped",
+          borders: legacyTable?.borders === "light" ? "light" : "strong",
+          color:
+            legacyTable?.color === "blue" || legacyTable?.color === "gray"
+              ? legacyTable.color
+              : "green",
+        },
+      };
+    }
+    const parsed = JSON.parse(value);
+    return {
+      previewMark: parsed?.previewMark !== false,
+      pageNumbers: parsed?.pageNumbers !== false,
+      pageNumberFormat:
+        parsed?.pageNumberFormat === "simple" || parsed?.pageNumberFormat === "label"
+          ? parsed.pageNumberFormat
+          : "fraction",
+      pageNumberAnchor:
+        parsed?.pageNumberAnchor === "left" || parsed?.pageNumberAnchor === "center"
+          ? parsed.pageNumberAnchor
+          : "right",
+      pageSize: parsed?.pageSize === "letter" ? "letter" : "a4",
+      margins: parsed?.margins === "compact" ? "compact" : "comfortable",
+      table: {
+        header: parsed?.table?.header === "plain" ? "plain" : "tinted",
+        rows: parsed?.table?.rows === "plain" ? "plain" : "striped",
+        borders: parsed?.table?.borders === "light" ? "light" : "strong",
+        color: parsed?.table?.color === "blue" || parsed?.table?.color === "gray" ? parsed.table.color : "green",
+      },
+    };
+  } catch {
+    return defaultPdfExportStyle;
   }
 }

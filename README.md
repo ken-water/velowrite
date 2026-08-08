@@ -1,12 +1,12 @@
 # VeloWrite
 
-VeloWrite is a Tauri-based Markdown editor concept focused on lightweight startup, a clean Typora-like writing surface, AI-native commands, local Git history, and one-click static publishing.
+VeloWrite is a Tauri-based Markdown editor focused on fast startup, a clean Typora-like writing surface, AI commands, local history, and static publishing.
 
 Repository: <https://github.com/ken-water/velowrite>
 
 ## Project Status
 
-VeloWrite is an early MVP. It is ready for dogfooding Markdown reading/editing workflows, but it is not yet a polished public beta. Feedback on real writing workflows, packaging, file handling, and history recovery is especially valuable.
+VeloWrite is an early MVP. It is ready for real Markdown reading and editing, but it is not yet a polished public beta. Feedback on writing, packaging, file handling, and history recovery is especially valuable.
 
 ## First Version
 
@@ -14,16 +14,16 @@ The current first version includes:
 
 - A real Markdown editing surface at `/app`
 - A browser-based Markdown editor at `/web` for online reading, editing, preview, and download
-- Browser-to-desktop conversion prompts for native folders, direct save, local history, and offline workflows
+- Browser-to-desktop prompts for native folders, direct save, local history, and offline work
 - Legal pages at `/privacy`, `/terms`, `/refund`, and `/license`
 - Cookie/analytics consent banner with Vercel Analytics loaded only after consent
-- Download page preview status for current features, limitations, and planned Pro capabilities
-- Pro roadmap page at `/pro` for future AI, sync, publishing, and commercial workflow interest
+- Download page preview status for current features, limits, and planned Pro capabilities
+- Pro roadmap page at `/pro` for future AI, sync, publishing, and commercial interest
 - CodeMirror 6 editor with Markdown syntax highlighting
 - Line numbers, active-line highlight, search, history, bracket matching, and tab indentation
 - Live Markdown preview
 - Split, writing-only, and preview-only modes
-- Document outline generated from Markdown headings
+- Document outline from Markdown headings
 - Editor-to-preview scroll sync
 - Word, character, line, and reading-time stats
 - Unsaved-change guards for new/open/browser close
