@@ -36,6 +36,7 @@ const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
 const downloadVersion = "0.2.5";
 const downloadReleaseDate = "August 8, 2026";
+const seoDate = "2026-08-08";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -45,7 +46,7 @@ const exampleMarkdownKey = "velowrite:example-markdown";
 const siteUrl = "https://velowrite.app";
 const defaultSeoTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultSeoDescription =
-  "VeloWrite is a private Markdown editor for browser drafts, live preview, clean export, local history, and lightweight desktop files.";
+  "VeloWrite is a free online Markdown editor and lightweight desktop app for private drafts, live preview, PDF export, local files, and history recovery.";
 const breadcrumbLabels: Record<string, string> = {
   "/web": "Web Editor",
   "/download": "Download",
@@ -304,9 +305,9 @@ function routeSeo(pathname: string): SeoConfig {
 
   if (matchesRoute(pathname, "/pro")) {
     return {
-        title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
-        description:
-        "See the planned VeloWrite Pro path: early pricing, AI writing commands, advanced exports, recovery controls, sync, and publishing.",
+      title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
+      description:
+        "See the planned Pro path: pricing, AI writing commands, advanced exports, recovery controls, sync, and publishing.",
       canonicalPath: "/pro",
     };
   }
@@ -324,7 +325,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Markdown Library - Guides, Workflows, and Advanced Markdown",
       description:
-        "Read VeloWrite Markdown articles about basics, history, writing, code blocks, math, local files, and editor comparisons.",
+        "Read Markdown articles about basics, history, writing, code blocks, math, local files, and editor comparisons.",
       canonicalPath: "/docs",
     };
   }
@@ -333,7 +334,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Public Roadmap - User Feedback and Planned Improvements",
       description:
-        "See recorded VeloWrite user requests, shipped preview fixes, and the local-file editor improvements being researched next.",
+        "See recorded user requests, shipped preview fixes, and the editor improvements being planned next.",
       canonicalPath: "/roadmap",
     };
   }
@@ -342,7 +343,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Markdown Guide - Practical Writing Examples",
       description:
-        "A Markdown guide with examples for headings, lists, tables, math, code tabs, and VeloWrite desktop use.",
+        "A Markdown guide with examples for headings, lists, tables, math, code tabs, and desktop use.",
       canonicalPath: "/guide",
     };
   }
@@ -351,7 +352,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Changelog - Release Notes and Preview Updates",
       description:
-        "Read the VeloWrite changelog for preview releases, UI fixes, SEO changes, guide updates, and roadmap notes.",
+        "Read preview release notes, UI fixes, SEO changes, guide updates, and roadmap notes.",
       canonicalPath: "/changelog",
     };
   }
@@ -360,7 +361,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite FAQ - Markdown Editor, Privacy, Desktop, and Pro",
       description:
-        "Answers about VeloWrite's online Markdown editor, Tauri desktop app, privacy model, platform support, preview limits, and planned Pro features.",
+        "Answers about the online Markdown editor, desktop app, privacy model, platform support, preview limits, and planned Pro features.",
       canonicalPath: "/faq",
     };
   }
@@ -387,7 +388,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Refund Policy",
       description:
-        "Current refund expectations for the free VeloWrite preview and future paid desktop or subscription plans.",
+        "Current refund expectations for the free preview and future paid desktop or subscription plans.",
       canonicalPath: "/refund",
     };
   }
@@ -405,7 +406,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Feedback",
       description:
-        "Send feedback about the VeloWrite web editor, desktop preview builds, Markdown editing, installers, and planned Pro features.",
+        "Send feedback about the web editor, desktop preview builds, Markdown editing, installers, and planned Pro features.",
       canonicalPath: "/feedback",
       robots: "noindex, follow",
     };
@@ -529,7 +530,7 @@ function SeoManager({ config }: { config: SeoConfig }) {
         "@id": `${siteUrl}${config.canonicalPath}#article`,
         headline: config.title,
         description: config.description,
-        dateModified: "2026-08-07",
+        dateModified: seoDate,
         mainEntityOfPage: `${siteUrl}${config.canonicalPath}`,
         author: { "@id": `${siteUrl}/#organization` },
         publisher: { "@id": `${siteUrl}/#organization` },
@@ -838,12 +839,12 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "What is VeloWrite?",
         answer:
-          "VeloWrite is a private Markdown editor for browser drafts, live preview, clean export, local history, and lightweight desktop files.",
+          "VeloWrite is a Markdown editor for browser drafts, live preview, clean export, local history, and lightweight desktop files.",
       },
       {
         question: "Is VeloWrite a Typora alternative?",
         answer:
-          "VeloWrite is for users who like a clean Typora-style Markdown editor but also want a browser trial, lightweight Tauri desktop builds, local files, and a public AI roadmap.",
+          "VeloWrite is for users who want a clean Typora-style editor plus a browser trial, lightweight desktop builds, local files, and a public AI roadmap.",
       },
       {
         question: "What is the best lightweight Markdown editor for Windows?",
@@ -863,7 +864,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Can I try VeloWrite without installing anything?",
         answer:
-          "Yes. Open the web editor and start writing in the browser. It is the quickest way to test VeloWrite before installing the desktop app.",
+          "Yes. Open the web editor and start writing in the browser. It is the quickest way to test VeloWrite.",
       },
       {
         question: "Can I edit Markdown online without uploading files?",
@@ -878,7 +879,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "What is the difference between the web editor and desktop app?",
         answer:
-          "Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use the desktop app for real local files, native open and save, offline work, recent files, and local history snapshots.",
+          "Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use the desktop app for local files, native open and save, offline work, recent files, and local history snapshots.",
       },
       {
         question: "Do I need an account to use it?",
@@ -938,12 +939,12 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Is VeloWrite free to use today?",
         answer:
-          "The current public build is a free preview for early testers. The first Pro direction is AI writing actions, advanced export, and deeper recovery. Heavier cloud features remain later candidates.",
+          "The current public build is a free preview. Pro is planned for AI writing actions, advanced export, and deeper recovery.",
       },
       {
         question: "What will VeloWrite Pro include?",
         answer:
-          "The planned early Pro price is $29/year, with a $99 lifetime local-Pro option. Expected Pro features include AI writing actions with fair-use credits, BYOK AI, advanced export, and deeper local recovery. Checkout is not open yet.",
+          "The planned early Pro price is $29/year, with a $99 lifetime option. Expected Pro features include AI writing actions, advanced export, and deeper local recovery.",
       },
       {
         question: "Where do I send feedback if something feels off?",
@@ -977,15 +978,15 @@ const landingFaqs = [
 const conversationalFaqCards = [
   {
     prompt: "I just need to edit a Markdown file quickly.",
-    answer: "Use the web editor first. It opens in the browser, previews Markdown, and lets you download a .md or HTML copy without signing in.",
+    answer: "Use the web editor first. It opens fast, previews Markdown, and lets you download .md or HTML without signing in.",
   },
   {
     prompt: "I care about private local notes.",
-    answer: "Use the desktop app when you need native open and save, offline work, recent files, and local history snapshots on your own machine.",
+    answer: "Use the desktop app for native open and save, offline work, recent files, and local history on your own machine.",
   },
   {
     prompt: "I want to know what is not ready yet.",
-    answer: "AI commands, private sync, publishing, account-based sharing, and signed installers are still preview or roadmap items.",
+    answer: "AI commands, private sync, publishing, account sharing, and signed installers are still preview work.",
   },
 ] as const;
 
@@ -2584,7 +2585,7 @@ const contentPages: Record<string, ContentPage> = {
     eyebrow: "Release notes",
     title: "VeloWrite Changelog",
     intro:
-      "This changelog keeps the preview history readable. It shows what changed, why it changed, and which parts are still intentionally incomplete. Older preview versions are kept below so you can scan the release history at a glance.",
+      "This changelog tracks what shipped in each preview build, what got better, and what is still left for later. Older releases stay below so you can compare versions without guessing.",
     updated: "August 8, 2026",
     directory: [
       { label: "0.2.5", href: "#v025" },
@@ -2614,22 +2615,21 @@ const contentPages: Record<string, ContentPage> = {
         id: "v025",
         title: "0.2.5 preview",
         body: [
-          "Improved the dedicated PDF layout engine with a designed cover page, stable contents page, PDF bookmarks, cleaner section starts, and better handling for long Chinese Markdown documents.",
-          "Added remembered PDF export preferences for paper size, margins, page numbers, page-number position, page-number format, preview watermark, and table styling.",
-          "Moved Settings into Writing, Reading, PDF, and Tables tabs so daily editing options are no longer mixed with advanced export controls.",
-          "Kept PDF table rendering readable with configurable header tint, row striping, border strength, and color style.",
-          "Updated installer metadata and download messaging for the 0.2.5 preview package set.",
+          "Improved PDF export so long Markdown documents start with a real cover page and a stable contents page.",
+          "Saved PDF choices such as paper size, margins, page numbers, page position, page style, watermark, and table styling for the next export.",
+          "Split Settings into Writing, Reading, PDF, and Tables tabs so the panel is easier to scan.",
+          "Updated the download page and release notes for the 0.2.5 preview build.",
         ],
       },
       {
         id: "v024",
         title: "0.2.4 preview",
         body: [
-          "Hardened dedicated PDF export so Chinese and other Unicode text require the bundled Unicode font before export continues.",
-          "Changed Unicode PDF font loading failures into clear export errors instead of producing a PDF that appears successful but renders garbled text.",
-          "Added automated PDF export coverage that verifies the bundled Unicode font is embedded for Chinese text.",
+          "Made PDF export refuse to continue if the bundled Unicode font is missing, so Chinese text does not turn into gibberish.",
+          "Turned font-loading failures into clear export errors instead of a broken-looking PDF.",
+          "Added automated PDF checks for Chinese text.",
           "Added a release policy article that explains how commits, local builds, GitHub Actions artifacts, GitHub Releases, installer assets, download dates, and changelog updates fit together.",
-          "Updated the download page and release-facing metadata for the 0.2.4 preview package set.",
+          "Updated the download page and release notes for the 0.2.4 preview build.",
         ],
       },
       {
@@ -3942,8 +3942,8 @@ function DownloadPage() {
           </div>
           <h1>Download VeloWrite</h1>
           <p>
-            Get the current preview build for native Markdown reading, editing,
-            preview, HTML export, recent files, and local history snapshots.
+            Download the current preview build if you want a fast Markdown app
+            with local files, PDF export, recent files, and history recovery.
           </p>
           <div className="download-release-summary" aria-label="Latest release information">
             <div>
@@ -3962,8 +3962,9 @@ function DownloadPage() {
             <div className="download-highlights-copy">
               <span>Latest improvements</span>
               <p>
-                PDF export now has a designed cover, contents page, remembered page settings,
-                cleaner Chinese document layout, and a calmer tabbed Settings panel.
+                PDF export now has a designed cover, stable contents page, remembered page
+                settings, and cleaner Chinese document layout. Settings are split into
+                smaller groups so the panel is easier to scan.
               </p>
             </div>
             <a href="/changelog?utm_source=download_page&utm_medium=resource#v025">
@@ -3992,7 +3993,7 @@ function DownloadPage() {
               </div>
               <p>{item.note}</p>
               <p className="download-detail">{item.detail}</p>
-              <p className="download-version-line">Current asset: v{downloadVersion} · {downloadReleaseDate}</p>
+              <p className="download-version-line">Version v{downloadVersion} · {downloadReleaseDate}</p>
               {item.fileName ? (
                 <a
                   className="download-action"
@@ -4010,16 +4011,16 @@ function DownloadPage() {
 
         <section className="preview-status" aria-label="Preview version status">
           <article>
-            <h2>Works Today</h2>
+            <h2>Included now</h2>
             <ul>
-              <li>Online Markdown editing, preview, and local browser draft autosave</li>
-              <li>Desktop open, save, polished HTML export, dedicated PDF export, recent files, and local history snapshots</li>
+              <li>Online Markdown editing and preview with local browser draft autosave</li>
+              <li>Desktop open and save, HTML export, dedicated PDF export, recent files, and local history snapshots</li>
               <li>Windows, macOS Apple Silicon, and Linux preview packages</li>
               <li>Privacy policy, cookie consent, and waitlist email handling</li>
             </ul>
           </article>
           <article>
-            <h2>Preview Limits</h2>
+            <h2>Still preview</h2>
             <ul>
               <li>No code signing yet for Windows, and future macOS preview DMGs will also require signing and notarization work</li>
               <li>No account system, cloud sync, encrypted sharing, or team workspace</li>
@@ -4029,7 +4030,7 @@ function DownloadPage() {
             </ul>
           </article>
           <article>
-            <h2>Planned Pro Path</h2>
+            <h2>Planned Pro path</h2>
             <ul>
               <li>AI writing commands, rewrite tools, and Mermaid generation</li>
               <li>Private sync and multi-device workflows</li>
@@ -4067,7 +4068,7 @@ function DownloadPage() {
         </section>
 
         <section className="download-notes" aria-label="Install safety notes">
-          <h2>Install Safety Notes</h2>
+          <h2>Before you install</h2>
           <ul>
             <li>Use this download page or the official GitHub Releases page as the source for installers.</li>
             <li>Windows builds are not code-signed yet, so SmartScreen may show a warning during install.</li>
@@ -4469,9 +4470,8 @@ function FAQPage() {
           </div>
           <h1>Answers before you try VeloWrite.</h1>
           <p>
-            This page collects the questions people usually ask before trying VeloWrite.
-            Use it to understand the preview boundaries, installation notes, and how the
-            browser and desktop workflows fit together.
+            Quick answers on what VeloWrite does, what the preview includes, and
+            when the desktop app is the better fit.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href="/web?utm_source=faq_hero&utm_medium=cta">

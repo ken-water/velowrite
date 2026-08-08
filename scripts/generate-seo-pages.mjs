@@ -7,11 +7,11 @@ const distDir = path.join(repoRoot, "dist");
 const indexPath = path.join(distDir, "index.html");
 const version = JSON.parse(fs.readFileSync(path.join(repoRoot, "package.json"), "utf8")).version;
 const siteUrl = "https://velowrite.app";
-const today = "2026-08-07";
+const today = new Date().toISOString().slice(0, 10);
 
 const defaultTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultDescription =
-  "VeloWrite is a private Markdown editor for browser drafts, live preview, clean export, local history, and lightweight desktop files.";
+  "VeloWrite is a free online Markdown editor and lightweight desktop app for private drafts, live preview, PDF export, local files, and history recovery.";
 
 const breadcrumbLabels = new Map([
   ["/web", "Web Editor"],
