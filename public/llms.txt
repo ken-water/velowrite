@@ -27,6 +27,7 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 - Markdown Editor for Mac article: https://velowrite.app/docs/markdown-editor-for-mac
 - Markdown Editor for Linux article: https://velowrite.app/docs/markdown-editor-for-linux
 - Preview Release Policy article: https://velowrite.app/docs/preview-release-policy
+- PDF Export Notes article: https://velowrite.app/docs/pdf-export-notes
 - Markdown guide: https://velowrite.app/guide
 - Changelog: https://velowrite.app/changelog includes the version directory for 0.1.0 through 0.2.5.
 - FAQ: https://velowrite.app/faq
@@ -35,15 +36,15 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 
 ## Product Summary
 
-VeloWrite helps writers, developers, students, and teams draft Markdown in the browser, preview rendered output, download Markdown, export HTML, export a dedicated VeloWrite PDF, and move local files to a lightweight desktop app built with Tauri. The site also includes a Markdown guide, a staged article library, changelog, and public feedback roadmap for preview updates.
+VeloWrite lets people draft Markdown in the browser, check the rendered result, and download Markdown or HTML. The Tauri desktop app adds local files, offline work, history, and PDF export. The website also has Markdown guides, release notes, and a public roadmap.
 
-The current public version is v0.2.5, released on August 8, 2026 as a free preview. It includes online editing, live preview, Markdown file download, HTML export, dedicated PDF export with stricter Unicode font handling for Chinese and other non-Latin text, designed PDF cover and contents pages, remembered PDF page settings, configurable PDF table styling, export readiness checks, adjustable long-form reading palettes and preview fonts, bidirectional split scrolling, docs examples that open directly in the web editor, a web-to-desktop draft handoff, desktop open/save, recent files, local history snapshots with restore preview and jump-to-change comparison, math rendering, code highlighting, tabbed multi-language code previews, Windows Markdown file association support, preview installers for Windows, macOS Apple Silicon, Linux AppImage, Debian, and RPM, automatic desktop file-change detection prompts, a visible latest-release check on desktop, a calmer tabbed Settings panel, and release policy documentation that explains version, installer, and changelog timing.
+The current public version is v0.2.5, released on August 8, 2026 as a free preview. The web editor supports editing, live preview, Markdown download, and HTML export. The desktop app adds local open and save, recent files, three local history snapshots, split scrolling, PDF export, external file-change prompts, and release checks. PDF options cover page layout, contents, page numbers, watermarks, table styles, and Unicode font handling for Chinese and other non-Latin text. Preview installers are available for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux.
 
 ## Positioning
 
 - Category: Markdown editor, online Markdown editor, local-first writing app, lightweight desktop writing tool.
 - Audience: developers, technical writers, product teams, students, documentation teams, and Markdown users who want a fast Typora-like editor.
-- Differentiation: fast web trial, local files, privacy-focused editing, lightweight Tauri packaging, and planned AI, sync, and publishing workflows.
+- Differentiation: browser access without an account, local desktop files, lightweight Tauri packaging, and a public roadmap for AI, sync, and publishing.
 
 ## Current Preview Limits
 
@@ -54,22 +55,22 @@ The current public version is v0.2.5, released on August 8, 2026 as a free previ
 
 ## FAQ
 
-- What is VeloWrite? A private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.
-- What is the best lightweight Markdown editor for Windows? VeloWrite is designed for people who want a lightweight Markdown editor for Windows with browser preview, desktop files, recent documents, local history snapshots, and HTML export.
+- What is VeloWrite? A Markdown editor with a browser version for quick drafts and a lightweight Tauri desktop app for local files, PDF export, and history.
+- What is the best lightweight Markdown editor for Windows? VeloWrite is a lightweight Windows Markdown editor with browser preview, desktop files, recent documents, local history snapshots, and export.
 - Can I edit Markdown online without uploading files? Yes. Normal VeloWrite web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage on the same device.
 - How is VeloWrite different from Typora? VeloWrite follows a Typora-like writing direction but starts with a quick browser editor, lightweight Tauri desktop builds, local files, visible preview limits, and a public roadmap for AI, sync, and publishing.
 - Does VeloWrite work offline? The desktop preview is the offline path for real local files. The web editor is better for quick drafts, Markdown download, and HTML export while the browser is available.
 - Is VeloWrite safe for private notes? VeloWrite keeps the normal editing path private. Browser drafts stay in localStorage, and desktop files plus local history snapshots stay on your device by default.
-- What can I read first? The Markdown library at https://velowrite.app/docs lists the currently published articles and the planned article queue. Start with What Is Markdown if you are new to the format, read A Short History of Markdown for context, then read The Future of Markdown Writing for product direction, Online Markdown Editor for the browser workflow, Markdown Basics for source structure, Markdown for Writers, Markdown for Developers, Markdown Code Blocks and Tabs, Advanced Markdown, Markdown Math with KaTeX, Markdown to Blog, Typora Alternative, Markdown Editor for Windows, Markdown Editor for Mac, Markdown Editor for Linux, or Preview Release Policy based on the question you need answered. Article examples can be opened directly in the web editor for hands-on preview. The changelog explains what changed across preview versions 0.1.0 through 0.2.5.
+- What can I read first? New Markdown users can start with What Is Markdown and Markdown Basics. Writers and developers have separate practical guides. Platform articles cover Windows, macOS, and Linux. Preview Release Policy and PDF Export Notes explain downloads and export limits. The full list is at https://velowrite.app/docs, and examples can open directly in the web editor.
 - Can I try VeloWrite without installing anything? Yes. Open the web editor in your browser and start writing immediately.
 - What happens if I refresh the browser while editing? Your draft stays in localStorage in the same browser, so a refresh on the same device can bring it back.
 - Who is VeloWrite for? Developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.
-- Is VeloWrite free to use today? The current public build is a free preview. The first Pro direction focuses on AI writing workflows, advanced export, and deeper recovery while heavier cloud features remain later candidates.
+- Is VeloWrite free to use today? Yes. The current public build is a free preview. AI writing, advanced export, and deeper recovery are candidates for Pro.
 - Does VeloWrite upload my Markdown documents? Normal web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage, and desktop files and history snapshots stay on your device by default.
-- What is the difference between web and desktop? Web is best for quick drafts, preview, Markdown download, HTML export, and handing a draft toward the desktop app. Desktop is better for real local files, native open and save, offline work, recent files, and local history snapshots.
-- Does VeloWrite handle math, tables, and code highlighting? Yes. The preview supports Markdown tables, KaTeX math rendering, syntax-highlighted code blocks, and tabbed previews for multi-language code examples.
+- What is the difference between web and desktop? Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use desktop for local files, direct save, offline work, recent files, PDF export, and history snapshots.
+- Does VeloWrite handle math, tables, and code highlighting? Yes. The preview supports Markdown tables, KaTeX math, highlighted code blocks, and tabbed previews for multi-language examples.
 - Where can users see recorded feedback? The public roadmap at https://velowrite.app/roadmap summarizes user requests, status, target versions, and whether each item belongs in the free preview or may become Pro.
-- What will VeloWrite Pro include? The planned early Pro direction is $29/year with a $99 lifetime local-Pro option. It is expected to include AI writing actions with fair-use credits, BYOK AI, advanced export, and deeper local recovery. Checkout is not open yet.
+- What will VeloWrite Pro include? The planned early price is $29/year with a $99 lifetime local-Pro option. Candidates include AI writing actions with fair-use credits, BYOK AI, advanced export, and deeper local recovery. Checkout is not open yet.
 
 ## Privacy Notes
 
@@ -79,4 +80,4 @@ Waitlist and feedback forms send submitted contact details and message fields to
 
 ## Suggested Description
 
-VeloWrite is a private online Markdown editor and lightweight Tauri desktop app for fast writing, live preview, export, local history, and native file workflows.
+VeloWrite is an online Markdown editor and lightweight Tauri desktop app for live preview, local files, PDF export, and history.

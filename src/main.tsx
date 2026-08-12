@@ -71,6 +71,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/markdown-editor-for-mac": "Markdown Editor for Mac",
   "/docs/markdown-editor-for-linux": "Markdown Editor for Linux",
   "/docs/preview-release-policy": "Preview Release Policy",
+  "/docs/pdf-export-notes": "PDF Export Notes",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -153,6 +154,7 @@ const docPageRoutes = {
   "/docs/markdown-editor-for-mac": "markdownEditorForMac",
   "/docs/markdown-editor-for-linux": "markdownEditorForLinux",
   "/docs/preview-release-policy": "previewReleasePolicy",
+  "/docs/pdf-export-notes": "pdfExportNotes",
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
@@ -173,6 +175,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-editor-for-mac",
   "/docs/markdown-editor-for-linux",
   "/docs/preview-release-policy",
+  "/docs/pdf-export-notes",
 ]);
 
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
@@ -260,6 +263,11 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
     title: "How VeloWrite Preview Releases Work - Versions, Downloads, and Changelog",
     description:
       "Understand how VeloWrite preview versions, GitHub Releases, installer assets, changelog entries, and download page dates fit together.",
+  },
+  "/docs/pdf-export-notes": {
+    title: "Markdown to PDF Export Notes - Tables, Chinese Text, and Preview Limits",
+    description:
+      "Understand VeloWrite PDF export for Markdown documents, including cover pages, contents, tables, Chinese text, page settings, watermarks, and preview limits.",
   },
 };
 
@@ -758,22 +766,22 @@ const publicRoadmapItems = [
 const roadmapStages = [
   {
     label: "Shipped",
-    description: "Available in the current free preview or already reflected in public docs.",
+    description: "Available now in the free preview or public docs.",
     items: publicRoadmapItems.filter((item) => ["Shipped", "Free foundation shipped"].includes(item.status)),
   },
   {
     label: "In progress",
-    description: "Core preview work that should improve the free editor before Pro features expand.",
+    description: "Free editor work we are still tightening.",
     items: publicRoadmapItems.filter((item) => item.status === "In progress"),
   },
   {
     label: "Next / designing",
-    description: "Useful follow-up work that needs more product detail or validation before release.",
+    description: "Useful work that needs more product detail before release.",
     items: publicRoadmapItems.filter((item) => ["Designing", "Researching"].includes(item.status)),
   },
   {
     label: "Pro candidates",
-    description: "Later features that may become paid once the free editor is stable.",
+    description: "Larger features that may become paid after the free editor is stable.",
     items: publicRoadmapItems.filter((item) => item.status === "Later"),
   },
 ];
@@ -824,7 +832,7 @@ const docGroups = [
     description: "Preview release notes for downloads, installer assets, PDF export expectations, and troubleshooting.",
     items: [
       { title: "How VeloWrite Preview Releases Work", href: "/docs/preview-release-policy", status: "Published" },
-      { title: "PDF Export Notes", href: "/docs/pdf-export-notes", status: "Planned" },
+      { title: "PDF Export Notes", href: "/docs/pdf-export-notes", status: "Published" },
       { title: "Preview Build Limitations", href: "/docs/preview-build-limitations", status: "Planned" },
       { title: "Troubleshooting Guide", href: "/docs/troubleshooting", status: "Planned" },
       { title: "Download Safety", href: "/docs/download-safety", status: "Planned" },
@@ -839,17 +847,17 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "What is VeloWrite?",
         answer:
-          "VeloWrite is a Markdown editor for browser drafts, live preview, clean export, local history, and lightweight desktop files.",
+          "VeloWrite is a Markdown editor for browser drafts, live preview, PDF and HTML export, local history, and desktop files.",
       },
       {
         question: "Is VeloWrite a Typora alternative?",
         answer:
-          "VeloWrite is for users who want a clean Typora-style editor plus a browser trial, lightweight desktop builds, local files, and a public AI roadmap.",
+          "VeloWrite is for users who like a Typora-style writing surface but also want a browser editor, lightweight desktop builds, local files, and a public roadmap.",
       },
       {
         question: "What is the best lightweight Markdown editor for Windows?",
         answer:
-          "VeloWrite is a lightweight Markdown editor for Windows with browser preview, desktop files, recent documents, local history snapshots, and HTML export.",
+          "VeloWrite is a lightweight Markdown editor for Windows with browser preview, desktop files, recent documents, local history snapshots, and export.",
       },
       {
         question: "Who is VeloWrite for?",
@@ -879,7 +887,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "What is the difference between the web editor and desktop app?",
         answer:
-          "Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use the desktop app for local files, native open and save, offline work, recent files, and local history snapshots.",
+          "Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use the desktop app when you need local files, direct save, offline work, recent files, and history snapshots.",
       },
       {
         question: "Do I need an account to use it?",
@@ -889,7 +897,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Which platforms can I download right now?",
         answer:
-          "VeloWrite has a web editor and preview desktop installers for Windows x64, macOS Apple Silicon, Linux AppImage, Debian, and RPM-based Linux distributions.",
+          "VeloWrite has a web editor plus preview installers for Windows x64, macOS Apple Silicon, Linux AppImage, Debian, and RPM-based Linux distributions.",
       },
       {
         question: "Does VeloWrite work offline?",
@@ -909,12 +917,12 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Does VeloWrite handle math, tables, and code highlighting?",
         answer:
-          "Yes. The preview supports Markdown tables, KaTeX math rendering, syntax-highlighted code blocks, and tabbed previews for multi-language code examples.",
+          "Yes. The preview supports Markdown tables, KaTeX math, highlighted code blocks, and tabbed previews for multi-language examples.",
       },
       {
         question: "Can I download my work as Markdown or HTML?",
         answer:
-          "Yes. The web editor can download Markdown files and export clean HTML. The desktop app also supports local files and HTML export in the current preview.",
+          "Yes. The web editor can download Markdown files and export HTML. The desktop app also supports local files, HTML export, and PDF export in the current preview.",
       },
       {
         question: "Can the desktop app help me recover older versions?",
@@ -944,7 +952,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "What will VeloWrite Pro include?",
         answer:
-          "The planned early Pro price is $29/year, with a $99 lifetime option. Expected Pro features include AI writing actions, advanced export, and deeper local recovery.",
+          "The planned early Pro price is $29/year, with a $99 lifetime option. Pro candidates include AI writing actions, advanced export, and deeper local recovery.",
       },
       {
         question: "Where do I send feedback if something feels off?",
@@ -986,7 +994,7 @@ const conversationalFaqCards = [
   },
   {
     prompt: "I want to know what is not ready yet.",
-    answer: "AI commands, private sync, publishing, account sharing, and signed installers are still preview work.",
+    answer: "AI commands, private sync, publishing, account sharing, and signed installers are not ready yet.",
   },
 ] as const;
 
@@ -2102,7 +2110,7 @@ const contentPages: Record<string, ContentPage> = {
       },
       {
         id: "draft-for-reading",
-        title: "Draft for reading, not just for search",
+        title: "Draft for readers before search engines",
         body: [
           "A good blog draft should make sense to a person before it tries to rank for a phrase. Use a direct opening, headings that describe real questions, short paragraphs, and examples that prove the point.",
           "Search terms still matter, but they belong in the natural language of the article: the title, a relevant heading, the introduction, and the places where the topic is genuinely explained. Avoid repeating a phrase when a clearer sentence would do.",
@@ -2367,7 +2375,7 @@ const contentPages: Record<string, ContentPage> = {
         title: "Why Tauri matters on Linux",
         body: [
           "A Tauri desktop app can keep the package smaller than many Electron-style tools while still offering a modern interface. The goal is a fast Markdown surface without a heavy runtime feel.",
-          "For a writing tool, that matters because the app may stay open beside a terminal, browser, source tree, or PDF viewer for hours. Lower overhead is not just a benchmark; it changes whether the tool feels welcome in a daily workspace.",
+          "For a writing tool, that matters because the app may stay open beside a terminal, browser, source tree, or PDF viewer for hours. Lower overhead changes whether the tool feels welcome in a daily workspace.",
         ],
       },
       {
@@ -2465,6 +2473,102 @@ const contentPages: Record<string, ContentPage> = {
     cta: {
       primary: { href: "/download?utm_source=release_policy_cta&utm_medium=cta", label: "Check Downloads" },
       secondary: { href: "/changelog?utm_source=release_policy_cta&utm_medium=resource", label: "Read Changelog" },
+    },
+  },
+  pdfExportNotes: {
+    eyebrow: "Release trust",
+    title: "PDF Export Notes for Markdown Documents",
+    intro:
+      "PDF export matters when a draft needs to leave the editor. This page explains what VeloWrite exports today, what to check before sending a file, and which parts are still preview behavior.",
+    updated: "August 12, 2026",
+    directory: [
+      { label: "Use cases", href: "#use-cases" },
+      { label: "Current export", href: "#current-export" },
+      { label: "Tables", href: "#tables" },
+      { label: "Chinese text", href: "#chinese-text" },
+      { label: "Settings", href: "#settings" },
+      { label: "Preview limits", href: "#preview-limits" },
+      { label: "Checklist", href: "#checklist" },
+    ],
+    sections: [
+      {
+        id: "use-cases",
+        title: "What PDF export is for",
+        body: [
+          "Markdown works well while a document is still changing. PDF works better when the document needs to be shared, reviewed, archived, or printed with a stable layout.",
+          "The export should keep the document structure intact. Headings, contents, tables, code, page numbers, and mixed-language text all need to survive the move from Markdown source to PDF.",
+        ],
+      },
+      {
+        id: "current-export",
+        title: "What VeloWrite exports today",
+        body: [
+          "The desktop preview uses a dedicated PDF export path instead of a raw browser print dialog. It avoids browser headers, local URLs, and page chrome that should not appear in a document.",
+          "VeloWrite can add a cover page, generate a contents page from headings, keep page numbers visible, and remember the PDF choices you used last time.",
+        ],
+        example: {
+          label: "Export review source",
+          markdown:
+            "# Export Review\n\n## Before sharing\n\n- Check the title\n- Check tables\n- Check numbered lists\n- Check Chinese or mixed-language paragraphs\n\n| Area | What to verify |\n| --- | --- |\n| Cover | Title and document summary look right |\n| Contents | Major sections appear |\n| Tables | Borders and header rows remain readable |\n| Text | Chinese and English text render correctly |",
+          note: "Use a small review block like this when testing a new export style.",
+        },
+      },
+      {
+        id: "tables",
+        title: "Tables need clearer rules than normal preview",
+        body: [
+          "Tables reveal PDF problems quickly. A table may look fine in a resizable preview pane, then become cramped, lose contrast, or wrap awkwardly on a fixed PDF page.",
+          "VeloWrite includes table styling choices for PDF export, including header treatment and alternating row style. The default keeps borders and headers visible. You can adjust the table style in Settings.",
+        ],
+        example: {
+          label: "Table export check",
+          markdown:
+            "| Document area | PDF risk | What to check |\n| --- | --- | --- |\n| Long headings | Unexpected wrapping | Scan the contents page |\n| Wide tables | Missing right edge | Check page width and margins |\n| Dense rows | Low readability | Try alternating row color |\n| Code blocks | Horizontal overflow | Keep examples short when possible |",
+          note: "Tables should be tested with real content, not only short placeholder cells.",
+        },
+      },
+      {
+        id: "chinese-text",
+        title: "Chinese and mixed-language text must be checked explicitly",
+        body: [
+          "Chinese, Japanese, Korean, and mixed English-Chinese documents expose font problems quickly. If the PDF engine cannot find a usable Unicode font, the result can become missing glyphs, boxes, or unreadable text.",
+          "VeloWrite includes stricter Unicode font handling for Chinese and other non-Latin text. Even so, open important PDFs after export and check them on the machine where they will be shared or printed.",
+        ],
+      },
+      {
+        id: "settings",
+        title: "PDF settings should match the document",
+        body: [
+          "There is no single perfect PDF style. A study note, product spec, Chinese manuscript, README handout, and customer report may need different page sizes, margins, page numbers, table contrast, and watermark choices.",
+          "VeloWrite keeps PDF options inside Settings so the export button stays simple. After you choose paper size, margins, page numbering, table style, or watermark behavior, the app remembers those choices for the next export.",
+        ],
+      },
+      {
+        id: "preview-limits",
+        title: "What is still preview behavior",
+        body: [
+          "VeloWrite PDF export is still part of the public preview. Windows and macOS installers are not code-signed yet, and the free preview may include a watermark depending on your PDF settings.",
+          "Advanced export presets, team templates, brand kits, and no-watermark Pro export are planned candidates, not active features in the current free preview. For now, review important PDFs before sending them.",
+        ],
+      },
+      {
+        id: "checklist",
+        title: "A quick checklist before sending a PDF",
+        body: [
+          "Open the PDF after exporting. Check the cover, contents page, first long section, every wide table, numbered lists, code blocks, page numbers, and any Chinese or mixed-language paragraphs.",
+          "For long documents, skim page transitions instead of only checking the first page. Export issues often show up at section boundaries, around tables, or near long inline code and URLs.",
+        ],
+        example: {
+          label: "Final export checklist",
+          markdown:
+            "## PDF Review\n\n1. Open the exported PDF.\n2. Check cover and contents pages.\n3. Review the widest table.\n4. Review Chinese and mixed-language text.\n5. Confirm page numbers and watermark choices.\n6. Save the Markdown source beside the exported PDF.",
+          note: "A repeatable checklist makes export quality easier to trust.",
+        },
+      },
+    ],
+    cta: {
+      primary: { href: "/download?utm_source=pdf_export_notes_cta&utm_medium=cta", label: "Download Desktop" },
+      secondary: { href: "/changelog?utm_source=pdf_export_notes_cta&utm_medium=resource", label: "Read Changelog" },
     },
   },
   guide: {
@@ -3111,9 +3215,9 @@ function LandingPage() {
           </div>
           <h1>Markdown that stays yours.</h1>
           <p>
-            Open the web editor instantly for reading, editing, preview, and
-            HTML export. Move to the lightweight desktop app when you need
-            native folders, direct save, offline work, and recoverable history.
+            Open the web editor to read, edit, preview, and export Markdown.
+            Use the desktop app when you need local folders, direct save,
+            offline work, and file history.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href={webEditorHref}>
@@ -3191,12 +3295,12 @@ function LandingPage() {
               <FolderOpen size={20} />
             </div>
             <h3>Desktop app</h3>
-            <p>Use it when Markdown becomes real work: private files, local folders, offline editing, and native save.</p>
+            <p>Use it for documents you keep on your computer and expect to edit again.</p>
             <ul>
               <li>Open and save real files directly</li>
               <li>Work offline with local-first storage</li>
               <li>Use local history snapshots for recovery</li>
-              <li>Ready to grow into AI, sync, and publishing</li>
+              <li>AI, sync, and publishing remain on the roadmap</li>
             </ul>
             <a className="primary-link" href="/download?utm_source=compare&utm_medium=desktop">
               Download desktop <Download size={15} />
@@ -3219,7 +3323,7 @@ function LandingPage() {
           <article>
             <GitBranch size={20} />
             <h3>Recovery comes early</h3>
-            <p>Local history and compare views are in the preview because writers need rollback before they need cloud features.</p>
+            <p>The preview includes local history and compare views for recovering accidental edits.</p>
           </article>
           <article>
             <ListChecks size={20} />
@@ -3229,7 +3333,7 @@ function LandingPage() {
           <article>
             <LockKeyhole size={20} />
             <h3>Limits are visible</h3>
-            <p>Unsigned installers, preview gaps, and planned paid features are documented before download so testers know what they are getting.</p>
+            <p>The download page lists unsigned installers, missing features, and planned paid work before you install.</p>
           </article>
         </div>
       </section>
@@ -3270,7 +3374,7 @@ function LandingPage() {
         <div>
           <Sparkles size={21} />
           <h2>Fast first</h2>
-          <p>Start in the web editor, then keep the desktop app for daily local work.</p>
+          <p>Start in the browser. Use the desktop app for files you keep locally.</p>
         </div>
         <div>
           <GitBranch size={21} />
@@ -3280,7 +3384,7 @@ function LandingPage() {
         <div>
           <Download size={21} />
           <h2>Clear next step</h2>
-          <p>Use the browser first. Move to desktop when native folders, offline work, and history matter.</p>
+          <p>Move to desktop when you need local folders, offline work, and history.</p>
         </div>
       </section>
 
@@ -3346,9 +3450,9 @@ function LandingPage() {
       </section>
 
       <section className="landing-waitlist" aria-label="Private beta signup">
-        <div>
-          <span>Follow the desktop beta</span>
-          <h2>Get updates when larger features are ready.</h2>
+          <div>
+            <span>Follow the desktop beta</span>
+          <h2>Get release and beta updates.</h2>
         </div>
         <WaitlistForm />
       </section>
@@ -3943,7 +4047,7 @@ function DownloadPage() {
           <h1>Download VeloWrite</h1>
           <p>
             Download the current preview build if you want a fast Markdown app
-            with local files, PDF export, recent files, and history recovery.
+            with local files, PDF export, recent files, and local history.
           </p>
           <div className="download-release-summary" aria-label="Latest release information">
             <div>
@@ -3962,9 +4066,8 @@ function DownloadPage() {
             <div className="download-highlights-copy">
               <span>Latest improvements</span>
               <p>
-                PDF export now has a designed cover, stable contents page, remembered page
-                settings, and cleaner Chinese document layout. Settings are split into
-                smaller groups so the panel is easier to scan.
+                PDF export now includes a cover, contents page, remembered page settings,
+                and better Chinese text handling. Settings are split into smaller groups.
               </p>
             </div>
             <a href="/changelog?utm_source=download_page&utm_medium=resource#v025">
@@ -4043,7 +4146,7 @@ function DownloadPage() {
         <section className="platform-checks" aria-label="Platform preview checks">
           <div className="section-heading">
             <span>Preview regression checks</span>
-            <h2>What we verify before calling a desktop preview usable.</h2>
+            <h2>What we check before publishing a desktop preview.</h2>
             <p>
               These checks focus on the free preview: install, open local Markdown,
               save safely, close normally, reopen recent work, and recover from local
@@ -4391,9 +4494,8 @@ function DocsIndexPage() {
         <h1>Markdown articles we are building for VeloWrite users.</h1>
         <p className="legal-updated">Last updated: August 7, 2026</p>
         <p className="legal-intro">
-          This library is the public version of the VeloWrite content plan. Published
-          articles are available now; planned articles show what we will write next
-          for Markdown users, search visitors, and AI answer engines.
+          Read practical Markdown guides, product notes, and platform-specific advice.
+          Published articles are available now. Planned titles show what is coming next.
         </p>
 
         <section className="docs-grid" aria-label="Markdown article plan">

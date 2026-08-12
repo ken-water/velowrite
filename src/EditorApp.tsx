@@ -963,7 +963,7 @@ function HistoryPanel({
                       <strong>Restore preview</strong>
                       <p>
                         {changeCount
-                          ? "Restoring this snapshot will replace the current document with the older version shown below."
+                          ? "Restore will replace the document you are editing with this older snapshot."
                           : "This snapshot matches the current document."}
                       </p>
                       {changeCount > 0 && (
@@ -1023,9 +1023,8 @@ function HistoryPanel({
                       <GitBranch size={22} />
                       <strong>No differences</strong>
                       <p>
-                        The current document already matches this snapshot. Choose another
-                        snapshot to compare changes, or switch to Full file to inspect the
-                        saved content.
+                        This snapshot matches the document you are editing. Choose another
+                        snapshot, or switch to Full file to read the saved copy.
                       </p>
                     </div>
                   )}
@@ -1085,9 +1084,8 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
         </header>
 
         <p>
-          A small, local-first Markdown editor built with Tauri. Current focus:
-          fast editing, clean preview, reliable local files, and recoverable
-          history.
+          A lightweight Markdown editor built with Tauri. It supports local files,
+          live preview, PDF export, and history recovery.
         </p>
 
         <div className="about-version">
@@ -1110,10 +1108,10 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="about-note">
-          <strong>Feedback wanted</strong>
+          <strong>Send feedback</strong>
           <span>
-            If a Markdown workflow feels slow, fragile, or confusing, send
-            feedback. Real usage reports will shape the next release.
+            Tell us when editing feels slow, fragile, or confusing. Usage reports
+            help us decide what to fix next.
           </span>
         </div>
       </section>
@@ -1161,7 +1159,7 @@ function WelcomePanel({
         ))}
       </div>
       {!nativeReady && (
-        <p>Browser preview mode can import and download files. Desktop mode adds native save dialogs and history.</p>
+        <p>The browser can import and download files. Desktop adds direct save and local history.</p>
       )}
       {nativeReady && !hasRecentFiles && <p>Recent files appear here after your first desktop save.</p>}
     </section>
@@ -1186,7 +1184,7 @@ function ExportReadinessPanel({
 }) {
   const missing = readiness.items.filter((item) => !item.done).map((item) => item.label);
   const nextHint = readiness.ready
-    ? "Ready for a clean Markdown or HTML export."
+    ? "The draft has a title and section structure."
     : `Add ${missing.slice(0, 2).join(" and ").toLowerCase()} before sharing.`;
 
   return (
@@ -1267,7 +1265,7 @@ function DesktopStartPanel({
     <section className="desktop-start-panel" aria-label="Desktop start">
       <div className="desktop-start-copy">
         <span>Continue writing</span>
-        <strong>Resume your current draft, open a recent file, or start from a template.</strong>
+        <strong>Resume this draft, open a recent file, or start from a template.</strong>
         <small>{currentDraftName} · {historyLabel} recovery snapshots</small>
       </div>
       <div className="desktop-start-actions">
@@ -2745,7 +2743,7 @@ export default function EditorApp({
             <span>
               {dirty
                 ? "Draft and history are stored in this browser."
-                : "Your Markdown, autosaved draft, and browser history stay on this device. Desktop adds native folders, direct save, offline work, and file history."}
+                : "Your draft and browser history stay on this device. Desktop adds local folders, direct save, offline work, and file history."}
             </span>
             {!dirty && (
               <a href={desktopDownloadHref}>

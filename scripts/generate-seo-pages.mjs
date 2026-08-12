@@ -38,6 +38,7 @@ const breadcrumbLabels = new Map([
   ["/docs/markdown-editor-for-mac", "Markdown Editor for Mac"],
   ["/docs/markdown-editor-for-linux", "Markdown Editor for Linux"],
   ["/docs/preview-release-policy", "Preview Release Policy"],
+  ["/docs/pdf-export-notes", "PDF Export Notes"],
   ["/changelog", "Changelog"],
   ["/faq", "FAQ"],
   ["/privacy", "Privacy Policy"],
@@ -60,18 +61,19 @@ const docsLinks = [
   ["/docs/markdown-editor-for-windows", "Markdown Editor for Windows"],
   ["/docs/markdown-editor-for-mac", "Markdown Editor for Mac"],
   ["/docs/markdown-editor-for-linux", "Markdown Editor for Linux"],
+  ["/docs/pdf-export-notes", "PDF Export Notes"],
 ];
 
 const faqItems = [
   {
     question: "What is VeloWrite?",
     answer:
-      "VeloWrite is a private Markdown editor for browser drafts, live preview, clean export, local history, and lightweight desktop files.",
+      "VeloWrite is a Markdown editor with a browser version for quick drafts and a lightweight Tauri desktop app for local files, PDF export, and history.",
   },
   {
     question: "What is the best lightweight Markdown editor for Windows?",
     answer:
-      "VeloWrite is designed for people who want a lightweight Markdown editor for Windows with browser preview, desktop files, recent documents, local history snapshots, and HTML export.",
+      "VeloWrite is a lightweight Windows Markdown editor with browser preview, desktop files, recent documents, local history snapshots, and export.",
   },
   {
     question: "Can I edit Markdown online without uploading files?",
@@ -81,7 +83,7 @@ const faqItems = [
   {
     question: "How is VeloWrite different from Typora?",
     answer:
-      "VeloWrite follows a Typora-like writing direction but starts with a quick browser editor, lightweight Tauri desktop builds, local files, visible preview limits, and a public roadmap for AI, sync, and publishing.",
+      "VeloWrite has a Typora-style writing surface plus a browser editor, lightweight Tauri desktop builds, local files, visible preview limits, and a public roadmap.",
   },
   {
     question: "Does VeloWrite work offline?",
@@ -135,7 +137,7 @@ const routes = [
     path: "/pro",
     title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
     description:
-      "See the planned VeloWrite Pro path: early pricing, AI writing commands, advanced exports, recovery controls, sync, and publishing.",
+      "See the planned VeloWrite Pro path: early pricing, AI writing commands, advanced export, recovery controls, sync, and publishing.",
     priority: "0.7",
     changefreq: "monthly",
   },
@@ -314,6 +316,15 @@ const routes = [
     title: "How VeloWrite Preview Releases Work - Versions, Downloads, and Changelog",
     description:
       "Understand how VeloWrite preview versions, GitHub Releases, installer assets, changelog entries, and download page dates fit together.",
+    priority: "0.72",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/pdf-export-notes",
+    title: "Markdown to PDF Export Notes - Tables, Chinese Text, and Preview Limits",
+    description:
+      "Understand VeloWrite PDF export for Markdown documents, including cover pages, contents, tables, Chinese text, page settings, watermarks, and preview limits.",
     priority: "0.72",
     changefreq: "monthly",
     schema: ["article"],
@@ -536,9 +547,9 @@ function linkList(items) {
 function routeHighlights(route) {
   if (route.path === "/") {
     return [
-      "Start in the browser without installing anything.",
-      "Move important Markdown files to the lightweight desktop app.",
-      "Use preview, export, local history, and release notes without an account-first workflow.",
+      "Start in the browser without installing.",
+      "Move important Markdown files to the desktop app.",
+      "Use preview, export, local history, and release notes without creating an account first.",
     ];
   }
   if (route.path === "/web") {
@@ -551,8 +562,8 @@ function routeHighlights(route) {
   if (route.path === "/download") {
     return [
       "Windows preview installer, unsigned macOS Apple Silicon DMG, Linux AppImage, DEB, and RPM packages.",
-      "Release notes and safety notes explain what changed before users install.",
-      "Desktop builds unlock local files, offline writing, recent files, and local history snapshots.",
+      "Release notes and safety notes explain what changed before installation.",
+      "Desktop builds add local files, offline writing, recent files, PDF export, and local history snapshots.",
     ];
   }
   if (route.path === "/faq") {
@@ -560,7 +571,7 @@ function routeHighlights(route) {
   }
   if (route.path === "/docs") {
     return [
-      "Learn Markdown basics, history, writer workflows, developer docs, code blocks, math, and local-first editing.",
+      "Learn Markdown basics, history, writer workflows, developer docs, code blocks, math, PDF export, and local-first editing.",
       "Use the library as a practical route from learning Markdown to trying VeloWrite in the browser.",
       "Follow platform-specific articles for Windows, macOS, and Linux preview expectations.",
     ];
@@ -576,12 +587,12 @@ function routeHighlights(route) {
     return [
       "See shipped preview work, active free-preview improvements, researched items, and future Pro candidates.",
       "Track which user requests have been recorded and which workflows are being hardened next.",
-      "Use feedback links to shape the editor before paid workflows expand.",
+      "Use feedback links to tell the team what should improve before paid workflows expand.",
     ];
   }
   if (route.path === "/pro") {
     return [
-      "Future Pro work is expected to focus on AI writing workflows, advanced export, recovery controls, sync, and publishing.",
+      "Future Pro work is expected to focus on AI writing, advanced export, recovery controls, sync, and publishing.",
       "The preview remains free while core editing, privacy, file handling, and recovery are hardened.",
       "Pricing is introduced early so users can judge whether future paid work feels fair.",
     ];
