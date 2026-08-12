@@ -3106,7 +3106,7 @@ pre,
 
 .history-diff-line {
   display: grid;
-  grid-template-columns: 28px 46px minmax(0, 1fr);
+  grid-template-columns: 30px 56px minmax(0, 1fr);
   min-height: 23px;
 }
 
@@ -3127,16 +3127,18 @@ pre,
   min-width: 0;
   padding: 0 12px;
   color: var(--editor-text);
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
+  overflow-wrap: normal;
+  white-space: pre;
 }
 
 .history-diff-line.added {
-  background: color-mix(in srgb, #c8eadb 78%, transparent);
+  background: color-mix(in srgb, #c8eadb 74%, transparent);
+  box-shadow: inset 3px 0 0 #2c806f;
 }
 
 .history-diff-line.removed {
-  background: color-mix(in srgb, #f3cfc6 76%, transparent);
+  background: color-mix(in srgb, #f3cfc6 72%, transparent);
+  box-shadow: inset 3px 0 0 #c15437;
 }
 
 .history-diff-line.added code {

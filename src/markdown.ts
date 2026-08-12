@@ -31,6 +31,10 @@ export type EditorMetrics = {
   readingMinutes: number;
 };
 
+export type MarkdownRenderOptions = {
+  basePath?: string;
+};
+
 export function slugify(value: string, index: number) {
   const slug = value
     .toLowerCase()
@@ -88,7 +92,12 @@ function stableHash(value: string) {
   return (hash >>> 0).toString(36);
 }
 
-export function renderMarkdown(markdown: string, headings = extractHeadings(markdown), headingOffset = 0) {
+export function renderMarkdown(
+  markdown: string,
+  headings = extractHeadings(markdown),
+  headingOffset = 0,
+  options: MarkdownRenderOptions = {},
+) {
   let headingIndex = 0;
   const renderer = new MarkdownIt({
     html: false,
@@ -99,6 +108,19 @@ export function renderMarkdown(markdown: string, headings = extractHeadings(mark
     typographer: true,
   });
   renderer.use(katex);
+  const defaultImageRenderer = renderer.renderer.rules.image;
+  renderer.renderer.rules.image = (tokens, index, tokenOptions, env, self) => {
+    const token = tokens[index];
+    const srcIndex = token.attrIndex("src");
+    if (srcIndex >= 0) {
+      const originalSrc = token.attrs?.[srcIndex]?.[1] ?? "";
+      const resolved = resolveAssetPath(originalSrc, options.basePath);
+      token.attrs![srcIndex][1] = resolved;
+    }
+    return defaultImageRenderer
+      ? defaultImageRenderer(tokens, index, tokenOptions, env, self)
+      : self.renderToken(tokens, index, tokenOptions);
+  };
 
   renderer.renderer.rules.heading_open = (tokens, index, options, env, self) => {
     const heading = headings[headingIndex];
@@ -472,4 +494,42 @@ export function escapeHtml(value: string) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+export function resolveAssetPath(src: string, basePath?: string) {
+  if (!src || !basePath) return src;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(src)) return src;
+  if (src.startsWith("/") || src.startsWith("#")) return src;
+
+  const baseUrl = normalizeBasePath(basePath);
+  if (!baseUrl) return src;
+
+  try {
+    return new URL(src, baseUrl).toString();
+  } catch {
+    return src;
+  }
+}
+
+function normalizeBasePath(basePath: string) {
+  const normalized = basePath.replace(/\\/g, "/");
+  const directory = normalized.endsWith("/") ? normalized : `${normalized}/`;
+
+  if (/^[a-zA-Z]:\//.test(directory)) {
+    return `file:///${directory}`;
+  }
+
+  if (normalized.startsWith("//")) {
+    return `file:${directory}`;
+  }
+
+  if (normalized.startsWith("/")) {
+    return `file://${directory}`;
+  }
+
+  if (/^file:\/\//i.test(directory) || /^https?:\/\//i.test(directory)) {
+    return directory;
+  }
+
+  return null;
 }

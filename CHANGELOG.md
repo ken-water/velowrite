@@ -4,6 +4,47 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
+## [0.2.6] - 2026-08-12
+
+### Added
+
+- Added relative image path handling for Markdown preview so local assets beside a Markdown file render correctly on Windows, macOS, and Linux.
+- Added automated coverage for relative images, Windows paths, rendered image alt text, and Markdown rendering stability.
+
+### Changed
+
+- Limited editor and preview scroll syncing to Split mode and reduced stale scroll handoff between panes.
+- Made history restore previews easier to read with clearer restored and replaced labels plus stronger change markers.
+
+### Fixed
+
+- Fixed Windows drive paths such as `C:\Users\...\notes` being treated like URL schemes during asset resolution.
+- Fixed custom image rendering so Markdown image `alt` text is preserved.
+
+## [0.2.5] - 2026-08-08
+
+### Added
+
+- Added remembered PDF choices for paper size, margins, page numbers, page position, page style, watermark, and table styling.
+- Added Writing, Reading, PDF, and Tables tabs in Settings so export and reading options are easier to scan.
+
+### Changed
+
+- Improved PDF export so long Markdown documents start with a real cover page and a stable contents page.
+- Updated the download page and release notes for the 0.2.5 preview build.
+
+## [0.2.4] - 2026-08-08
+
+### Added
+
+- Added automated PDF checks for Chinese text and Unicode font handling.
+- Added a release policy article that explains how commits, local builds, GitHub Actions artifacts, GitHub Releases, installer assets, download dates, and changelog updates fit together.
+
+### Fixed
+
+- Made PDF export refuse to continue if the bundled Unicode font is missing, so Chinese text does not turn into gibberish.
+- Turned font-loading failures into clear export errors instead of a broken-looking PDF.
+
 ## [0.2.3] - 2026-08-02
 
 ### Added

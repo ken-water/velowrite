@@ -34,9 +34,9 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 const EditorApp = React.lazy(() => import("./EditorApp"));
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExample"));
-const downloadVersion = "0.2.5";
-const downloadReleaseDate = "August 8, 2026";
-const seoDate = "2026-08-08";
+const downloadVersion = "0.2.6";
+const downloadReleaseDate = "August 12, 2026";
+const seoDate = "2026-08-12";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -2388,7 +2388,7 @@ const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Export sanity check",
           markdown:
-            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.5_amd64.AppImage\n```",
+            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.6_amd64.AppImage\n```",
           note: "A small export test catches layout problems before the real document is due.",
         },
       },
@@ -2690,8 +2690,9 @@ const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog tracks what shipped in each preview build, what got better, and what is still left for later. Older releases stay below so you can compare versions without guessing.",
-    updated: "August 8, 2026",
+    updated: "August 12, 2026",
     directory: [
+      { label: "0.2.6", href: "#v026" },
       { label: "0.2.5", href: "#v025" },
       { label: "0.2.4", href: "#v024" },
       { label: "0.2.3", href: "#v023" },
@@ -2715,6 +2716,16 @@ const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v026",
+        title: "0.2.6 preview",
+        body: [
+          "Resolved local relative image paths in Markdown preview so nearby assets render from the current file folder on Windows, macOS, and Linux.",
+          "Kept Split view scroll syncing limited to Split mode and reduced stale scroll handoff between the editor and preview panes.",
+          "Made history restore previews easier to read with clearer restored and replaced labels, stronger change markers, and preserved long-line layout.",
+          "Expanded automated tests for relative images, Windows paths, rendered image alt text, and Markdown rendering stability.",
+        ],
+      },
       {
         id: "v025",
         title: "0.2.5 preview",
@@ -4066,11 +4077,11 @@ function DownloadPage() {
             <div className="download-highlights-copy">
               <span>Latest improvements</span>
               <p>
-                PDF export now includes a cover, contents page, remembered page settings,
-                and better Chinese text handling. Settings are split into smaller groups.
+                Local images now resolve from the Markdown file folder. Split scrolling,
+                history restore previews, and Markdown rendering tests are also more stable.
               </p>
             </div>
-            <a href="/changelog?utm_source=download_page&utm_medium=resource#v025">
+            <a href="/changelog?utm_source=download_page&utm_medium=resource#v026">
               See changelog details <ChevronRight size={15} />
             </a>
           </div>

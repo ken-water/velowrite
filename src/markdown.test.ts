@@ -5,6 +5,7 @@ import {
   extractHeadings,
   getMetrics,
   renderMarkdown,
+  resolveAssetPath,
   slugify,
 } from "./markdown";
 
@@ -140,6 +141,39 @@ puts "<unsafe>"
     expect(html).toContain("language-ruby");
     expect(html).toContain("&lt;unsafe&gt;");
     expect(html).not.toContain("<unsafe>");
+  });
+
+  it("resolves relative image paths against a base path", () => {
+    expect(resolveAssetPath("images/photo.png", "/Users/rich/notes/")).toBe(
+      "file:///Users/rich/notes/images/photo.png",
+    );
+    expect(resolveAssetPath("../assets/photo one.png", "/Users/rich/notes/drafts/")).toBe(
+      "file:///Users/rich/notes/assets/photo%20one.png",
+    );
+    expect(resolveAssetPath("images/photo.png", "C:/Users/rich/notes/")).toBe(
+      "file:///C:/Users/rich/notes/images/photo.png",
+    );
+    expect(resolveAssetPath("../assets/photo.png", "C:\\Users\\rich\\notes\\drafts\\")).toBe(
+      "file:///C:/Users/rich/notes/assets/photo.png",
+    );
+    expect(resolveAssetPath("https://example.com/a.png", "/Users/rich/notes/")).toBe(
+      "https://example.com/a.png",
+    );
+  });
+
+  it("keeps markdown rendering stable when no base path is provided", () => {
+    const html = renderMarkdown(`![Alt](images/photo.png)`);
+
+    expect(html).toContain('src="images/photo.png"');
+  });
+
+  it("resolves rendered image src values when a base path is provided", () => {
+    const html = renderMarkdown(`![Alt](images/photo.png)`, undefined, 0, {
+      basePath: "/Users/rich/notes/",
+    });
+
+    expect(html).toContain('src="file:///Users/rich/notes/images/photo.png"');
+    expect(html).toContain('alt="Alt"');
   });
 
   it("calculates document metrics", () => {

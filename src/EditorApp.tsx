@@ -149,6 +149,14 @@ function FormatIcon({ label }: { label: "HTML" | "PDF" }) {
   );
 }
 
+function getMarkdownBasePath(filePath: string | null) {
+  if (!filePath) return undefined;
+  const normalized = filePath.replace(/\\/g, "/");
+  const index = normalized.lastIndexOf("/");
+  if (index < 0) return undefined;
+  return normalized.slice(0, index + 1);
+}
+
 type EditorTemplate = {
   label: string;
   description: string;
@@ -967,11 +975,11 @@ function HistoryPanel({
                           : "This snapshot matches the current document."}
                       </p>
                       {changeCount > 0 && (
-                        <small>Green lines come from the snapshot. Red lines are in the current document.</small>
+                        <small>Green lines will be restored. Red lines will be replaced.</small>
                       )}
                     </div>
-                    <span>{addedCount} older lines</span>
-                    <span>{removedCount} current lines</span>
+                    <span>{addedCount} restored</span>
+                    <span>{removedCount} replaced</span>
                     {changeCount > 0 && (
                       <button className="history-jump-button" onClick={jumpToFirstChange}>
                         Jump to first change
@@ -1444,7 +1452,10 @@ export default function EditorApp({
     };
   }, [headings]);
   const metrics = React.useMemo(() => getMetrics(markdown), [markdown]);
-  const rendered = React.useMemo(() => renderMarkdown(markdown, headings), [headings, markdown]);
+  const rendered = React.useMemo(
+    () => renderMarkdown(markdown, headings, 0, { basePath: getMarkdownBasePath(filePath) }),
+    [filePath, headings, markdown],
+  );
   const tableExportStyle = pdfExportStyle.table;
   const exportReadiness = React.useMemo(() => {
     const title = headings.find((heading) => heading.level === 1)?.text ?? "";
@@ -2626,12 +2637,14 @@ export default function EditorApp({
   }
 
   function syncPreviewScroll(ratio: number) {
+    if (viewMode !== "split") return;
     if (suppressPreviewSync.current) return;
     if (scrollSource.current === "preview") {
       scrollSource.current = null;
       return;
     }
 
+    const nextRatio = Math.min(1, Math.max(0, ratio));
     if (previewScrollFrame.current) {
       window.cancelAnimationFrame(previewScrollFrame.current);
     }
@@ -2642,18 +2655,25 @@ export default function EditorApp({
       if (!preview) return;
 
       const scrollRange = preview.scrollHeight - preview.clientHeight;
-      preview.scrollTop = scrollRange > 0 ? scrollRange * ratio : 0;
+      preview.scrollTop = scrollRange > 0 ? scrollRange * nextRatio : 0;
+      window.setTimeout(() => {
+        if (scrollSource.current === "editor") scrollSource.current = null;
+      }, 120);
     });
   }
 
   function syncEditorScroll(ratio: number) {
+    if (viewMode !== "split") return;
     if (scrollSource.current === "editor") {
       scrollSource.current = null;
       return;
     }
 
     scrollSource.current = "preview";
-    setEditorScrollRatio(ratio);
+    setEditorScrollRatio(Math.min(1, Math.max(0, ratio)));
+    window.setTimeout(() => {
+      if (scrollSource.current === "preview") scrollSource.current = null;
+    }, 120);
   }
 
   function scrollEditorToLine(line: number) {
