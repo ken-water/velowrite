@@ -23,9 +23,9 @@ const VercelInsights = React.lazy(async () => {
     },
   };
 });
-const downloadVersion = "0.2.6";
-const downloadReleaseDate = "August 12, 2026";
-const seoDate = "2026-08-12";
+const downloadVersion = "0.2.7";
+const downloadReleaseDate = "August 15, 2026";
+const seoDate = "2026-08-15";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -63,6 +63,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/pdf-export-notes": "PDF Export Notes",
   "/docs/preview-build-limitations": "Preview Build Limitations",
   "/docs/private-online-markdown-editor": "Private Online Markdown Editor",
+  "/docs/download-safety": "Download Safety",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -146,6 +147,7 @@ const docPageRoutes = {
   "/docs/pdf-export-notes": "pdfExportNotes",
   "/docs/preview-build-limitations": "previewBuildLimitations",
   "/docs/private-online-markdown-editor": "privateOnlineMarkdownEditor",
+  "/docs/download-safety": "downloadSafety",
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
@@ -169,6 +171,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/pdf-export-notes",
   "/docs/preview-build-limitations",
   "/docs/private-online-markdown-editor",
+  "/docs/download-safety",
 ]);
 
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
@@ -271,6 +274,11 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
     title: "Private Online Markdown Editor - Browser Drafts, Consent, and Local Files",
     description:
       "Understand what stays in your browser when you use a private online Markdown editor, how analytics consent works, and when to move important files to desktop.",
+  },
+  "/docs/download-safety": {
+    title: "Download Safety for VeloWrite Preview Builds",
+    description:
+      "Check official VeloWrite download sources, version matching, unsigned installer warnings, first-run testing, and how to report suspicious files.",
   },
 };
 

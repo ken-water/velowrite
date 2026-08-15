@@ -3491,6 +3491,74 @@ pre,
   font-size: 1em;
 }
 
+.markdown-body .mermaid-diagram {
+  margin: 18px 0;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 14px;
+  background: color-mix(in srgb, var(--editor-bg) 76%, var(--surface-soft));
+  overflow-x: auto;
+}
+
+.markdown-body .mermaid-pending code {
+  display: block;
+  min-width: max-content;
+  white-space: pre;
+}
+
+.markdown-body .mermaid-rendering {
+  color: var(--muted);
+}
+
+.markdown-body .mermaid-rendered {
+  white-space: normal;
+}
+
+.markdown-body .mermaid-diagram svg {
+  display: block;
+  width: 100%;
+  min-width: 520px;
+  height: auto;
+}
+
+.markdown-body .mermaid-error {
+  border-color: color-mix(in srgb, #d84f2a 38%, var(--border-soft));
+  background: color-mix(in srgb, #fff5ef 62%, var(--surface));
+}
+
+.markdown-body .mermaid-error small {
+  display: block;
+  margin-top: 10px;
+  color: #9a3d24;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: normal;
+}
+
+.markdown-body .mermaid-diagram rect {
+  fill: color-mix(in srgb, var(--surface-soft) 82%, #ffffff);
+  stroke: color-mix(in srgb, var(--accent) 28%, var(--border-soft));
+  stroke-width: 1.4;
+}
+
+.markdown-body .mermaid-diagram text {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 760;
+  text-anchor: middle;
+}
+
+.markdown-body .mermaid-diagram path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.7;
+}
+
+.markdown-body .mermaid-diagram marker path {
+  fill: var(--accent);
+  stroke: none;
+}
+
 .markdown-body th,
 .markdown-body td {
   border: 1px solid var(--border-soft);

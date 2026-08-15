@@ -97,6 +97,59 @@ print("hello")
     ]);
   });
 
+  it("parses block math as dedicated PDF math blocks", () => {
+    const blocks = buildPdfBlocks(`Inline math stays in a paragraph: $E = mc^2$.
+
+$$
+\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}
+$$`);
+
+    expect(blocks).toEqual([
+      {
+        type: "paragraph",
+        text: "Inline math stays in a paragraph: $E = mc^2$.",
+      },
+      {
+        type: "math",
+        source: "\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}",
+        display: true,
+      },
+    ]);
+  });
+
+  it("turns simple Mermaid flowcharts into PDF diagram blocks", () => {
+    const blocks = buildPdfBlocks(`\`\`\`mermaid
+flowchart LR
+  Draft[Draft notes] --> Preview[Live preview]
+  Preview --> Export[Export PDF]
+\`\`\``);
+
+    expect(blocks).toEqual([
+      {
+        type: "diagram",
+        title: "Flowchart",
+        source: "flowchart LR\n  Draft[Draft notes] --> Preview[Live preview]\n  Preview --> Export[Export PDF]",
+        nodes: ["Draft notes", "Live preview", "Export PDF"],
+      },
+    ]);
+  });
+
+  it("keeps complex Mermaid diagrams in the PDF diagram pipeline", () => {
+    const blocks = buildPdfBlocks(`\`\`\`mermaid
+sequenceDiagram
+  Alice->>Bob: Hello
+\`\`\``);
+
+    expect(blocks).toEqual([
+      {
+        type: "diagram",
+        title: "Mermaid diagram",
+        source: "sequenceDiagram\n  Alice->>Bob: Hello",
+        nodes: [],
+      },
+    ]);
+  });
+
   it("renders Markdown horizontal rules as layout rules instead of plain text", () => {
     const blocks = buildPdfBlocks("# One\n\n---\n\n# Two");
 

@@ -29,8 +29,9 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 - [Preview Release Policy article](https://velowrite.app/docs/preview-release-policy)
 - [PDF Export Notes article](https://velowrite.app/docs/pdf-export-notes)
 - [Preview Build Limitations article](https://velowrite.app/docs/preview-build-limitations)
+- [Download Safety article](https://velowrite.app/docs/download-safety)
 - [Markdown guide](https://velowrite.app/guide)
-- [Changelog](https://velowrite.app/changelog), including the version directory for 0.1.0 through 0.2.6.
+- [Changelog](https://velowrite.app/changelog), including the version directory for 0.1.0 through 0.2.7.
 - [FAQ](https://velowrite.app/faq)
 - [GitHub repository](https://github.com/ken-water/velowrite)
 - [Markdown guide PDF](https://velowrite.app/markdown-guide.pdf)
@@ -39,7 +40,7 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 
 VeloWrite lets people draft Markdown in the browser, check the rendered result, and download Markdown or HTML. The Tauri desktop app adds local files, offline work, history, and PDF export. The website also has Markdown guides, release notes, and a public roadmap.
 
-The current public version is v0.2.6, released on August 12, 2026 as a free preview. The web editor supports editing, live preview, Markdown download, and HTML export. The desktop app adds local open and save, recent files, three local history snapshots, split scrolling, local relative image previews, PDF export, external file-change prompts, and release checks. PDF options cover page layout, contents, page numbers, watermarks, table styles, and Unicode font handling for Chinese and other non-Latin text. Preview installers are available for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux.
+The current public version is v0.2.7, released on August 15, 2026 as a free preview. The web editor supports editing, live preview, Markdown download, and HTML export. The desktop app adds local open and save, recent files, three local history snapshots, split scrolling, local relative image previews, PDF export, external file-change prompts, update checks, and release notes. PDF export supports page layout, contents, page numbers, watermarks, table styles, Unicode font handling, Mermaid diagrams, and rendered KaTeX math. Preview installers are available for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux.
 
 ## Positioning
 

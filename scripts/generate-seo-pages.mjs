@@ -41,6 +41,7 @@ const breadcrumbLabels = new Map([
   ["/docs/pdf-export-notes", "PDF Export Notes"],
   ["/docs/preview-build-limitations", "Preview Build Limitations"],
   ["/docs/private-online-markdown-editor", "Private Online Markdown Editor"],
+  ["/docs/download-safety", "Download Safety"],
   ["/changelog", "Changelog"],
   ["/faq", "FAQ"],
   ["/privacy", "Privacy Policy"],
@@ -66,6 +67,7 @@ const docsLinks = [
   ["/docs/pdf-export-notes", "PDF Export Notes"],
   ["/docs/preview-build-limitations", "Preview Build Limitations"],
   ["/docs/private-online-markdown-editor", "Private Online Markdown Editor"],
+  ["/docs/download-safety", "Download Safety"],
 ];
 
 const faqItems = [
@@ -347,6 +349,15 @@ const routes = [
     title: "Private Online Markdown Editor - Browser Drafts, Consent, and Local Files",
     description:
       "Understand what stays in your browser when you use a private online Markdown editor, how analytics consent works, and when to move important files to desktop.",
+    priority: "0.72",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/download-safety",
+    title: "Download Safety for VeloWrite Preview Builds",
+    description:
+      "Check official VeloWrite download sources, version matching, unsigned installer warnings, first-run testing, and how to report suspicious files.",
     priority: "0.72",
     changefreq: "monthly",
     schema: ["article"],

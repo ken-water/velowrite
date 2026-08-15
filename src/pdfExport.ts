@@ -1,4 +1,6 @@
 import { jsPDF } from "jspdf";
+import katex from "katex";
+import katexStyles from "katex/dist/katex.min.css?inline";
 import type {
   PdfExportStyle,
   PdfMarginPreset,
@@ -14,6 +16,8 @@ type PdfBlock =
   | { type: "list"; items: string[]; ordered: boolean; start: number }
   | { type: "quote"; text: string }
   | { type: "code"; language: string; code: string }
+  | { type: "math"; source: string; display: boolean }
+  | { type: "diagram"; title: string; source: string; nodes: string[] }
   | { type: "table"; headers: string[]; rows: string[][] }
   | { type: "rule" };
 
@@ -52,6 +56,9 @@ export type PdfExportInput = {
 const unicodeFontName = "VeloWriteUnicode";
 const unicodeFontUrl = "/fonts/droid-sans-fallback-full.ttf";
 let unicodeFontLoadPromise: Promise<string | null> | null = null;
+let pdfMermaidLoadPromise: Promise<typeof import("mermaid")> | null = null;
+let katexPdfStylesReady = false;
+let pdfMermaidCounter = 0;
 let pdfBodyFont = "helvetica";
 let pdfMonoFont = "courier";
 
@@ -120,6 +127,24 @@ export function buildPdfBlocks(markdown: string): PdfBlock[] {
       continue;
     }
 
+    if (trimmed === "$$" || (/^\$\$[\s\S]+\$\$$/.test(trimmed) && trimmed.length > 4)) {
+      flushParagraph();
+      const mathLines: string[] = [];
+      if (trimmed === "$$") {
+        index += 1;
+        while (index < lines.length && lines[index].trim() !== "$$") {
+          mathLines.push(lines[index]);
+          index += 1;
+        }
+        index += index < lines.length ? 1 : 0;
+      } else {
+        mathLines.push(trimmed.replace(/^\$\$/, "").replace(/\$\$$/, ""));
+        index += 1;
+      }
+      blocks.push({ type: "math", source: mathLines.join("\n").trim(), display: true });
+      continue;
+    }
+
     const fence = /^```([A-Za-z0-9_-]*)\s*$/.exec(trimmed);
     if (fence) {
       flushParagraph();
@@ -129,11 +154,23 @@ export function buildPdfBlocks(markdown: string): PdfBlock[] {
         codeLines.push(lines[index]);
         index += 1;
       }
-      blocks.push({
-        type: "code",
-        language: fence[1] || "text",
-        code: codeLines.join("\n"),
-      });
+      const language = fence[1] || "text";
+      const code = codeLines.join("\n");
+      if (language.toLowerCase() === "mermaid") {
+        const diagram = parseSimpleMermaidFlow(code);
+        blocks.push({
+          type: "diagram",
+          title: diagram ? "Flowchart" : "Mermaid diagram",
+          source: code,
+          nodes: diagram?.nodes.map((node) => node.label) ?? [],
+        });
+      } else {
+        blocks.push({
+          type: "code",
+          language,
+          code,
+        });
+      }
       index += index < lines.length ? 1 : 0;
       continue;
     }
@@ -271,13 +308,17 @@ export async function createMarkdownPdf(input: PdfExportInput): Promise<Uint8Arr
         pageNumber: doc.getCurrentPageInfo().pageNumber,
       });
     } else if (block.type === "paragraph") {
-      y = drawParagraph(doc, block.text, theme, y, pageConfig);
+      y = await drawParagraph(doc, block.text, theme, y, pageConfig);
     } else if (block.type === "list") {
       y = drawList(doc, block, theme, y, pageConfig);
     } else if (block.type === "quote") {
       y = drawQuote(doc, block.text, theme, y, pageConfig);
     } else if (block.type === "code") {
       y = drawCode(doc, block, theme, y, pageConfig);
+    } else if (block.type === "math") {
+      y = await drawMathBlock(doc, block, theme, y, pageConfig);
+    } else if (block.type === "diagram") {
+      y = await drawDiagram(doc, block, theme, y, pageConfig);
     } else if (block.type === "table") {
       y = drawTable(doc, block, input.exportStyle.table, theme, y, pageConfig);
     } else {
@@ -554,6 +595,8 @@ function getBlockTextLength(block: PdfBlock) {
   }
   if (block.type === "list") return block.items.join("").length;
   if (block.type === "code") return block.code.length;
+  if (block.type === "math") return block.source.length;
+  if (block.type === "diagram") return block.source.length;
   if (block.type === "table") return [...block.headers, ...block.rows.flat()].join("").length;
   return 0;
 }
@@ -586,9 +629,13 @@ function drawHeading(
   return y + lines.length * lineHeight + (block.level === 1 ? 10 : 8);
 }
 
-function drawParagraph(doc: jsPDF, text: string, theme: PdfTheme, y: number, page: PdfPageConfig) {
-  const size = 10.5;
-  const lineHeight = 15.2;
+async function drawParagraph(doc: jsPDF, text: string, theme: PdfTheme, y: number, page: PdfPageConfig) {
+  if (hasInlineMath(text)) {
+    return drawParagraphWithInlineMath(doc, text, theme, y, page);
+  }
+
+  const size = 10.7;
+  const lineHeight = 16.6;
   const lines = wrapPdfText(doc, text, page.contentWidth, {
     size,
     style: "normal",
@@ -602,7 +649,59 @@ function drawParagraph(doc: jsPDF, text: string, theme: PdfTheme, y: number, pag
     asciiFont: asciiBodyFont,
     color: theme.muted,
   });
-  return y + lines.length * lineHeight + 8;
+  return y + lines.length * lineHeight + 10;
+}
+
+async function drawParagraphWithInlineMath(
+  doc: jsPDF,
+  text: string,
+  theme: PdfTheme,
+  y: number,
+  page: PdfPageConfig,
+) {
+  const size = 10.7;
+  const baseLineHeight = 17.2;
+  const tokens = await buildInlineMathTokens(doc, text, {
+    size,
+    style: "normal",
+    asciiFont: asciiBodyFont,
+  });
+  const lines = wrapInlineRuns(tokens, page.contentWidth);
+  const lineHeights = lines.map((line) =>
+    Math.max(baseLineHeight, ...line.map((token) => (token.type === "math" ? token.height + 3 : baseLineHeight))),
+  );
+  const totalHeight = lineHeights.reduce((total, height) => total + height, 0);
+  y = ensureSpace(doc, y, totalHeight + 10, theme, page);
+
+  let lineY = y;
+  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+    let cursor = page.marginX;
+    const line = lines[lineIndex];
+    const lineHeight = lineHeights[lineIndex];
+    for (const token of line) {
+      if (token.type === "math" && token.image) {
+        doc.addImage(
+          token.image.dataUrl,
+          "PNG",
+          cursor,
+          lineY - token.image.height + 4,
+          token.image.width,
+          token.image.height,
+        );
+      } else {
+        drawPdfTextRun(doc, token.text, cursor, lineY, {
+          size,
+          style: "normal",
+          asciiFont: asciiBodyFont,
+          color: theme.muted,
+        });
+      }
+      cursor += token.width;
+    }
+    lineY += lineHeight;
+  }
+
+  return y + totalHeight + 10;
 }
 
 function drawList(
@@ -612,8 +711,8 @@ function drawList(
   y: number,
   page: PdfPageConfig,
 ) {
-  const size = 10.5;
-  const lineHeight = 15;
+  const size = 10.6;
+  const lineHeight = 16.2;
 
   for (let index = 0; index < block.items.length; index += 1) {
     const marker = block.ordered ? `${block.start + index}.` : "•";
@@ -622,7 +721,7 @@ function drawList(
       style: "normal",
       asciiFont: asciiBodyFont,
     });
-    y = ensureSpace(doc, y, lines.length * lineHeight + 7, theme, page);
+    y = ensureSpace(doc, y, lines.length * lineHeight + 9, theme, page);
     doc.setFont(asciiBodyFont, "normal");
     doc.setFontSize(size);
     setText(doc, theme.muted);
@@ -634,7 +733,7 @@ function drawList(
       asciiFont: asciiBodyFont,
       color: theme.muted,
     });
-    y += lines.length * lineHeight + 5;
+    y += lines.length * lineHeight + 7;
   }
 
   return y + 4;
@@ -647,7 +746,8 @@ function drawQuote(doc: jsPDF, text: string, theme: PdfTheme, y: number, page: P
     style: "normal",
     asciiFont: asciiBodyFont,
   });
-  const height = lines.length * 14.8 + 20;
+  const lineHeight = 16;
+  const height = lines.length * lineHeight + 22;
   y = ensureSpace(doc, y, height + 10, theme, page);
 
   setFill(doc, theme.accentSoft);
@@ -656,7 +756,7 @@ function drawQuote(doc: jsPDF, text: string, theme: PdfTheme, y: number, page: P
   doc.rect(page.marginX, y - 12, 3, height, "F");
   drawPdfTextLines(doc, lines, page.marginX + 16, y + 4, {
     size: 10.2,
-    lineHeight: 14.8,
+    lineHeight,
     style: "normal",
     asciiFont: asciiBodyFont,
     color: theme.muted,
@@ -678,7 +778,7 @@ function drawCode(
   y: number,
   page: PdfPageConfig,
 ) {
-  const size = 8.9;
+  const size = 8.8;
   const rawLines = block.code.split("\n");
   const lines = rawLines.flatMap((line) =>
     wrapPdfText(doc, line || " ", page.contentWidth - 28, {
@@ -687,7 +787,7 @@ function drawCode(
       asciiFont: asciiMonoFont,
     }),
   );
-  const lineHeight = 12.2;
+  const lineHeight = 12.8;
   const maxLinesPerBox = 40;
 
   for (let start = 0; start < lines.length || start === 0; start += maxLinesPerBox) {
@@ -715,6 +815,284 @@ function drawCode(
   return y;
 }
 
+async function drawMathBlock(
+  doc: jsPDF,
+  block: Extract<PdfBlock, { type: "math" }>,
+  theme: PdfTheme,
+  y: number,
+  page: PdfPageConfig,
+) {
+  const rendered = await renderMathImage(block.source, true, page.contentWidth - 28);
+  if (!rendered) {
+    return drawCode(doc, { type: "code", language: "math", code: block.source }, theme, y, page);
+  }
+
+  const imageWidth = Math.min(page.contentWidth - 28, rendered.width);
+  const imageHeight = rendered.height * (imageWidth / rendered.width);
+  const cardHeight = Math.max(58, imageHeight + 38);
+  y = ensureSpace(doc, y, cardHeight + 16, theme, page);
+
+  setFill(doc, [255, 255, 255]);
+  setDraw(doc, theme.rule);
+  doc.roundedRect(page.marginX, y - 12, page.contentWidth, cardHeight, 8, 8, "FD");
+
+  doc.setFont(asciiBodyFont, "bold");
+  doc.setFontSize(8.5);
+  setText(doc, theme.accent);
+  doc.text("MATH", page.marginX + 14, y + 4);
+  doc.addImage(
+    rendered.dataUrl,
+    "PNG",
+    page.marginX + 14,
+    y + 18,
+    imageWidth,
+    imageHeight,
+  );
+  return y + cardHeight + 14;
+}
+
+async function drawDiagram(
+  doc: jsPDF,
+  block: Extract<PdfBlock, { type: "diagram" }>,
+  theme: PdfTheme,
+  y: number,
+  page: PdfPageConfig,
+) {
+  if (block.nodes.length > 0) {
+    return drawSimpleFlowchart(doc, block, theme, y, page);
+  }
+
+  const rendered = await renderMermaidDiagramImage(block.source);
+  if (rendered) {
+    const ratio = rendered.height / rendered.width;
+    const imageWidth = page.contentWidth - 24;
+    const imageHeight = Math.min(280, Math.max(120, imageWidth * ratio));
+    const cardHeight = imageHeight + 48;
+    y = ensureSpace(doc, y, cardHeight + 16, theme, page);
+
+    setFill(doc, [255, 255, 255]);
+    setDraw(doc, theme.rule);
+    doc.roundedRect(page.marginX, y - 12, page.contentWidth, cardHeight, 8, 8, "FD");
+
+    doc.setFont(asciiBodyFont, "bold");
+    doc.setFontSize(8.5);
+    setText(doc, theme.accent);
+    doc.text(block.title.toUpperCase(), page.marginX + 14, y + 4);
+    doc.addImage(rendered.dataUrl, "PNG", page.marginX + 12, y + 18, imageWidth, imageHeight);
+    return y + cardHeight + 14;
+  }
+
+  return drawCode(doc, { type: "code", language: "mermaid", code: block.source }, theme, y, page);
+}
+
+function drawSimpleFlowchart(
+  doc: jsPDF,
+  block: Extract<PdfBlock, { type: "diagram" }>,
+  theme: PdfTheme,
+  y: number,
+  page: PdfPageConfig,
+) {
+  const nodeCount = Math.max(1, block.nodes.length);
+  const nodeWidth = Math.min(118, (page.contentWidth - 40) / nodeCount);
+  const gap = nodeCount > 1 ? (page.contentWidth - nodeWidth * nodeCount) / (nodeCount + 1) : 0;
+  const nodeHeight = 44;
+  const cardHeight = 104;
+  y = ensureSpace(doc, y, cardHeight + 16, theme, page);
+
+  setFill(doc, [255, 255, 255]);
+  setDraw(doc, theme.rule);
+  doc.roundedRect(page.marginX, y - 12, page.contentWidth, cardHeight, 8, 8, "FD");
+
+  doc.setFont(asciiBodyFont, "bold");
+  doc.setFontSize(8.5);
+  setText(doc, theme.accent);
+  doc.text(block.title.toUpperCase(), page.marginX + 14, y + 4);
+
+  const centerY = y + 52;
+  let x = nodeCount > 1 ? page.marginX + gap : page.marginX + (page.contentWidth - nodeWidth) / 2;
+  for (let index = 0; index < block.nodes.length; index += 1) {
+    if (index > 0) {
+      const arrowY = centerY;
+      setDraw(doc, theme.accent);
+      doc.setLineWidth(1.2);
+      doc.line(x - gap + nodeWidth + 10, arrowY, x - 12, arrowY);
+      doc.line(x - 16, arrowY - 4, x - 12, arrowY);
+      doc.line(x - 16, arrowY + 4, x - 12, arrowY);
+    }
+
+    setFill(doc, theme.accentSoft);
+    setDraw(doc, theme.rule);
+    doc.roundedRect(x, centerY - nodeHeight / 2, nodeWidth, nodeHeight, 7, 7, "FD");
+    const lines = wrapPdfText(doc, block.nodes[index], nodeWidth - 16, {
+      size: 8.6,
+      style: "bold",
+      asciiFont: asciiBodyFont,
+    }).slice(0, 2);
+    drawPdfTextLines(doc, lines, x + 8, centerY - (lines.length > 1 ? 3 : -2), {
+      size: 8.6,
+      lineHeight: 10,
+      style: "bold",
+      asciiFont: asciiBodyFont,
+      color: theme.ink,
+    });
+    x += nodeWidth + gap;
+  }
+
+  doc.setLineWidth(0.2);
+  return y + cardHeight + 14;
+}
+
+async function renderMermaidDiagramImage(source: string) {
+  if (typeof document === "undefined") return null;
+
+  try {
+    const mermaid = await loadPdfMermaid();
+    const renderId = `velowrite-pdf-mermaid-${++pdfMermaidCounter}`;
+    const result = await mermaid.default.render(renderId, source);
+    const svg = typeof result === "string" ? result : result.svg;
+    if (!svg.trim()) throw new Error("Mermaid rendered an empty diagram.");
+    const size = getSvgSize(svg);
+    const dataUrl = await svgToPngDataUrl(svg, size.width, size.height);
+    return { ...size, dataUrl };
+  } catch {
+    return null;
+  }
+}
+
+async function renderMathImage(source: string, display: boolean, maxWidth: number): Promise<MathImage | null> {
+  if (typeof document === "undefined") return null;
+
+  try {
+    ensureKatexPdfStyles();
+    const element = document.createElement("div");
+    element.className = display ? "velowrite-pdf-math display" : "velowrite-pdf-math inline";
+    element.style.maxWidth = `${Math.max(120, maxWidth)}px`;
+    element.innerHTML = katex.renderToString(source, {
+      displayMode: display,
+      output: "html",
+      throwOnError: false,
+      strict: "ignore",
+    });
+    document.body.append(element);
+
+    const html2canvas = (await import("html2canvas")).default;
+    const canvas = await html2canvas(element, {
+      backgroundColor: null,
+      scale: 2,
+      logging: false,
+    });
+    const rect = element.getBoundingClientRect();
+    element.remove();
+
+    const scale = display ? 0.68 : 0.62;
+    return {
+      dataUrl: canvas.toDataURL("image/png"),
+      width: Math.max(1, rect.width * scale),
+      height: Math.max(1, rect.height * scale),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function ensureKatexPdfStyles() {
+  if (katexPdfStylesReady) return;
+  const style = document.createElement("style");
+  style.dataset.velowritePdfKatex = "true";
+  style.textContent = `
+${katexStyles}
+.velowrite-pdf-math {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  z-index: -1;
+  box-sizing: border-box;
+  color: #15362d;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1.45;
+}
+.velowrite-pdf-math.inline {
+  display: inline-block;
+  padding: 1px 2px;
+  white-space: nowrap;
+}
+.velowrite-pdf-math.display {
+  display: inline-block;
+  padding: 8px 10px;
+}
+.velowrite-pdf-math .katex-display {
+  margin: 0;
+}
+`;
+  document.head.append(style);
+  katexPdfStylesReady = true;
+}
+
+async function loadPdfMermaid() {
+  if (!pdfMermaidLoadPromise) {
+    pdfMermaidLoadPromise = import("mermaid").then((module) => {
+      module.default.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        htmlLabels: false,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#eef7f1",
+          primaryTextColor: "#15362d",
+          primaryBorderColor: "#9dc7b4",
+          lineColor: "#2d7656",
+          secondaryColor: "#f8f6f1",
+          tertiaryColor: "#ffffff",
+          fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+        },
+        flowchart: {
+          htmlLabels: false,
+        },
+      });
+      return module;
+    });
+  }
+
+  return pdfMermaidLoadPromise;
+}
+
+function getSvgSize(svg: string) {
+  const viewBox = /\bviewBox="([^"]+)"/.exec(svg)?.[1]?.trim().split(/\s+/).map(Number);
+  if (viewBox?.length === 4 && viewBox.every((value) => Number.isFinite(value))) {
+    return { width: Math.max(1, viewBox[2]), height: Math.max(1, viewBox[3]) };
+  }
+
+  const width = Number.parseFloat(/\bwidth="([0-9.]+)/.exec(svg)?.[1] ?? "");
+  const height = Number.parseFloat(/\bheight="([0-9.]+)/.exec(svg)?.[1] ?? "");
+  if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+    return { width, height };
+  }
+
+  return { width: 720, height: 360 };
+}
+
+function svgToPngDataUrl(svg: string, width: number, height: number) {
+  return import("canvg").then(async ({ Canvg }) => {
+    const canvas = document.createElement("canvas");
+    const scale = 2;
+    canvas.width = Math.ceil(width * scale);
+    canvas.height = Math.ceil(height * scale);
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas is unavailable.");
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.scale(scale, scale);
+    const renderer = Canvg.fromString(context, svg, {
+      ignoreAnimation: true,
+      ignoreMouse: true,
+    });
+    await renderer.render();
+    return canvas.toDataURL("image/png");
+  });
+}
+
 function drawTable(
   doc: jsPDF,
   block: Extract<PdfBlock, { type: "table" }>,
@@ -734,8 +1112,8 @@ function drawTable(
     tableStyle.borders === "strong" ? [150, 164, 156] : theme.rule;
 
   function drawRow(cells: string[], isHeader: boolean, rowIndex: number) {
-    const size = isHeader ? 9.4 : 9;
-    const lineHeight = isHeader ? 11.8 : 11.5;
+    const size = isHeader ? 9.4 : 9.1;
+    const lineHeight = isHeader ? 12.4 : 12.2;
     const wrapped = Array.from({ length: columnCount }, (_, index) =>
       wrapPdfText(doc, cleanInlineMarkdown(cells[index] ?? "") || "-", columnWidths[index] - rowPadding * 2, {
         size,
@@ -743,7 +1121,7 @@ function drawTable(
         asciiFont: asciiBodyFont,
       }),
     );
-    const rowHeight = Math.max(25, Math.max(...wrapped.map((lines) => lines.length)) * lineHeight + 14);
+    const rowHeight = Math.max(28, Math.max(...wrapped.map((lines) => lines.length)) * lineHeight + 16);
     y = ensureSpace(doc, y, rowHeight + 4, theme, page);
 
     const shouldTintHeader = isHeader && tableStyle.header === "tinted";
@@ -989,6 +1367,16 @@ type DrawPdfTextOptions = PdfTextOptions & {
   lineHeight: number;
 };
 
+type InlinePdfToken =
+  | { type: "text"; text: string; width: number }
+  | { type: "math"; text: string; width: number; height: number; image: MathImage | null };
+
+type MathImage = {
+  dataUrl: string;
+  width: number;
+  height: number;
+};
+
 function getTableColumnWidths(
   doc: jsPDF,
   block: Extract<PdfBlock, { type: "table" }>,
@@ -1026,6 +1414,34 @@ function getTableColumnWidths(
   return initial.map((width) => width - (Math.max(0, width - minWidth) / shrinkable) * overflow);
 }
 
+function parseSimpleMermaidFlow(value: string) {
+  const lines = value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (!/^flowchart\s+(LR|TD|TB|RL|BT)$/i.test(lines[0] ?? "")) return null;
+
+  const labels = new Map<string, string>();
+  const order: string[] = [];
+  for (const line of lines.slice(1)) {
+    const edge = /^([A-Za-z0-9_-]+)(?:\[([^\]]+)\])?\s*-->\s*([A-Za-z0-9_-]+)(?:\[([^\]]+)\])?/.exec(line);
+    if (!edge) return null;
+
+    const [, from, fromLabel, to, toLabel] = edge;
+    for (const [id, label] of [
+      [from, fromLabel],
+      [to, toLabel],
+    ] as const) {
+      if (!order.includes(id)) order.push(id);
+      if (label) labels.set(id, cleanInlineMarkdown(label));
+      if (!labels.has(id)) labels.set(id, id);
+    }
+  }
+
+  if (order.length < 2 || order.length > 6) return null;
+  return { nodes: order.map((id) => ({ id, label: labels.get(id) ?? id })) };
+}
+
 function wrapPdfText(doc: jsPDF, text: string, maxWidth: number, options: PdfTextOptions) {
   const tokens = tokenizePdfText(text);
   const lines: string[] = [];
@@ -1051,6 +1467,115 @@ function wrapPdfText(doc: jsPDF, text: string, maxWidth: number, options: PdfTex
 
   if (line.trim()) lines.push(line.trimEnd());
   return lines.length ? lines : [""];
+}
+
+async function buildInlineMathTokens(doc: jsPDF, text: string, options: PdfTextOptions) {
+  const rawTokens = splitInlineMath(text);
+  const tokens: InlinePdfToken[] = [];
+  for (const token of rawTokens) {
+    if (token.type === "math") {
+      const image = await renderMathImage(token.value, false, 180);
+      const fallback = cleanMathSource(token.value);
+      const width = image?.width ?? measurePdfText(doc, fallback, options);
+      const height = image?.height ?? 0;
+      tokens.push({ type: "math", text: fallback, width, height, image });
+      continue;
+    }
+
+    for (const textToken of tokenizePdfText(token.value)) {
+      pushInlineTextToken(doc, tokens, textToken, options);
+    }
+  }
+  return tokens.filter((token) => token.text.trim() || token.type === "math");
+}
+
+function pushInlineTextToken(doc: jsPDF, tokens: InlinePdfToken[], text: string, options: PdfTextOptions) {
+  if (!text) return;
+
+  const previous = tokens[tokens.length - 1];
+  if (previous?.type === "text" && (!text.trim() || !previous.text.trim())) {
+    previous.text += text;
+    previous.width = measurePdfText(doc, previous.text, options);
+    return;
+  }
+
+  tokens.push({
+    type: "text",
+    text,
+    width: measurePdfText(doc, text, options),
+  });
+}
+
+function wrapInlineRuns(tokens: InlinePdfToken[], maxWidth: number): InlinePdfToken[][] {
+  const lines: InlinePdfToken[][] = [];
+  let line: InlinePdfToken[] = [];
+  let width = 0;
+
+  for (const token of tokens) {
+    if (token.type === "text" && !token.text.trim() && line.length === 0) continue;
+    if (line.length > 0 && width + token.width > maxWidth) {
+      lines.push(trimInlineLine(line));
+      line = [];
+      width = 0;
+      if (token.type === "text" && !token.text.trim()) continue;
+    }
+    line.push(token);
+    width += token.width;
+  }
+
+  if (line.length > 0) lines.push(trimInlineLine(line));
+  const fallback: InlinePdfToken = { type: "text", text: "", width: 0 };
+  return lines.length ? lines : [[fallback]];
+}
+
+function trimInlineLine(line: InlinePdfToken[]): InlinePdfToken[] {
+  while (line.length > 0 && line[0].type === "text" && !line[0].text.trim()) line.shift();
+  while (line.length > 0 && line[line.length - 1].type === "text" && !line[line.length - 1].text.trim()) line.pop();
+  return line;
+}
+
+function hasInlineMath(text: string) {
+  return /\$[^$\n]+\$/.test(text);
+}
+
+function splitInlineMath(text: string) {
+  const tokens: Array<{ type: "text" | "math"; value: string }> = [];
+  let start = 0;
+  let index = 0;
+
+  while (index < text.length) {
+    if (text[index] !== "$" || text[index - 1] === "\\" || text[index + 1] === "$") {
+      index += 1;
+      continue;
+    }
+
+    const close = findInlineMathClose(text, index + 1);
+    if (close < 0) {
+      index += 1;
+      continue;
+    }
+
+    if (index > start) tokens.push({ type: "text", value: text.slice(start, index) });
+    tokens.push({ type: "math", value: text.slice(index + 1, close) });
+    index = close + 1;
+    start = index;
+  }
+
+  if (start < text.length) tokens.push({ type: "text", value: text.slice(start) });
+  return tokens;
+}
+
+function findInlineMathClose(text: string, start: number) {
+  for (let index = start; index < text.length; index += 1) {
+    if (text[index] === "$" && text[index - 1] !== "\\" && text[index + 1] !== "$") {
+      return index;
+    }
+  }
+  return -1;
+}
+
+function cleanMathSource(value: string) {
+  return value.replace(/\s+/g, " ").trim();
 }
 
 function splitOversizedToken(doc: jsPDF, token: string, maxWidth: number, options: PdfTextOptions) {
@@ -1106,14 +1631,25 @@ function measurePdfText(doc: jsPDF, text: string, options: PdfTextOptions) {
 function drawPdfTextLines(doc: jsPDF, lines: string[], x: number, y: number, options: DrawPdfTextOptions) {
   setText(doc, options.color);
   lines.forEach((line, lineIndex) => {
-    let cursor = x;
-    for (const run of splitFontRuns(line || " ")) {
-      doc.setFont(getRunFont(run.text, options.asciiFont), options.style);
-      doc.setFontSize(options.size);
-      doc.text(run.text, cursor, y + lineIndex * options.lineHeight);
-      cursor += doc.getTextWidth(run.text);
-    }
+    drawPdfTextRun(doc, line || " ", x, y + lineIndex * options.lineHeight, options);
   });
+}
+
+function drawPdfTextRun(
+  doc: jsPDF,
+  text: string,
+  x: number,
+  y: number,
+  options: PdfTextOptions & { color: [number, number, number] },
+) {
+  setText(doc, options.color);
+  let cursor = x;
+  for (const run of splitFontRuns(text || " ")) {
+    doc.setFont(getRunFont(run.text, options.asciiFont), options.style);
+    doc.setFontSize(options.size);
+    doc.text(run.text, cursor, y);
+    cursor += doc.getTextWidth(run.text);
+  }
 }
 
 function splitFontRuns(text: string) {

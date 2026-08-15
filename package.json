@@ -1,6 +1,6 @@
 {
   "name": "velowrite",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "private": true,
   "type": "module",
   "scripts": {
@@ -39,11 +39,14 @@
     "@tauri-apps/plugin-dialog": "^2.7.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "canvg": "^4.0.3",
     "highlight.js": "^11.11.1",
+    "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "katex": "^0.18.0",
     "lucide-react": "^0.468.0",
     "markdown-it": "^14.3.0",
+    "mermaid": "^11.16.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

@@ -49,6 +49,7 @@ import {
   buildHtmlDocument,
   extractHeadings,
   getMetrics,
+  renderMermaidDiagrams,
   renderMarkdown,
   slugify,
 } from "./markdown";
@@ -1066,7 +1067,13 @@ function HistoryPanel({
   );
 }
 
-function AboutPanel({ onClose }: { onClose: () => void }) {
+function AboutPanel({
+  onClose,
+  updateNotice,
+}: {
+  onClose: () => void;
+  updateNotice: UpdateNotice;
+}) {
   const links = [
     ["Feedback", "https://velowrite.app/feedback?utm_source=desktop_about&utm_medium=cta"],
     ["GitHub", "https://github.com/ken-water/velowrite"],
@@ -1099,6 +1106,25 @@ function AboutPanel({ onClose }: { onClose: () => void }) {
         <div className="about-version">
           <span>Version</span>
           <strong>{appVersion}</strong>
+        </div>
+
+        <div className="about-version">
+          <span>Update check</span>
+          <strong>
+            {updateNotice.state === "checking"
+              ? "Checking"
+              : updateNotice.state === "current"
+                ? "Current"
+                : updateNotice.state === "available"
+                  ? `v${updateNotice.latestVersion} available`
+                  : "Could not check"}
+          </strong>
+          {updateNotice.state === "available" && (
+            <a href={updateNotice.releaseUrl} target="_blank" rel="noreferrer">
+              View release
+            </a>
+          )}
+          {updateNotice.state === "error" && <small>{updateNotice.message}</small>}
         </div>
 
         <div className="about-contact">
@@ -1372,6 +1398,7 @@ export default function EditorApp({
   const scrollSource = React.useRef<"editor" | "preview" | null>(null);
   const suppressBeforeUnload = React.useRef(false);
   const fileStampRef = React.useRef<FileStamp | null>(null);
+  const ignoreFileChangeUntil = React.useRef(0);
   const autoSaveTimer = React.useRef<number | null>(null);
   const browserHistoryTimer = React.useRef<number | null>(null);
   const browserHistoryBaseline = React.useRef<string | null>(null);
@@ -1456,6 +1483,10 @@ export default function EditorApp({
     () => renderMarkdown(markdown, headings, 0, { basePath: getMarkdownBasePath(filePath) }),
     [filePath, headings, markdown],
   );
+  React.useEffect(() => {
+    if (!previewRef.current) return;
+    void renderMermaidDiagrams(previewRef.current);
+  }, [rendered]);
   const tableExportStyle = pdfExportStyle.table;
   const exportReadiness = React.useMemo(() => {
     const title = headings.find((heading) => heading.level === 1)?.text ?? "";
@@ -1718,6 +1749,10 @@ export default function EditorApp({
 
         const previous = fileStampRef.current;
         fileStampRef.current = stamp;
+        if (Date.now() < ignoreFileChangeUntil.current) {
+          setFileChangeNotice(null);
+          return;
+        }
         if (previous && (previous.modifiedAt !== stamp.modifiedAt || previous.size !== stamp.size)) {
           setFileChangeNotice(
             `${normalizeDisplayedPath(activeFilePath)} changed on disk. Reload to get the latest content.`,
@@ -2205,8 +2240,10 @@ export default function EditorApp({
         keptPreviousVersion = true;
       }
 
+      ignoreFileChangeUntil.current = Date.now() + 2500;
       const savedPath = await nativeApi.saveMarkdownFile(filePath, markdown);
       if (!savedPath) return;
+      ignoreFileChangeUntil.current = Date.now() + 2500;
 
       if (!previous.filePath && previous.markdown && previous.markdown !== markdown) {
         await nativeApi.createHistorySnapshot(savedPath, previous.fileName, previous.markdown);
@@ -3280,7 +3317,12 @@ export default function EditorApp({
             onClose={() => setHistoryOpen(false)}
           />
         )}
-        {aboutOpen && <AboutPanel onClose={() => setAboutOpen(false)} />}
+        {aboutOpen && (
+          <AboutPanel
+            onClose={() => setAboutOpen(false)}
+            updateNotice={updateNotice}
+          />
+        )}
       </section>
     </main>
   );

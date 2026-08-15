@@ -29,8 +29,8 @@ const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExamp
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const EditorApp = React.lazy(() => import("./EditorApp"));
 
-const downloadVersion = "0.2.6";
-const downloadReleaseDate = "August 12, 2026";
+const downloadVersion = "0.2.7";
+const downloadReleaseDate = "August 15, 2026";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -59,6 +59,7 @@ const docPageRoutes = {
   "/docs/pdf-export-notes": "pdfExportNotes",
   "/docs/preview-build-limitations": "previewBuildLimitations",
   "/docs/private-online-markdown-editor": "privateOnlineMarkdownEditor",
+  "/docs/download-safety": "downloadSafety",
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
@@ -82,6 +83,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/pdf-export-notes",
   "/docs/preview-build-limitations",
   "/docs/private-online-markdown-editor",
+  "/docs/download-safety",
 ]);
 
 function matchesRoute(pathname: string, route: string) {
@@ -404,8 +406,8 @@ const docGroups = [
         href: "/docs/private-online-markdown-editor",
         status: "Published",
       },
+      { title: "Download Safety", href: "/docs/download-safety", status: "Published" },
       { title: "Troubleshooting Guide", href: "/docs/troubleshooting", status: "Planned" },
-      { title: "Download Safety", href: "/docs/download-safety", status: "Planned" },
     ],
   },
 ] as const;
@@ -1669,12 +1671,12 @@ function DownloadPage() {
             <div className="download-highlights-copy">
               <span>Latest improvements</span>
               <p>
-                Local images now resolve from the Markdown file folder. Split
-                scrolling, history restore previews, and Markdown rendering tests
-                are more stable in this build.
+                Mermaid diagrams and KaTeX math now render in PDF export.
+                Download safety guidance, desktop update status, and external
+                file-change handling are clearer in this build.
               </p>
             </div>
-            <a href="/changelog?utm_source=download_page&utm_medium=resource#v026">
+            <a href="/changelog?utm_source=download_page&utm_medium=resource#v027">
               See changelog details <ChevronRight size={15} />
             </a>
           </div>

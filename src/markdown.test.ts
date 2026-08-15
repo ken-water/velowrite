@@ -40,6 +40,23 @@ describe("markdown utilities", () => {
     expect(html).not.toContain("<script>");
   });
 
+  it("hides markdown HTML comments without removing code examples", () => {
+    const html = renderMarkdown(`Before
+
+<!-- internal source note -->
+
+\`\`\`html
+<!-- keep this code comment visible -->
+<section>Example</section>
+\`\`\`
+
+After`);
+
+    expect(html).not.toContain("internal source note");
+    expect(html).toContain("keep this code comment visible");
+    expect(html).toContain("&lt;section&gt;Example&lt;/section&gt;");
+  });
+
   it("renders inline and block math with KaTeX", () => {
     const html = renderMarkdown(`Inline $E = mc^2$.
 
@@ -60,6 +77,31 @@ const answer = 42;
     expect(html).toContain("language-javascript");
     expect(html).toContain("hljs-keyword");
     expect(html).toContain("answer");
+  });
+
+  it("renders Mermaid fences as runtime-rendered diagrams", () => {
+    const html = renderMarkdown(`\`\`\`mermaid
+flowchart LR
+  Draft[Draft notes] --> Preview[Live preview]
+  Preview --> Export[Export Markdown]
+\`\`\``);
+
+    expect(html).toContain('class="mermaid-diagram mermaid-pending"');
+    expect(html).toContain("data-mermaid=");
+    expect(html).toContain("flowchart%20LR");
+    expect(html).toContain("Draft notes");
+    expect(html).toContain('language-mermaid');
+  });
+
+  it("passes complex Mermaid syntax to the runtime engine", () => {
+    const html = renderMarkdown(`\`\`\`mermaid
+sequenceDiagram
+  Alice->>Bob: Hello
+\`\`\``);
+
+    expect(html).toContain('class="mermaid-diagram mermaid-pending"');
+    expect(html).toContain('language-mermaid');
+    expect(html).toContain("sequenceDiagram");
   });
 
   it("wraps rendered tables for constrained preview panes", () => {
@@ -211,6 +253,18 @@ puts "<unsafe>"
     expect(html).toContain("print-color-adjust: exact");
     expect(html).toContain(".code-tabset-tabs { display: none; }");
     expect(html).not.toContain("cdn.jsdelivr.net");
+  });
+
+  it("adds Mermaid runtime support to standalone HTML exports when needed", () => {
+    const body = renderMarkdown(`\`\`\`mermaid
+sequenceDiagram
+  Alice->>Bob: Hello
+\`\`\``);
+    const html = buildHtmlDocument("Diagram", body);
+
+    expect(html).toContain("mermaid@11.16.1");
+    expect(html).toContain("mermaid.render");
+    expect(html).toContain('securityLevel: "strict"');
   });
 
   it("applies table export preferences to HTML output", () => {

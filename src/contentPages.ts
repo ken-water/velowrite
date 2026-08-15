@@ -1381,7 +1381,7 @@ export const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Export sanity check",
           markdown:
-            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.6_amd64.AppImage\n```",
+            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.7_amd64.AppImage\n```",
           note: "A small export test catches layout problems before the real document is due.",
         },
       },
@@ -1473,7 +1473,7 @@ export const contentPages: Record<string, ContentPage> = {
     title: "PDF Export Notes for Markdown Documents",
     intro:
       "PDF export matters when a draft needs to leave the editor. This page explains what VeloWrite exports today, what to check before sending a file, and which parts are still preview behavior.",
-    updated: "August 12, 2026",
+    updated: "August 15, 2026",
     directory: [
       { label: "Use cases", href: "#use-cases" },
       { label: "Current export", href: "#current-export" },
@@ -1641,7 +1641,7 @@ export const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Useful feedback format",
           markdown:
-            "## Issue\n\nPreview pane scrolls differently from the editor.\n\n## Environment\n\n- Windows 11\n- VeloWrite 0.2.6\n- Split mode\n\n## Steps\n\n1. Open a long Markdown file.\n2. Click a heading in the outline.\n3. Scroll the preview pane.\n\n## Expected\n\nThe editor should stay near the same section.",
+            "## Issue\n\nPreview pane scrolls differently from the editor.\n\n## Environment\n\n- Windows 11\n- VeloWrite 0.2.7\n- Split mode\n\n## Steps\n\n1. Open a long Markdown file.\n2. Click a heading in the outline.\n3. Scroll the preview pane.\n\n## Expected\n\nThe editor should stay near the same section.",
           note: "Good reports shorten the time between feedback and a usable fix.",
         },
       },
@@ -1649,6 +1649,81 @@ export const contentPages: Record<string, ContentPage> = {
     cta: {
       primary: { href: "/download?utm_source=preview_limits_cta&utm_medium=cta", label: "Download Preview" },
       secondary: { href: "/feedback?utm_source=preview_limits_cta&utm_medium=resource", label: "Send Feedback" },
+    },
+  },
+  downloadSafety: {
+    eyebrow: "Release trust",
+    title: "Download Safety for VeloWrite Preview Builds",
+    intro:
+      "VeloWrite preview installers are still unsigned. Use this checklist to download from the right place, confirm the version, and report anything that looks wrong.",
+    updated: "August 15, 2026",
+    directory: [
+      { label: "Official sources", href: "#official-sources" },
+      { label: "Version match", href: "#version-match" },
+      { label: "System warnings", href: "#system-warnings" },
+      { label: "First run", href: "#first-run" },
+      { label: "When to stop", href: "#when-to-stop" },
+      { label: "Report issues", href: "#report-issues" },
+    ],
+    sections: [
+      {
+        id: "official-sources",
+        title: "Download only from the official page or GitHub Releases",
+        body: [
+          "Use velowrite.app/download or the GitHub Releases page linked from it. Those pages show the current preview version, platform package names, release date, and notes before you install.",
+          "Avoid random mirrors, reuploaded installers, shortened links, and files shared in chat. While VeloWrite is unsigned, the safest habit is to start from the official download page every time.",
+        ],
+      },
+      {
+        id: "version-match",
+        title: "Check the version before installing",
+        body: [
+          "The download card, file name, GitHub release tag, changelog entry, and desktop About panel should all point to the same version. If the website says v0.2.7, the installer file and release page should also be for v0.2.7.",
+          "If a fix is mentioned in the changelog but the installer version is older, wait for the next public release or use the web editor where website fixes are already live.",
+        ],
+        example: {
+          label: "Version check",
+          markdown:
+            "## Before installing\n\n- Download page version: v0.2.7\n- GitHub release tag: v0.2.7\n- Installer file name: VeloWrite_0.2.7...\n- Desktop About panel after install: 0.2.7",
+          note: "A simple version match catches most stale-download confusion.",
+        },
+      },
+      {
+        id: "system-warnings",
+        title: "Unsigned installer warnings are expected for now",
+        body: [
+          "Windows SmartScreen and macOS Gatekeeper may warn because the current preview builds are not code-signed or notarized yet. That is a trust limitation of the preview, not a feature users should ignore forever.",
+          "The current workaround is to verify the source and version before installing. Paid signing and notarization remain release trust work for a later budget stage.",
+        ],
+      },
+      {
+        id: "first-run",
+        title: "Test with a copy of a Markdown file first",
+        body: [
+          "Open a copied Markdown file, switch between Write, Split, and Preview, save once, export HTML or PDF, then reopen the file and check History. This tests the core desktop path without putting your only copy at risk.",
+          "Keep important files in a folder you already back up. VeloWrite local history helps with recent edits, but it is not a replacement for Git, Time Machine, Windows File History, Syncthing, or a normal cloud-drive backup.",
+        ],
+      },
+      {
+        id: "when-to-stop",
+        title: "Stop if anything looks inconsistent",
+        body: [
+          "Do not install if the file name, version, release page, or source link does not match what the download page says. Do not keep using a build if it cannot close, save, reopen, or export a simple test document reliably.",
+          "If you already installed an old VeloMD preview, uninstall it separately so old shortcuts do not make it look like VeloWrite installed twice.",
+        ],
+      },
+      {
+        id: "report-issues",
+        title: "Report download or install issues with the exact file name",
+        body: [
+          "When reporting a download issue, include your operating system, installer file name, version shown in About, where you downloaded it, and what warning or error appeared.",
+          "That information makes the issue actionable. It also helps keep the public download page honest when a build asset, release note, or platform package falls behind.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/download?utm_source=download_safety_cta&utm_medium=cta", label: "Open Downloads" },
+      secondary: { href: "/feedback?utm_source=download_safety_cta&utm_medium=cta", label: "Report a Problem" },
     },
   },
   privateOnlineMarkdownEditor: {
@@ -1863,8 +1938,9 @@ export const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog tracks what shipped in each preview build, what got better, and what is still left for later. Older releases stay below so you can compare versions without guessing.",
-    updated: "August 12, 2026",
+    updated: "August 15, 2026",
     directory: [
+      { label: "0.2.7", href: "#v027" },
       { label: "0.2.6", href: "#v026" },
       { label: "0.2.5", href: "#v025" },
       { label: "0.2.4", href: "#v024" },
@@ -1889,6 +1965,18 @@ export const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v027",
+        title: "0.2.7 preview",
+        body: [
+          "Added full Mermaid rendering support in Markdown preview, HTML export, and the dedicated PDF export path.",
+          "Improved PDF export so inline math and block equations render as formatted KaTeX output instead of raw Markdown math source.",
+          "Added Download Safety guidance so users can verify official sources, version matches, unsigned installer warnings, and first-run checks before installing.",
+          "Added update-check status to the desktop About panel so users can see whether the installed build is current or a newer release is available.",
+          "Reduced false external-file-change prompts after saving from the desktop app.",
+          "Expanded automated coverage for Mermaid, math PDF export, download safety, static SEO pages, and desktop trust UI.",
+        ],
+      },
       {
         id: "v026",
         title: "0.2.6 preview",

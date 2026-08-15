@@ -43,6 +43,17 @@ flowchart LR
   Desktop --> Archive[Keep local history]
 \`\`\`
 
+\`\`\`mermaid
+sequenceDiagram
+  participant Writer
+  participant VeloWrite
+  participant Reviewer
+  Writer->>VeloWrite: Draft Markdown
+  VeloWrite-->>Writer: Render live preview
+  Writer->>Reviewer: Share exported HTML or PDF
+  Reviewer-->>Writer: Send focused feedback
+\`\`\`
+
 ## Checklist
 
 - [x] Write Markdown without an account

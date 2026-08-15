@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.6"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.7"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -62,6 +62,16 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
     '<link rel="canonical" href="https://velowrite.app/docs/preview-release-policy" />',
   );
   expect(releasePolicyHtml).toContain('"dateModified": "2026-08-15"');
+
+  const downloadSafetyHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/download-safety/index.html"),
+    "utf8",
+  );
+  expect(downloadSafetyHtml).toContain("<title>Download Safety for VeloWrite Preview Builds</title>");
+  expect(downloadSafetyHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/download-safety" />',
+  );
+  expect(downloadSafetyHtml).toContain('"dateModified": "2026-08-15"');
 
   const privacyMarkdownHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/private-online-markdown-editor/index.html"),
@@ -491,6 +501,31 @@ test("web editor exports a PDF without browser print headers", async ({ page }) 
     .toBeNull();
 });
 
+test("web editor exports rendered math through the dedicated PDF engine", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=pdf_math");
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText(String.raw`# Mathematical Notes
+
+Inline math works inside normal text: $E = mc^2$ and $a^2 + b^2 = c^2$.
+
+$$
+\int_0^\infty e^{-x^2}\,dx = \frac{\sqrt{\pi}}{2}
+$$`);
+
+  const downloadPromise = page.waitForEvent("download");
+  await page
+    .getByLabel("Output actions")
+    .getByRole("button", { name: "Export PDF file" })
+    .click();
+  const download = await downloadPromise;
+  const pdfPath = await download.path();
+  expect(download.suggestedFilename()).toBe("Untitled.pdf");
+  expect(pdfPath).toBeTruthy();
+  expect(fs.statSync(pdfPath ?? "").size).toBeGreaterThan(20_000);
+  await expect(page.getByRole("status")).toContainText("Downloaded PDF export");
+});
+
 test("PDF table export preferences are kept for the dedicated PDF engine", async ({ page }) => {
   await page.addInitScript(() => {
     window.print = () => {
@@ -557,7 +592,8 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.6");
+  await expect(aboutDialog).toContainText("0.2.7");
+  await expect(aboutDialog).toContainText("Update check");
   await expect(aboutDialog).toContainText("kenwater89@gmail.com");
 });
 
@@ -773,6 +809,8 @@ test("complex Markdown demo renders math and tabbed code previews", async ({ pag
   await page.goto("/web?utm_source=demo_frame&utm_medium=cta&demo=complex");
 
   await expect(page.locator(".markdown-body .katex").first()).toBeVisible();
+  await expect(page.locator(".markdown-body .mermaid-rendered svg").first()).toBeVisible();
+  await expect(page.locator(".markdown-body .mermaid-rendered svg").nth(1)).toBeVisible();
   await expect(page.locator(".markdown-body .code-tabset").first()).toBeVisible();
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(0)).toHaveText("python");
   await expect(page.locator(".markdown-body .code-tabset-tabs label").nth(1)).toHaveText("bash");
@@ -830,14 +868,14 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
-  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.6");
-  await expect(page.getByLabel("Latest release information")).toContainText("August 12, 2026");
+  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.7");
+  await expect(page.getByLabel("Latest release information")).toContainText("August 15, 2026");
   await expect(page.getByLabel("Latest improvements")).toContainText(
-    "Local images now resolve from the Markdown file folder.",
+    "Mermaid diagrams and KaTeX math now render in PDF export.",
   );
   await expect(page.getByLabel("Latest improvements").getByRole("link", { name: "See changelog details" })).toHaveAttribute(
     "href",
-    "/changelog?utm_source=download_page&utm_medium=resource#v026",
+    "/changelog?utm_source=download_page&utm_medium=resource#v027",
   );
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon", exact: true })).toBeVisible();
   await expect(
@@ -846,7 +884,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.6_aarch64\.dmg/,
+    /VeloWrite_0\.2\.7_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Included now" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Still preview" })).toBeVisible();
@@ -1103,7 +1141,7 @@ test("docs publishes the Linux Markdown editor guide", async ({ page }) => {
   );
   await expect(page.getByRole("heading", { name: "Choose the package that fits your system" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "AppImage" })).toBeVisible();
-  await expect(page.locator(".markdown-body pre code").first()).toContainText("VeloWrite_0.2.6");
+  await expect(page.locator(".markdown-body pre code").first()).toContainText("VeloWrite_0.2.7");
 });
 
 test("docs examples can open their Markdown directly in the web editor", async ({ page }) => {
@@ -1184,6 +1222,22 @@ test("docs publishes the preview release policy article", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Read Changelog" })).toHaveAttribute(
     "href",
     "/changelog?utm_source=release_policy_cta&utm_medium=resource",
+  );
+});
+
+test("docs publishes download safety guidance for unsigned preview builds", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "Download Safety" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Download Safety" })).toContainText("Published");
+
+  await page.goto("/docs/download-safety");
+  await expect(page.getByRole("heading", { name: "Download Safety for VeloWrite Preview Builds" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Download only from the official page or GitHub Releases" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Unsigned installer warnings are expected for now" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Downloads" })).toHaveAttribute(
+    "href",
+    "/download?utm_source=download_safety_cta&utm_medium=cta",
   );
 });
 

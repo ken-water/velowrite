@@ -1,4 +1,5 @@
-import { renderMarkdown } from "./markdown";
+import React from "react";
+import { renderMarkdown, renderMermaidDiagrams } from "./markdown";
 
 type MarkdownExample = {
   label: string;
@@ -9,6 +10,14 @@ type MarkdownExample = {
 const exampleMarkdownKey = "velowrite:example-markdown";
 
 export default function RenderedMarkdownExample({ example }: { example: MarkdownExample }) {
+  const previewRef = React.useRef<HTMLDivElement>(null);
+  const rendered = React.useMemo(() => renderMarkdown(example.markdown, undefined, 1), [example.markdown]);
+
+  React.useEffect(() => {
+    if (!previewRef.current) return;
+    void renderMermaidDiagrams(previewRef.current);
+  }, [rendered]);
+
   function openInEditor() {
     window.sessionStorage.setItem(exampleMarkdownKey, example.markdown);
     window.location.href = "/web?utm_source=docs_example&utm_medium=cta&example=docs";
@@ -30,8 +39,9 @@ export default function RenderedMarkdownExample({ example }: { example: Markdown
         <div className="content-example-panel">
           <strong>Rendered preview</strong>
           <div
+            ref={previewRef}
             className="content-example-preview markdown-body"
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(example.markdown, undefined, 1) }}
+            dangerouslySetInnerHTML={{ __html: rendered }}
           />
         </div>
       </div>

@@ -35,6 +35,10 @@ export type MarkdownRenderOptions = {
   basePath?: string;
 };
 
+type MermaidModule = typeof import("mermaid");
+
+let mermaidLoadPromise: Promise<MermaidModule> | null = null;
+
 export function slugify(value: string, index: number) {
   const slug = value
     .toLowerCase()
@@ -100,7 +104,7 @@ export function renderMarkdown(
 ) {
   let headingIndex = 0;
   const renderer = new MarkdownIt({
-    html: false,
+    html: true,
     highlight(value, language) {
       return renderCodeBlock(value, language);
     },
@@ -108,6 +112,8 @@ export function renderMarkdown(
     typographer: true,
   });
   renderer.use(katex);
+  renderer.renderer.rules.html_block = renderSafeHtmlToken;
+  renderer.renderer.rules.html_inline = renderSafeHtmlToken;
   const defaultImageRenderer = renderer.renderer.rules.image;
   renderer.renderer.rules.image = (tokens, index, tokenOptions, env, self) => {
     const token = tokens[index];
@@ -134,6 +140,11 @@ export function renderMarkdown(
   return offsetHeadingLevels(wrapMarkdownTables(wrapCodeTabSets(renderer.render(markdown))), headingOffset);
 }
 
+function renderSafeHtmlToken(tokens: Array<{ content: string }>, index: number) {
+  const content = tokens[index].content;
+  return /^<!--[\s\S]*-->$/.test(content.trim()) ? "" : escapeHtml(content);
+}
+
 function offsetHeadingLevels(html: string, headingOffset: number) {
   if (!headingOffset) return html;
 
@@ -157,12 +168,91 @@ export function highlightCode(value: string, language: string) {
 
 function renderCodeBlock(value: string, language: string) {
   const normalizedLanguage = normalizeLanguage(language);
+  if (normalizedLanguage === "mermaid") {
+    return renderMermaidPlaceholder(value);
+  }
+
   const highlighted = highlightCode(value, normalizedLanguage);
   const className = normalizedLanguage
     ? `hljs language-${escapeHtml(normalizedLanguage)}`
     : "hljs";
 
   return `<pre><code class="${className}">${highlighted}</code></pre>`;
+}
+
+function renderMermaidPlaceholder(value: string) {
+  return `<pre class="mermaid-diagram mermaid-pending" data-mermaid="${encodeMermaidSource(value)}"><code class="language-mermaid">${escapeHtml(value)}</code></pre>`;
+}
+
+function encodeMermaidSource(value: string) {
+  return escapeHtml(encodeURIComponent(value));
+}
+
+function decodeMermaidSource(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+export async function renderMermaidDiagrams(root: ParentNode) {
+  const diagrams = Array.from(root.querySelectorAll<HTMLElement>(".mermaid-diagram[data-mermaid]"));
+  if (diagrams.length === 0) return;
+
+  const mermaid = await loadMermaid();
+  for (const [index, element] of diagrams.entries()) {
+    const source = decodeMermaidSource(element.dataset.mermaid ?? "");
+    const renderId = `velowrite-mermaid-${stableHash(source)}-${index}`;
+    element.classList.add("mermaid-rendering");
+
+    try {
+      const result = await mermaid.default.render(renderId, source);
+      const svg = typeof result === "string" ? result : result.svg;
+      const bindFunctions = typeof result === "string" ? undefined : result.bindFunctions;
+      if (!svg.trim()) throw new Error("Mermaid rendered an empty diagram.");
+
+      const figure = document.createElement("figure");
+      figure.className = "mermaid-diagram mermaid-rendered";
+      figure.setAttribute("aria-label", "Rendered Mermaid diagram");
+      figure.innerHTML = svg;
+      element.replaceWith(figure);
+      bindFunctions?.(figure);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to render this Mermaid diagram.";
+      element.classList.remove("mermaid-rendering");
+      element.classList.add("mermaid-error");
+      element.innerHTML = `<code class="language-mermaid">${escapeHtml(source)}</code><small>${escapeHtml(message)}</small>`;
+    }
+  }
+}
+
+async function loadMermaid() {
+  if (!mermaidLoadPromise) {
+    mermaidLoadPromise = import("mermaid").then((module) => {
+      module.default.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        htmlLabels: false,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#eef7f1",
+          primaryTextColor: "#15362d",
+          primaryBorderColor: "#9dc7b4",
+          lineColor: "#2d7656",
+          secondaryColor: "#f8f6f1",
+          tertiaryColor: "#ffffff",
+          fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+        },
+        flowchart: {
+          htmlLabels: false,
+        },
+      });
+      return module;
+    });
+  }
+
+  return mermaidLoadPromise;
 }
 
 function wrapCodeTabSets(html: string) {
@@ -297,6 +387,57 @@ export function buildHtmlDocument(
     month: "short",
     day: "2-digit",
   }).format(new Date());
+  const mermaidScript = body.includes('data-mermaid="')
+    ? `<script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.16.1/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        htmlLabels: false,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#eef7f1",
+          primaryTextColor: "#15362d",
+          primaryBorderColor: "#9dc7b4",
+          lineColor: "#2d7656",
+          secondaryColor: "#f8f6f1",
+          tertiaryColor: "#ffffff",
+          fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+        },
+        flowchart: {
+          htmlLabels: false
+        }
+      });
+      const decodeSource = (value) => {
+        try {
+          return decodeURIComponent(value);
+        } catch {
+          return value;
+        }
+      };
+      for (const [index, element] of [...document.querySelectorAll(".mermaid-diagram[data-mermaid]")].entries()) {
+        const source = decodeSource(element.dataset.mermaid || "");
+        try {
+          const result = await mermaid.render(\`velowrite-export-mermaid-\${index}\`, source);
+          const svg = typeof result === "string" ? result : result.svg;
+          const bindFunctions = typeof result === "string" ? undefined : result.bindFunctions;
+          if (!svg.trim()) throw new Error("Mermaid rendered an empty diagram.");
+          const figure = document.createElement("figure");
+          figure.className = "mermaid-diagram mermaid-rendered";
+          figure.setAttribute("aria-label", "Rendered Mermaid diagram");
+          figure.innerHTML = svg;
+          element.replaceWith(figure);
+          bindFunctions?.(figure);
+        } catch (error) {
+          element.classList.add("mermaid-error");
+          const message = error instanceof Error ? error.message : "Unable to render this Mermaid diagram.";
+          const detail = document.createElement("small");
+          detail.textContent = message;
+          element.append(detail);
+        }
+      }
+    </script>`
+    : "";
 
   return `<!doctype html>
 <html lang="en">
@@ -309,21 +450,21 @@ export function buildHtmlDocument(
       ${highlightStyles}
       :root {
         color: #17201c;
-        background: #f4f1ea;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f5f3ed;
+        font-family: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", Georgia, "Times New Roman", serif;
         font-size: 16px;
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
         background:
-          linear-gradient(180deg, rgba(255,255,255,0.82), rgba(244,241,234,0.92) 320px),
-          #f4f1ea;
+          linear-gradient(180deg, rgba(255,255,255,0.9), rgba(245,243,237,0.96) 340px),
+          #f5f3ed;
       }
       .document-shell {
-        max-width: 900px;
+        max-width: 940px;
         margin: 0 auto;
-        padding: 56px 28px 72px;
+        padding: 58px 30px 74px;
       }
       .document-cover {
         margin-bottom: 28px;
@@ -336,13 +477,15 @@ export function buildHtmlDocument(
         font-weight: 850;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
       .document-title {
-        max-width: 780px;
+        max-width: 820px;
         margin: 10px 0 12px;
         color: #0f251f;
-        font-size: 46px;
-        line-height: 1.03;
+        font-size: 44px;
+        line-height: 1.12;
+        font-weight: 780;
       }
       .document-meta {
         display: flex;
@@ -352,29 +495,30 @@ export function buildHtmlDocument(
         color: #5e6b65;
         font-size: 13px;
         font-weight: 720;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
       .document-content {
-        max-width: 780px;
+        max-width: 820px;
         margin: 0 auto;
         border: 1px solid #dfd8cb;
         border-radius: 8px;
-        padding: 38px 42px;
-        background: rgba(255, 255, 255, 0.84);
-        box-shadow: 0 18px 48px rgba(38, 52, 47, 0.1);
+        padding: 44px 50px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 20px 54px rgba(38, 52, 47, 0.09);
       }
       .document-content > :first-child { margin-top: 0; }
       .document-content > :last-child { margin-bottom: 0; }
-      h1, h2, h3, h4 { color: #102820; letter-spacing: 0; }
-      h1 { margin: 0 0 22px; font-size: 36px; line-height: 1.12; }
-      h2 { margin: 36px 0 12px; border-top: 1px solid #e5ded3; padding-top: 24px; font-size: 25px; line-height: 1.2; }
-      h3 { margin: 26px 0 10px; font-size: 19px; line-height: 1.28; }
-      p, li { color: #4f5f59; line-height: 1.78; }
-      p { margin: 0 0 16px; }
-      ul, ol { margin: 0 0 18px; padding-left: 24px; }
-      li + li { margin-top: 5px; }
+      h1, h2, h3, h4 { color: #102820; letter-spacing: 0; text-wrap: balance; }
+      h1 { margin: 0 0 24px; font-size: 34px; line-height: 1.2; font-weight: 780; }
+      h2 { margin: 40px 0 14px; border-top: 1px solid #e5ded3; padding-top: 26px; font-size: 24px; line-height: 1.28; font-weight: 760; }
+      h3 { margin: 28px 0 12px; font-size: 18px; line-height: 1.36; font-weight: 760; }
+      p, li { color: #4d5c56; font-size: 16.5px; line-height: 1.88; overflow-wrap: anywhere; }
+      p { margin: 0 0 18px; }
+      ul, ol { margin: 0 0 20px; padding-left: 25px; }
+      li + li { margin-top: 7px; }
       input[type="checkbox"] { width: 14px; height: 14px; margin-right: 7px; accent-color: #3d8a68; }
-      code { border-radius: 5px; padding: 2px 5px; background: #eee8df; color: #253833; }
-      pre { overflow: auto; border: 1px solid #ded9d0; border-radius: 8px; padding: 16px; background: #ffffff; }
+      code { border-radius: 5px; padding: 2px 5px; background: #eee8df; color: #253833; font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 0.92em; }
+      pre { overflow: auto; border: 1px solid #ded9d0; border-radius: 8px; padding: 16px; background: #fffdf9; }
       pre code { padding: 0; background: transparent; }
       blockquote {
         margin: 22px 0;
@@ -387,6 +531,16 @@ export function buildHtmlDocument(
       blockquote p:last-child { margin-bottom: 0; }
       a { color: #2c6e62; }
       img { max-width: 100%; border-radius: 8px; }
+      .mermaid-diagram { margin: 24px 0; overflow-x: auto; }
+      .mermaid-diagram svg { display: block; width: 100%; min-width: 520px; height: auto; }
+      .mermaid-pending code { display: block; min-width: max-content; white-space: pre; }
+      .mermaid-rendered { border: 1px solid #ded9d0; border-radius: 8px; padding: 14px; background: #fffdf9; }
+      .mermaid-error { border-color: #d8b9a8; background: #fff8f4; }
+      .mermaid-error small { display: block; margin-top: 10px; color: #9a3d24; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+      .mermaid-diagram rect { fill: #f5faf6; stroke: #bad5c6; stroke-width: 1.4; }
+      .mermaid-diagram text { fill: #16352b; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 13px; font-weight: 760; text-anchor: middle; }
+      .mermaid-diagram path { fill: none; stroke: #2d7656; stroke-width: 1.7; }
+      .mermaid-diagram marker path { fill: #2d7656; stroke: none; }
       table {
         display: table;
         table-layout: fixed;
@@ -433,11 +587,12 @@ export function buildHtmlDocument(
         font-size: 12px;
         line-height: 1.5;
         text-align: center;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
       @media (max-width: 720px) {
         .document-shell { padding: 30px 14px 44px; }
         .document-title { font-size: 34px; }
-        .document-content { padding: 24px 20px; }
+        .document-content { padding: 26px 22px; }
         h1 { font-size: 30px; }
         h2 { font-size: 22px; }
       }
@@ -455,6 +610,7 @@ export function buildHtmlDocument(
           padding: 0;
           box-shadow: none;
         }
+        p, li { font-size: 11.2pt; line-height: 1.72; }
         a { color: inherit; text-decoration: none; }
         h2 { break-after: avoid; }
         p, li { widows: 3; orphans: 3; }
@@ -483,6 +639,7 @@ export function buildHtmlDocument(
         Created with VeloWrite Preview. Pro exports will remove this preview mark.
       </footer>
     </main>
+    ${mermaidScript}
   </body>
 </html>
 `;
