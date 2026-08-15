@@ -130,6 +130,32 @@ test("landing page drives users to web editor and desktop download", async ({ pa
   await expect(page.locator(".product-frame .landing-editor-image")).toBeVisible();
 });
 
+test("public routes defer editor bundles until the editor is opened", async ({ page }) => {
+  const requests = [];
+  page.on("request", (request) => {
+    if (request.resourceType() === "script") requests.push(request.url());
+  });
+
+  await page.goto("/", { waitUntil: "networkidle" });
+  expect(requests.some((url) => url.includes("publicPages"))).toBe(false);
+  expect(requests.some((url) => url.includes("EditorApp"))).toBe(false);
+
+  requests.length = 0;
+  await page.goto("/download", { waitUntil: "networkidle" });
+  expect(requests.some((url) => url.includes("publicPages"))).toBe(true);
+  expect(requests.some((url) => url.includes("EditorApp"))).toBe(false);
+});
+
+test("editor action groups expose valid accessible names", async ({ page }) => {
+  await page.goto("/web", { waitUntil: "networkidle" });
+
+  const outputActions = page.locator(".action-group.export-actions");
+  await expect(outputActions).toHaveAttribute("role", "group");
+  await expect(outputActions).toHaveAttribute("aria-label", "Output actions");
+  await expect(page.locator(".action-group.file-actions")).toHaveAttribute("role", "group");
+  await expect(page.locator(".action-group.workspace-actions")).toHaveAttribute("role", "group");
+});
+
 test("roadmap shows recommended next priorities", async ({ page }) => {
   await page.goto("/roadmap");
 
