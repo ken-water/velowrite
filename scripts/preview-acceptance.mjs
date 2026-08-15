@@ -92,6 +92,7 @@ async function checkDesktopShell(page) {
   assert(shellClass?.includes("desktop-surface"), "Desktop shell class is missing");
   assert(shellClass?.includes("desktop-focus"), "Desktop shell should open in focused editing mode");
   await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("tab", { name: "Reading" }).click();
   await page.getByRole("button", { name: "paper", exact: true }).click();
   await page.getByRole("button", { name: "serif", exact: true }).click();
   await page.reload({ waitUntil: "networkidle" });
