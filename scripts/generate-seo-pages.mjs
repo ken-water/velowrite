@@ -39,6 +39,7 @@ const breadcrumbLabels = new Map([
   ["/docs/markdown-editor-for-linux", "Markdown Editor for Linux"],
   ["/docs/preview-release-policy", "Preview Release Policy"],
   ["/docs/pdf-export-notes", "PDF Export Notes"],
+  ["/docs/preview-build-limitations", "Preview Build Limitations"],
   ["/changelog", "Changelog"],
   ["/faq", "FAQ"],
   ["/privacy", "Privacy Policy"],
@@ -62,6 +63,7 @@ const docsLinks = [
   ["/docs/markdown-editor-for-mac", "Markdown Editor for Mac"],
   ["/docs/markdown-editor-for-linux", "Markdown Editor for Linux"],
   ["/docs/pdf-export-notes", "PDF Export Notes"],
+  ["/docs/preview-build-limitations", "Preview Build Limitations"],
 ];
 
 const faqItems = [
@@ -137,7 +139,7 @@ const routes = [
     path: "/pro",
     title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
     description:
-      "See the planned VeloWrite Pro path: early pricing, AI writing commands, advanced export, recovery controls, sync, and publishing.",
+      "See VeloWrite Pro plans for early pricing, AI writing commands, advanced export, recovery controls, sync, and publishing.",
     priority: "0.7",
     changefreq: "monthly",
   },
@@ -279,7 +281,7 @@ const routes = [
     path: "/docs/typora-alternative",
     title: "Typora Alternative - Lightweight Local-First Markdown Editing",
     description:
-      "Compare VeloWrite as a Typora alternative for browser trials, lightweight desktop builds, local files, recovery history, and roadmap notes.",
+      "Compare VeloWrite with Typora for browser drafts, lightweight Tauri desktop builds, local files, recovery history, and a public roadmap.",
     priority: "0.75",
     changefreq: "monthly",
     schema: ["article"],
@@ -325,6 +327,15 @@ const routes = [
     title: "Markdown to PDF Export Notes - Tables, Chinese Text, and Preview Limits",
     description:
       "Understand VeloWrite PDF export for Markdown documents, including cover pages, contents, tables, Chinese text, page settings, watermarks, and preview limits.",
+    priority: "0.72",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/preview-build-limitations",
+    title: "Preview Build Limitations - What VeloWrite Still Needs",
+    description:
+      "See what the current VeloWrite preview can do, what still needs work, and what to check before relying on a build.",
     priority: "0.72",
     changefreq: "monthly",
     schema: ["article"],

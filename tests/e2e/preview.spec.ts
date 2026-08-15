@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.4"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.6"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -35,7 +35,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   expect(markdownHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/markdown" />',
   );
-  expect(markdownHtml).toContain('"dateModified": "2026-08-07"');
+  expect(markdownHtml).toContain('"dateModified": "2026-08-15"');
 
   const markdownHistoryHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/markdown-history/index.html"),
@@ -61,7 +61,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   expect(releasePolicyHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/preview-release-policy" />',
   );
-  expect(releasePolicyHtml).toContain('"dateModified": "2026-08-07"');
+  expect(releasePolicyHtml).toContain('"dateModified": "2026-08-15"');
 
   const futureHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/future-of-markdown/index.html"),
@@ -122,10 +122,12 @@ test("landing page drives users to web editor and desktop download", async ({ pa
     /\/download/,
   );
   await expect(page.getByRole("heading", { name: /Web for a quick draft/i })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /A preview build should still be clear/i })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /A preview build should tell you what is private/i }),
+  ).toBeVisible();
   await expect(page.getByText("Private by default")).toBeVisible();
   await expect(page.getByLabel("VeloWrite product video")).toBeVisible();
-  await expect(page.locator(".product-frame .editor-grid")).toHaveClass(/mode-preview/);
+  await expect(page.locator(".product-frame .landing-editor-image")).toBeVisible();
 });
 
 test("roadmap shows recommended next priorities", async ({ page }) => {
@@ -439,6 +441,7 @@ test("PDF table export preferences are kept for the dedicated PDF engine", async
 
   await page.getByRole("button", { name: "Settings" }).click();
   const settings = page.getByRole("dialog", { name: "Settings" });
+  await settings.getByRole("tab", { name: "Tables" }).click();
   await settings.getByLabel("Export table header").getByRole("button", { name: "plain" }).click();
   await settings.getByLabel("Export table rows").getByRole("button", { name: "plain" }).click();
   await settings.getByLabel("Export table borders").getByRole("button", { name: "light" }).click();
@@ -458,7 +461,7 @@ test("PDF table export preferences are kept for the dedicated PDF engine", async
 
   expect(download.suggestedFilename()).toBe("Untitled.pdf");
   await expect
-    .poll(() => page.evaluate(() => window.localStorage.getItem("velowrite:table-export-style")))
+    .poll(() => page.evaluate(() => window.localStorage.getItem("velowrite:pdf-export-style")))
     .toContain('"color":"blue"');
   await expect
     .poll(() => page.evaluate(() => window.localStorage.getItem("velowrite:e2e-print-called")))
@@ -494,7 +497,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.4");
+  await expect(aboutDialog).toContainText("0.2.6");
   await expect(aboutDialog).toContainText("kenwater89@gmail.com");
 });
 
@@ -631,7 +634,7 @@ test("history shows an empty diff after restoring the matching snapshot", async 
   await page.locator(".history-summary").first().click();
 
   await expect(page.getByText("No differences")).toBeVisible();
-  await expect(page.getByText("The current document already matches this snapshot.")).toBeVisible();
+  await expect(page.getByText("This snapshot matches the current document.")).toBeVisible();
 });
 
 test("desktop drafts can open history before saving a local file", async ({ page }) => {
@@ -721,6 +724,7 @@ test("dark mode keeps preview code blocks readable", async ({ page }) => {
   await page.goto("/web?utm_source=demo_frame&utm_medium=cta&demo=complex");
 
   await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("tab", { name: "Reading" }).click();
   await page.getByRole("button", { name: "dark" }).click();
   await page.getByRole("button", { name: "Close settings" }).click();
 
@@ -766,14 +770,14 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
-  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.4");
-  await expect(page.getByLabel("Latest release information")).toContainText("August 7, 2026");
+  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.6");
+  await expect(page.getByLabel("Latest release information")).toContainText("August 12, 2026");
   await expect(page.getByLabel("Latest improvements")).toContainText(
-    "External file changes now trigger a reload prompt",
+    "Local images now resolve from the Markdown file folder.",
   );
   await expect(page.getByLabel("Latest improvements").getByRole("link", { name: "See changelog details" })).toHaveAttribute(
     "href",
-    "/changelog?utm_source=download_page&utm_medium=resource#v024",
+    "/changelog?utm_source=download_page&utm_medium=resource#v026",
   );
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon", exact: true })).toBeVisible();
   await expect(
@@ -782,13 +786,12 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.4_aarch64\.dmg/,
+    /VeloWrite_0\.2\.6_aarch64\.dmg/,
   );
-  await expect(page.getByRole("heading", { name: "Works Today" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Preview Limits" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Planned Pro Path" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Install Safety Notes" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "What we verify before calling a desktop preview usable." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Included now" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Still preview" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Planned Pro path" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What we check before publishing a desktop preview." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Windows 11", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon preview", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Linux", exact: true })).toBeVisible();
@@ -968,7 +971,7 @@ test("docs publishes the Future of Markdown article with export readiness guidan
     "#export-readiness",
   );
   await expect(page.getByRole("heading", { name: "Editors will explain whether a draft is ready to export" })).toBeVisible();
-  await expect(page.locator(".content-example").first()).toContainText("A future-proof source file");
+  await expect(page.locator(".content-example").first()).toContainText("A source file you can reopen");
   await expect(page.getByText("dedicated PDF export")).toBeVisible();
 });
 
@@ -1016,7 +1019,7 @@ test("docs publishes the Linux Markdown editor guide", async ({ page }) => {
   );
   await expect(page.getByRole("heading", { name: "Choose the package that fits your system" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "AppImage" })).toBeVisible();
-  await expect(page.locator(".markdown-body pre code").first()).toContainText("VeloWrite_0.2.4");
+  await expect(page.locator(".markdown-body pre code").first()).toContainText("VeloWrite_0.2.6");
 });
 
 test("docs examples can open their Markdown directly in the web editor", async ({ page }) => {

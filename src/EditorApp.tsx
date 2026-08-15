@@ -1211,7 +1211,7 @@ function ExportReadinessPanel({
           </div>
         ))}
       </div>
-      <div className="export-readiness-actions" aria-label="Export actions">
+      <div className="export-readiness-actions" role="group" aria-label="Export actions">
         <button
           aria-label="Download Markdown file"
           title="Download Markdown file"
@@ -2991,7 +2991,7 @@ export default function EditorApp({
                 Preview
               </button>
             </div>
-            <div className="action-group file-actions" aria-label="File actions">
+            <div className="action-group file-actions" role="group" aria-label="File actions">
               <button
                 aria-label="New file"
                 title="New file"
@@ -3020,7 +3020,7 @@ export default function EditorApp({
                 <Save size={17} />
               </button>
             </div>
-            <div className="action-group export-actions" aria-label="Output actions">
+            <div className="action-group export-actions" role="group" aria-label="Output actions">
               <button
                 aria-label={browserMode ? "Download HTML file" : "Export HTML file"}
                 title={browserMode ? "Download HTML file" : "Export HTML file"}
@@ -3058,7 +3058,7 @@ export default function EditorApp({
                 <Code2 size={17} />
               </button>
             </div>
-            <div className="action-group workspace-actions" aria-label="Workspace actions">
+            <div className="action-group workspace-actions" role="group" aria-label="Workspace actions">
               <button className="ai-action" aria-label="AI assist" title="AI assist coming soon" disabled>
                 <Bot size={17} />
               </button>

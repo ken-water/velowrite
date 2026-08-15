@@ -4,35 +4,36 @@ VeloWrite is a private online Markdown editor and lightweight Tauri desktop app.
 
 ## Primary URLs
 
-- Website: https://velowrite.app/
-- Online editor: https://velowrite.app/web
-- Desktop downloads: https://velowrite.app/download
-- Interactive demo: https://velowrite.app/demo
-- Pro roadmap: https://velowrite.app/pro
-- Public feedback roadmap: https://velowrite.app/roadmap
-- Markdown library: https://velowrite.app/docs
-- What Is Markdown article: https://velowrite.app/docs/markdown
-- A Short History of Markdown article: https://velowrite.app/docs/markdown-history
-- The Future of Markdown Writing article: https://velowrite.app/docs/future-of-markdown
-- Online Markdown Editor article: https://velowrite.app/docs/online-markdown-editor
-- Markdown Basics article: https://velowrite.app/docs/markdown-basics
-- Markdown for Writers article: https://velowrite.app/docs/markdown-for-writers
-- Markdown for Developers article: https://velowrite.app/docs/markdown-for-developers
-- Markdown Code Blocks and Tabs article: https://velowrite.app/docs/markdown-code-blocks
-- Advanced Markdown article: https://velowrite.app/docs/advanced-markdown
-- Markdown Math with KaTeX article: https://velowrite.app/docs/markdown-math
-- Markdown to Blog article: https://velowrite.app/docs/markdown-to-blog
-- Typora Alternative article: https://velowrite.app/docs/typora-alternative
-- Markdown Editor for Windows article: https://velowrite.app/docs/markdown-editor-for-windows
-- Markdown Editor for Mac article: https://velowrite.app/docs/markdown-editor-for-mac
-- Markdown Editor for Linux article: https://velowrite.app/docs/markdown-editor-for-linux
-- Preview Release Policy article: https://velowrite.app/docs/preview-release-policy
-- PDF Export Notes article: https://velowrite.app/docs/pdf-export-notes
-- Markdown guide: https://velowrite.app/guide
-- Changelog: https://velowrite.app/changelog includes the version directory for 0.1.0 through 0.2.6.
-- FAQ: https://velowrite.app/faq
-- GitHub repository: https://github.com/ken-water/velowrite
-- Markdown guide PDF: https://velowrite.app/markdown-guide.pdf
+- [Website](https://velowrite.app/)
+- [Online editor](https://velowrite.app/web)
+- [Desktop downloads](https://velowrite.app/download)
+- [Interactive demo](https://velowrite.app/demo)
+- [Pro roadmap](https://velowrite.app/pro)
+- [Public feedback roadmap](https://velowrite.app/roadmap)
+- [Markdown library](https://velowrite.app/docs)
+- [What Is Markdown article](https://velowrite.app/docs/markdown)
+- [A Short History of Markdown article](https://velowrite.app/docs/markdown-history)
+- [The Future of Markdown Writing article](https://velowrite.app/docs/future-of-markdown)
+- [Online Markdown Editor article](https://velowrite.app/docs/online-markdown-editor)
+- [Markdown Basics article](https://velowrite.app/docs/markdown-basics)
+- [Markdown for Writers article](https://velowrite.app/docs/markdown-for-writers)
+- [Markdown for Developers article](https://velowrite.app/docs/markdown-for-developers)
+- [Markdown Code Blocks and Tabs article](https://velowrite.app/docs/markdown-code-blocks)
+- [Advanced Markdown article](https://velowrite.app/docs/advanced-markdown)
+- [Markdown Math with KaTeX article](https://velowrite.app/docs/markdown-math)
+- [Markdown to Blog article](https://velowrite.app/docs/markdown-to-blog)
+- [Typora Alternative article](https://velowrite.app/docs/typora-alternative)
+- [Markdown Editor for Windows article](https://velowrite.app/docs/markdown-editor-for-windows)
+- [Markdown Editor for Mac article](https://velowrite.app/docs/markdown-editor-for-mac)
+- [Markdown Editor for Linux article](https://velowrite.app/docs/markdown-editor-for-linux)
+- [Preview Release Policy article](https://velowrite.app/docs/preview-release-policy)
+- [PDF Export Notes article](https://velowrite.app/docs/pdf-export-notes)
+- [Preview Build Limitations article](https://velowrite.app/docs/preview-build-limitations)
+- [Markdown guide](https://velowrite.app/guide)
+- [Changelog](https://velowrite.app/changelog), including the version directory for 0.1.0 through 0.2.6.
+- [FAQ](https://velowrite.app/faq)
+- [GitHub repository](https://github.com/ken-water/velowrite)
+- [Markdown guide PDF](https://velowrite.app/markdown-guide.pdf)
 
 ## Product Summary
 
@@ -61,7 +62,7 @@ The current public version is v0.2.6, released on August 12, 2026 as a free prev
 - How is VeloWrite different from Typora? VeloWrite follows a Typora-like writing direction but starts with a quick browser editor, lightweight Tauri desktop builds, local files, visible preview limits, and a public roadmap for AI, sync, and publishing.
 - Does VeloWrite work offline? The desktop preview is the offline path for real local files. The web editor is better for quick drafts, Markdown download, and HTML export while the browser is available.
 - Is VeloWrite safe for private notes? VeloWrite keeps the normal editing path private. Browser drafts stay in localStorage, and desktop files plus local history snapshots stay on your device by default.
-- What can I read first? New Markdown users can start with What Is Markdown and Markdown Basics. Writers and developers have separate practical guides. Platform articles cover Windows, macOS, and Linux. Preview Release Policy and PDF Export Notes explain downloads and export limits. The full list is at https://velowrite.app/docs, and examples can open directly in the web editor.
+- What can I read first? New Markdown users can start with What Is Markdown and Markdown Basics. Writers and developers have separate practical guides. Platform articles cover Windows, macOS, and Linux. Preview Release Policy, PDF Export Notes, and Preview Build Limitations explain downloads, export behavior, and early-build risks. The full list is at [Markdown library](https://velowrite.app/docs), and examples can open directly in the web editor.
 - Can I try VeloWrite without installing anything? Yes. Open the web editor in your browser and start writing immediately.
 - What happens if I refresh the browser while editing? Your draft stays in localStorage in the same browser, so a refresh on the same device can bring it back.
 - Who is VeloWrite for? Developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base content.
@@ -69,7 +70,7 @@ The current public version is v0.2.6, released on August 12, 2026 as a free prev
 - Does VeloWrite upload my Markdown documents? Normal web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage, and desktop files and history snapshots stay on your device by default.
 - What is the difference between web and desktop? Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use desktop for local files, direct save, offline work, recent files, PDF export, and history snapshots.
 - Does VeloWrite handle math, tables, and code highlighting? Yes. The preview supports Markdown tables, KaTeX math, highlighted code blocks, and tabbed previews for multi-language examples.
-- Where can users see recorded feedback? The public roadmap at https://velowrite.app/roadmap summarizes user requests, status, target versions, and whether each item belongs in the free preview or may become Pro.
+- Where can users see recorded feedback? The [public roadmap](https://velowrite.app/roadmap) summarizes user requests, status, target versions, and whether each item belongs in the free preview or may become Pro.
 - What will VeloWrite Pro include? The planned early price is $29/year with a $99 lifetime local-Pro option. Candidates include AI writing actions with fair-use credits, BYOK AI, advanced export, and deeper local recovery. Checkout is not open yet.
 
 ## Privacy Notes
