@@ -150,11 +150,11 @@ function LandingPage() {
             <Zap size={16} />
             Start writing in the browser
           </div>
-          <h1>Markdown that stays yours.</h1>
+          <h1>Write Markdown. Keep files.</h1>
           <p>
-            Open the web editor to read, edit, preview, and export Markdown.
-            Use the desktop app when you need local folders, direct save,
-            offline work, and file history.
+            Start in the browser to read, edit, preview, and export Markdown.
+            Move to the desktop app when the document needs a real folder,
+            direct save, offline access, or local history.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href={webEditorHref}>
@@ -174,7 +174,7 @@ function LandingPage() {
             </span>
             <span>
               <HardDrive size={15} />
-              Local-first desktop
+              Local desktop files
             </span>
             <span>
               <PanelLeft size={15} />
@@ -206,7 +206,7 @@ function LandingPage() {
       <section className="mode-compare" aria-label="Web and desktop comparison">
         <div className="section-heading">
           <span>Choose the right workspace</span>
-          <h2>Web for a quick draft. Desktop for serious local work.</h2>
+          <h2>Start in the browser. Keep important files on your computer.</h2>
         </div>
         <div className="compare-grid">
           <article className="compare-card">
@@ -214,7 +214,7 @@ function LandingPage() {
               <Code2 size={20} />
             </div>
             <h3>Online editor</h3>
-            <p>Use it to open a draft fast, edit Markdown, check the preview, and download a copy.</p>
+            <p>Open a draft quickly, check the rendered result, and download the source when you are done.</p>
             <ul>
               <li>Runs directly in the browser</li>
               <li>Drafts autosave locally in this browser</li>
@@ -230,10 +230,10 @@ function LandingPage() {
               <FolderOpen size={20} />
             </div>
             <h3>Desktop app</h3>
-            <p>Use it for documents you keep on your computer and expect to edit again.</p>
+            <p>Use it for documents that live on your computer and need to be opened again later.</p>
             <ul>
               <li>Open and save real files directly</li>
-              <li>Work offline with local-first storage</li>
+              <li>Work offline with files on your device</li>
               <li>Use local history snapshots for recovery</li>
               <li>AI, sync, and publishing remain on the roadmap</li>
             </ul>
@@ -246,8 +246,8 @@ function LandingPage() {
 
       <section className="trust-band" aria-label="Why people can trust VeloWrite">
         <div className="section-heading">
-          <span>Trust signals</span>
-          <h2>A preview build should tell you what is private, what is limited, and what can be recovered.</h2>
+          <span>What to expect</span>
+          <h2>Know what stays private, what is limited, and what you can recover.</h2>
         </div>
         <div className="trust-grid">
           <article>
@@ -257,17 +257,17 @@ function LandingPage() {
           </article>
           <article>
             <GitBranch size={20} />
-            <h3>Recovery comes early</h3>
+            <h3>Recover recent edits</h3>
             <p>The preview includes local history and compare views for recovering accidental edits.</p>
           </article>
           <article>
             <ListChecks size={20} />
-            <h3>Roadmap is public</h3>
+            <h3>See what is planned</h3>
             <p>Early feedback is tracked on the roadmap, with free preview work separated from future Pro features.</p>
           </article>
           <article>
             <LockKeyhole size={20} />
-            <h3>Limits are visible</h3>
+            <h3>Know before installing</h3>
             <p>The download page lists unsigned installers, missing features, and planned paid work before you install.</p>
           </article>
         </div>
@@ -276,7 +276,7 @@ function LandingPage() {
       <section className="video-showcase" aria-label="VeloWrite product video">
         <div className="section-heading">
           <span>Watch the workflow</span>
-          <h2>See VeloWrite in about a minute.</h2>
+          <h2>See the path from a browser draft to a saved file.</h2>
         </div>
         <div className="video-shell">
           <div className="video-copy">
@@ -285,8 +285,8 @@ function LandingPage() {
             </div>
             <h3>From browser draft to desktop app</h3>
             <p>
-              A short demo of the web editor, live preview, export, privacy,
-              the desktop app, and future Pro plans.
+              This short demo shows the web editor, live preview, exports,
+              local files, and the boundary between the free preview and Pro.
             </p>
             <div className="hero-actions">
               <a className="primary-link" href="/web?utm_source=homepage_video&utm_medium=cta">
@@ -308,7 +308,7 @@ function LandingPage() {
       <section className="feature-band" aria-label="Core features">
         <div>
           <Sparkles size={21} />
-          <h2>Fast first</h2>
+          <h2>Start quickly</h2>
           <p>Start in the browser. Use the desktop app for files you keep locally.</p>
         </div>
         <div>
@@ -318,7 +318,7 @@ function LandingPage() {
         </div>
         <div>
           <Download size={21} />
-          <h2>Clear next step</h2>
+          <h2>Move files when ready</h2>
           <p>Move to desktop when you need local folders, offline work, and history.</p>
         </div>
       </section>
@@ -346,13 +346,13 @@ function LandingPage() {
       <section className="resource-band" aria-label="Guides and release notes">
         <div className="section-heading">
           <span>Resources</span>
-          <h2>Learn the workflow and track what changed.</h2>
+          <h2>Learn Markdown and see what changed.</h2>
         </div>
         <div className="resource-grid">
           <article className="resource-card">
             <FileText size={21} />
           <h3>Markdown Library</h3>
-            <p>Read the article list: basics, advanced writing, editor comparisons, and the latest published guide.</p>
+            <p>Read practical guides on syntax, long documents, editor choices, and local files.</p>
             <a className="text-link" href="/docs?utm_source=homepage_resources&utm_medium=resource">
               Open library <ChevronRight size={15} />
             </a>
@@ -368,7 +368,7 @@ function LandingPage() {
           <article className="resource-card">
             <GitBranch size={21} />
             <h3>Release Notes</h3>
-            <p>See what changed in the current preview, what is stable today, and which Pro features are still planned.</p>
+            <p>See what changed in the current preview and which features are still being considered for Pro.</p>
             <a className="text-link" href="/changelog?utm_source=homepage_resources&utm_medium=resource">
               Read changelog <ChevronRight size={15} />
             </a>
@@ -386,8 +386,8 @@ function LandingPage() {
 
       <section className="landing-waitlist" aria-label="Private beta signup">
           <div>
-            <span>Follow the desktop beta</span>
-          <h2>Get release and beta updates.</h2>
+            <span>Desktop beta updates</span>
+          <h2>Get an email when the next build is ready.</h2>
         </div>
         <WaitlistForm />
       </section>
@@ -438,7 +438,7 @@ function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-brand">
         <strong>VeloWrite</strong>
-        <span>Local-first Markdown writing, with a web preview path.</span>
+        <span>Write in the browser, then keep the Markdown file on your device.</span>
       </div>
       <nav className="footer-links" aria-label="Footer links">
         {footerGroups.map((group) => (

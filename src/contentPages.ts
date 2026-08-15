@@ -185,7 +185,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "What this history means for modern editors",
         body: [
           "A good Markdown editor should not make the file feel trapped. It should make writing faster while preserving plain text ownership. Preview, history recovery, export, and navigation should support the file instead of replacing it.",
-          "VeloWrite follows that direction: quick browser editing for first contact, a lightweight desktop path for serious local files, and a roadmap that adds AI, export, and publishing only after the editing foundation feels dependable.",
+          "VeloWrite follows that direction: quick browser editing for a first draft, a lightweight desktop app for files you keep, and a roadmap that adds AI, export, and publishing only after everyday editing works reliably.",
         ],
       },
     ],
@@ -227,8 +227,8 @@ export const contentPages: Record<string, ContentPage> = {
         id: "recovery",
         title: "Recovery becomes part of the writing surface",
         body: [
-          "The future of Markdown editing is not only about faster rendering. It is also about helping users trust long edits. A local history panel, clear restore preview, and visible snapshot limits make the editor feel safer without forcing every document into a cloud account.",
-          "This is why VeloWrite keeps basic local history in the free preview foundation. Recovery is part of document safety, not a luxury feature that should be hidden until the user pays.",
+          "The future of Markdown editing is not just faster rendering. Long edits also need clear recovery. A local history panel, a readable restore preview, and visible snapshot limits help without forcing every document into a cloud account.",
+          "That is why VeloWrite keeps basic local history in the free preview. Recovery protects the document, so it belongs in the editor rather than behind a paid plan.",
         ],
       },
       {
@@ -250,7 +250,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Editors will explain whether a draft is ready to export",
         body: [
           "Many writers do not need a complex publishing system on day one. They need to know whether the current draft has a title, enough structure, working links, readable code blocks, and the right output path.",
-          "VeloWrite now treats export preparation as part of the free foundation: Markdown download, HTML export, dedicated PDF export, and an export readiness panel that makes basic document shape visible before the user shares the file.",
+          "VeloWrite includes export preparation in the free preview: Markdown download, HTML export, dedicated PDF export, and a readiness panel that shows basic document problems before you share the file.",
         ],
         example: {
           label: "Export readiness checklist",
@@ -271,7 +271,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "what-should-not-change",
         title: "What should not change",
         body: [
-          "Markdown should not lose the boring advantages that made it durable: readable source, predictable structure, and the ability to move files between tools. New AI, sync, and publishing features should support that foundation instead of replacing it.",
+          "Markdown should keep the ordinary advantages that made it durable: readable source, predictable structure, and files that move between tools. New AI, sync, and publishing features should support those advantages instead of replacing them.",
           "A good future Markdown editor should feel modern without making the user's notes feel captured. That is the line VeloWrite should keep.",
         ],
       },
@@ -464,7 +464,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "writer-habits",
         title: "Keep the writing surface quiet",
         body: [
-          "A quiet writing surface does not mean an empty one. It means the editor gives you headings, preview, export, and recovery without pulling attention away from the draft.",
+          "A quiet writing surface still needs useful tools. The editor gives you headings, preview, export, and recovery without pulling attention away from the draft.",
           "A practical habit is to write in small sections, preview often, and move stable drafts into local files. That keeps the browser useful for starting and the desktop app useful for finishing.",
         ],
       },
@@ -543,7 +543,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Decision note",
           markdown:
             "## Decision\n\nUse local browser storage for quick web drafts.\n\n## Why\n\n- No account is required for the first trial.\n- Drafts survive a refresh on the same device.\n- Sensitive long-term files still belong on desktop.\n\n## Revisit when\n\nPrivate sync moves from roadmap to implementation.",
-          note: "Decision notes should explain the constraint, not only the final choice.",
+          note: "Decision notes should explain the constraint, not just the final choice.",
         },
       },
       {
@@ -579,7 +579,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Why local history matters",
         body: [
           "Developers already understand version control, but not every draft belongs in Git immediately. Local history snapshots help recover accidental edits before the document is committed or shared.",
-          "This is why VeloWrite keeps basic local recovery in the free preview. Draft safety belongs in the editor, not only in a paid tier.",
+          "VeloWrite keeps basic local recovery in the free preview because draft safety belongs in the editor, not just in a paid tier.",
         ],
       },
     ],
@@ -608,7 +608,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "source-first",
         title: "Think source-first, not preview-first",
         body: [
-          "A polished preview matters, but the source file is the durable asset. An advanced Markdown workflow treats the .md file as something another person can edit in a plain text editor, review in Git, and publish through a different tool without a rescue operation.",
+          "A polished preview matters, but the source file is the durable asset. A careful Markdown workflow keeps the .md file editable in a plain text editor, reviewable in Git, and usable in another publishing tool.",
           "That changes the question you ask before adding syntax: does this make the source clearer, or only make this one preview look clever? For documents that will live beyond one draft, prefer the source.",
         ],
       },
@@ -679,7 +679,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Decision record template",
           markdown:
             "# Decision: Store documents as local Markdown\n\n## Context\n\nThe team needs files that remain readable without a specific service.\n\n## Decision\n\nKeep source documents as Markdown in the project folder.\n\n## Consequences\n\nUse a browser editor for quick drafts and desktop files for ongoing work.\n\n## Owner\n\nWriting workflow team",
-          note: "A repeatable structure is often more valuable than a more complicated Markdown extension.",
+          note: "A repeatable structure is often more useful than a more complicated Markdown extension.",
         },
       },
       {
@@ -943,14 +943,14 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Local history is part of document safety",
         body: [
           "Undo is not enough for real writing. A mistake may be saved, the app may be reopened later, or a large paste may change a long document in a way that is hard to inspect. Local history gives the editor a safety net that is closer to how people actually work.",
-          "VeloWrite's preview keeps basic local history recovery in the free foundation. The reason is simple: users should not feel that accidental recovery is a luxury feature. A Markdown editor earns trust by helping people avoid losing work.",
+          "VeloWrite keeps basic local history in the free preview. Accidental recovery should not be treated as a luxury feature. A Markdown editor is more useful when it helps people avoid losing work.",
           "The product rule should be understandable before it becomes enforceable. Users should know how many snapshots are kept, what happens when the limit is reached, and how to protect important files outside the app.",
         ],
         example: {
           label: "History-friendly revision note",
           markdown:
             "# Draft Review\n\n## Before editing\n\nKeep the current argument short.\n\n## After editing\n\nExpand only the examples that support the main point.\n\n## Recovery rule\n\nIf the edit gets worse, compare with the previous saved version before restoring.",
-          note: "Good recovery is not only about restoring. It is about seeing what changed before you replace the current draft.",
+          note: "Recovery is not just restoring a file. It is seeing what changed before you replace the current draft.",
         },
       },
       {
@@ -974,7 +974,7 @@ export const contentPages: Record<string, ContentPage> = {
         body: [
           "History and sync overlap. If two devices edit the same file, the editor should help users see which version changed, when it changed, and what can be restored. Silent overwrites are worse than asking the user to make a choice.",
           "Before VeloWrite adds any advanced sync behavior, it should document the basic recovery model: where snapshots live, how restore works, whether deleted snapshots can be recovered, and what users should back up themselves.",
-          "This is still part of the ordinary product foundation. Clear recovery rules reduce support burden and make the desktop app feel safer for daily documents.",
+          "This is part of the everyday editor. Clear recovery rules reduce support questions and make the desktop app safer for daily documents.",
         ],
       },
       {
@@ -1025,7 +1025,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Evaluate an editor with a real note",
           markdown:
             "# Editor Trial Note\n\n## What matters\n\n- Opens quickly\n- Keeps Markdown readable\n- Shows preview clearly\n- Saves a local copy\n- Makes recovery understandable\n\n## Decision\n\nUse the editor only if the file still feels like yours.",
-          note: "A practical comparison starts with a document you would actually keep, not only a feature list.",
+          note: "A practical comparison starts with a document you would actually keep, not just a feature list.",
         },
       },
       {
@@ -1049,7 +1049,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "A practical decision guide",
         body: [
           "Choose the editor that gets out of the way for the documents you actually write. If you need a mature paid desktop editor today, keep using the tool that already works. If you want to follow a lighter local-file Markdown editor while it is being built in public, VeloWrite is worth testing.",
-          "For teams and creators, the question is not only price. It is whether the editor keeps source files portable, makes recovery visible, and exports predictably without turning every note into a cloud account.",
+          "For teams and creators, price is only part of the decision. The editor also needs portable source files, visible recovery, and predictable exports without turning every note into a cloud account.",
         ],
         example: {
           label: "Comparison checklist",
@@ -1112,7 +1112,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "A readable section",
           markdown:
             "## Why a preview matters\n\nA preview lets you read the draft as a reader will see it. It catches headings that are too vague, lists that belong in prose, and code blocks that need an explanation before someone copies them.\n\n> Write the conclusion in plain language before you add more formatting.",
-          note: "The preview should help you review the argument, not only check Markdown syntax.",
+          note: "The preview should help you review the argument, not just check Markdown syntax.",
         },
       },
       {
@@ -1302,7 +1302,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "What Mac testers should check first",
         body: [
           "Start with the practical path: open a Markdown file, edit a paragraph, save it, reopen it from Recent, export HTML, export PDF, and verify local history after a second save.",
-          "Also test long reading sessions. Switch the reading palette and preview font in Settings, then use Preview mode on a longer document. A Markdown editor should stay comfortable after the first five minutes, not only look good in a screenshot.",
+          "Test a longer reading session too. Switch the reading palette and preview font in Settings, then use Preview mode on a longer document. A Markdown editor should stay comfortable after five minutes, not just look good in a screenshot.",
         ],
       },
       {
@@ -1403,7 +1403,7 @@ export const contentPages: Record<string, ContentPage> = {
     eyebrow: "Release trust",
     title: "How VeloWrite Preview Releases Work",
     intro:
-      "VeloWrite is still in preview, so it is important to separate code changes, local builds, GitHub Releases, installer assets, and the download page. This guide explains what users can trust when deciding whether to download or update.",
+      "VeloWrite is still in preview, so code changes, local builds, GitHub Releases, installer assets, and the download page need to stay separate. This guide explains what users can check before downloading or updating.",
     updated: "August 7, 2026",
     directory: [
       { label: "What counts", href: "#what-counts-as-a-release" },
@@ -1517,7 +1517,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Table export check",
           markdown:
             "| Document area | PDF risk | What to check |\n| --- | --- | --- |\n| Long headings | Unexpected wrapping | Scan the contents page |\n| Wide tables | Missing right edge | Check page width and margins |\n| Dense rows | Low readability | Try alternating row color |\n| Code blocks | Horizontal overflow | Keep examples short when possible |",
-          note: "Tables should be tested with real content, not only short placeholder cells.",
+          note: "Test tables with real content, not just short placeholder cells.",
         },
       },
       {
@@ -1649,6 +1649,99 @@ export const contentPages: Record<string, ContentPage> = {
     cta: {
       primary: { href: "/download?utm_source=preview_limits_cta&utm_medium=cta", label: "Download Preview" },
       secondary: { href: "/feedback?utm_source=preview_limits_cta&utm_medium=resource", label: "Send Feedback" },
+    },
+  },
+  privateOnlineMarkdownEditor: {
+    eyebrow: "Private Markdown editing",
+    title: "Private Online Markdown Editor: What Stays in Your Browser?",
+    intro:
+      "An online Markdown editor should make it clear what happens to your draft. This guide explains browser-local editing, analytics consent, downloads, and when a desktop app is the better choice for long-term files.",
+    updated: "August 15, 2026",
+    directory: [
+      { label: "The short answer", href: "#the-short-answer" },
+      { label: "Browser-local drafts", href: "#browser-local-drafts" },
+      { label: "Analytics consent", href: "#analytics-consent" },
+      { label: "Downloads and exports", href: "#downloads-and-exports" },
+      { label: "When desktop is better", href: "#when-desktop-is-better" },
+      { label: "A practical privacy check", href: "#a-practical-privacy-check" },
+    ],
+    sections: [
+      {
+        id: "the-short-answer",
+        title: "The short answer",
+        body: [
+          "VeloWrite's normal web editor does not upload the Markdown you type to VeloWrite servers. The browser keeps the working draft in local storage on the same device, which lets a refresh recover the draft without creating an account.",
+          "That is useful for a quick draft, but it is not the same as a backup. Browser storage can be cleared, is tied to one browser profile, and should not be the only copy of an important document.",
+        ],
+        example: {
+          label: "A simple privacy boundary",
+          markdown:
+            "# Draft boundary\n\n## In the browser\n\n- Type and preview a Markdown draft\n- Keep the working copy in local browser storage\n- Download the source when it matters\n\n## On your device\n\n- Keep the real `.md` file in a folder you control\n- Use the desktop app for local open and save",
+          note: "The browser is a convenient starting point. The downloaded Markdown file is the durable source.",
+        },
+      },
+      {
+        id: "browser-local-drafts",
+        title: "Browser-local drafts are convenient, not permanent",
+        body: [
+          "Local browser storage is a good fit for a short note, a temporary outline, or a document you are still deciding whether to keep. It avoids an account and keeps the first step low friction.",
+          "It is a weaker fit for a long manuscript, a client document, or a project knowledge base. Download the Markdown source regularly, or move the document to the desktop app once it becomes part of your normal work.",
+        ],
+      },
+      {
+        id: "analytics-consent",
+        title: "Analytics is separate from your Markdown draft",
+        body: [
+          "VeloWrite asks before loading its optional analytics and performance scripts. If you decline or do not choose, those scripts are not loaded. This can make traffic and performance dashboards show fewer visits than the actual site receives.",
+          "That consent choice does not upload the text of your Markdown draft. It controls whether basic site usage and performance signals are sent to the analytics service. You can review the policy before making a choice.",
+        ],
+        example: {
+          label: "Consent is a separate decision",
+          markdown:
+            "| Action | What it affects |\n| --- | --- |\n| Write a draft | Your local browser editing state |\n| Download Markdown | A file saved by your browser |\n| Allow analytics | Optional site usage and performance signals |\n| Decline analytics | No optional analytics scripts for that browser |",
+          note: "The document workflow and the optional measurement workflow are separate.",
+        },
+      },
+      {
+        id: "downloads-and-exports",
+        title: "Download the source before you share the result",
+        body: [
+          "Markdown download preserves the editable source. HTML export is useful when another tool needs rendered markup, and PDF export is useful for a fixed review copy. Each output serves a different purpose.",
+          "For an important document, keep the `.md` source beside any HTML or PDF export. If the export needs correction later, the source is the file you can edit instead of trying to recover text from a finished PDF.",
+        ],
+        example: {
+          label: "Keep source and outputs together",
+          markdown:
+            "project-notes/\n├── project-notes.md\n├── project-notes.html\n└── project-notes.pdf",
+          note: "The Markdown file remains the editable source; HTML and PDF are review or delivery copies.",
+        },
+      },
+      {
+        id: "when-desktop-is-better",
+        title: "When a desktop Markdown editor is the better choice",
+        body: [
+          "Use the VeloWrite desktop preview when you need to open and save files in a local folder, work without a network connection, keep recent files, or review local history snapshots.",
+          "The desktop app does not turn the document into a cloud record by default. It works with files on your device, so your normal backup habits still matter: Git, a backup drive, File History, Time Machine, or a synced folder can protect the source outside the editor.",
+        ],
+      },
+      {
+        id: "a-practical-privacy-check",
+        title: "A practical privacy check before you start",
+        body: [
+          "Decide how sensitive the document is, whether the browser is an appropriate place for the first draft, and where the durable source will live. For a private note, local browser editing may be enough. For a work document, download the source and keep it in the project folder.",
+          "If you are unsure, start with a non-sensitive sample. Confirm the editor behavior, export the file, inspect the result, and then choose the workflow you want for real documents.",
+        ],
+        example: {
+          label: "A five-step check",
+          markdown:
+            "## Before writing something important\n\n1. Decide whether a browser draft is appropriate.\n2. Keep personal or confidential details out of a disposable test.\n3. Download the `.md` source before closing the tab.\n4. Store the source in a folder you already back up.\n5. Use the desktop app when local files and offline work matter.",
+          note: "Privacy is easier to manage when the storage decision is made before the document becomes important.",
+        },
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=private_markdown_cta&utm_medium=cta", label: "Try the Web Editor" },
+      secondary: { href: "/docs/local-first-markdown?utm_source=private_markdown_cta&utm_medium=resource", label: "Read Local-First Guide" },
     },
   },
   guide: {
@@ -1867,7 +1960,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "planned-next",
         title: "Planned next",
         body: [
-          "Future updates will continue improving document structure, desktop polish, web-to-desktop handoff, export workflows, and the Pro feature path after the free preview foundation stays stable.",
+          "Future updates will continue improving document structure, desktop polish, web-to-desktop handoff, export, and the Pro feature path after the free preview is stable.",
         ],
       },
       {
@@ -1892,7 +1985,7 @@ export const contentPages: Record<string, ContentPage> = {
           "Published the top-level What Is Markdown article and added static SEO HTML for the route.",
           "Added Roadmap recommended priorities so visitors can see the next practical product direction before reading the full list.",
           "Added a document structure map to the editor outline with total H1/H2/H3 counts and active heading clarity after outline navigation.",
-          "Updated the roadmap status for outline and structure map work to show that the free foundation has shipped.",
+          "Updated the roadmap status for outline and structure map work to show that the free version now includes the first pass.",
           "Kept the security hardening from the previous preview line, including stricter desktop file safety, CSP, API input limits, and waitlist/feedback protections.",
         ],
       },
@@ -1949,13 +2042,13 @@ export const contentPages: Record<string, ContentPage> = {
           "Added contextual desktop upgrade prompts after browser-only save/export and local-file-limited actions.",
           "Added practical editor templates for quick notes, meeting notes, README files, and article drafts in the web and desktop shells.",
           "Added an explicit confirmation step before restoring a history snapshot and clarified the diff legend for older versus current lines.",
-          "Added homepage trust signals for privacy, recovery, public roadmap tracking, and visible preview limits.",
+          "Added homepage sections explaining privacy, recovery, the public roadmap, and preview limits.",
           "Reworked download preview notes into clearer install safety guidance for official sources, unsigned installer warnings, backups, and web-first evaluation.",
           "Added the macOS Apple Silicon DMG to the download page now that the release asset is available.",
           "Published Local-First Markdown Editing as the sixth staged Markdown library article, covering file ownership, recovery, and local-first sync design.",
           "Expanded the public roadmap with clearer sync and recovery policy notes, while keeping advanced paid-plan framing on the Pro page.",
           "Fixed the web editor tablet and small-desktop layout so the preview no longer clips when the browser is around 834-1024px wide.",
-          "Refined the homepage product showcase, footer link hierarchy, cookie consent banner, mobile landing header, desktop focused editor width, responsive editor toolbar, and documentation code examples.",
+          "Refined the homepage product section, footer link hierarchy, cookie consent banner, mobile landing header, desktop focused editor width, responsive editor toolbar, and documentation code examples.",
           "Improved the download page platform cards and added a mobile web editor brand link back to the homepage.",
         ],
       },
@@ -2056,7 +2149,7 @@ export const contentPages: Record<string, ContentPage> = {
         body: [
           "Shipped the first Tauri desktop shell, React/Vite frontend, and Markdown editing core.",
           "Added split, writing-only, and preview-only modes with document outline, stats, and local file workflows.",
-          "Laid the foundation for recent files, history snapshots, HTML export, and browser fallback imports.",
+          "Added the first support for recent files, history snapshots, HTML export, and browser fallback imports.",
         ],
       },
       {

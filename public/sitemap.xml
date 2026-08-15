@@ -163,6 +163,12 @@
     <priority>0.72</priority>
   </url>
   <url>
+    <loc>https://velowrite.app/docs/private-online-markdown-editor</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.72</priority>
+  </url>
+  <url>
     <loc>https://velowrite.app/changelog</loc>
     <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>

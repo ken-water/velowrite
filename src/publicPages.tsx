@@ -58,6 +58,7 @@ const docPageRoutes = {
   "/docs/preview-release-policy": "previewReleasePolicy",
   "/docs/pdf-export-notes": "pdfExportNotes",
   "/docs/preview-build-limitations": "previewBuildLimitations",
+  "/docs/private-online-markdown-editor": "privateOnlineMarkdownEditor",
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
@@ -80,6 +81,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/preview-release-policy",
   "/docs/pdf-export-notes",
   "/docs/preview-build-limitations",
+  "/docs/private-online-markdown-editor",
 ]);
 
 function matchesRoute(pathname: string, route: string) {
@@ -196,22 +198,22 @@ const platformRegressionChecks = [
 
 const roadmapRecommendations = [
   {
-    priority: "Next best free improvement",
-    title: "Native-feeling desktop preview",
+    priority: "Best next free improvement",
+    title: "Make the desktop app feel native",
     reason:
-      "The preview should open like a writing app, not a website in a window. The editor now starts in the workspace, with the start panel moved out of the first impression.",
+      "The app should open like a writing tool, not a website in a window. It already starts in the editor, so the next work is tightening file actions, window behavior, and first-run details.",
   },
   {
     priority: "Next quality pass",
-    title: "Long-document recovery clarity",
+    title: "Make long-document recovery easier to read",
     reason:
-      "Basic history is free, so compare and restore need to work on real drafts. The next pass should make changes easier to find before deeper Pro history is designed.",
+      "Basic history is free. Compare and restore should make changed lines easy to find in a long draft before deeper Pro history is designed.",
   },
   {
-    priority: "Next export proof",
-    title: "Export readiness before Pro export",
+    priority: "Next export check",
+    title: "Help users catch export problems",
     reason:
-      "Users should know whether a Markdown file is ready to share. The free readiness panel comes before branded templates, DOCX, or publishing.",
+      "Users need to know whether a Markdown file is ready to share. The free readiness panel should stay ahead of branded templates, DOCX, and publishing.",
   },
 ];
 
@@ -232,7 +234,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "The article library is live under /docs. It now covers Markdown basics, history, local-file habits, maintainable documents, code blocks, math, and Markdown-to-blog writing. Example blocks can open in the web editor, so readers can try the syntax without copying it by hand.",
+      "The article library is live under /docs. It covers Markdown basics, history, local-file habits, maintainable documents, code blocks, math, and Markdown-to-blog writing. Example blocks open in the web editor, so readers can try the syntax without copying it by hand.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -246,7 +248,7 @@ const publicRoadmapItems = [
   {
     title: "Focused writing polish",
     request: "The desktop app should feel like a calm native writing tool, not a website inside a window.",
-    status: "Free foundation shipped",
+    status: "Free preview shipped",
     target: "0.1.x / 0.2.x",
     classification: "Free core experience",
     decision:
@@ -255,7 +257,7 @@ const publicRoadmapItems = [
   {
     title: "Outline and structure map",
     request: "Writers need a clearer way to understand document structure before turning notes into a finished draft.",
-    status: "Free foundation shipped",
+    status: "Free preview shipped",
     target: "0.1.x / 0.2.x",
     classification: "Free structure workflow first",
     decision:
@@ -264,7 +266,7 @@ const publicRoadmapItems = [
   {
     title: "Better local history recovery",
     request: "Users want confidence that accidental paste mistakes or rewrites can be recovered.",
-    status: "Free foundation shipped",
+    status: "Free preview shipped",
     target: "0.1.x / 0.2.x",
     classification: "Free safety workflow",
     decision:
@@ -282,7 +284,7 @@ const publicRoadmapItems = [
   {
     title: "Web to desktop draft handoff",
     request: "Start quickly in the browser, then continue in the desktop app without manual copy and paste.",
-    status: "Free foundation shipped",
+    status: "Free preview shipped",
     target: "0.1.x / 0.2.x",
     classification: "Free handoff first",
     decision:
@@ -304,14 +306,14 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free preview quality",
     decision:
-      "Rendering trust is part of the preview. The published math and code-block guides now exercise KaTeX, tables, code highlighting, and tabbed examples. This area needs more tests before broader promotion.",
+      "The preview needs to render real documents reliably. The math and code-block guides exercise KaTeX, tables, code highlighting, and tabbed examples. More tests are still needed before we call this area finished.",
   },
   {
     title: "Better export and publishing preparation",
     request: "Users need finished documents that look good when shared outside the editor.",
     target: "0.2.x / 0.3.x",
     classification: "Free export baseline, Pro workflow later",
-    status: "Free foundation shipped",
+    status: "Free preview shipped",
     decision:
       "The editor now includes Markdown download, HTML export, dedicated PDF export, and an export readiness panel for title, structure, links, images, and code blocks. The panel suggests the next fix before sharing. DOCX, branded templates, batch export, and one-click publishing remain stronger candidates for later packaging.",
   },
@@ -322,7 +324,7 @@ const publicRoadmapItems = [
     target: "0.3.x+",
     classification: "Future workflow research",
     decision:
-      "These features should wait until the core editor is stronger. The public roadmap records the request; packaging details can live on the Pro page when they are ready.",
+      "These features can wait until the core editor is dependable. The roadmap records the request. The Pro page will describe packaging when there is something users can try.",
   },
 ];
 
@@ -330,7 +332,7 @@ const roadmapStages = [
   {
     label: "Shipped",
     description: "Available now in the free preview or public docs.",
-    items: publicRoadmapItems.filter((item) => ["Shipped", "Free foundation shipped"].includes(item.status)),
+    items: publicRoadmapItems.filter((item) => ["Shipped", "Free preview shipped"].includes(item.status)),
   },
   {
     label: "In progress",
@@ -397,6 +399,11 @@ const docGroups = [
       { title: "How VeloWrite Preview Releases Work", href: "/docs/preview-release-policy", status: "Published" },
       { title: "PDF Export Notes", href: "/docs/pdf-export-notes", status: "Published" },
       { title: "Preview Build Limitations", href: "/docs/preview-build-limitations", status: "Published" },
+      {
+        title: "Private Online Markdown Editor",
+        href: "/docs/private-online-markdown-editor",
+        status: "Published",
+      },
       { title: "Troubleshooting Guide", href: "/docs/troubleshooting", status: "Planned" },
       { title: "Download Safety", href: "/docs/download-safety", status: "Planned" },
     ],
@@ -808,11 +815,11 @@ function LandingPage() {
             <Zap size={16} />
             Start writing in the browser
           </div>
-          <h1>Markdown that stays yours.</h1>
+          <h1>Write Markdown. Keep files.</h1>
           <p>
-            Open the web editor to read, edit, preview, and export Markdown.
-            Use the desktop app when you need local folders, direct save,
-            offline work, and file history.
+            Start in the browser to read, edit, preview, and export Markdown.
+            Move to the desktop app when the document needs a real folder,
+            direct save, offline access, or local history.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href={webEditorHref}>
@@ -832,7 +839,7 @@ function LandingPage() {
             </span>
             <span>
               <HardDrive size={15} />
-              Local-first desktop
+              Local desktop files
             </span>
             <span>
               <PanelLeft size={15} />
@@ -864,7 +871,7 @@ function LandingPage() {
       <section className="mode-compare" aria-label="Web and desktop comparison">
         <div className="section-heading">
           <span>Choose the right workspace</span>
-          <h2>Web for a quick draft. Desktop for serious local work.</h2>
+          <h2>Start in the browser. Keep important files on your computer.</h2>
         </div>
         <div className="compare-grid">
           <article className="compare-card">
@@ -872,7 +879,7 @@ function LandingPage() {
               <Code2 size={20} />
             </div>
             <h3>Online editor</h3>
-            <p>Use it to open a draft fast, edit Markdown, check the preview, and download a copy.</p>
+            <p>Open a draft quickly, check the rendered result, and download the source when you are done.</p>
             <ul>
               <li>Runs directly in the browser</li>
               <li>Drafts autosave locally in this browser</li>
@@ -888,10 +895,10 @@ function LandingPage() {
               <FolderOpen size={20} />
             </div>
             <h3>Desktop app</h3>
-            <p>Use it for documents you keep on your computer and expect to edit again.</p>
+            <p>Use it for documents that live on your computer and need to be opened again later.</p>
             <ul>
               <li>Open and save real files directly</li>
-              <li>Work offline with local-first storage</li>
+              <li>Work offline with files on your device</li>
               <li>Use local history snapshots for recovery</li>
               <li>AI, sync, and publishing remain on the roadmap</li>
             </ul>
@@ -904,8 +911,8 @@ function LandingPage() {
 
       <section className="trust-band" aria-label="Why people can trust VeloWrite">
         <div className="section-heading">
-          <span>Trust signals</span>
-          <h2>A preview build should tell you what is private, what is limited, and what can be recovered.</h2>
+          <span>What to expect</span>
+          <h2>Know what stays private, what is limited, and what you can recover.</h2>
         </div>
         <div className="trust-grid">
           <article>
@@ -915,17 +922,17 @@ function LandingPage() {
           </article>
           <article>
             <GitBranch size={20} />
-            <h3>Recovery comes early</h3>
+            <h3>Recover recent edits</h3>
             <p>The preview includes local history and compare views for recovering accidental edits.</p>
           </article>
           <article>
             <ListChecks size={20} />
-            <h3>Roadmap is public</h3>
+            <h3>See what is planned</h3>
             <p>Early feedback is tracked on the roadmap, with free preview work separated from future Pro features.</p>
           </article>
           <article>
             <LockKeyhole size={20} />
-            <h3>Limits are visible</h3>
+            <h3>Know before installing</h3>
             <p>The download page lists unsigned installers, missing features, and planned paid work before you install.</p>
           </article>
         </div>
@@ -934,7 +941,7 @@ function LandingPage() {
       <section className="video-showcase" aria-label="VeloWrite product video">
         <div className="section-heading">
           <span>Watch the workflow</span>
-          <h2>See VeloWrite in about a minute.</h2>
+          <h2>See the path from a browser draft to a saved file.</h2>
         </div>
         <div className="video-shell">
           <div className="video-copy">
@@ -943,8 +950,8 @@ function LandingPage() {
             </div>
             <h3>From browser draft to desktop app</h3>
             <p>
-              A short demo of the web editor, live preview, export, privacy,
-              the desktop app, and future Pro plans.
+              This short demo shows the web editor, live preview, exports,
+              local files, and the boundary between the free preview and Pro.
             </p>
             <div className="hero-actions">
               <a className="primary-link" href="/web?utm_source=homepage_video&utm_medium=cta">
@@ -966,7 +973,7 @@ function LandingPage() {
       <section className="feature-band" aria-label="Core features">
         <div>
           <Sparkles size={21} />
-          <h2>Fast first</h2>
+          <h2>Start quickly</h2>
           <p>Start in the browser. Use the desktop app for files you keep locally.</p>
         </div>
         <div>
@@ -976,7 +983,7 @@ function LandingPage() {
         </div>
         <div>
           <Download size={21} />
-          <h2>Clear next step</h2>
+          <h2>Move files when ready</h2>
           <p>Move to desktop when you need local folders, offline work, and history.</p>
         </div>
       </section>
@@ -1004,13 +1011,13 @@ function LandingPage() {
       <section className="resource-band" aria-label="Guides and release notes">
         <div className="section-heading">
           <span>Resources</span>
-          <h2>Learn the workflow and track what changed.</h2>
+          <h2>Learn Markdown and see what changed.</h2>
         </div>
         <div className="resource-grid">
           <article className="resource-card">
             <FileText size={21} />
           <h3>Markdown Library</h3>
-            <p>Read the article list: basics, advanced writing, editor comparisons, and the latest published guide.</p>
+            <p>Read practical guides on syntax, long documents, editor choices, and local files.</p>
             <a className="text-link" href="/docs?utm_source=homepage_resources&utm_medium=resource">
               Open library <ChevronRight size={15} />
             </a>
@@ -1026,7 +1033,7 @@ function LandingPage() {
           <article className="resource-card">
             <GitBranch size={21} />
             <h3>Release Notes</h3>
-            <p>See what changed in the current preview, what is stable today, and which Pro features are still planned.</p>
+            <p>See what changed in the current preview and which features are still being considered for Pro.</p>
             <a className="text-link" href="/changelog?utm_source=homepage_resources&utm_medium=resource">
               Read changelog <ChevronRight size={15} />
             </a>
@@ -1306,11 +1313,11 @@ function ProPage() {
               <Rocket size={16} />
               Pro roadmap
             </div>
-            <h1>Free now. Pro when it earns it.</h1>
+            <h1>Free to try. Pro when it saves you time.</h1>
             <p>
-              VeloWrite is currently free to test. The first Pro work focuses
-              on AI writing, better export, and deeper local recovery before
-              heavier cloud features.
+              VeloWrite is free to test today. The first paid features are
+              planned around AI writing, better export, and deeper local
+              recovery. Cloud features come later.
             </p>
             <div className="hero-actions">
               <a className="primary-link" href="/web?utm_source=pro_hero&utm_medium=cta">
@@ -1325,12 +1332,12 @@ function ProPage() {
             <div>
               <span>Preview</span>
               <strong>Free</strong>
-              <p>Markdown editing, preview, local files, browser drafts, and basic desktop history recovery.</p>
+              <p>Markdown editing, live preview, local files, browser drafts, and three desktop history snapshots.</p>
             </div>
             <div>
               <span>Pricing preview</span>
               <strong>$29/year</strong>
-              <p>Early Pro pricing is planned before checkout opens, with a $99 lifetime local-Pro option.</p>
+              <p>The planned early price is $29 per year, with a $99 lifetime option for local Pro features.</p>
             </div>
           </div>
         </section>
@@ -1338,11 +1345,11 @@ function ProPage() {
         <section className="pro-pricing" aria-label="Planned Pro pricing">
           <div className="section-heading">
             <span>Pricing preview</span>
-            <h2>Simple early pricing, with clear AI limits.</h2>
+            <h2>Simple pricing, with a clear limit on hosted AI.</h2>
             <p>
-              These prices are a planning preview, not an active checkout. The
-              goal is to set expectations early and avoid surprising users when
-              Pro opens.
+              These prices are a planning preview, not an active checkout. We
+              are publishing them early so users know what Pro may cost before
+              it opens.
             </p>
           </div>
           <div className="pro-price-grid">
@@ -1360,9 +1367,9 @@ function ProPage() {
             ))}
           </div>
           <p className="pro-pricing-note">
-            Hosted AI will use fair-use credits to keep the product sustainable.
-            Lifetime access is planned for local Pro features. Unlimited hosted
-            AI is not planned.
+            Hosted AI will use fair-use credits so usage does not create an
+            open-ended cost. The lifetime plan is for local Pro features.
+            Unlimited hosted AI is not planned.
           </p>
         </section>
 
@@ -1397,7 +1404,7 @@ function ProPage() {
         <section className="pro-compare" aria-label="Free preview and future Pro comparison">
           <div className="section-heading">
             <span>Clear boundaries</span>
-            <h2>What users can rely on today, and what is next.</h2>
+            <h2>What works today and what may come later.</h2>
           </div>
           <div className="pro-table">
             <div className="pro-row pro-row-head">
@@ -1425,8 +1432,8 @@ function ProPage() {
 
         <section className="pro-waitlist" aria-label="Pro interest signup">
           <div>
-            <span>Shape Pro before checkout</span>
-            <h2>What would make Pro worth it for you?</h2>
+            <span>Help decide what belongs in Pro</span>
+            <h2>Which paid feature would save you the most time?</h2>
           </div>
           <WaitlistForm source="pro" label="Join the Pro interest list" />
         </section>
@@ -1466,9 +1473,9 @@ function RoadmapPage() {
           </div>
           <h1>What we are building next.</h1>
           <p>
-            VeloWrite is still in preview, so early feedback directly shapes the product.
-            This page shows which requests are core editor work, which preview fixes have
-            shipped, and which local-first workflows are still being researched.
+            VeloWrite is still in preview, so early feedback can change what we build next.
+            This page shows which requests belong to the editor, which fixes have shipped,
+            and which local file features still need research.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href="/feedback?utm_source=roadmap_hero&utm_medium=cta">
@@ -1501,10 +1508,10 @@ function RoadmapPage() {
         <section className="roadmap-recommendations" aria-label="Recommended roadmap priorities">
           <div className="section-heading">
             <span>Recommended next</span>
-            <h2>The next work should make daily writing feel safer and clearer.</h2>
+            <h2>The next work should make everyday writing safer and easier to understand.</h2>
             <p>
-              These priorities are intentionally practical: improve the free editor foundation
-              first, then use that trust to decide which Pro workflows deserve deeper work.
+              The order is practical: make the free editor dependable first, then decide which
+              paid features solve a problem users will actually pay to remove.
             </p>
           </div>
           <div className="roadmap-recommendation-grid">
@@ -1521,11 +1528,10 @@ function RoadmapPage() {
         <section className="roadmap-stages" aria-label="Roadmap by stage">
           <div className="section-heading">
             <span>Status map</span>
-            <h2>See what has shipped, what is active, and what may become Pro later.</h2>
+            <h2>See what has shipped, what is active, and what may be paid later.</h2>
             <p>
-              The roadmap is grouped by product status so users can quickly see whether a
-              request is already available, actively improving, still being designed, or
-              reserved for a later paid workflow.
+              Each request has a status so you can tell whether it is available, being improved,
+              still in design, or reserved for a later paid feature.
             </p>
           </div>
           <div className="roadmap-stage-grid">
@@ -1547,11 +1553,10 @@ function RoadmapPage() {
         <section className="preview-acceptance" aria-label="Preview acceptance checklist">
           <div>
             <span>Preview quality bar</span>
-            <h2>What should be true before Pro work becomes the main focus.</h2>
+            <h2>What should be reliable before Pro becomes the main focus.</h2>
             <p>
-              The free preview should feel dependable for everyday Markdown reading,
-              editing, recovery, and export. These checks keep the product honest
-              before larger paid workflows are promoted.
+              The free preview should handle everyday Markdown reading, editing, recovery,
+              and export without surprises. These checks come before larger paid features.
             </p>
           </div>
           <ul>
@@ -1644,8 +1649,8 @@ function DownloadPage() {
           </div>
           <h1>Download VeloWrite</h1>
           <p>
-            Download the current preview build if you want a fast Markdown app
-            with local files, PDF export, recent files, and local history.
+            Download the current preview if you want a desktop Markdown app
+            for local files, PDF export, recent files, and local history.
           </p>
           <div className="download-release-summary" aria-label="Latest release information">
             <div>
@@ -1664,8 +1669,9 @@ function DownloadPage() {
             <div className="download-highlights-copy">
               <span>Latest improvements</span>
               <p>
-                Local images now resolve from the Markdown file folder. Split scrolling,
-                history restore previews, and Markdown rendering tests are also more stable.
+                Local images now resolve from the Markdown file folder. Split
+                scrolling, history restore previews, and Markdown rendering tests
+                are more stable in this build.
               </p>
             </div>
             <a href="/changelog?utm_source=download_page&utm_medium=resource#v026">
@@ -2136,7 +2142,7 @@ function DocsIndexPage() {
           Markdown library
         </div>
         <h1>Markdown articles for VeloWrite users.</h1>
-        <p className="legal-updated">Last updated: August 14, 2026</p>
+        <p className="legal-updated">Last updated: August 15, 2026</p>
         <p className="legal-intro">
           Read practical Markdown guides, product notes, and platform-specific advice.
           Published articles are live. Planned titles are next in line.

@@ -62,6 +62,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/preview-release-policy": "Preview Release Policy",
   "/docs/pdf-export-notes": "PDF Export Notes",
   "/docs/preview-build-limitations": "Preview Build Limitations",
+  "/docs/private-online-markdown-editor": "Private Online Markdown Editor",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -144,6 +145,7 @@ const docPageRoutes = {
   "/docs/preview-release-policy": "previewReleasePolicy",
   "/docs/pdf-export-notes": "pdfExportNotes",
   "/docs/preview-build-limitations": "previewBuildLimitations",
+  "/docs/private-online-markdown-editor": "privateOnlineMarkdownEditor",
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
@@ -166,6 +168,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/preview-release-policy",
   "/docs/pdf-export-notes",
   "/docs/preview-build-limitations",
+  "/docs/private-online-markdown-editor",
 ]);
 
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
@@ -263,6 +266,11 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
     title: "Preview Build Limitations - What VeloWrite Still Needs",
     description:
       "See what the current VeloWrite preview can do, what still needs work, and what to check before relying on a build.",
+  },
+  "/docs/private-online-markdown-editor": {
+    title: "Private Online Markdown Editor - Browser Drafts, Consent, and Local Files",
+    description:
+      "Understand what stays in your browser when you use a private online Markdown editor, how analytics consent works, and when to move important files to desktop.",
   },
 };
 

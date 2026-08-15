@@ -63,6 +63,19 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   );
   expect(releasePolicyHtml).toContain('"dateModified": "2026-08-15"');
 
+  const privacyMarkdownHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/private-online-markdown-editor/index.html"),
+    "utf8",
+  );
+
+  expect(privacyMarkdownHtml).toContain(
+    "<title>Private Online Markdown Editor - Browser Drafts, Consent, and Local Files</title>",
+  );
+  expect(privacyMarkdownHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/private-online-markdown-editor" />',
+  );
+  expect(privacyMarkdownHtml).toContain('"dateModified": "2026-08-15"');
+
   const futureHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/future-of-markdown/index.html"),
     "utf8",
@@ -111,7 +124,7 @@ test("landing page drives users to web editor and desktop download", async ({ pa
   await page.goto("/");
 
   await expect(
-    page.getByRole("heading", { name: "Markdown that stays yours." }),
+    page.getByRole("heading", { name: "Write Markdown. Keep files." }),
   ).toBeVisible();
   await expect(page.getByRole("link", { name: /Open Web Editor/i }).first()).toHaveAttribute(
     "href",
@@ -121,9 +134,9 @@ test("landing page drives users to web editor and desktop download", async ({ pa
     "href",
     /\/download/,
   );
-  await expect(page.getByRole("heading", { name: /Web for a quick draft/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Start in the browser/i })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: /A preview build should tell you what is private/i }),
+    page.getByRole("heading", { name: /Know what stays private/i }),
   ).toBeVisible();
   await expect(page.getByText("Private by default")).toBeVisible();
   await expect(page.getByLabel("VeloWrite product video")).toBeVisible();
@@ -162,7 +175,7 @@ test("roadmap shows recommended next priorities", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "What we are building next." })).toBeVisible();
   await expect(page.getByText("Recommended next")).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "See what has shipped, what is active, and what may become Pro later." }),
+    page.getByRole("heading", { name: "See what has shipped, what is active, and what may be paid later." }),
   ).toBeVisible();
   await expect(page.locator(".roadmap-stage-grid article", { hasText: "Shipped" })).toContainText(
     "Markdown learning library",
@@ -173,11 +186,11 @@ test("roadmap shows recommended next priorities", async ({ page }) => {
   await expect(page.locator(".roadmap-stage-grid article", { hasText: "Pro candidates" })).toContainText(
     "AI writing, publishing, and advanced export research",
   );
-  await expect(page.getByRole("heading", { name: "Native-feeling desktop preview" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Long-document recovery clarity" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Export readiness before Pro export" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Make the desktop app feel native" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Make long-document recovery easier to read" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Help users catch export problems" })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "What should be true before Pro work becomes the main focus." }),
+    page.getByRole("heading", { name: "What should be reliable before Pro becomes the main focus." }),
   ).toBeVisible();
   await expect(page.getByLabel("Preview acceptance checklist")).toContainText(
     "Open directly into the editor without a marketing-style first screen.",
@@ -243,7 +256,7 @@ test("web editor brand link returns to the homepage", async ({ page }) => {
   await page.getByRole("link", { name: /VeloWrite/ }).first().click();
   await expect(page).toHaveURL(/\/$/);
   await expect(
-    page.getByRole("heading", { name: "Markdown that stays yours." }),
+    page.getByRole("heading", { name: "Write Markdown. Keep files." }),
   ).toBeVisible();
 });
 
@@ -311,6 +324,7 @@ test("public pages keep compact desktop titles and responsive layouts", async ({
     "/docs/markdown-editor-for-windows",
     "/docs/markdown-editor-for-linux",
     "/docs/preview-release-policy",
+    "/docs/private-online-markdown-editor",
     "/guide",
     "/changelog",
     "/faq",
@@ -427,6 +441,21 @@ test("docs index publishes the Markdown history article", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Aaron Swartz and early feedback" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Why variants and CommonMark appeared" })).toBeVisible();
   await expect(page.locator(".content-example").first()).toContainText("Plain text that still has structure");
+});
+
+test("docs publishes the private online Markdown article", async ({ page }) => {
+  await page.goto("/docs/private-online-markdown-editor");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Private Online Markdown Editor: What Stays in Your Browser?",
+    }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Analytics is separate from your Markdown draft" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Try the Web Editor" })).toHaveAttribute(
+    "href",
+    /\/web\?utm_source=private_markdown_cta/,
+  );
 });
 
 test("web editor exports a PDF without browser print headers", async ({ page }) => {
@@ -978,7 +1007,7 @@ test("docs publishes the local-first Markdown article and sync guidance", async 
     "#sync-design",
   );
   await expect(page.getByRole("heading", { name: "Sync should preserve folder ownership" })).toBeVisible();
-  await expect(page.getByText("basic local history recovery in the free foundation")).toBeVisible();
+  await expect(page.getByText("VeloWrite keeps basic local history in the free preview")).toBeVisible();
   await expect(page.getByText("Many users already have a sync habit")).toBeVisible();
 });
 

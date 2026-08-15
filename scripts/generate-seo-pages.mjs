@@ -40,6 +40,7 @@ const breadcrumbLabels = new Map([
   ["/docs/preview-release-policy", "Preview Release Policy"],
   ["/docs/pdf-export-notes", "PDF Export Notes"],
   ["/docs/preview-build-limitations", "Preview Build Limitations"],
+  ["/docs/private-online-markdown-editor", "Private Online Markdown Editor"],
   ["/changelog", "Changelog"],
   ["/faq", "FAQ"],
   ["/privacy", "Privacy Policy"],
@@ -64,6 +65,7 @@ const docsLinks = [
   ["/docs/markdown-editor-for-linux", "Markdown Editor for Linux"],
   ["/docs/pdf-export-notes", "PDF Export Notes"],
   ["/docs/preview-build-limitations", "Preview Build Limitations"],
+  ["/docs/private-online-markdown-editor", "Private Online Markdown Editor"],
 ];
 
 const faqItems = [
@@ -336,6 +338,15 @@ const routes = [
     title: "Preview Build Limitations - What VeloWrite Still Needs",
     description:
       "See what the current VeloWrite preview can do, what still needs work, and what to check before relying on a build.",
+    priority: "0.72",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/private-online-markdown-editor",
+    title: "Private Online Markdown Editor - Browser Drafts, Consent, and Local Files",
+    description:
+      "Understand what stays in your browser when you use a private online Markdown editor, how analytics consent works, and when to move important files to desktop.",
     priority: "0.72",
     changefreq: "monthly",
     schema: ["article"],
