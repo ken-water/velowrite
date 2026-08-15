@@ -964,7 +964,7 @@ export const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Sync-friendly folder layout",
           markdown:
-            "# Notes Folder\n\n## Structure\n\n- inbox.md\n- project-plan.md\n- meeting-notes.md\n- archive/\n\n## Sync rule\n\nKeep the folder visible so another backup or sync tool can protect it.",
+            "# Notes Folder\n\n## Structure\n\n- `inbox.md`\n- `project-plan.md`\n- `meeting-notes.md`\n- `archive/`\n\n## Sync rule\n\nKeep the folder visible so another backup or sync tool can protect it.",
           note: "A visible folder keeps the workflow understandable even when sync tools are involved.",
         },
       },
@@ -1712,7 +1712,7 @@ export const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Keep source and outputs together",
           markdown:
-            "project-notes/\n├── project-notes.md\n├── project-notes.html\n└── project-notes.pdf",
+            "```text\nproject-notes/\n├── project-notes.md\n├── project-notes.html\n└── project-notes.pdf\n```",
           note: "The Markdown file remains the editable source; HTML and PDF are review or delivery copies.",
         },
       },

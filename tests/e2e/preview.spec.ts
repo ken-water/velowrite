@@ -456,6 +456,11 @@ test("docs publishes the private online Markdown article", async ({ page }) => {
     "href",
     /\/web\?utm_source=private_markdown_cta/,
   );
+
+  const exportSection = page.locator("#downloads-and-exports");
+  const renderedExample = exportSection.locator(".content-example-preview");
+  await expect(renderedExample.locator("pre code")).toContainText("project-notes.md");
+  await expect(renderedExample.locator("a")).toHaveCount(0);
 });
 
 test("web editor exports a PDF without browser print headers", async ({ page }) => {
@@ -1009,6 +1014,30 @@ test("docs publishes the local-first Markdown article and sync guidance", async 
   await expect(page.getByRole("heading", { name: "Sync should preserve folder ownership" })).toBeVisible();
   await expect(page.getByText("VeloWrite keeps basic local history in the free preview")).toBeVisible();
   await expect(page.getByText("Many users already have a sync habit")).toBeVisible();
+});
+
+test("documentation examples do not turn filenames into links", async ({ page }) => {
+  await page.goto("/docs");
+  await page.waitForTimeout(200);
+
+  const routes = await page.locator('a[href^="/docs/"]').evaluateAll((links) => [
+    ...new Set(
+      links
+        .map((link) => link.getAttribute("href"))
+        .filter((href): href is string => Boolean(href))
+        .map((href) => href.split("?")[0]),
+    ),
+  ]);
+
+  for (const route of routes) {
+    await page.goto(route);
+    const filenameLinks = await page.locator(".content-example-preview a").evaluateAll((links) =>
+      links
+        .map((link) => link.getAttribute("href") ?? "")
+        .filter((href) => /\.md(?:$|[?#])/i.test(href)),
+    );
+    expect(filenameLinks, `${route} should keep Markdown filenames as text`).toEqual([]);
+  }
 });
 
 test("docs publishes the Future of Markdown article with export readiness guidance", async ({ page }) => {
