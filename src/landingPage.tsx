@@ -27,15 +27,15 @@ const downloadHref = "/download?utm_source=landing&utm_medium=cta";
 const landingFaqs = [
   {
     question: "What is VeloWrite?",
-    answer: "VeloWrite is a Markdown editor with a browser version for quick drafts and a lightweight desktop app for local files, PDF export, and history.",
+    answer: "VeloWrite is a Markdown editor with a browser editor for quick drafts and a desktop app for local files, PDF export, and history.",
   },
   {
     question: "Is VeloWrite free to use today?",
-    answer: "The current public build is a free preview. AI writing, advanced export, and deeper recovery are candidates for Pro.",
+    answer: "Yes. The current public build is a free preview. AI writing, advanced export, and deeper recovery are planned for Pro.",
   },
   {
     question: "Is VeloWrite a Typora alternative?",
-    answer: "VeloWrite follows a focused writing direction while adding a browser editor, lightweight desktop builds, local files, and a public roadmap.",
+    answer: "It is a focused Markdown editor with a browser editor, desktop builds, local files, and a public roadmap.",
   },
   {
     question: "Can I edit Markdown online without uploading files?",
@@ -47,7 +47,7 @@ const landingFaqs = [
   },
   {
     question: "Can I try VeloWrite without installing anything?",
-    answer: "Yes. Open the web editor and start writing immediately in a modern browser.",
+    answer: "Yes. Open the web editor and start writing in your browser.",
   },
   {
     question: "Does VeloWrite work offline?",
@@ -55,7 +55,7 @@ const landingFaqs = [
   },
   {
     question: "What is the difference between the web editor and desktop app?",
-    answer: "The web editor is faster to try. Desktop adds native local files, offline work, recent documents, PDF export, and history.",
+    answer: "The web editor is for quick drafts and exports. Desktop adds native files, offline work, recent documents, PDF export, and history.",
   },
   {
     question: "Does VeloWrite handle math, tables, and code highlighting?",
@@ -80,7 +80,7 @@ function EditorPreviewSkeleton({ compact = false }: { compact?: boolean }) {
         <section aria-label="Markdown skeleton">
           <strong>Markdown</strong>
           <p># Start Writing</p>
-          <p>Use VeloWrite for quick drafts, live preview, and clean Markdown export.</p>
+          <p>Write a draft, check the preview, and keep the Markdown source.</p>
           <p>- Draft fast</p>
           <p>- Preview clearly</p>
           <p>- Move serious files to Desktop</p>
@@ -88,7 +88,7 @@ function EditorPreviewSkeleton({ compact = false }: { compact?: boolean }) {
         <section aria-label="Preview skeleton">
           <strong>Live Preview</strong>
           <h3>Start Writing</h3>
-          <p>Use VeloWrite for quick drafts, live preview, and clean Markdown export.</p>
+          <p>Write a draft, check the preview, and keep the Markdown source.</p>
           <ul>
             <li>Draft fast</li>
             <li>Preview clearly</li>
@@ -214,7 +214,7 @@ function LandingPage() {
               <Code2 size={20} />
             </div>
             <h3>Online editor</h3>
-            <p>Open a draft quickly, check the rendered result, and download the source when you are done.</p>
+            <p>Open a draft, check the rendered result, and download the source when it is ready.</p>
             <ul>
               <li>Runs directly in the browser</li>
               <li>Drafts autosave locally in this browser</li>
@@ -247,7 +247,7 @@ function LandingPage() {
       <section className="trust-band" aria-label="Why people can trust VeloWrite">
         <div className="section-heading">
           <span>What to expect</span>
-          <h2>Know what stays private, what is limited, and what you can recover.</h2>
+          <h2>See what stays local and what the preview can do.</h2>
         </div>
         <div className="trust-grid">
           <article>
@@ -258,17 +258,17 @@ function LandingPage() {
           <article>
             <GitBranch size={20} />
             <h3>Recover recent edits</h3>
-            <p>The preview includes local history and compare views for recovering accidental edits.</p>
+            <p>Local history and compare views help you recover accidental edits.</p>
           </article>
           <article>
             <ListChecks size={20} />
             <h3>See what is planned</h3>
-            <p>Early feedback is tracked on the roadmap, with free preview work separated from future Pro features.</p>
+            <p>The roadmap shows what shipped, what is being improved, and what may become Pro.</p>
           </article>
           <article>
             <LockKeyhole size={20} />
             <h3>Know before installing</h3>
-            <p>The download page lists unsigned installers, missing features, and planned paid work before you install.</p>
+            <p>The download page lists unsigned installers, current limits, and planned paid work before you install.</p>
           </article>
         </div>
       </section>
@@ -276,7 +276,7 @@ function LandingPage() {
       <section className="video-showcase" aria-label="VeloWrite product video">
         <div className="section-heading">
           <span>Watch the workflow</span>
-          <h2>See the path from a browser draft to a saved file.</h2>
+          <h2>See how a browser draft becomes a saved file.</h2>
         </div>
         <div className="video-shell">
           <div className="video-copy">
@@ -285,8 +285,8 @@ function LandingPage() {
             </div>
             <h3>From browser draft to desktop app</h3>
             <p>
-              This short demo shows the web editor, live preview, exports,
-              local files, and the boundary between the free preview and Pro.
+              This short demo follows a draft through the web editor, preview,
+              export, and the move to local files.
             </p>
             <div className="hero-actions">
               <a className="primary-link" href="/web?utm_source=homepage_video&utm_medium=cta">
@@ -314,19 +314,19 @@ function LandingPage() {
         <div>
           <GitBranch size={21} />
           <h2>Recoverable writing</h2>
-          <p>Desktop history snapshots give you a rollback point before a save replaces the file.</p>
+          <p>Desktop history keeps a few earlier versions before a save replaces the file.</p>
         </div>
         <div>
           <Download size={21} />
-          <h2>Move files when ready</h2>
-          <p>Move to desktop when you need local folders, offline work, and history.</p>
+          <h2>Keep the file when it matters</h2>
+          <p>Move to desktop for local folders, offline work, and history.</p>
         </div>
       </section>
 
       <section className="landing-faq" aria-label="VeloWrite FAQ">
         <div className="section-heading">
           <span>FAQ</span>
-          <h2>Questions people ask before trying VeloWrite.</h2>
+          <h2>Questions people ask before trying VeloWrite</h2>
         </div>
         <div className="faq-grid">
           {landingFaqs.map((item) => (
@@ -352,7 +352,7 @@ function LandingPage() {
           <article className="resource-card">
             <FileText size={21} />
           <h3>Markdown Library</h3>
-            <p>Read practical guides on syntax, long documents, editor choices, and local files.</p>
+            <p>Read practical guides on syntax, meeting notes, long documents, editor choices, and local files.</p>
             <a className="text-link" href="/docs?utm_source=homepage_resources&utm_medium=resource">
               Open library <ChevronRight size={15} />
             </a>
@@ -360,7 +360,7 @@ function LandingPage() {
           <article className="resource-card">
             <Code2 size={21} />
             <h3>Online Markdown Editor</h3>
-            <p>Learn when a browser Markdown editor is enough and when to move serious files to desktop.</p>
+            <p>Learn when a browser editor is enough and when a document belongs on your computer.</p>
             <a className="text-link" href="/docs/online-markdown-editor?utm_source=homepage_resources&utm_medium=resource">
               Read article <ChevronRight size={15} />
             </a>
@@ -368,7 +368,7 @@ function LandingPage() {
           <article className="resource-card">
             <GitBranch size={21} />
             <h3>Release Notes</h3>
-            <p>See what changed in the current preview and which features are still being considered for Pro.</p>
+            <p>See what changed in the current preview and what is still being considered for Pro.</p>
             <a className="text-link" href="/changelog?utm_source=homepage_resources&utm_medium=resource">
               Read changelog <ChevronRight size={15} />
             </a>
@@ -376,7 +376,7 @@ function LandingPage() {
           <article className="resource-card">
             <ListChecks size={21} />
             <h3>Public Roadmap</h3>
-            <p>See recorded user requests, what stays free, and which features may become Pro later.</p>
+            <p>See user requests, what stays free, and which features may become Pro later.</p>
             <a className="text-link" href="/roadmap?utm_source=homepage_resources&utm_medium=resource">
               View roadmap <ChevronRight size={15} />
             </a>

@@ -4,6 +4,28 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
+## [0.2.8] - 2026-08-20
+
+### Added
+
+- Added native `File > Recent Files` access with up to ten recent Markdown documents and a clear action.
+- Added multiple document tabs so drafts can stay open and be switched without replacing each other.
+- Added per-tab writing, split, and preview modes so changing one document does not change the others.
+- Added automated coverage for tab isolation, narrow-window tab layout, recent-file limits, and workspace tooltip placement.
+
+### Changed
+
+- Recent files now show normalized full paths in the native menu, while preserving the original paths internally for opening documents.
+- Removed Windows extended path prefixes such as `\\?\` and `\\?\UNC\` from user-facing recent-file labels.
+- Improved desktop copy and release wording so current preview behavior is described more directly.
+- Published the Markdown meeting notes template and refreshed the public SEO index and AI-readable site summary.
+
+### Fixed
+
+- Fixed recent-file menu synchronization after opening or saving local documents.
+- Fixed tab switching so content and view state remain isolated between documents.
+- Fixed tooltip placement for the left-edge workspace control so the full message stays inside the window.
+
 ## [0.2.6] - 2026-08-12
 
 ### Added

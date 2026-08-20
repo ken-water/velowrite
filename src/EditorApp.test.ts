@@ -355,7 +355,7 @@ describe("recent files", () => {
 
     storeRecentFiles(files);
 
-    expect(getStoredRecentFiles()).toHaveLength(8);
+    expect(getStoredRecentFiles()).toHaveLength(10);
     expect(getStoredRecentFiles()[0]).toEqual({ path: "/notes/0.md", name: "0.md" });
   });
 

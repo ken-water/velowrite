@@ -29,8 +29,8 @@ const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExamp
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const EditorApp = React.lazy(() => import("./EditorApp"));
 
-const downloadVersion = "0.2.7";
-const downloadReleaseDate = "August 15, 2026";
+const downloadVersion = "0.2.8";
+const downloadReleaseDate = "August 20, 2026";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -60,6 +60,7 @@ const docPageRoutes = {
   "/docs/preview-build-limitations": "previewBuildLimitations",
   "/docs/private-online-markdown-editor": "privateOnlineMarkdownEditor",
   "/docs/download-safety": "downloadSafety",
+  "/docs/markdown-meeting-notes": "markdownMeetingNotes",
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
@@ -84,6 +85,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/preview-build-limitations",
   "/docs/private-online-markdown-editor",
   "/docs/download-safety",
+  "/docs/markdown-meeting-notes",
 ]);
 
 function matchesRoute(pathname: string, route: string) {
@@ -203,19 +205,19 @@ const roadmapRecommendations = [
     priority: "Best next free improvement",
     title: "Make the desktop app feel native",
     reason:
-      "The app should open like a writing tool, not a website in a window. It already starts in the editor, so the next work is tightening file actions, window behavior, and first-run details.",
+      "The app should open like a writing tool, not a website in a window. It already starts in the editor. Next we are tightening file actions, window behavior, and first-run details.",
   },
   {
     priority: "Next quality pass",
     title: "Make long-document recovery easier to read",
     reason:
-      "Basic history is free. Compare and restore should make changed lines easy to find in a long draft before deeper Pro history is designed.",
+      "Basic history is free. Compare and restore should make changed lines easy to find in a long draft before deeper Pro history is added.",
   },
   {
     priority: "Next export check",
     title: "Help users catch export problems",
     reason:
-      "Users need to know whether a Markdown file is ready to share. The free readiness panel should stay ahead of branded templates, DOCX, and publishing.",
+      "Users need to know whether a Markdown file is ready to share. The free readiness panel comes before branded templates, DOCX, and publishing.",
   },
 ];
 
@@ -236,7 +238,7 @@ const publicRoadmapItems = [
     target: "0.1.x",
     classification: "Free education and discovery",
     decision:
-      "The article library is live under /docs. It covers Markdown basics, history, local-file habits, maintainable documents, code blocks, math, and Markdown-to-blog writing. Example blocks open in the web editor, so readers can try the syntax without copying it by hand.",
+      "The article library is live under /docs. It covers Markdown basics, history, local files, maintainable documents, code blocks, math, and Markdown-to-blog writing. Example blocks open in the web editor, so readers can try the syntax without copying it by hand.",
   },
   {
     title: "Editor and preview sync scrolling",
@@ -245,7 +247,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free core editor work",
     decision:
-      "Outline clicks now align both panes in the preview build. Stable scroll matching for long documents stays core editor work because it affects everyday writing.",
+      "Outline clicks align both panes in the preview build. Stable scroll matching for long documents remains core editor work because it affects everyday writing.",
   },
   {
     title: "Focused writing polish",
@@ -263,7 +265,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free structure workflow first",
     decision:
-      "The editor now has a read-only structure map with H1/H2/H3 counts and clearer active-heading feedback after outline navigation. Folding, section diagnostics, editable mapping, and AI outline expansion can be evaluated later.",
+      "The editor now has a read-only structure map with H1/H2/H3 counts and active-heading feedback after outline navigation. Folding, section diagnostics, editable mapping, and AI outline expansion can be evaluated later.",
   },
   {
     title: "Better local history recovery",
@@ -272,7 +274,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free safety workflow",
     decision:
-      "Basic local history and restore preview stay free because recovery is part of document safety. The current free preview keeps the latest 3 local snapshots and the history dialog can jump to the first change in longer drafts.",
+      "Basic local history and restore preview stay free because recovery is part of document safety. The current free preview keeps the latest 3 local snapshots, and the history dialog can jump to the first change in longer drafts.",
   },
   {
     title: "Advanced history and recovery controls",
@@ -281,7 +283,7 @@ const publicRoadmapItems = [
     target: "0.2.x / 0.3.x",
     classification: "Recovery policy design",
     decision:
-      "The free preview now keeps 3 local snapshots. Longer retention, richer review, cross-device history, and exportable recovery archives remain candidates for Pro.",
+      "The free preview now keeps 3 local snapshots. Longer retention, deeper review, cross-device history, and exportable recovery archives remain candidates for Pro.",
   },
   {
     title: "Web to desktop draft handoff",
@@ -299,7 +301,7 @@ const publicRoadmapItems = [
     target: "0.3.x+",
     classification: "Local-first sync research",
     decision:
-      "The first sync design should preserve folder ownership: clear import and export, predictable conflict handling, no hidden lock-in, and a documented path for users who already use Git, Syncthing, iCloud, Dropbox, or OneDrive.",
+      "The first sync design should preserve folder ownership. It needs clear import and export, predictable conflict handling, no hidden lock-in, and a documented path for users who already use Git, Syncthing, iCloud, Dropbox, or OneDrive.",
   },
   {
     title: "More complete Markdown rendering",
@@ -308,7 +310,7 @@ const publicRoadmapItems = [
     target: "0.1.x / 0.2.x",
     classification: "Free preview quality",
     decision:
-      "The preview needs to render real documents reliably. The math and code-block guides exercise KaTeX, tables, code highlighting, and tabbed examples. More tests are still needed before we call this area finished.",
+      "The preview needs to render real documents reliably. The math and code-block guides exercise KaTeX, tables, code highlighting, and tabbed examples. More tests are needed before this area is finished.",
   },
   {
     title: "Better export and publishing preparation",
@@ -326,7 +328,7 @@ const publicRoadmapItems = [
     target: "0.3.x+",
     classification: "Future workflow research",
     decision:
-      "These features can wait until the core editor is dependable. The roadmap records the request. The Pro page will describe packaging when there is something users can try.",
+      "These features can wait until the core editor is dependable. The roadmap records the request, and the Pro page will describe packaging when there is something users can try.",
   },
 ];
 
@@ -365,11 +367,12 @@ const docGroups = [
   },
   {
     title: "Use Markdown Better",
-    description: "Practical guides for daily writing, documentation, notes, and technical drafts.",
+    description: "Practical guides for daily writing, meeting notes, documentation, and technical drafts.",
     items: [
       { title: "Markdown Basics", href: "/docs/markdown-basics", status: "Published" },
       { title: "Markdown for Writers", href: "/docs/markdown-for-writers", status: "Published" },
       { title: "Markdown for Developers", href: "/docs/markdown-for-developers", status: "Published" },
+      { title: "Markdown Meeting Notes Template", href: "/docs/markdown-meeting-notes", status: "Published" },
     ],
   },
   {
@@ -419,22 +422,22 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "What is VeloWrite?",
         answer:
-          "VeloWrite is a Markdown editor for browser drafts, live preview, PDF and HTML export, local history, and desktop files.",
+          "VeloWrite is a Markdown editor for browser drafts, live preview, PDF and HTML export, local history, and local desktop files.",
       },
       {
         question: "Is VeloWrite a Typora alternative?",
         answer:
-          "VeloWrite is for users who like a Typora-style writing surface but also want a browser editor, lightweight desktop builds, local files, and a public roadmap.",
+          "VeloWrite is for people who like a focused Markdown editor and also want browser access, desktop files, and a public roadmap.",
       },
       {
         question: "What is the best lightweight Markdown editor for Windows?",
         answer:
-          "VeloWrite is a lightweight Markdown editor for Windows with browser preview, desktop files, recent documents, local history snapshots, and export.",
+          "VeloWrite is a Windows Markdown editor with browser preview, desktop files, recent documents, local history snapshots, and export.",
       },
       {
         question: "Who is VeloWrite for?",
         answer:
-          "VeloWrite is for developers, technical writers, students, founders, and teams who write Markdown notes, documentation, specs, guides, blog drafts, or knowledge-base articles.",
+          "VeloWrite is for developers, technical writers, students, founders, and teams who write notes, documentation, specs, guides, blog drafts, or knowledge-base articles in Markdown.",
       },
     ],
   },
@@ -444,7 +447,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Can I try VeloWrite without installing anything?",
         answer:
-          "Yes. Open the web editor and start writing in the browser. It is the quickest way to test VeloWrite.",
+          "Yes. Open the web editor and start writing in your browser. It is the quickest way to test the workflow.",
       },
       {
         question: "Can I edit Markdown online without uploading files?",
@@ -454,12 +457,12 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "What happens if I refresh the browser while editing?",
         answer:
-          "Your draft stays in localStorage in the same browser, so a refresh on the same device can bring it back. That is useful for a quick trial, but it is not a substitute for real local files or backups.",
+          "Your draft stays in localStorage in the same browser, so a refresh on the same device can bring it back. That helps with a quick trial, but it does not replace local files or backups.",
       },
       {
         question: "What is the difference between the web editor and desktop app?",
         answer:
-          "Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use the desktop app when you need local files, direct save, offline work, recent files, and history snapshots.",
+          "Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use the desktop app for local files, direct save, offline work, recent files, and history snapshots.",
       },
       {
         question: "Do I need an account to use it?",
@@ -474,7 +477,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Does VeloWrite work offline?",
         answer:
-          "The desktop preview is the offline option for real local files. The web editor is better for quick drafts, Markdown download, and HTML export while you are in the browser.",
+          "The desktop preview is the offline option for real local files. Use the web editor for quick drafts, Markdown download, and HTML export.",
       },
       {
         question: "Will the desktop installer trigger a warning?",
@@ -489,7 +492,7 @@ const faqGroups: readonly FaqGroup[] = [
       {
         question: "Does VeloWrite handle math, tables, and code highlighting?",
         answer:
-          "Yes. The preview supports Markdown tables, KaTeX math, highlighted code blocks, and tabbed previews for multi-language examples.",
+          "Yes. The preview supports Markdown tables, KaTeX math, highlighted code blocks, and tabs for multi-language examples.",
       },
       {
         question: "Can I download my work as Markdown or HTML?",
@@ -557,16 +560,16 @@ const landingFaqs = [
 
 const conversationalFaqCards = [
   {
-    prompt: "I just need to edit a Markdown file quickly.",
-    answer: "Use the web editor first. It opens fast, previews Markdown, and lets you download .md or HTML without signing in.",
+    prompt: "I need to edit a Markdown file quickly.",
+    answer: "Start with the web editor. You can preview Markdown and download .md or HTML without signing in.",
   },
   {
-    prompt: "I care about private local notes.",
-    answer: "Use the desktop app for native open and save, offline work, recent files, and local history on your own machine.",
+    prompt: "I care about keeping notes on my machine.",
+    answer: "Use the desktop app for native open and save, offline work, recent files, and local history.",
   },
   {
-    prompt: "I want to know what is not ready yet.",
-    answer: "AI commands, private sync, publishing, account sharing, and signed installers are not ready yet.",
+    prompt: "What is not ready yet?",
+    answer: "AI commands, private sync, publishing, account sharing, and signed installers are still planned.",
   },
 ] as const;
 
@@ -914,7 +917,7 @@ function LandingPage() {
       <section className="trust-band" aria-label="Why people can trust VeloWrite">
         <div className="section-heading">
           <span>What to expect</span>
-          <h2>Know what stays private, what is limited, and what you can recover.</h2>
+          <h2>See what stays local and what the preview can do.</h2>
         </div>
         <div className="trust-grid">
           <article>
@@ -1319,7 +1322,7 @@ function ProPage() {
             <p>
               VeloWrite is free to test today. The first paid features are
               planned around AI writing, better export, and deeper local
-              recovery. Cloud features come later.
+              recovery. Cloud features are later work.
             </p>
             <div className="hero-actions">
               <a className="primary-link" href="/web?utm_source=pro_hero&utm_medium=cta">
@@ -1339,7 +1342,7 @@ function ProPage() {
             <div>
               <span>Pricing preview</span>
               <strong>$29/year</strong>
-              <p>The planned early price is $29 per year, with a $99 lifetime option for local Pro features.</p>
+              <p>The early plan is expected to cost $29 per year, with a $99 lifetime option for local Pro features.</p>
             </div>
           </div>
         </section>
@@ -1347,11 +1350,11 @@ function ProPage() {
         <section className="pro-pricing" aria-label="Planned Pro pricing">
           <div className="section-heading">
             <span>Pricing preview</span>
-            <h2>Simple pricing, with a clear limit on hosted AI.</h2>
+            <h2>Simple pricing, with a cap on hosted AI use.</h2>
             <p>
               These prices are a planning preview, not an active checkout. We
-              are publishing them early so users know what Pro may cost before
-              it opens.
+              are sharing them early so users know what Pro may cost before it
+              opens.
             </p>
           </div>
           <div className="pro-price-grid">
@@ -1369,9 +1372,9 @@ function ProPage() {
             ))}
           </div>
           <p className="pro-pricing-note">
-            Hosted AI will use fair-use credits so usage does not create an
-            open-ended cost. The lifetime plan is for local Pro features.
-            Unlimited hosted AI is not planned.
+            Hosted AI will use fair-use credits so usage has a known limit.
+            The lifetime plan is for local Pro features. Unlimited hosted AI
+            is not planned.
           </p>
         </section>
 
@@ -1379,17 +1382,17 @@ function ProPage() {
           <article>
             <WandSparkles size={22} />
             <h2>AI writing workflows</h2>
-            <p>Turn notes into articles, make READMEs, polish technical sections, summarize meetings, and expand outlines.</p>
+            <p>Turn notes into articles, make READMEs, polish technical sections, summarize meetings, or expand outlines.</p>
           </article>
           <article>
             <FileText size={22} />
             <h2>Advanced export</h2>
-            <p>Improve PDF output, add DOCX export, and support cleaner article, README, newsletter, and documentation templates.</p>
+            <p>Improve PDF output, add DOCX export, and add templates for articles, READMEs, newsletters, and documentation.</p>
           </article>
           <article>
             <GitBranch size={22} />
             <h2>Advanced recovery</h2>
-            <p>Longer retention, named checkpoints, clearer diff review, and safer restore after the free baseline is stable.</p>
+            <p>Keep history longer, name checkpoints, review diffs more easily, and restore safely after the free baseline is stable.</p>
           </article>
           <article>
             <LockKeyhole size={22} />
@@ -1399,14 +1402,14 @@ function ProPage() {
           <article>
             <Rocket size={22} />
             <h2>Later workflow options</h2>
-            <p>Private sync, one-click publishing, and team workflows stay on the table after the individual writing flow proves demand.</p>
+            <p>Private sync, one-click publishing, and team workflows can follow if the individual writing flow proves useful.</p>
           </article>
         </section>
 
         <section className="pro-compare" aria-label="Free preview and future Pro comparison">
           <div className="section-heading">
             <span>Clear boundaries</span>
-            <h2>What works today and what may come later.</h2>
+            <h2>What works today and what may come later</h2>
           </div>
           <div className="pro-table">
             <div className="pro-row pro-row-head">
@@ -1473,11 +1476,11 @@ function RoadmapPage() {
             <ListChecks size={16} />
             Public roadmap
           </div>
-          <h1>What we are building next.</h1>
+          <h1>What we plan to build next</h1>
           <p>
-            VeloWrite is still in preview, so early feedback can change what we build next.
-            This page shows which requests belong to the editor, which fixes have shipped,
-            and which local file features still need research.
+            VeloWrite is still in preview, so early feedback can change the order.
+            This page shows what has shipped, what is being improved, and which
+            local-file ideas still need research.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href="/feedback?utm_source=roadmap_hero&utm_medium=cta">
@@ -1510,10 +1513,10 @@ function RoadmapPage() {
         <section className="roadmap-recommendations" aria-label="Recommended roadmap priorities">
           <div className="section-heading">
             <span>Recommended next</span>
-            <h2>The next work should make everyday writing safer and easier to understand.</h2>
+            <h2>Next, we are working on the parts that make everyday writing safer and easier.</h2>
             <p>
               The order is practical: make the free editor dependable first, then decide which
-              paid features solve a problem users will actually pay to remove.
+              paid features solve a problem users will pay to remove.
             </p>
           </div>
           <div className="roadmap-recommendation-grid">
@@ -1530,7 +1533,7 @@ function RoadmapPage() {
         <section className="roadmap-stages" aria-label="Roadmap by stage">
           <div className="section-heading">
             <span>Status map</span>
-            <h2>See what has shipped, what is active, and what may be paid later.</h2>
+            <h2>See what is available, what is being improved, and what may come later as Pro.</h2>
             <p>
               Each request has a status so you can tell whether it is available, being improved,
               still in design, or reserved for a later paid feature.
@@ -1676,7 +1679,7 @@ function DownloadPage() {
                 file-change handling are clearer in this build.
               </p>
             </div>
-            <a href="/changelog?utm_source=download_page&utm_medium=resource#v027">
+            <a href="/changelog?utm_source=download_page&utm_medium=resource#v028">
               See changelog details <ChevronRight size={15} />
             </a>
           </div>
@@ -2144,10 +2147,10 @@ function DocsIndexPage() {
           Markdown library
         </div>
         <h1>Markdown articles for VeloWrite users.</h1>
-        <p className="legal-updated">Last updated: August 15, 2026</p>
+        <p className="legal-updated">Last updated: August 20, 2026</p>
         <p className="legal-intro">
           Read practical Markdown guides, product notes, and platform-specific advice.
-          Published articles are live. Planned titles are next in line.
+          Published articles are live. Planned titles are queued for later.
         </p>
 
         <section className="docs-grid" aria-label="Markdown article plan">
@@ -2331,7 +2334,7 @@ function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-brand">
         <strong>VeloWrite</strong>
-        <span>Local-first Markdown writing, with a web preview path.</span>
+        <span>Write in the browser, then keep the Markdown file local.</span>
       </div>
       <nav className="footer-links" aria-label="Footer links">
         {footerGroups.map((group) => (

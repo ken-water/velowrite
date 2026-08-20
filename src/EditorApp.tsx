@@ -44,6 +44,8 @@ import {
   PanelLeftOpen,
   Maximize2,
   Minimize2,
+  Plus,
+  X,
 } from "lucide-react";
 import {
   buildHtmlDocument,
@@ -126,6 +128,7 @@ type NativeApi = {
   listenMenuCommand: (handler: (command: string) => void) => Promise<() => void>;
   listenCloseRequested: (handler: () => Promise<boolean>) => Promise<() => void>;
   listenPathDrop: (handler: (paths: string[]) => void) => Promise<() => void>;
+  syncRecentFiles: (files: RecentFile[]) => Promise<void>;
   closeWindow: () => Promise<void>;
   setWindowFullscreen: (fullscreen: boolean) => Promise<void>;
   setWindowTitle: (title: string) => Promise<void>;
@@ -163,6 +166,15 @@ type EditorTemplate = {
   description: string;
   fileName: string;
   markdown: string;
+};
+
+type DocumentTab = {
+  id: string;
+  filePath: string | null;
+  fileName: string;
+  markdown: string;
+  savedMarkdown: string;
+  viewMode: ViewMode;
 };
 
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
@@ -400,6 +412,9 @@ function useNativeApi(): NativeApi | null {
             }
           });
         },
+        async syncRecentFiles(files) {
+          await invoke<void>("sync_recent_menu", { files });
+        },
         async closeWindow() {
           await invoke<void>("force_close_app");
         },
@@ -615,7 +630,7 @@ function SettingsPanel({
 
         {activePane === "writing" && (
           <div className="settings-pane" role="tabpanel">
-            <p className="settings-section-note">Choose how the editor opens and how text feels while typing.</p>
+            <p className="settings-section-note">Choose the opening view and adjust the writing surface.</p>
             <div className="settings-group">
               <label htmlFor="font-size">Editor font size</label>
               <div className="range-row">
@@ -651,7 +666,7 @@ function SettingsPanel({
 
         {activePane === "reading" && (
           <div className="settings-pane" role="tabpanel">
-            <p className="settings-section-note">Tune the reading surface for long sessions.</p>
+            <p className="settings-section-note">Adjust the preview for longer reading sessions.</p>
             <div className="settings-group">
               <label>Theme</label>
               <div className="settings-segment" aria-label="Theme">
@@ -703,7 +718,7 @@ function SettingsPanel({
 
         {activePane === "pdf" && (
           <div className="settings-pane" role="tabpanel">
-            <p className="settings-section-note">PDF choices are remembered and reused on the next export.</p>
+            <p className="settings-section-note">VeloWrite remembers these choices for the next export.</p>
             <div className="settings-group">
               <label>PDF paper</label>
               <div className="settings-segment" aria-label="PDF paper">
@@ -808,7 +823,7 @@ function SettingsPanel({
 
         {activePane === "tables" && (
           <div className="settings-pane" role="tabpanel">
-            <p className="settings-section-note">These options affect tables in PDF exports.</p>
+            <p className="settings-section-note">These choices affect tables in exported PDFs.</p>
             <div className="settings-group">
               <label>Export table header</label>
               <div className="settings-segment" aria-label="Export table header">
@@ -976,7 +991,7 @@ function HistoryPanel({
                           : "This snapshot matches the current document."}
                       </p>
                       {changeCount > 0 && (
-                        <small>Green lines will be restored. Red lines will be replaced.</small>
+                        <small>Green lines return. Red lines are replaced.</small>
                       )}
                     </div>
                     <span>{addedCount} restored</span>
@@ -1039,7 +1054,7 @@ function HistoryPanel({
                   )}
                 </>
               ) : (
-                <p>Select a snapshot to compare it with the document you are editing now.</p>
+                <p>Select a snapshot to compare it with the current document.</p>
               )}
             </div>
           </div>
@@ -1405,6 +1420,7 @@ export default function EditorApp({
   const draftHistoryTimer = React.useRef<number | null>(null);
   const draftHistoryBaseline = React.useRef<string | null>(null);
   const menuHandlerRef = React.useRef<(command: string) => void>(() => undefined);
+  const closeGuardRef = React.useRef<() => Promise<boolean>>(() => Promise.resolve(true));
   const handoffImportRef = React.useRef<(draft: HandoffDraft) => void>(() => undefined);
   const launchFileHandled = React.useRef(false);
   const lastSessionRestoreTried = React.useRef(false);
@@ -1415,6 +1431,21 @@ export default function EditorApp({
   const [fileName, setFileName] = React.useState(() => {
     return localStorage.getItem(draftNameKey) ?? "Untitled.md";
   });
+  const [openTabs, setOpenTabs] = React.useState<DocumentTab[]>(() => {
+    const initialContents = initialMarkdown ?? localStorage.getItem(draftKey) ?? defaultMarkdown;
+    return [
+      {
+        id: "tab-draft",
+        filePath: null,
+        fileName: localStorage.getItem(draftNameKey) ?? "Untitled.md",
+        markdown: initialContents,
+        savedMarkdown: initialContents,
+        viewMode: getInitialViewMode(surface, initialViewMode),
+      },
+    ];
+  });
+  const [activeTabId, setActiveTabId] = React.useState("tab-draft");
+  const openTabsRef = React.useRef<DocumentTab[]>(openTabs);
   const [recentFiles, setRecentFiles] = React.useState(getStoredRecentFiles);
   const [savedMarkdown, setSavedMarkdown] = React.useState(markdown);
   const [status, setStatus] = React.useState("Draft restored");
@@ -1441,7 +1472,6 @@ export default function EditorApp({
   const [historyEntries, setHistoryEntries] = React.useState<HistoryEntry[]>([]);
   const [selectedHistory, setSelectedHistory] = React.useState<HistorySnapshot | null>(null);
   const [sidebarOpen, setSidebarOpen] = React.useState(() => surface !== "desktop");
-  const [startPanelDismissed, setStartPanelDismissed] = React.useState(false);
   const [editorScrollTarget, setEditorScrollTarget] = React.useState<{ line: number; nonce: number } | null>(null);
   const [editorScrollRatio, setEditorScrollRatio] = React.useState<number | null>(null);
   const [activeHeadingId, setActiveHeadingId] = React.useState<string | null>(null);
@@ -1454,6 +1484,7 @@ export default function EditorApp({
     return localStorage.getItem(autoSaveFileKey) === "true";
   });
   const [dragActive, setDragActive] = React.useState(false);
+  openTabsRef.current = openTabs;
   const recentNameCounts = React.useMemo(() => {
     const counts = new Map<string, number>();
     for (const file of recentFiles) {
@@ -1461,6 +1492,13 @@ export default function EditorApp({
     }
     return counts;
   }, [recentFiles]);
+  const openTabNameCounts = React.useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const tab of openTabs) {
+      counts.set(tab.fileName, (counts.get(tab.fileName) ?? 0) + 1);
+    }
+    return counts;
+  }, [openTabs]);
   const headings = React.useMemo(() => extractHeadings(markdown), [markdown]);
   const headingSummary = React.useMemo(() => {
     const counts = headings.reduce(
@@ -1512,12 +1550,14 @@ export default function EditorApp({
     };
   }, [headings, markdown]);
   const dirty = markdown !== savedMarkdown;
+  const hasUnsavedTabs =
+    dirty ||
+    openTabs.some((tab) => tab.id !== activeTabId && tab.markdown !== tab.savedMarkdown);
   const desktopSurface = surface === "desktop";
   const browserMode = !nativeApi && !desktopSurface;
   const webSurface = surface === "web";
   const draftHistoryMode = !browserMode && !filePath;
   const resolvedTheme = themeMode === "system" ? (systemDark ? "dark" : "light") : themeMode;
-  const showDesktopStart = false;
   const fileTrustLabel = browserMode
     ? "Browser-local draft"
     : filePath
@@ -1597,6 +1637,28 @@ export default function EditorApp({
   React.useEffect(() => {
     localStorage.setItem(defaultViewModeKey, viewMode);
   }, [viewMode]);
+
+  React.useEffect(() => {
+    if (!nativeApi || !desktopSurface) return;
+    void nativeApi.syncRecentFiles(recentFiles).catch((error) => {
+      setErrorStatus("Update recent files", error);
+    });
+  }, [desktopSurface, nativeApi, recentFiles]);
+
+  React.useEffect(() => {
+    setOpenTabs((current) =>
+      current.map((tab) =>
+        tab.id === activeTabId
+          ? { ...tab, filePath, fileName, markdown, savedMarkdown, viewMode }
+          : tab,
+      ),
+    );
+  }, [activeTabId, fileName, filePath, markdown, savedMarkdown, viewMode]);
+
+  React.useEffect(() => {
+    if (!nativeApi || !desktopSurface) return;
+    void refreshHistory(filePath);
+  }, [activeTabId, desktopSurface, filePath, nativeApi]);
 
   React.useEffect(() => {
     const quietStatuses = new Set(["Draft restored", "Draft autosaved", "Saved"]);
@@ -1812,14 +1874,14 @@ export default function EditorApp({
   React.useEffect(() => {
     function beforeUnload(event: BeforeUnloadEvent) {
       if (suppressBeforeUnload.current) return;
-      if (!dirty) return;
+      if (!hasUnsavedTabs) return;
       event.preventDefault();
       event.returnValue = "";
     }
 
     window.addEventListener("beforeunload", beforeUnload);
     return () => window.removeEventListener("beforeunload", beforeUnload);
-  }, [dirty]);
+  }, [hasUnsavedTabs]);
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -1853,17 +1915,17 @@ export default function EditorApp({
 
       if (event.key === "1") {
         event.preventDefault();
-        setViewMode("write");
+        changeViewMode("write");
       }
 
       if (event.key === "2") {
         event.preventDefault();
-        setViewMode("split");
+        changeViewMode("split");
       }
 
       if (event.key === "3") {
         event.preventDefault();
-        setViewMode("preview");
+        changeViewMode("preview");
       }
     }
 
@@ -1878,12 +1940,19 @@ export default function EditorApp({
       if (command === "export-html") void exportHtml();
       if (command === "export-pdf") void printOrSavePdf();
       if (command === "clear-recent") clearRecentFiles();
+      if (command.startsWith("open-recent:")) {
+        const index = Number(command.slice("open-recent:".length));
+        const file = recentFiles[index];
+        if (file) void openRecentFile(file.path);
+      }
       if (command === "show-history") void openHistoryPanel();
-      if (command === "view-write") setViewMode("write");
-      if (command === "view-split") setViewMode("split");
-      if (command === "view-preview") setViewMode("preview");
+      if (command === "view-write") changeViewMode("write");
+      if (command === "view-split") changeViewMode("split");
+      if (command === "view-preview") changeViewMode("preview");
       if (command === "exit") void closeAppWithGuard();
   };
+
+  closeGuardRef.current = confirmCloseAllDocuments;
 
   handoffImportRef.current = (draft: HandoffDraft) => {
     void importHandoffDraft(draft);
@@ -1910,9 +1979,7 @@ export default function EditorApp({
     let unlistenClose: (() => void) | undefined;
     let unlistenDrop: (() => void) | undefined;
 
-    void nativeApi.listenCloseRequested(async () => {
-      return confirmDiscardChanges();
-    }).then((cleanup) => {
+    void nativeApi.listenCloseRequested(() => closeGuardRef.current()).then((cleanup) => {
       unlistenClose = cleanup;
     });
 
@@ -2029,24 +2096,123 @@ export default function EditorApp({
     });
   }
 
+  function getDocumentPathKey(path: string | null) {
+    if (!path) return "";
+    return normalizeDisplayedPath(path).replace(/[\\/]+/g, "/").toLowerCase();
+  }
+
+  function createTabId() {
+    return `tab-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  function captureActiveTab() {
+    setOpenTabs((current) =>
+      current.map((tab) =>
+        tab.id === activeTabId
+          ? { ...tab, filePath, fileName, markdown, savedMarkdown, viewMode }
+          : tab,
+      ),
+    );
+  }
+
+  function changeViewMode(nextMode: ViewMode) {
+    setViewMode(nextMode);
+    setOpenTabs((current) =>
+      current.map((tab) => (tab.id === activeTabId ? { ...tab, viewMode: nextMode } : tab)),
+    );
+  }
+
+  function getOpenTabLabel(tab: DocumentTab) {
+    if ((openTabNameCounts.get(tab.fileName) ?? 0) <= 1) return tab.fileName;
+    return `${tab.fileName} · ${tab.filePath ? getRecentFileContext(tab.filePath) : "Draft"}`;
+  }
+
+  function applyDocumentTab(tab: DocumentTab, nextStatus = `Switched to ${tab.fileName}`) {
+    setActiveTabId(tab.id);
+    setMarkdown(tab.markdown);
+    setSavedMarkdown(tab.savedMarkdown);
+    setViewMode(tab.viewMode);
+    setFilePath(tab.filePath);
+    setFileName(tab.fileName);
+    setHistoryEntries([]);
+    setSelectedHistory(null);
+    setFileChangeNotice(null);
+    setActiveHeadingId(null);
+    setEditorScrollTarget(null);
+    setEditorScrollRatio(null);
+    fileStampRef.current = null;
+    browserHistoryBaseline.current = tab.markdown;
+    draftHistoryBaseline.current = tab.markdown;
+    setStatus(nextStatus);
+    if (tab.filePath) void refreshFileStamp(tab.filePath);
+  }
+
+  function selectDocumentTab(tab: DocumentTab, nextStatus = `Switched to ${tab.fileName}`) {
+    if (tab.id === activeTabId) return;
+
+    captureActiveTab();
+    applyDocumentTab(tab, nextStatus);
+  }
+
+  function replaceOrAddDocumentTab(nextFile: NativeFile, nextStatus = "Opened", force = false) {
+    const nextPath = nextFile.path || null;
+    const nextName = nextFile.name || "Untitled.md";
+    const existing = nextPath
+      ? openTabsRef.current.find(
+          (tab) => getDocumentPathKey(tab.filePath) === getDocumentPathKey(nextPath),
+        )
+      : null;
+
+    if (existing && !force && existing.markdown !== existing.savedMarkdown) {
+      selectDocumentTab(existing, `${existing.fileName} is already open`);
+      return;
+    }
+
+    captureActiveTab();
+    const nextTab: DocumentTab = {
+      id: existing?.id ?? createTabId(),
+      filePath: nextPath,
+      fileName: nextName,
+      markdown: nextFile.contents,
+      savedMarkdown: nextFile.contents,
+      viewMode,
+    };
+
+    setOpenTabs((current) => {
+      if (existing) {
+        return current.map((tab) => (tab.id === existing.id ? nextTab : tab));
+      }
+      return [...current, nextTab];
+    });
+    setActiveTabId(nextTab.id);
+    setMarkdown(nextTab.markdown);
+    setSavedMarkdown(nextTab.savedMarkdown);
+    setFilePath(nextTab.filePath);
+    setFileName(nextTab.fileName);
+    setHistoryEntries([]);
+    setSelectedHistory(null);
+    setFileChangeNotice(null);
+    setActiveHeadingId(null);
+    setEditorScrollTarget(null);
+    setEditorScrollRatio(null);
+    fileStampRef.current = null;
+    browserHistoryBaseline.current = nextTab.markdown;
+    draftHistoryBaseline.current = nextTab.markdown;
+    setStatus(nextStatus);
+    if (nextTab.filePath) {
+      storeLastLocalFile({ path: nextTab.filePath, name: nextTab.fileName });
+      rememberRecentFile(nextTab.filePath, nextTab.fileName);
+      void refreshFileStamp(nextTab.filePath);
+    }
+  }
+
   function getRecentFileLabel(file: RecentFile) {
     if ((recentNameCounts.get(file.name) ?? 0) <= 1) return file.name;
     return `${file.name} · ${getRecentFileContext(file.path)}`;
   }
 
-  function loadDocument(nextFile: NativeFile, nextStatus = "Opened") {
-    setMarkdown(nextFile.contents);
-    setSavedMarkdown(nextFile.contents);
-    setFilePath(nextFile.path);
-    setFileName(nextFile.name || "Untitled.md");
-    setStartPanelDismissed(true);
-    setStatus(nextStatus);
-    if (!nativeApi) browserHistoryBaseline.current = nextFile.contents;
-    storeLastLocalFile({ path: nextFile.path, name: nextFile.name || "Untitled.md" });
-    rememberRecentFile(nextFile.path, nextFile.name || "Untitled.md");
-    setFileChangeNotice(null);
-    void refreshHistory(nextFile.path);
-    void refreshFileStamp(nextFile.path);
+  function loadDocument(nextFile: NativeFile, nextStatus = "Opened", force = false) {
+    replaceOrAddDocumentTab(nextFile, nextStatus, force);
   }
 
   async function refreshFileStamp(path: string) {
@@ -2065,7 +2231,7 @@ export default function EditorApp({
 
     try {
       const nextFile = await nativeApi.openRecentMarkdownFile(filePath);
-      loadDocument(nextFile, "Reloaded from disk");
+      loadDocument(nextFile, "Reloaded from disk", true);
       setFileChangeNotice(null);
     } catch (error) {
       setErrorStatus("Reload", error);
@@ -2073,21 +2239,8 @@ export default function EditorApp({
   }
 
   async function importHandoffDraft(draft: HandoffDraft) {
-    if (!(await confirmDiscardChanges())) return;
-
-    setMarkdown(draft.markdown);
-    setSavedMarkdown(draft.markdown);
-    setFilePath(null);
-    setFileName(draft.name);
-    setHistoryEntries([]);
-    setSelectedHistory(null);
-    setFileChangeNotice(null);
-    fileStampRef.current = null;
+    loadDocument({ path: "", name: draft.name, contents: draft.markdown }, "Imported web draft");
     setHistoryOpen(false);
-    setStartPanelDismissed(true);
-    browserHistoryBaseline.current = draft.markdown;
-    draftHistoryBaseline.current = draft.markdown;
-    setStatus("Imported web draft");
   }
 
   async function refreshHistory(path = filePath) {
@@ -2152,9 +2305,56 @@ export default function EditorApp({
     return window.confirm("Discard unsaved changes?");
   }
 
+  async function confirmCloseTab(tab: DocumentTab) {
+    if (tab.markdown === tab.savedMarkdown) return true;
+    const message = `Close ${tab.fileName} and discard its unsaved changes?`;
+    if (nativeApi) {
+      const dialog = await import("@tauri-apps/plugin-dialog");
+      return dialog.confirm(message, {
+        title: "Close document",
+        kind: "warning",
+        okLabel: "Close",
+        cancelLabel: "Keep open",
+      });
+    }
+
+    return window.confirm(message);
+  }
+
+  async function confirmCloseAllDocuments() {
+    const currentTab: DocumentTab = {
+      id: activeTabId,
+      filePath,
+      fileName,
+      markdown,
+      savedMarkdown,
+      viewMode,
+    };
+    const dirtyTabs = openTabs.map((tab) => (tab.id === activeTabId ? currentTab : tab)).filter(
+      (tab) => tab.markdown !== tab.savedMarkdown,
+    );
+    if (dirtyTabs.length === 0) return true;
+
+    const message =
+      dirtyTabs.length === 1
+        ? `Close VeloWrite and discard changes in ${dirtyTabs[0].fileName}?`
+        : `Close VeloWrite and discard changes in ${dirtyTabs.length} open documents?`;
+    if (nativeApi) {
+      const dialog = await import("@tauri-apps/plugin-dialog");
+      return dialog.confirm(message, {
+        title: "Close VeloWrite",
+        kind: "warning",
+        okLabel: "Close",
+        cancelLabel: "Keep open",
+      });
+    }
+
+    return window.confirm(message);
+  }
+
   async function closeAppWithGuard() {
     if (!nativeApi) return;
-    if (!(await confirmDiscardChanges())) return;
+    if (!(await confirmCloseAllDocuments())) return;
     await nativeApi.closeWindow();
   }
 
@@ -2175,7 +2375,6 @@ export default function EditorApp({
   }
 
   async function openFileWithGuard() {
-    if (!(await confirmDiscardChanges())) return;
     await openFile();
   }
 
@@ -2201,7 +2400,6 @@ export default function EditorApp({
     reader.onload = () => {
       const contents = String(reader.result ?? "");
       loadDocument({ path: "", name: file.name, contents });
-      setFilePath(null);
     };
     reader.readAsText(file);
     event.target.value = "";
@@ -2321,7 +2519,7 @@ export default function EditorApp({
 
     downloadTextFile(`${baseName}.html`, html, "text/html;charset=utf-8");
     setStatus("Downloaded HTML export");
-    setDesktopPrompt("Desktop is better for repeated export work because it can keep files, drafts, and history together.");
+    setDesktopPrompt("Desktop keeps repeated export work beside the source file and its history.");
   }
 
   async function printOrSavePdf() {
@@ -2345,7 +2543,7 @@ export default function EditorApp({
 
       savePdfInBrowser(`${baseName}.pdf`, pdfBytes);
       setStatus("Downloaded PDF export");
-      setDesktopPrompt("Desktop can save PDFs directly beside your local Markdown files.");
+      setDesktopPrompt("Desktop can save the PDF beside your local Markdown file.");
     } catch (error) {
       setErrorStatus("Export PDF", error);
     }
@@ -2385,7 +2583,14 @@ export default function EditorApp({
 
   async function openRecentFile(path: string) {
     if (!nativeApi) return;
-    if (!(await confirmDiscardChanges())) return;
+
+    const existing = openTabsRef.current.find(
+      (tab) => getDocumentPathKey(tab.filePath) === getDocumentPathKey(path),
+    );
+    if (existing) {
+      selectDocumentTab(existing);
+      return;
+    }
 
     try {
       const nextFile = await nativeApi.openRecentMarkdownFile(path);
@@ -2404,6 +2609,43 @@ export default function EditorApp({
     setRecentFiles([]);
     storeRecentFiles([]);
     setStatus("Recent files cleared");
+  }
+
+  async function closeDocumentTab(tabId: string) {
+    const storedTab = openTabsRef.current.find((tab) => tab.id === tabId);
+    if (!storedTab) return;
+
+    const tab =
+      storedTab.id === activeTabId
+        ? { ...storedTab, filePath, fileName, markdown, savedMarkdown }
+        : storedTab;
+    if (!(await confirmCloseTab(tab))) return;
+
+    if (openTabsRef.current.length === 1) {
+      const blankDocument = editorTemplates[0].markdown;
+      const blankTab: DocumentTab = {
+        id: createTabId(),
+        filePath: null,
+        fileName: editorTemplates[0].fileName,
+        markdown: blankDocument,
+        savedMarkdown: blankDocument,
+        viewMode,
+      };
+      setOpenTabs([blankTab]);
+      applyDocumentTab(blankTab, "New file");
+      return;
+    }
+
+    const remaining = openTabsRef.current.filter((item) => item.id !== tabId);
+    setOpenTabs(remaining);
+    if (tabId !== activeTabId) {
+      setStatus(`Closed ${tab.fileName}`);
+      return;
+    }
+
+    const closedIndex = openTabsRef.current.findIndex((item) => item.id === tabId);
+    const nextTab = remaining[Math.min(closedIndex, remaining.length - 1)];
+    applyDocumentTab(nextTab);
   }
 
   async function openHistoryPanel() {
@@ -2455,40 +2697,22 @@ export default function EditorApp({
   }
 
   async function newFileWithGuard() {
-    if (!(await confirmDiscardChanges())) return;
     newFile();
   }
 
   function newFile() {
     const blankDocument = editorTemplates[0].markdown;
-    setMarkdown(blankDocument);
-    setSavedMarkdown(blankDocument);
-    setFilePath(null);
-    setFileName(editorTemplates[0].fileName);
-    setHistoryEntries([]);
-    setSelectedHistory(null);
-    setFileChangeNotice(null);
-    fileStampRef.current = null;
-    setStartPanelDismissed(true);
-    browserHistoryBaseline.current = blankDocument;
-    draftHistoryBaseline.current = blankDocument;
-    setStatus("New file");
+    loadDocument(
+      { path: "", name: editorTemplates[0].fileName, contents: blankDocument },
+      "New file",
+    );
   }
 
   async function startFromTemplate(template: EditorTemplate) {
-    if (!(await confirmDiscardChanges())) return;
-    setMarkdown(template.markdown);
-    setSavedMarkdown(template.markdown);
-    setFilePath(null);
-    setFileName(template.fileName);
-    setHistoryEntries([]);
-    setSelectedHistory(null);
-    setFileChangeNotice(null);
-    fileStampRef.current = null;
-    setStartPanelDismissed(true);
-    browserHistoryBaseline.current = template.markdown;
-    draftHistoryBaseline.current = template.markdown;
-    setStatus(`${template.label} template loaded`);
+    loadDocument(
+      { path: "", name: template.fileName, contents: template.markdown },
+      `${template.label} template loaded`,
+    );
   }
 
   async function restoreHistorySnapshot(id: string) {
@@ -2620,8 +2844,6 @@ export default function EditorApp({
   }
 
   async function loadDroppedFile(file: File) {
-    if (!(await confirmDiscardChanges())) return;
-
     if (file.type.startsWith("image/")) {
       setStatus("Image attachments are a desktop feature");
       setDesktopPrompt("Local image attachments need Desktop so VeloWrite can work with files on your computer.");
@@ -2632,7 +2854,6 @@ export default function EditorApp({
     reader.onload = () => {
       const contents = String(reader.result ?? "");
       loadDocument({ path: "", name: file.name, contents });
-      setFilePath(null);
       setStatus("Dropped file opened");
     };
     reader.onerror = () => setStatus("Drop open failed");
@@ -2641,12 +2862,18 @@ export default function EditorApp({
 
   async function openNativePath(path: string, successStatus: string, errorAction: string) {
     if (!nativeApi) return;
-    if (!(await confirmDiscardChanges())) return;
+
+    const existing = openTabsRef.current.find(
+      (tab) => getDocumentPathKey(tab.filePath) === getDocumentPathKey(path),
+    );
+    if (existing) {
+      selectDocumentTab(existing, successStatus);
+      return;
+    }
 
     try {
       const nextFile = await nativeApi.openRecentMarkdownFile(path);
-      loadDocument(nextFile);
-      setStatus(successStatus);
+      loadDocument(nextFile, successStatus);
     } catch (error) {
       setErrorStatus(errorAction, error);
     }
@@ -2735,7 +2962,7 @@ export default function EditorApp({
     setActiveHeadingId(id);
     suppressPreviewSync.current = true;
     if (viewMode !== "split") {
-      setViewMode("split");
+      changeViewMode("split");
     }
 
     afterNextPaint(() => {
@@ -2753,6 +2980,25 @@ export default function EditorApp({
       window.setTimeout(() => {
         suppressPreviewSync.current = false;
       }, 360);
+    });
+  }
+
+  function handleTabKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, tabId: string) {
+    const currentIndex = openTabs.findIndex((tab) => tab.id === tabId);
+    if (currentIndex < 0) return;
+
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowLeft") nextIndex = Math.max(0, currentIndex - 1);
+    if (event.key === "ArrowRight") nextIndex = Math.min(openTabs.length - 1, currentIndex + 1);
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = openTabs.length - 1;
+    if (nextIndex === currentIndex) return;
+
+    event.preventDefault();
+    const nextTab = openTabs[nextIndex];
+    selectDocumentTab(nextTab);
+    window.requestAnimationFrame(() => {
+      document.querySelector<HTMLButtonElement>(`[data-tab-id="${CSS.escape(nextTab.id)}"]`)?.focus();
     });
   }
 
@@ -2839,29 +3085,6 @@ export default function EditorApp({
           </nav>
         )}
 
-        {!desktopSurface && nativeApi && recentFiles.length > 0 && (
-          <section className="recent-panel" aria-label="Recent files">
-            <div className="outline-title">Recent</div>
-            <div className="recent-list">
-              {recentFiles.map((file) => (
-                <button
-                  key={file.path}
-                  className="recent-item"
-                  title={normalizeDisplayedPath(file.path)}
-                  onClick={() => void openRecentFile(file.path)}
-                >
-                  <FileText size={14} />
-                  <span>{getRecentFileLabel(file)}</span>
-                </button>
-              ))}
-              <button className="recent-clear" onClick={clearRecentFiles}>
-                <Trash2 size={14} />
-                <span>Clear recent</span>
-              </button>
-            </div>
-          </section>
-        )}
-
         {!desktopSurface && recentFiles.length === 0 && (
           <WelcomePanel
             nativeReady={Boolean(nativeApi)}
@@ -2939,7 +3162,7 @@ export default function EditorApp({
               </div>
               <div className="sync-row muted">
                 <UploadCloud size={16} />
-                <span>{browserMode ? "Browser history stays local" : "Private sync planned"}</span>
+                <span>{browserMode ? "Browser history stays local" : "Private sync is planned"}</span>
               </div>
             </div>
           </>
@@ -3011,19 +3234,19 @@ export default function EditorApp({
             <div className="mode-toggle" aria-label="View mode">
               <button
                 className={viewMode === "write" ? "active" : ""}
-                onClick={() => setViewMode("write")}
+                onClick={() => changeViewMode("write")}
               >
                 Write
               </button>
               <button
                 className={viewMode === "split" ? "active" : ""}
-                onClick={() => setViewMode("split")}
+                onClick={() => changeViewMode("split")}
               >
                 Split
               </button>
               <button
                 className={viewMode === "preview" ? "active" : ""}
-                onClick={() => setViewMode("preview")}
+                onClick={() => changeViewMode("preview")}
               >
                 Preview
               </button>
@@ -3127,6 +3350,58 @@ export default function EditorApp({
           </div>
         </header>
 
+        <nav className="document-tabs" aria-label="Open documents" role="tablist">
+          <div className="document-tab-list">
+            {openTabs.map((tab) => {
+              const tabDirty =
+                tab.id === activeTabId ? dirty : tab.markdown !== tab.savedMarkdown;
+              const tabLabel = getOpenTabLabel(tab);
+              return (
+                <div
+                  key={tab.id}
+                  className={tab.id === activeTabId ? "document-tab active" : "document-tab"}
+                  data-dirty={tabDirty ? "true" : undefined}
+                >
+                  <button
+                    className="document-tab-main"
+                    data-tab-id={tab.id}
+                    role="tab"
+                    aria-selected={tab.id === activeTabId}
+                    aria-label={`${tabLabel}${tabDirty ? ", unsaved changes" : ""}`}
+                    title={tab.filePath ? normalizeDisplayedPath(tab.filePath) : tab.fileName}
+                    tabIndex={tab.id === activeTabId ? 0 : -1}
+                    onClick={() => selectDocumentTab(tab)}
+                    onKeyDown={(event) => handleTabKeyDown(event, tab.id)}
+                    type="button"
+                  >
+                    <FileText size={14} />
+                    <span>{tabLabel}</span>
+                    {tabDirty && <i aria-hidden="true">●</i>}
+                  </button>
+                  <button
+                    className="document-tab-close"
+                    aria-label={`Close ${tabLabel}`}
+                    title={`Close ${tabLabel}`}
+                    onClick={() => void closeDocumentTab(tab.id)}
+                    type="button"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          <button
+            className="document-tab-add"
+            aria-label="New document tab"
+            title="New document tab"
+            onClick={() => void newFileWithGuard()}
+            type="button"
+          >
+            <Plus size={15} />
+          </button>
+        </nav>
+
         {desktopSurface && updateNotice.state === "available" && (
           <aside className="desktop-update-banner" aria-label="Update available">
             <div>
@@ -3177,23 +3452,6 @@ export default function EditorApp({
               <strong>{saveTrustLabel}</strong>
             </div>
           </section>
-        )}
-
-        {showDesktopStart && (
-          <DesktopStartPanel
-            recentFiles={recentFiles}
-            historyCount={historyEntries.length}
-            currentDraftName={fileName}
-            onOpen={() => void openFileWithGuard()}
-            onNew={() => void newFileWithGuard()}
-            onContinue={() => {
-              setStartPanelDismissed(true);
-              setStatus("Continuing current draft");
-            }}
-            onTemplate={(template) => void startFromTemplate(template)}
-            onRecent={(path) => void openRecentFile(path)}
-            onHistory={() => void openHistoryPanel()}
-          />
         )}
 
         <div className={`editor-grid mode-${viewMode}`}>
@@ -3298,7 +3556,7 @@ export default function EditorApp({
             onReadingPaletteChange={setReadingPalette}
             onReadingFontChange={setReadingFont}
             onEditorFontSizeChange={setEditorFontSize}
-            onDefaultViewModeChange={setViewMode}
+            onDefaultViewModeChange={changeViewMode}
             onPdfExportStyleChange={setPdfExportStyle}
             onClose={() => setSettingsOpen(false)}
           />

@@ -227,7 +227,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "recovery",
         title: "Recovery becomes part of the writing surface",
         body: [
-          "The future of Markdown editing is not just faster rendering. Long edits also need clear recovery. A local history panel, a readable restore preview, and visible snapshot limits help without forcing every document into a cloud account.",
+          "Future Markdown editors need more than fast rendering. Long edits also need clear recovery. A local history panel, a readable restore preview, and visible snapshot limits help without forcing every document into a cloud account.",
           "That is why VeloWrite keeps basic local history in the free preview. Recovery protects the document, so it belongs in the editor rather than behind a paid plan.",
         ],
       },
@@ -543,7 +543,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Decision note",
           markdown:
             "## Decision\n\nUse local browser storage for quick web drafts.\n\n## Why\n\n- No account is required for the first trial.\n- Drafts survive a refresh on the same device.\n- Sensitive long-term files still belong on desktop.\n\n## Revisit when\n\nPrivate sync moves from roadmap to implementation.",
-          note: "Decision notes should explain the constraint, not just the final choice.",
+          note: "Decision notes should explain the constraint as well as the final choice.",
         },
       },
       {
@@ -579,7 +579,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Why local history matters",
         body: [
           "Developers already understand version control, but not every draft belongs in Git immediately. Local history snapshots help recover accidental edits before the document is committed or shared.",
-          "VeloWrite keeps basic local recovery in the free preview because draft safety belongs in the editor, not just in a paid tier.",
+          "Basic local recovery stays in the free preview because draft safety belongs in the editor, not only in a paid tier.",
         ],
       },
     ],
@@ -950,7 +950,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "History-friendly revision note",
           markdown:
             "# Draft Review\n\n## Before editing\n\nKeep the current argument short.\n\n## After editing\n\nExpand only the examples that support the main point.\n\n## Recovery rule\n\nIf the edit gets worse, compare with the previous saved version before restoring.",
-          note: "Recovery is not just restoring a file. It is seeing what changed before you replace the current draft.",
+          note: "Recovery should show what changed before it replaces the current draft.",
         },
       },
       {
@@ -1025,7 +1025,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Evaluate an editor with a real note",
           markdown:
             "# Editor Trial Note\n\n## What matters\n\n- Opens quickly\n- Keeps Markdown readable\n- Shows preview clearly\n- Saves a local copy\n- Makes recovery understandable\n\n## Decision\n\nUse the editor only if the file still feels like yours.",
-          note: "A practical comparison starts with a document you would actually keep, not just a feature list.",
+          note: "Compare the tools with a document you would actually keep, not a feature checklist.",
         },
       },
       {
@@ -1112,7 +1112,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "A readable section",
           markdown:
             "## Why a preview matters\n\nA preview lets you read the draft as a reader will see it. It catches headings that are too vague, lists that belong in prose, and code blocks that need an explanation before someone copies them.\n\n> Write the conclusion in plain language before you add more formatting.",
-          note: "The preview should help you review the argument, not just check Markdown syntax.",
+          note: "Use the preview to review the argument as well as the Markdown syntax.",
         },
       },
       {
@@ -1302,7 +1302,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "What Mac testers should check first",
         body: [
           "Start with the practical path: open a Markdown file, edit a paragraph, save it, reopen it from Recent, export HTML, export PDF, and verify local history after a second save.",
-          "Test a longer reading session too. Switch the reading palette and preview font in Settings, then use Preview mode on a longer document. A Markdown editor should stay comfortable after five minutes, not just look good in a screenshot.",
+          "Test a longer reading session too. Switch the reading palette and preview font in Settings, then use Preview mode on a longer document. A Markdown editor should stay comfortable after five minutes, not only look good in a screenshot.",
         ],
       },
       {
@@ -1381,7 +1381,7 @@ export const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Export sanity check",
           markdown:
-            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.7_amd64.AppImage\n```",
+            "# Export Check\n\n1. First numbered item.\n\n2. Second numbered item.\n\n| Area | Check |\n| --- | --- |\n| PDF | No browser headers |\n| Table | Borders stay visible |\n\n```bash\n./VeloWrite_0.2.8_amd64.AppImage\n```",
           note: "A small export test catches layout problems before the real document is due.",
         },
       },
@@ -1517,7 +1517,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Table export check",
           markdown:
             "| Document area | PDF risk | What to check |\n| --- | --- | --- |\n| Long headings | Unexpected wrapping | Scan the contents page |\n| Wide tables | Missing right edge | Check page width and margins |\n| Dense rows | Low readability | Try alternating row color |\n| Code blocks | Horizontal overflow | Keep examples short when possible |",
-          note: "Test tables with real content, not just short placeholder cells.",
+          note: "Test tables with real content rather than short placeholder cells.",
         },
       },
       {
@@ -1641,7 +1641,7 @@ export const contentPages: Record<string, ContentPage> = {
         example: {
           label: "Useful feedback format",
           markdown:
-            "## Issue\n\nPreview pane scrolls differently from the editor.\n\n## Environment\n\n- Windows 11\n- VeloWrite 0.2.7\n- Split mode\n\n## Steps\n\n1. Open a long Markdown file.\n2. Click a heading in the outline.\n3. Scroll the preview pane.\n\n## Expected\n\nThe editor should stay near the same section.",
+            "## Issue\n\nPreview pane scrolls differently from the editor.\n\n## Environment\n\n- Windows 11\n- VeloWrite 0.2.8\n- Split mode\n\n## Steps\n\n1. Open a long Markdown file.\n2. Click a heading in the outline.\n3. Scroll the preview pane.\n\n## Expected\n\nThe editor should stay near the same section.",
           note: "Good reports shorten the time between feedback and a usable fix.",
         },
       },
@@ -1678,13 +1678,13 @@ export const contentPages: Record<string, ContentPage> = {
         id: "version-match",
         title: "Check the version before installing",
         body: [
-          "The download card, file name, GitHub release tag, changelog entry, and desktop About panel should all point to the same version. If the website says v0.2.7, the installer file and release page should also be for v0.2.7.",
+          "The download card, file name, GitHub release tag, changelog entry, and desktop About panel should all point to the same version. If the website says v0.2.8, the installer file and release page should also be for v0.2.8.",
           "If a fix is mentioned in the changelog but the installer version is older, wait for the next public release or use the web editor where website fixes are already live.",
         ],
         example: {
           label: "Version check",
           markdown:
-            "## Before installing\n\n- Download page version: v0.2.7\n- GitHub release tag: v0.2.7\n- Installer file name: VeloWrite_0.2.7...\n- Desktop About panel after install: 0.2.7",
+            "## Before installing\n\n- Download page version: v0.2.8\n- GitHub release tag: v0.2.8\n- Installer file name: VeloWrite_0.2.8...\n- Desktop About panel after install: 0.2.8",
           note: "A simple version match catches most stale-download confusion.",
         },
       },
@@ -1933,13 +1933,114 @@ export const contentPages: Record<string, ContentPage> = {
       secondary: { href: "/download?utm_source=online_markdown_editor_cta&utm_medium=cta", label: "Download Desktop" },
     },
   },
+  markdownMeetingNotes: {
+    eyebrow: "Practical Markdown workflow",
+    title: "Markdown Meeting Notes Template",
+    intro:
+      "A meeting note is easier to use when the decision, the owner, and the next action are easy to find. This Markdown template gives you a small structure that works for project meetings, one-to-ones, and follow-up notes.",
+    updated: "August 20, 2026",
+    directory: [
+      { label: "Why use a template", href: "#why-use-a-template" },
+      { label: "The basic template", href: "#the-basic-template" },
+      { label: "Keep decisions separate", href: "#keep-decisions-separate" },
+      { label: "Write useful action items", href: "#write-useful-action-items" },
+      { label: "Review and share", href: "#review-and-share" },
+      { label: "Use it in VeloWrite", href: "#use-it-in-velowrite" },
+    ],
+    sections: [
+      {
+        id: "why-use-a-template",
+        title: "Why use a meeting note template?",
+        body: [
+          "Meeting notes often fail after the meeting, not during it. The notes contain plenty of discussion, but nobody can quickly tell what was decided or who needs to do what.",
+          "A small template gives every note the same shape. That makes it easier to scan later, search across a folder, and hand the work to someone who was not in the room.",
+        ],
+        example: {
+          label: "Start with the shape",
+          markdown:
+            "# Project check-in\n\n**Date:** 2026-08-20\n**People:** Alex, Sam, Priya\n\n## Decision\n\nChoose the smaller release scope for this week.\n\n## Next actions\n\n- Alex: update the release checklist by Friday\n- Sam: test the Windows installer\n\n## Open questions\n\n- Do we need a separate Linux package note?",
+          note: "The headings make the important parts easy to find before you add more detail.",
+        },
+      },
+      {
+        id: "the-basic-template",
+        title: "The basic template",
+        body: [
+          "Keep the top of the file factual: date, people, project, and purpose. Then separate decisions from discussion and actions. You can add a short context section when the note will be read by someone who missed the meeting.",
+          "The template does not need to be long. Its job is to make the next useful fact easy to locate.",
+        ],
+        example: {
+          label: "Reusable meeting notes",
+          markdown:
+            "# Meeting title\n\n**Date:** YYYY-MM-DD\n**People:**\n**Project:**\n\n## Context\n\nWhy did we meet?\n\n## Discussion\n\n- Point worth keeping\n- Constraint or risk\n\n## Decisions\n\n- Decision and the reason for it\n\n## Next actions\n\n- Person: action, due date\n\n## Open questions\n\n- Question that still needs an answer",
+          note: "Copy this structure for the next meeting, then remove sections that do not help.",
+        },
+      },
+      {
+        id: "keep-decisions-separate",
+        title: "Keep decisions separate from discussion",
+        body: [
+          "Discussion records what people considered. A decision records what the group chose. Mixing the two makes old notes hard to trust because readers have to reconstruct the outcome from the conversation.",
+          "Put the decision near the top when it affects the rest of the note. Keep the reason short, and link to a longer specification or issue when the details belong elsewhere.",
+        ],
+        example: {
+          label: "Decision with context",
+          markdown:
+            "## Decision\n\nUse local Markdown files as the source of truth for the preview workflow.\n\n**Reason:** The team needs files that can be backed up and opened outside one service.\n\n**Related:** [Local-first Markdown editing](/docs/local-first-markdown)",
+          note: "A short reason helps a future reader understand why the decision was made.",
+        },
+      },
+      {
+        id: "write-useful-action-items",
+        title: "Write action items someone can act on",
+        body: [
+          "An action item needs an owner and a concrete verb. " +
+            "Write \"Priya: check the PDF output on Windows\" instead of \"PDF testing\". Add a due date when the timing matters.",
+          "Keep open questions separate from actions. An unanswered question may need research before anyone can take responsibility for it.",
+        ],
+        example: {
+          label: "Action items and questions",
+          markdown:
+            "## Next actions\n\n- Jordan: add the missing screenshot to the guide by 2026-08-22\n- Mei: review the table layout in the exported PDF\n\n## Open questions\n\n- Should the next release keep the current PDF watermark?",
+          note: "The owner and verb tell the reader what happens next.",
+        },
+      },
+      {
+        id: "review-and-share",
+        title: "Review the note before sharing it",
+        body: [
+          "Read the note once from top to bottom. Remove repeated discussion, check names and dates, and make sure each decision has enough context to stand on its own.",
+          "Then preview the rendered document. Tables, links, code blocks, and long headings can look different from the source. Download the Markdown file before you close the browser, or save the document locally when it needs to be kept.",
+        ],
+        example: {
+          label: "A short review checklist",
+          markdown:
+            "## Before sharing\n\n- [ ] The title and date are correct\n- [ ] Decisions are separate from discussion\n- [ ] Each action has an owner\n- [ ] Open questions are still open\n- [ ] Links and tables render correctly\n- [ ] The Markdown source is saved",
+          note: "A short checklist catches the mistakes that are easiest to miss after a busy meeting.",
+        },
+      },
+      {
+        id: "use-it-in-velowrite",
+        title: "Use the template in VeloWrite",
+        body: [
+          "Open the web editor when you need a quick note during or after a meeting. The split view lets you check the source beside the rendered result, and the Markdown download keeps a copy you can move into your project folder.",
+          "Use the desktop app when the notes belong with local project files or need offline access. Local history gives you a few recovery points while you clean up the note after the meeting.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=markdown_meeting_notes_cta&utm_medium=cta", label: "Open Web Editor" },
+      secondary: { href: "/docs/markdown-for-developers?utm_source=markdown_meeting_notes_cta&utm_medium=resource", label: "Read Developer Guide" },
+    },
+  },
   changelog: {
     eyebrow: "Release notes",
     title: "VeloWrite Changelog",
     intro:
-      "This changelog tracks what shipped in each preview build, what got better, and what is still left for later. Older releases stay below so you can compare versions without guessing.",
-    updated: "August 15, 2026",
+      "This changelog lists what shipped in each preview build and what is still planned. Older releases stay below so you can compare versions.",
+    updated: "August 20, 2026",
     directory: [
+      { label: "0.2.8", href: "#v028" },
       { label: "0.2.7", href: "#v027" },
       { label: "0.2.6", href: "#v026" },
       { label: "0.2.5", href: "#v025" },
@@ -1965,6 +2066,16 @@ export const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v028",
+        title: "0.2.8 preview",
+        body: [
+          "Added native File > Recent Files access with up to ten recent Markdown documents and a clear action.",
+          "Added multiple document tabs with independent writing, split, and preview modes, so open drafts no longer change each other.",
+          "Normalized recent-file labels to show readable full paths while keeping the original Windows paths available for opening.",
+          "Improved the left-edge workspace tooltip, published the Markdown meeting notes template, and expanded regression coverage for tabs, recent files, and narrow windows.",
+        ],
+      },
       {
         id: "v027",
         title: "0.2.7 preview",
@@ -2048,7 +2159,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "planned-next",
         title: "Planned next",
         body: [
-          "Future updates will continue improving document structure, desktop polish, web-to-desktop handoff, export, and the Pro feature path after the free preview is stable.",
+      "Next work covers document structure, desktop polish, web-to-desktop handoff, export, and the Pro feature path after the free preview is stable.",
         ],
       },
       {

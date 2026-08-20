@@ -2,12 +2,13 @@ use std::fs;
 use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Mutex;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use base64::{engine::general_purpose, Engine as _};
 use serde::{Deserialize, Serialize};
-use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
-use tauri::{AppHandle, Emitter, Manager, Runtime};
+use tauri::menu::{MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder};
+use tauri::{AppHandle, Emitter, Manager, Runtime, State};
 
 const FREE_HISTORY_SNAPSHOT_LIMIT: usize = 3;
 const GLOBAL_HISTORY_INDEX_LIMIT: usize = 120;
@@ -46,6 +47,22 @@ struct HistorySnapshot {
     contents: String,
 }
 
+#[derive(Default)]
+struct RecentMenuState(Mutex<Vec<String>>);
+
+#[derive(Deserialize)]
+struct RecentMenuFile {
+    path: String,
+}
+
+fn normalize_display_path_string(value: &str) -> String {
+    value
+        .strip_prefix(r"\\?\UNC\")
+        .map(|path| format!(r"\\{}", path))
+        .or_else(|| value.strip_prefix(r"\\?\").map(ToString::to_string))
+        .unwrap_or_else(|| value.to_string())
+}
+
 #[tauri::command]
 fn app_ready() -> &'static str {
     "velowrite-ready"
@@ -61,7 +78,81 @@ fn set_window_fullscreen(app: AppHandle, fullscreen: bool) -> Result<(), String>
     let window = app
         .get_webview_window("main")
         .ok_or_else(|| "Main window not found".to_string())?;
-    window.set_fullscreen(fullscreen).map_err(|error| error.to_string())
+    window
+        .set_fullscreen(fullscreen)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+fn sync_recent_menu(
+    app: AppHandle,
+    state: State<'_, RecentMenuState>,
+    files: Vec<RecentMenuFile>,
+) -> Result<(), String> {
+    let paths = files
+        .iter()
+        .map(|file| file.path.clone())
+        .collect::<Vec<_>>();
+    *state
+        .0
+        .lock()
+        .map_err(|_| "Recent menu state unavailable".to_string())? = paths;
+
+    let Some(root_menu) = app.menu() else {
+        return Ok(());
+    };
+    let Some(file_menu) = root_menu
+        .get("file_menu")
+        .and_then(|item| item.as_submenu().cloned())
+    else {
+        return Ok(());
+    };
+    let Some(recent_menu) = file_menu
+        .get("recent_files")
+        .and_then(|item| item.as_submenu().cloned())
+    else {
+        return Ok(());
+    };
+
+    for item in recent_menu.items().map_err(|error| error.to_string())? {
+        recent_menu
+            .remove(&item)
+            .map_err(|error| error.to_string())?;
+    }
+
+    if files.is_empty() {
+        let empty = MenuItemBuilder::with_id("recent_empty", "No recent files")
+            .enabled(false)
+            .build(&app)
+            .map_err(|error| error.to_string())?;
+        recent_menu
+            .append(&empty)
+            .map_err(|error| error.to_string())?;
+    } else {
+        for (index, file) in files.iter().enumerate() {
+            let item = MenuItemBuilder::with_id(
+                format!("recent_open_{index}"),
+                normalize_display_path_string(&file.path),
+            )
+            .build(&app)
+            .map_err(|error| error.to_string())?;
+            recent_menu
+                .append(&item)
+                .map_err(|error| error.to_string())?;
+        }
+        let separator = PredefinedMenuItem::separator(&app).map_err(|error| error.to_string())?;
+        recent_menu
+            .append(&separator)
+            .map_err(|error| error.to_string())?;
+        let clear = MenuItemBuilder::with_id("clear_recent", "Clear Recent Files")
+            .build(&app)
+            .map_err(|error| error.to_string())?;
+        recent_menu
+            .append(&clear)
+            .map_err(|error| error.to_string())?;
+    }
+
+    Ok(())
 }
 
 #[tauri::command]
@@ -119,7 +210,13 @@ fn read_markdown_file_from_path(path: String) -> Result<MarkdownFile, String> {
 
 #[tauri::command]
 fn write_markdown_file(path: String, contents: String) -> Result<String, String> {
-    write_text_file(path, contents, is_markdown_path, MAX_MARKDOWN_BYTES, "Markdown")
+    write_text_file(
+        path,
+        contents,
+        is_markdown_path,
+        MAX_MARKDOWN_BYTES,
+        "Markdown",
+    )
 }
 
 #[tauri::command]
@@ -179,7 +276,10 @@ fn write_text_file(
         return Err(format!("Only {label} files can be saved"));
     }
     if contents.len() > max_bytes {
-        return Err(format!("{label} files must be smaller than {} MB", max_bytes / (1024 * 1024)));
+        return Err(format!(
+            "{label} files must be smaller than {} MB",
+            max_bytes / (1024 * 1024)
+        ));
     }
     if let Some(parent) = path.parent() {
         if !parent.is_dir() {
@@ -201,9 +301,7 @@ fn display_path(path: &Path) -> String {
 }
 
 fn ensure_file_size(path: &Path, max_bytes: u64) -> Result<(), String> {
-    let size = fs::metadata(path)
-        .map_err(|error| error.to_string())?
-        .len();
+    let size = fs::metadata(path).map_err(|error| error.to_string())?.len();
     if size > max_bytes {
         return Err(format!(
             "Markdown files must be smaller than {} MB",
@@ -453,6 +551,22 @@ fn now_ms() -> u128 {
 mod tests {
     use super::*;
 
+    #[test]
+    fn recent_menu_labels_hide_windows_extended_path_prefixes() {
+        assert_eq!(
+            normalize_display_path_string(r"\\?\C:\Users\dell\Notes\plan.md"),
+            r"C:\Users\dell\Notes\plan.md"
+        );
+        assert_eq!(
+            normalize_display_path_string(r"\\?\UNC\server\share\plan.md"),
+            r"\\server\share\plan.md"
+        );
+        assert_eq!(
+            normalize_display_path_string("/home/rich/Notes/plan.md"),
+            "/home/rich/Notes/plan.md"
+        );
+    }
+
     fn history_entry(id: &str, file_path: &str, snapshot_path: &Path) -> HistoryEntry {
         HistoryEntry {
             id: id.to_string(),
@@ -622,8 +736,7 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
     let export_pdf = MenuItemBuilder::with_id("export_pdf", "Export PDF...")
         .accelerator("CmdOrCtrl+Shift+P")
         .build(manager)?;
-    let clear_recent = MenuItemBuilder::with_id("clear_recent", "Clear Recent")
-        .build(manager)?;
+    let recent_files = SubmenuBuilder::with_id(manager, "recent_files", "Recent Files").build()?;
     let show_history = MenuItemBuilder::with_id("show_history", "History...")
         .accelerator("CmdOrCtrl+Shift+H")
         .build(manager)?;
@@ -641,7 +754,7 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
         .accelerator("CmdOrCtrl+3")
         .build(manager)?;
 
-    let file_menu = SubmenuBuilder::new(manager, "File")
+    let file_menu = SubmenuBuilder::with_id(manager, "file_menu", "File")
         .item(&new_file)
         .item(&open_file)
         .item(&save_file)
@@ -649,7 +762,7 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
         .item(&export_html)
         .item(&export_pdf)
         .separator()
-        .item(&clear_recent)
+        .item(&recent_files)
         .item(&show_history)
         .separator()
         .item(&exit_app)
@@ -683,6 +796,7 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .manage(RecentMenuState::default())
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             let paths = markdown_paths_from_args(args);
             if let Some(window) = app.get_webview_window("main") {
@@ -702,17 +816,22 @@ pub fn run() {
             app.on_menu_event(|app, event| {
                 let id = event.id().0.as_str();
                 let command = match id {
-                    "new_file" => Some("new"),
-                    "open_file" => Some("open"),
-                    "save_file" => Some("save"),
-                    "export_html" => Some("export-html"),
-                    "export_pdf" => Some("export-pdf"),
-                    "clear_recent" => Some("clear-recent"),
-                    "show_history" => Some("show-history"),
-                    "view_write" => Some("view-write"),
-                    "view_split" => Some("view-split"),
-                    "view_preview" => Some("view-preview"),
-                    "exit_app" => Some("exit"),
+                    "new_file" => Some("new".to_string()),
+                    "open_file" => Some("open".to_string()),
+                    "save_file" => Some("save".to_string()),
+                    "export_html" => Some("export-html".to_string()),
+                    "export_pdf" => Some("export-pdf".to_string()),
+                    id if id.strip_prefix("recent_open_").is_some() => Some(format!(
+                        "open-recent:{}",
+                        id.strip_prefix("recent_open_").unwrap()
+                    )),
+                    "clear_recent" => Some("clear-recent".to_string()),
+                    "recent_files" => None,
+                    "show_history" => Some("show-history".to_string()),
+                    "view_write" => Some("view-write".to_string()),
+                    "view_split" => Some("view-split".to_string()),
+                    "view_preview" => Some("view-preview".to_string()),
+                    "exit_app" => Some("exit".to_string()),
                     "reload" => {
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.eval("window.location.reload()");
@@ -731,16 +850,17 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             app_ready,
-        force_close_app,
-        get_launch_files,
-        get_markdown_file_stamp,
-        read_markdown_file,
-        read_recent_markdown_file,
-        write_markdown_file,
-        write_html_file,
-        write_pdf_file,
-        set_window_fullscreen,
-        create_history_snapshot,
+            force_close_app,
+            get_launch_files,
+            sync_recent_menu,
+            get_markdown_file_stamp,
+            read_markdown_file,
+            read_recent_markdown_file,
+            write_markdown_file,
+            write_html_file,
+            write_pdf_file,
+            set_window_fullscreen,
+            create_history_snapshot,
             list_history_snapshots,
             read_history_snapshot,
             delete_history_snapshot

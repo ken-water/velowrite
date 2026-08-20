@@ -23,9 +23,9 @@ const VercelInsights = React.lazy(async () => {
     },
   };
 });
-const downloadVersion = "0.2.7";
-const downloadReleaseDate = "August 15, 2026";
-const seoDate = "2026-08-15";
+const downloadVersion = "0.2.8";
+const downloadReleaseDate = "August 20, 2026";
+const seoDate = "2026-08-20";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -35,7 +35,7 @@ const exampleMarkdownKey = "velowrite:example-markdown";
 const siteUrl = "https://velowrite.app";
 const defaultSeoTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
 const defaultSeoDescription =
-  "VeloWrite is a free online Markdown editor and lightweight desktop app for private drafts, live preview, PDF export, local files, and history recovery.";
+  "VeloWrite is a free online Markdown editor and desktop app for private drafts, live preview, PDF export, local files, and history recovery.";
 const breadcrumbLabels: Record<string, string> = {
   "/web": "Web Editor",
   "/download": "Download",
@@ -64,6 +64,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/preview-build-limitations": "Preview Build Limitations",
   "/docs/private-online-markdown-editor": "Private Online Markdown Editor",
   "/docs/download-safety": "Download Safety",
+  "/docs/markdown-meeting-notes": "Markdown Meeting Notes",
   "/guide": "Markdown Guide",
   "/changelog": "Changelog",
   "/faq": "FAQ",
@@ -77,7 +78,7 @@ const breadcrumbLabels: Record<string, string> = {
 const faqItems: readonly FaqItem[] = [
   {
     question: "What is VeloWrite?",
-    answer: "VeloWrite is a Markdown editor with a browser version for quick drafts and a lightweight Tauri desktop app for local files, PDF export, and history.",
+    answer: "VeloWrite is a Markdown editor with a browser editor for quick drafts and a desktop app for local files, PDF export, and history.",
   },
   {
     question: "What is the difference between web and desktop?",
@@ -85,7 +86,7 @@ const faqItems: readonly FaqItem[] = [
   },
   {
     question: "Is VeloWrite free to use today?",
-    answer: "Yes. The current public build is a free preview. AI writing, advanced export, and deeper recovery are candidates for Pro.",
+    answer: "Yes. The current public build is a free preview. AI writing, advanced export, and deeper recovery are planned for Pro.",
   },
   {
     question: "Can I edit Markdown online without uploading files?",
@@ -93,7 +94,7 @@ const faqItems: readonly FaqItem[] = [
   },
   {
     question: "Does VeloWrite work offline?",
-    answer: "The desktop preview is the offline path for real local files. The web editor is better for quick drafts, Markdown download, and HTML export while the browser is available.",
+    answer: "The desktop preview is the offline path for real local files. Use the web editor for quick drafts, Markdown download, and HTML export.",
   },
 ];
 
@@ -148,6 +149,7 @@ const docPageRoutes = {
   "/docs/preview-build-limitations": "previewBuildLimitations",
   "/docs/private-online-markdown-editor": "privateOnlineMarkdownEditor",
   "/docs/download-safety": "downloadSafety",
+  "/docs/markdown-meeting-notes": "markdownMeetingNotes",
 } as const;
 
 const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
@@ -172,6 +174,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/preview-build-limitations",
   "/docs/private-online-markdown-editor",
   "/docs/download-safety",
+  "/docs/markdown-meeting-notes",
 ]);
 
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
@@ -279,6 +282,11 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
     title: "Download Safety for VeloWrite Preview Builds",
     description:
       "Check official VeloWrite download sources, version matching, unsigned installer warnings, first-run testing, and how to report suspicious files.",
+  },
+  "/docs/markdown-meeting-notes": {
+    title: "Markdown Meeting Notes Template - Decisions, Actions, and Follow-up",
+    description:
+      "Use a reusable Markdown meeting notes template for decisions, action items, open questions, project context, and follow-up work.",
   },
 };
 

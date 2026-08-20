@@ -83,7 +83,7 @@ export const tableExportStyleKey = "velowrite:table-export-style";
 export const pdfExportStyleKey = "velowrite:pdf-export-style";
 export const browserHistoryKey = "velowrite:browser-history";
 export const draftHistoryKey = "velowrite:draft-history";
-export const appVersion = "0.2.7";
+export const appVersion = "0.2.8";
 export const freeHistorySnapshotLimit = 3;
 export const defaultTableExportStyle: TableExportStyle = {
   header: "tinted",
@@ -425,14 +425,14 @@ export function getStoredRecentFiles(): RecentFile[] {
           typeof item.name === "string"
         );
       }),
-    ).slice(0, 8);
+    ).slice(0, 10);
   } catch {
     return [];
   }
 }
 
 export function storeRecentFiles(files: RecentFile[]) {
-  localStorage.setItem(recentFilesKey, JSON.stringify(dedupeRecentFiles(files).slice(0, 8)));
+  localStorage.setItem(recentFilesKey, JSON.stringify(dedupeRecentFiles(files).slice(0, 10)));
 }
 
 function dedupeRecentFiles(files: RecentFile[]) {

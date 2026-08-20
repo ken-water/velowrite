@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.7"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.8"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -35,7 +35,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   expect(markdownHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/markdown" />',
   );
-  expect(markdownHtml).toContain('"dateModified": "2026-08-15"');
+  expect(markdownHtml).toContain('"dateModified": "2026-07-30"');
 
   const markdownHistoryHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/markdown-history/index.html"),
@@ -61,7 +61,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
   expect(releasePolicyHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/preview-release-policy" />',
   );
-  expect(releasePolicyHtml).toContain('"dateModified": "2026-08-15"');
+  expect(releasePolicyHtml).toContain('"dateModified": "2026-08-07"');
 
   const downloadSafetyHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/download-safety/index.html"),
@@ -72,6 +72,18 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
     '<link rel="canonical" href="https://velowrite.app/docs/download-safety" />',
   );
   expect(downloadSafetyHtml).toContain('"dateModified": "2026-08-15"');
+
+  const meetingNotesHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/markdown-meeting-notes/index.html"),
+    "utf8",
+  );
+  expect(meetingNotesHtml).toContain(
+    "<title>Markdown Meeting Notes Template - Decisions, Actions, and Follow-up</title>",
+  );
+  expect(meetingNotesHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/markdown-meeting-notes" />',
+  );
+  expect(meetingNotesHtml).toContain('"dateModified": "2026-08-20"');
 
   const privacyMarkdownHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/private-online-markdown-editor/index.html"),
@@ -146,7 +158,7 @@ test("landing page drives users to web editor and desktop download", async ({ pa
   );
   await expect(page.getByRole("heading", { name: /Start in the browser/i })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: /Know what stays private/i }),
+    page.getByRole("heading", { name: /See what stays local/i }),
   ).toBeVisible();
   await expect(page.getByText("Private by default")).toBeVisible();
   await expect(page.getByLabel("VeloWrite product video")).toBeVisible();
@@ -182,10 +194,10 @@ test("editor action groups expose valid accessible names", async ({ page }) => {
 test("roadmap shows recommended next priorities", async ({ page }) => {
   await page.goto("/roadmap");
 
-  await expect(page.getByRole("heading", { name: "What we are building next." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What we plan to build next" })).toBeVisible();
   await expect(page.getByText("Recommended next")).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "See what has shipped, what is active, and what may be paid later." }),
+    page.getByRole("heading", { name: "See what is available, what is being improved, and what may come later as Pro." }),
   ).toBeVisible();
   await expect(page.locator(".roadmap-stage-grid article", { hasText: "Shipped" })).toContainText(
     "Markdown learning library",
@@ -583,6 +595,64 @@ test("desktop shell opens in focused editing mode", async ({ page }) => {
   await expect(page.getByLabel("Export readiness")).toHaveCount(0);
 });
 
+test("desktop document tabs keep separate drafts while switching", async ({ page }) => {
+  await page.goto("/app");
+
+  const tabList = page.getByRole("tablist", { name: "Open documents" });
+  await expect(tabList.getByRole("tab")).toHaveCount(1);
+
+  await page.getByRole("button", { name: "New document tab" }).click();
+  await expect(tabList.getByRole("tab")).toHaveCount(2);
+
+  const editorContent = page.locator(".cm-content").first();
+  await editorContent.click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText("# Second tab\n\nThis draft stays in its own tab.");
+
+  await tabList.getByRole("tab").first().click();
+  await expect(editorContent).toContainText("Start Writing");
+
+  await tabList.getByRole("tab").nth(1).click();
+  await expect(editorContent).toContainText("Second tab");
+  await expect(tabList.getByRole("button", { name: /Close Quick Note/ })).toBeVisible();
+});
+
+test("document tabs keep their own writing, split, or preview mode", async ({ page }) => {
+  await page.goto("/app");
+
+  const tabList = page.getByRole("tablist", { name: "Open documents" });
+  await page.getByRole("button", { name: "New document tab" }).click();
+  await page.getByRole("button", { name: "Preview", exact: true }).click();
+  await expect(page.locator(".editor-grid")).toHaveClass(/mode-preview/);
+
+  await tabList.getByRole("tab").first().click();
+  await expect(page.locator(".editor-grid")).toHaveClass(/mode-write/);
+
+  await page.getByRole("button", { name: "Split", exact: true }).click();
+  await expect(page.locator(".editor-grid")).toHaveClass(/mode-split/);
+
+  await tabList.getByRole("tab").nth(1).click();
+  await expect(page.locator(".editor-grid")).toHaveClass(/mode-preview/);
+});
+
+test("document tabs stay within the viewport on narrow windows", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/app");
+
+  await page.getByRole("button", { name: "New document tab" }).click();
+  await page.getByRole("button", { name: "New document tab" }).click();
+
+  await expect(page.getByRole("tablist", { name: "Open documents" }).getByRole("tab")).toHaveCount(3);
+  await page.getByRole("tablist", { name: "Open documents" }).getByRole("tab").last().click();
+  const tabStripMetrics = await page.locator(".document-tab-list").evaluate((element) => ({
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight,
+  }));
+  expect(tabStripMetrics.scrollHeight).toBeLessThanOrEqual(tabStripMetrics.clientHeight);
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+});
+
 test("desktop about panel shows the installed app version", async ({ page }) => {
   await page.goto("/app");
 
@@ -592,7 +662,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.7");
+  await expect(aboutDialog).toContainText("0.2.8");
   await expect(aboutDialog).toContainText("Update check");
   await expect(aboutDialog).toContainText("kenwater89@gmail.com");
 });
@@ -612,6 +682,24 @@ test("desktop focus mode hides chrome and can be exited", async ({ page }) => {
 
 test("desktop toolbar shows immediate icon tooltips", async ({ page }) => {
   await page.goto("/app");
+
+  await page.getByRole("button", { name: "Show workspace" }).click();
+  const workspaceToggle = page.getByRole("button", { name: "Hide workspace" });
+  await workspaceToggle.hover();
+  await expect
+    .poll(async () => workspaceToggle.evaluate((element) => window.getComputedStyle(element, "::after").opacity))
+    .toBe("1");
+  const workspaceTooltip = await workspaceToggle.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const style = window.getComputedStyle(element, "::after");
+    const width = Number.parseFloat(style.width);
+    const left = rect.left + rect.width + 8;
+    return { left, width, viewportWidth: window.innerWidth };
+  });
+  expect(workspaceTooltip.left).toBeGreaterThanOrEqual(0);
+  expect(workspaceTooltip.left + workspaceTooltip.width).toBeLessThanOrEqual(
+    workspaceTooltip.viewportWidth,
+  );
 
   const saveButton = page.getByRole("button", { name: "Save Markdown file" });
   await saveButton.hover();
@@ -868,14 +956,14 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
-  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.7");
-  await expect(page.getByLabel("Latest release information")).toContainText("August 15, 2026");
+  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.8");
+  await expect(page.getByLabel("Latest release information")).toContainText("August 20, 2026");
   await expect(page.getByLabel("Latest improvements")).toContainText(
     "Mermaid diagrams and KaTeX math now render in PDF export.",
   );
   await expect(page.getByLabel("Latest improvements").getByRole("link", { name: "See changelog details" })).toHaveAttribute(
     "href",
-    "/changelog?utm_source=download_page&utm_medium=resource#v027",
+    "/changelog?utm_source=download_page&utm_medium=resource#v028",
   );
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon", exact: true })).toBeVisible();
   await expect(
@@ -990,6 +1078,30 @@ test("docs publishes the top-level Markdown introduction", async ({ page }) => {
   await expect(page.locator(".markdown-body table").first()).toBeVisible();
   await expect(page.locator(".markdown-body pre code").first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Open Web Editor" })).toHaveAttribute("href", /\/web/);
+});
+
+test("docs publishes today's meeting notes template", async ({ page }) => {
+  await page.goto("/docs");
+
+  await expect(page.getByRole("link", { name: "Markdown Meeting Notes Template" })).toBeVisible();
+  await expect(page.locator("article", { hasText: "Markdown Meeting Notes Template" })).toContainText(
+    "Published",
+  );
+
+  await page.goto("/docs/markdown-meeting-notes");
+  await expect(page.getByRole("heading", { name: "Markdown meeting notes template" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "The basic template" })).toHaveAttribute(
+    "href",
+    "#the-basic-template",
+  );
+  await expect(page.getByText("Reusable meeting notes", { exact: true })).toBeVisible();
+  await expect(page.locator(".markdown-body").first()).toContainText("Project check-in");
+
+  const checklist = page.locator(".content-example").filter({ hasText: "A short review checklist" });
+  await expect(checklist.locator(".content-example-preview li")).toHaveCount(6);
+  await expect(checklist.locator(".content-example-preview")).toContainText(
+    "[ ] The title and date are correct",
+  );
 });
 
 test("docs article shows side and bottom share links with canonical URLs", async ({ page }) => {
@@ -1141,7 +1253,7 @@ test("docs publishes the Linux Markdown editor guide", async ({ page }) => {
   );
   await expect(page.getByRole("heading", { name: "Choose the package that fits your system" })).toBeVisible();
   await expect(page.getByRole("cell", { name: "AppImage" })).toBeVisible();
-  await expect(page.locator(".markdown-body pre code").first()).toContainText("VeloWrite_0.2.7");
+  await expect(page.locator(".markdown-body pre code").first()).toContainText("VeloWrite_0.2.8");
 });
 
 test("docs examples can open their Markdown directly in the web editor", async ({ page }) => {

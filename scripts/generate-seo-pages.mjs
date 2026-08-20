@@ -42,6 +42,7 @@ const breadcrumbLabels = new Map([
   ["/docs/preview-build-limitations", "Preview Build Limitations"],
   ["/docs/private-online-markdown-editor", "Private Online Markdown Editor"],
   ["/docs/download-safety", "Download Safety"],
+  ["/docs/markdown-meeting-notes", "Markdown Meeting Notes"],
   ["/changelog", "Changelog"],
   ["/faq", "FAQ"],
   ["/privacy", "Privacy Policy"],
@@ -68,7 +69,35 @@ const docsLinks = [
   ["/docs/preview-build-limitations", "Preview Build Limitations"],
   ["/docs/private-online-markdown-editor", "Private Online Markdown Editor"],
   ["/docs/download-safety", "Download Safety"],
+  ["/docs/markdown-meeting-notes", "Markdown Meeting Notes Template"],
 ];
+
+const articleModifiedDates = new Map([
+  ["/guide", "2026-07-19"],
+  ["/docs/markdown", "2026-07-30"],
+  ["/docs/markdown-history", "2026-07-31"],
+  ["/docs/future-of-markdown", "2026-08-01"],
+  ["/docs/markdown-basics", "2026-07-21"],
+  ["/docs/markdown-for-writers", "2026-07-22"],
+  ["/docs/markdown-for-developers", "2026-07-23"],
+  ["/docs/advanced-markdown", "2026-07-28"],
+  ["/docs/markdown-math", "2026-07-26"],
+  ["/docs/markdown-code-blocks", "2026-07-24"],
+  ["/docs/local-first-markdown", "2026-07-25"],
+  ["/docs/typora-alternative", "2026-07-31"],
+  ["/docs/markdown-to-blog", "2026-07-27"],
+  ["/docs/markdown-editor-for-windows", "2026-07-31"],
+  ["/docs/markdown-editor-for-mac", "2026-08-07"],
+  ["/docs/markdown-editor-for-linux", "2026-08-03"],
+  ["/docs/preview-release-policy", "2026-08-07"],
+  ["/docs/pdf-export-notes", "2026-08-15"],
+  ["/docs/preview-build-limitations", "2026-08-14"],
+  ["/docs/private-online-markdown-editor", "2026-08-15"],
+  ["/docs/download-safety", "2026-08-15"],
+  ["/docs/markdown-meeting-notes", "2026-08-20"],
+  ["/roadmap", "2026-08-20"],
+  ["/changelog", "2026-08-20"],
+]);
 
 const faqItems = [
   {
@@ -363,6 +392,15 @@ const routes = [
     schema: ["article"],
   },
   {
+    path: "/docs/markdown-meeting-notes",
+    title: "Markdown Meeting Notes Template - Decisions, Actions, and Follow-up",
+    description:
+      "Use a reusable Markdown meeting notes template for decisions, action items, open questions, project context, and follow-up work.",
+    priority: "0.72",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
     path: "/changelog",
     title: "VeloWrite Changelog - Release Notes and Preview Updates",
     description:
@@ -501,7 +539,7 @@ function schemaFor(route) {
       "@id": `${siteUrl}${route.path}#article`,
       headline: route.title,
       description: route.description,
-      dateModified: today,
+      dateModified: articleModifiedDates.get(route.path) ?? today,
       mainEntityOfPage: `${siteUrl}${route.path}`,
       author: { "@id": `${siteUrl}/#organization` },
       publisher: { "@id": `${siteUrl}/#organization` },

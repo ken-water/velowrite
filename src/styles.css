@@ -1503,11 +1503,28 @@ p {
 }
 
 .outline-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 6px;
   color: var(--muted);
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.outline-title small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: none;
+}
+
+.sidebar-empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .structure-map {
@@ -1584,6 +1601,29 @@ p {
 .recent-item span,
 .recent-clear span {
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-item > span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.recent-item strong {
+  overflow: hidden;
+  color: inherit;
+  font-size: inherit;
+  font-weight: 780;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-item small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1877,6 +1917,134 @@ p {
   backdrop-filter: blur(18px);
 }
 
+.document-tabs {
+  display: flex;
+  min-width: 0;
+  min-height: 42px;
+  align-items: stretch;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  padding: 5px 12px 0;
+  background: color-mix(in srgb, var(--panel-bg) 82%, var(--surface));
+  overflow: hidden;
+}
+
+.document-tab-list {
+  display: flex;
+  min-width: 0;
+  align-items: stretch;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.document-tab-list::-webkit-scrollbar {
+  display: none;
+}
+
+.document-tab {
+  display: flex;
+  min-width: 0;
+  max-width: min(280px, 38vw);
+  align-items: stretch;
+  border: 1px solid var(--border-soft);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: color-mix(in srgb, var(--panel-bg) 76%, var(--surface));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--surface) 75%, transparent);
+}
+
+.document-tab.active {
+  border-color: var(--border);
+  background: var(--surface);
+  box-shadow:
+    inset 0 2px 0 var(--accent),
+    0 -1px 0 var(--surface);
+}
+
+.document-tab-main,
+.document-tab-close,
+.document-tab-add {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--muted-strong);
+  cursor: pointer;
+}
+
+.document-tab-main {
+  display: flex;
+  min-width: 0;
+  min-height: 36px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 7px 0 10px;
+  font-size: 12px;
+  font-weight: 760;
+  text-align: left;
+}
+
+.document-tab:not(.active) .document-tab-main {
+  color: var(--muted);
+}
+
+.document-tab:not(.active) .document-tab-main svg {
+  color: var(--muted);
+}
+
+.document-tab:not(.active):hover {
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border-soft));
+  background: color-mix(in srgb, var(--surface) 70%, var(--panel-bg));
+}
+
+.document-tab-main span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.document-tab-main i {
+  color: var(--accent);
+  font-size: 9px;
+  font-style: normal;
+}
+
+.document-tab-close {
+  width: 30px;
+  min-height: 30px;
+  margin: 3px 3px 0 0;
+  border-radius: 6px;
+}
+
+.document-tab-close:hover,
+.document-tab-close:focus-visible {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--text);
+}
+
+.document-tab-main:hover,
+.document-tab-main:focus-visible,
+.document-tab-add:hover,
+.document-tab-add:focus-visible {
+  color: var(--text);
+}
+
+.document-tab-add {
+  flex: 0 0 34px;
+  min-height: 34px;
+  align-self: center;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.app-shell.writing-focus .document-tabs {
+  display: none;
+}
+
 .topbar-start {
   display: flex;
   align-items: center;
@@ -2103,7 +2271,8 @@ p {
   left: 50%;
   z-index: 40;
   width: max-content;
-  max-width: 220px;
+  width: max-content;
+  max-width: 260px;
   transform: translate(-50%, -2px);
   border: 1px solid var(--border);
   border-radius: 7px;
@@ -2119,7 +2288,8 @@ p {
   transition:
     opacity 80ms ease,
     transform 80ms ease;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
 }
 
 .actions > button[aria-label]:hover::after,
@@ -2132,6 +2302,19 @@ p {
 .sidebar-toggle[aria-label]:focus-visible::after {
   transform: translate(-50%, 0);
   opacity: 1;
+}
+
+/* The workspace toggle sits against the left edge, so its tooltip must open inward. */
+.sidebar-toggle[aria-label]::after {
+  top: 50%;
+  left: calc(100% + 8px);
+  transform: translate(0, -50%);
+  text-align: left;
+}
+
+.sidebar-toggle[aria-label]:hover::after,
+.sidebar-toggle[aria-label]:focus-visible::after {
+  transform: translate(0, -50%);
 }
 
 .export-readiness-actions button[aria-label]::after {
@@ -6477,6 +6660,25 @@ pre,
   }
 
   .topbar .search {
+    min-height: 32px;
+  }
+
+  .document-tabs {
+    min-height: 40px;
+    padding: 4px 8px 0;
+  }
+
+  .document-tab {
+    max-width: 72vw;
+  }
+
+  .document-tab-main {
+    min-height: 34px;
+    padding-left: 8px;
+  }
+
+  .document-tab-add {
+    flex-basis: 32px;
     min-height: 32px;
   }
 
