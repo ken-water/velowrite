@@ -36,7 +36,7 @@ Signal:
 Decision:
 - Keep local history in the free desktop preview.
 - Improve discoverability, snapshot browsing, and restore confidence.
-- Add history diff preview before promoting the desktop app as stable for heavier work.
+- Basic history comparison and restore are shipped; long-document diff navigation and deeper recovery remain preview hardening work.
 
 Version target:
 - Free: history timeline polish and diff preview in `0.2.x`.
@@ -44,6 +44,42 @@ Version target:
 Pro status:
 - Basic local history should stay free.
 - Advanced retention rules, named checkpoints, encrypted history, or team/commercial history policies can be Pro candidates later.
+
+### External file changes
+
+Signal:
+- Local-first users often edit the same Markdown file through Git, scripts, IDEs, AI tools, or another editor.
+- Silent overwrites would quickly damage trust.
+
+Decision:
+- Treat external-file change detection as a free desktop reliability feature.
+- The desktop app now detects when the open file changes on disk and offers Compare, Reload, or Keep current.
+- Autosave pauses when a disk change is pending, and manual Save asks before overwriting the disk version.
+- Continue improving the compare flow so large changed files are easy to review.
+
+Version target:
+- Preview / Free: `0.2.x`, high priority.
+
+Pro status:
+- Not Pro. Protecting local files is part of the core editor promise.
+
+### Images and attachments
+
+Signal:
+- Markdown documents with images often break after moving files, syncing folders, or sharing notes.
+- Users want plain Markdown files, but they also need assets to stay portable.
+
+Decision:
+- Keep relative local image rendering in the free editor.
+- Desktop drag-and-drop now inserts a Markdown image reference for supported local image files.
+- Continue toward document-local assets folders, paste-to-assets, duplicate-safe filenames, missing-image diagnostics, and path repair after moves.
+
+Version target:
+- Preview / Free: basic image references in `0.2.x`; fuller asset management after more file workflow testing.
+
+Pro status:
+- Basic local image handling should stay free.
+- Team asset libraries, cloud storage connectors, and publishing pipelines can become Pro candidates later.
 
 ### Editor and preview sync scrolling
 
@@ -53,9 +89,8 @@ Signal:
 
 Decision:
 - Treat sync scrolling as a preview-completion feature, not a Pro feature.
-- Implement carefully to avoid jumpy behavior.
-- Support editor-to-preview first; evaluate two-way sync after testing.
-- Outline clicks now synchronize both the editor and preview panes. Continuous long-document scroll matching remains in progress.
+- The current build supports split synchronization in both directions and outline-driven pane alignment.
+- Continuous matching still needs broader validation for long documents, tables, math, Mermaid, images, and uneven block heights.
 
 Version target:
 - Preview / Free: `0.2.x`, high priority.
@@ -89,7 +124,8 @@ Signal:
 
 Decision:
 - Improve the outline panel with active-section clarity, folding, and better long-document navigation.
-- Add a read-only structure map generated from Markdown headings before attempting a full visual editor.
+- A read-only structure map generated from Markdown headings is shipped.
+- Improve active-section feedback, folding, diagnostics, and long-document navigation before attempting a full visual editor.
 - Keep the first version deterministic and local so it stays fast and testable.
 - Evaluate editable visual mapping and AI-assisted outline expansion after the outline workflow proves useful.
 
@@ -168,8 +204,9 @@ Signal:
 
 Decision:
 - Improve print/PDF styling first because it builds on the current rendered preview.
-- The web editor now opens a clean rendered Print / Save PDF document from the editor toolbar, so browser users can create a readable review copy without printing application chrome.
-- Keep basic Markdown, HTML, and clean PDF-style output as part of the free editor baseline.
+- The desktop app now has a dedicated PDF export path with Unicode font handling, page controls, table styling, contents, and preview watermark behavior.
+- The web editor provides Markdown download and HTML export without application chrome.
+- Keep basic Markdown, HTML, and PDF output as part of the free editor baseline.
 - Treat DOCX, branded templates, batch export, and one-click publishing as later workflow packaging.
 
 Version target:
@@ -182,18 +219,19 @@ Pro status:
 
 ## Feature Classification
 
-### Preview Completion
+### Preview Hardening
 
-These are required before the preview feels solid enough for broader promotion:
+These are the remaining improvements needed before the preview feels solid enough for broader promotion:
 
 - Stable editor/preview sync scroll.
-- Focused desktop writing polish, including calmer default chrome, clearer hover states, and last-session resume behavior.
-- Better outline navigation and a read-only structure map generated from Markdown headings.
+- Cursor-preserving Markdown editing and formatting behavior.
+- Focused desktop writing polish for first-run behavior, focus mode, and long-session comfort.
+- Better outline navigation around the shipped read-only structure map.
 - Better local history browsing and diff preview.
-- More complete image handling and relative asset behavior.
-- Cleaner print/PDF styling based on the rendered preview.
+- Image asset management beyond current relative-path rendering.
+- Export consistency across the shipped HTML and dedicated PDF paths.
 - Markdown edge-case rendering tests for math, code, tables, and tabs.
-- Cross-platform smoke tests for open, edit, save, export, and close behavior.
+- Cross-platform smoke tests for open, edit, save, export, close, and external file changes.
 
 ### Free Product
 
@@ -205,7 +243,7 @@ These should remain free because they form the basic editor promise:
 - Desktop native file open/save.
 - Recent files.
 - Local history snapshots.
-- Better outline navigation and a basic document structure view.
+- Better outline navigation and the shipped basic document structure view.
 - Theme and view-mode settings.
 - No-login local-first workflow.
 
@@ -240,11 +278,11 @@ Examples:
 
 ## Near-Term Priorities
 
-1. Finish stable continuous sync scrolling for editor and preview.
-2. Improve focused desktop writing polish so the app feels dedicated, calm, native from launch, and able to resume the last local file when appropriate.
-3. Improve the outline panel and prototype a read-only Markdown structure map.
+1. Finish stable continuous sync scrolling for long and structurally uneven documents.
+2. Improve cursor preservation and formatting behavior in the Markdown editor.
+3. Add image asset management, missing-image diagnostics, and safe path repair.
 4. Improve local history discoverability and long-document diff review.
-5. Refine the new browser Print / Save PDF baseline and evaluate desktop printing only after the web workflow proves reliable.
-6. Design a lightweight web-to-desktop handoff flow.
-7. Add tests around long Markdown documents with headings, math, code tabs, images, tables, structure navigation, export, and history recovery.
+5. Add export consistency tests across preview, HTML, PDF, math, Mermaid, tables, images, and code.
+6. Expand cross-platform smoke tests for open, edit, save, export, close, and external file changes.
+7. Design a conflict-aware folder sync prototype without requiring an account for core editing.
 8. Revisit Pro packaging only after the free preview workflow feels complete.

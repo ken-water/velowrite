@@ -1,39 +1,53 @@
 # VeloWrite Roadmap
 
-This roadmap is practical. VeloWrite should be useful for daily Markdown work before it grows into AI publishing workflows.
+This roadmap reflects what is shipped, what still needs preview hardening, and what may become Pro later. VeloWrite should be dependable for daily Markdown work before it grows into AI publishing workflows.
 
-## Now: 0.1.x
+## Shipped: 0.2.9 preview
 
-- Stabilize Markdown editing, preview, file open/save, autosave, and local history.
-- Improve project documentation and feedback loops.
-- Verify packaging on Linux, macOS, and Windows.
-- Add screenshots and short demos to the landing page.
-- Use early Product Hunt feedback to decide which items are core preview work, free product work, or Pro candidates.
+- Markdown editing and live preview.
+- Desktop local file open/save, file associations, recent files, and multiple document tabs.
+- Independent Write, Split, and Preview modes per document tab.
+- Local history snapshots with compare and restore flows.
+- Outline navigation and a read-only H1/H2/H3 structure map.
+- Tables, syntax-highlighted code, tabbed code examples, KaTeX math, Mermaid diagrams, and relative local images.
+- Markdown download, HTML export, and dedicated PDF export with Unicode fonts, page controls, tables, and watermarks.
+- Desktop external-file change handling with compare, reload, and keep-current choices.
+- Desktop image drag-and-drop can insert Markdown image references for local files.
+- Web-to-desktop handoff, update-check status, cross-platform installers, release notes, and public feedback tracking.
+- Browser workspace recovery, browser-local image embedding, and independent browser history per document tab.
 
-## Next: 0.2.x
+## Next: Preview hardening
 
-- History diff preview.
-- Editor and preview sync scrolling for long Markdown documents.
-- Lightweight web-to-desktop draft handoff design.
-- Better image handling and relative asset paths.
-- Find/replace polish.
-- Mermaid preview.
-- PDF export.
-- E2E smoke tests for core editor flows.
+- Stabilize continuous editor and preview synchronization for long and structurally uneven documents.
+- Improve cursor preservation and formatting behavior while editing Markdown.
+- Extend image asset management beyond inserted references: paste-to-assets, deduplication, missing-image diagnostics, and safe path repair after moves.
+- Improve long-document history review and make changed lines easier to locate.
+- Add export consistency tests across preview, HTML, PDF, math, Mermaid, tables, images, and code blocks.
+- Expand Windows, macOS, and Linux smoke tests for open, edit, save, export, close, and external file changes.
+- Polish find/replace, focus mode, outline navigation, and first-run desktop behavior.
 
-## Later: 0.3.x
+## Free product direction
+
+- Keep the web editor, live preview, Markdown import/export, basic HTML/PDF export, local files, tabs, and basic history free.
+- Keep the no-account local-first workflow as the default.
+- Continue improving the shipped read-only document structure view without requiring a database or hosted service.
+
+## Later: 0.3.x and Pro research
 
 - AI command panel with user-provided API keys.
 - `/ai polish`, `/ai summarize`, `/ai continue`.
 - Provider abstraction for OpenAI-compatible APIs and local Ollama.
-- Private-first sync prototype after the local file workflow is stable.
-- Static site export improvements.
+- Private-first folder sync with visible conflict handling.
+- DOCX export, custom export templates, branded output, and batch export.
+- Footnotes, citations, BibTeX, Zotero, and bibliography workflows.
+- Static site publishing to GitHub Pages, Vercel, or compatible targets.
+- AI-assisted outlines and advanced visual structure editing.
 
 ## Before 1.0
 
-- Cross-platform installer builds.
-- Automatic update path.
-- Signed releases where practical.
+- More complete cross-platform regression coverage.
+- Automatic update installation only after the update safety model is ready.
+- Signed releases where practical and affordable.
 - Migration strategy for settings and history data.
 - Clear privacy and telemetry policy.
 - Enough real-user feedback to lock the core workflow.

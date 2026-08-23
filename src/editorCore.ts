@@ -58,6 +58,19 @@ export type BrowserHistoryRecord = {
   contents: string;
 };
 
+export type BrowserWorkspaceTab = {
+  id: string;
+  fileName: string;
+  markdown: string;
+  savedMarkdown: string;
+  viewMode: ViewMode;
+};
+
+export type BrowserWorkspace = {
+  activeTabId: string;
+  tabs: BrowserWorkspaceTab[];
+};
+
 export type HandoffDraft = {
   name: string;
   markdown: string;
@@ -83,7 +96,8 @@ export const tableExportStyleKey = "velowrite:table-export-style";
 export const pdfExportStyleKey = "velowrite:pdf-export-style";
 export const browserHistoryKey = "velowrite:browser-history";
 export const draftHistoryKey = "velowrite:draft-history";
-export const appVersion = "0.2.8";
+export const browserWorkspaceKey = "velowrite:browser-workspace";
+export const appVersion = "0.2.9";
 export const freeHistorySnapshotLimit = 3;
 export const defaultTableExportStyle: TableExportStyle = {
   header: "tinted",
@@ -149,6 +163,55 @@ export function normalizeMarkdownFileName(name: string) {
     .slice(0, 120);
   const nextName = cleaned || fallback;
   return /\.(md|markdown|mdown)$/i.test(nextName) ? nextName : `${nextName}.md`;
+}
+
+export function getStoredBrowserWorkspace(): BrowserWorkspace | null {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(browserWorkspaceKey) || "null");
+    if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.tabs)) return null;
+
+    const tabs = parsed.tabs
+      .filter((tab: unknown): tab is BrowserWorkspaceTab => {
+        if (!tab || typeof tab !== "object") return false;
+        const value = tab as Record<string, unknown>;
+        return (
+          typeof value.id === "string" &&
+          typeof value.fileName === "string" &&
+          typeof value.markdown === "string" &&
+          typeof value.savedMarkdown === "string" &&
+          (value.viewMode === "write" || value.viewMode === "split" || value.viewMode === "preview")
+        );
+      })
+      .slice(0, 8);
+
+    if (tabs.length === 0) return null;
+    const storedActiveTabId = typeof parsed.activeTabId === "string" ? parsed.activeTabId : "";
+    const activeTabId = tabs.some((tab: BrowserWorkspaceTab) => tab.id === storedActiveTabId)
+      ? storedActiveTabId
+      : tabs[0].id;
+    return { activeTabId, tabs };
+  } catch {
+    return null;
+  }
+}
+
+export function storeBrowserWorkspace(workspace: BrowserWorkspace) {
+  try {
+    localStorage.setItem(
+      browserWorkspaceKey,
+      JSON.stringify({
+        activeTabId: workspace.activeTabId,
+        tabs: workspace.tabs.slice(0, 8),
+      }),
+    );
+  } catch {
+    // A large embedded image can exceed browser storage. The live draft remains usable.
+  }
+}
+
+export function buildBrowserImageMarkdown(fileName: string, dataUrl: string) {
+  const safeName = fileName.replace(/[\[\]()<>]/g, "-").trim() || "pasted-image";
+  return `![${safeName}](${dataUrl})`;
 }
 
 export function createDesktopHandoffUrl(name: string, markdown: string) {
@@ -392,6 +455,41 @@ export function createBrowserHistorySnapshot(fileName: string, contents: string)
   );
 }
 
+export function getBrowserHistoryStorageKey(tabId?: string) {
+  return tabId ? `${browserHistoryKey}:${tabId}` : browserHistoryKey;
+}
+
+export function readBrowserTabHistory(tabId: string) {
+  const scopedKey = getBrowserHistoryStorageKey(tabId);
+  const scopedHistory = readLocalHistory(scopedKey, `browser:${tabId}`);
+
+  // Keep the first draft created before tab-scoped history compatible with the
+  // current workspace. New tabs use their own storage key immediately.
+  if (scopedHistory.length === 0 && tabId === "tab-draft") {
+    return readBrowserHistory();
+  }
+
+  return scopedHistory;
+}
+
+export function writeBrowserTabHistory(tabId: string, snapshots: HistorySnapshot[]) {
+  writeLocalHistory(getBrowserHistoryStorageKey(tabId), snapshots);
+}
+
+export function createBrowserTabHistorySnapshot(
+  tabId: string,
+  fileName: string,
+  contents: string,
+) {
+  return createLocalHistorySnapshot(
+    getBrowserHistoryStorageKey(tabId),
+    `browser:${tabId}`,
+    `browser-${tabId}`,
+    fileName,
+    contents,
+  );
+}
+
 export function readDraftHistory() {
   return readLocalHistory(draftHistoryKey, "desktop:unsaved-draft");
 }
@@ -458,6 +556,37 @@ export function normalizeDisplayedPath(path: string) {
   return path
     .replace(/^\\\\\?\\UNC\\/i, "\\\\")
     .replace(/^\\\\\?\\/i, "");
+}
+
+export function isMarkdownPath(path: string) {
+  return /\.(md|markdown|mdown)$/i.test(path);
+}
+
+export function isImagePath(path: string) {
+  return /\.(png|jpe?g|gif|webp|svg|avif)$/i.test(path);
+}
+
+export function getPathFileName(path: string) {
+  return path.replace(/\\/g, "/").split("/").pop() || "image";
+}
+
+export function getRelativeAssetPath(assetPath: string, documentPath: string | null) {
+  const normalizedAsset = assetPath.replace(/\\/g, "/");
+  if (!documentPath) return normalizedAsset;
+
+  const normalizedDocument = documentPath.replace(/\\/g, "/");
+  const documentDirectory = normalizedDocument.slice(0, normalizedDocument.lastIndexOf("/") + 1);
+  if (!documentDirectory || !normalizedAsset.startsWith(documentDirectory)) {
+    return normalizedAsset;
+  }
+
+  return normalizedAsset.slice(documentDirectory.length);
+}
+
+export function buildImageMarkdown(path: string, documentPath: string | null) {
+  const label = getPathFileName(path).replace(/\.[^.]+$/, "") || "Image";
+  const relativePath = getRelativeAssetPath(path, documentPath).replace(/ /g, "%20");
+  return `![${label}](${relativePath})`;
 }
 
 export function getStoredLastLocalFile(): RecentFile | null {

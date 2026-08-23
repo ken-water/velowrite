@@ -14,5 +14,13 @@ export default defineConfig({
   },
   test: {
     exclude: ["**/node_modules/**", "**/dist/**", "tests/e2e/**"],
+    coverage: {
+      thresholds: {
+        statements: 90,
+        branches: 75,
+        functions: 95,
+        lines: 90,
+      },
+    },
   },
 });

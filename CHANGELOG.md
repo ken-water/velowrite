@@ -4,6 +4,23 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
+## [0.2.9] - 2026-08-23
+
+### Added
+
+- Added browser-local workspace recovery for multiple Web editor tabs, including each tab's content, active view, and saved draft state.
+- Added browser-local image embedding for dropped and pasted images, with refresh persistence for supported image sizes.
+- Added per-tab browser history so compare and restore actions stay attached to the document being edited.
+- Added regression coverage for browser workspace recovery, image persistence, and independent tab histories.
+
+### Changed
+
+- Kept native folders, offline file monitoring, and direct local file saving in the desktop workflow while making the Web editor more complete for browser-only work.
+
+### Fixed
+
+- Fixed browser history entries from different Web tabs being mixed together.
+
 ## [0.2.8] - 2026-08-20
 
 ### Added

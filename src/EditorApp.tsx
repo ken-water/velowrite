@@ -59,9 +59,11 @@ import { complexDemoMarkdown } from "./sampleMarkdown";
 import {
   appVersion,
   autoSaveFileKey,
+  buildBrowserImageMarkdown,
   buildFocusedLineDiff,
+  buildImageMarkdown,
   buildLineDiff,
-  createBrowserHistorySnapshot,
+  createBrowserTabHistorySnapshot,
   createDesktopHandoffUrl,
   createDraftHistorySnapshot,
   compareSemver,
@@ -72,26 +74,31 @@ import {
   freeHistorySnapshotLimit,
   getInitialViewMode,
   getStoredEditorFontSize,
+  getStoredBrowserWorkspace,
   getStoredLastLocalFile,
   getStoredPdfExportStyle,
   getStoredReadingFont,
   getStoredReadingPalette,
   getStoredRecentFiles,
   getRecentFileContext,
+  isImagePath,
+  isMarkdownPath,
   normalizeDisplayedPath,
   pdfExportStyleKey,
   readingFontKey,
   readingPaletteKey,
   getStoredThemeMode,
   parseDesktopHandoffUrl,
-  readBrowserHistory,
+  readBrowserTabHistory,
   readDraftHistory,
   storeLastLocalFile,
+  storeBrowserWorkspace,
   storeRecentFiles,
   themeModeKey,
-  writeBrowserHistory,
+  writeBrowserTabHistory,
   writeDraftHistory,
   type DiffLine,
+  type BrowserWorkspaceTab,
   type EditorSurface,
   type HandoffDraft,
   type HistoryEntry,
@@ -145,6 +152,14 @@ type UpdateNotice =
   | { state: "available"; latestVersion: string; releaseDate: string; releaseUrl: string }
   | { state: "error"; message: string };
 
+type FileChangeNotice = {
+  path: string;
+  message: string;
+  stamp: FileStamp;
+};
+
+const diskSnapshotId = "disk-current";
+
 function FormatIcon({ label }: { label: "HTML" | "PDF" }) {
   return (
     <span className={`format-icon format-icon-${label.toLowerCase()}`} aria-hidden="true">
@@ -177,8 +192,74 @@ type DocumentTab = {
   viewMode: ViewMode;
 };
 
+type InitialEditorState = {
+  markdown: string;
+  fileName: string;
+  savedMarkdown: string;
+  viewMode: ViewMode;
+  activeTabId: string;
+  tabs: DocumentTab[];
+};
+
+function browserWorkspaceTabToDocumentTab(tab: BrowserWorkspaceTab): DocumentTab {
+  return {
+    id: tab.id,
+    filePath: null,
+    fileName: tab.fileName,
+    markdown: tab.markdown,
+    savedMarkdown: tab.savedMarkdown,
+    viewMode: tab.viewMode,
+  };
+}
+
+function getInitialEditorState(
+  surface: EditorSurface,
+  initialMarkdown: string | undefined,
+  initialViewMode: ViewMode | undefined,
+): InitialEditorState {
+  const viewMode = getInitialViewMode(surface, initialViewMode);
+  const storedDraftName = localStorage.getItem(draftNameKey) ?? "Untitled.md";
+
+  if (!initialMarkdown && surface === "web") {
+    const workspace = getStoredBrowserWorkspace();
+    const activeWorkspaceTab = workspace?.tabs.find((tab) => tab.id === workspace.activeTabId);
+    if (workspace && activeWorkspaceTab) {
+      const tabs = workspace.tabs.map(browserWorkspaceTabToDocumentTab);
+      return {
+        markdown: activeWorkspaceTab.markdown,
+        fileName: activeWorkspaceTab.fileName,
+        savedMarkdown: activeWorkspaceTab.savedMarkdown,
+        viewMode: activeWorkspaceTab.viewMode,
+        activeTabId: workspace.activeTabId,
+        tabs,
+      };
+    }
+  }
+
+  const markdown = initialMarkdown ?? localStorage.getItem(draftKey) ?? defaultMarkdown;
+  const fileName = storedDraftName;
+  return {
+    markdown,
+    fileName,
+    savedMarkdown: markdown,
+    viewMode,
+    activeTabId: "tab-draft",
+    tabs: [
+      {
+        id: "tab-draft",
+        filePath: null,
+        fileName,
+        markdown,
+        savedMarkdown: markdown,
+        viewMode,
+      },
+    ],
+  };
+}
+
 const desktopDownloadHref = "/download?utm_source=web_editor&utm_medium=cta";
 const desktopHandoffHref = "/download?utm_source=web_handoff&utm_medium=cta";
+const browserImageEmbedLimit = 1.5 * 1024 * 1024;
 const friendlyDefaultMarkdown = `## Start Writing
 
 Use this page as a quick Markdown draft. Write on the left, then switch to Preview when you want to read the result.
@@ -521,16 +602,33 @@ function MarkdownEditor({
     if (!currentView) return;
 
     const currentValue = currentView.state.doc.toString();
-    if (currentValue === value) return;
+    if (currentValue === value || scrollTarget) return;
+
+    const scrollElement = currentView.scrollDOM;
+    const previousScrollRange = scrollElement.scrollHeight - scrollElement.clientHeight;
+    const scrollRatio = previousScrollRange > 0
+      ? scrollElement.scrollTop / previousScrollRange
+      : 0;
+    const previousLength = currentView.state.doc.length;
+    const mapPosition = (position: number) => {
+      if (previousLength === 0) return 0;
+      return Math.min(value.length, Math.round((position / previousLength) * value.length));
+    };
+    const { anchor, head } = currentView.state.selection.main;
 
     currentView.dispatch({
       changes: {
         from: 0,
-        to: currentView.state.doc.length,
+        to: previousLength,
         insert: value,
       },
+      selection: { anchor: mapPosition(anchor), head: mapPosition(head) },
     });
-  }, [value]);
+    window.requestAnimationFrame(() => {
+      const nextScrollRange = scrollElement.scrollHeight - scrollElement.clientHeight;
+      scrollElement.scrollTop = nextScrollRange > 0 ? nextScrollRange * scrollRatio : 0;
+    });
+  }, [scrollTarget, value]);
 
   React.useEffect(() => {
     const currentView = view.current;
@@ -922,6 +1020,7 @@ function HistoryPanel({
   const diff = selectedSnapshot
     ? buildLineDiff(currentMarkdown, selectedSnapshot.contents)
     : [];
+  const selectedDiskVersion = selectedSnapshot?.entry.id === diskSnapshotId;
   const addedCount = diff.filter((line) => line.type === "added").length;
   const removedCount = diff.filter((line) => line.type === "removed").length;
   const changeCount = addedCount + removedCount;
@@ -967,13 +1066,19 @@ function HistoryPanel({
                   key={entry.id}
                 >
                   <button className="history-summary" onClick={() => onPreview(entry.id)}>
-                    <strong>{formatTimestamp(entry.created_at)}</strong>
+                    <strong>
+                      {entry.id === diskSnapshotId
+                        ? "Current disk version"
+                        : formatTimestamp(entry.created_at)}
+                    </strong>
                     <span>{formatSize(entry.size)}</span>
                   </button>
                   <div className="history-actions">
-                    <button onClick={() => onRestore(entry.id)}>Restore</button>
+                    <button onClick={() => onRestore(entry.id)}>
+                      {entry.id === diskSnapshotId ? "Use disk" : "Restore"}
+                    </button>
                     <button className="danger" onClick={() => onDelete(entry.id)}>
-                      Delete
+                      {entry.id === diskSnapshotId ? "Dismiss" : "Delete"}
                     </button>
                   </div>
                 </div>
@@ -987,11 +1092,17 @@ function HistoryPanel({
                       <strong>Restore preview</strong>
                       <p>
                         {changeCount
-                          ? "Restore will replace the document you are editing with this older snapshot."
+                          ? selectedDiskVersion
+                            ? "Using disk will replace the document you are editing with the current file contents on disk."
+                            : "Restore will replace the document you are editing with this older snapshot."
                           : "This snapshot matches the current document."}
                       </p>
                       {changeCount > 0 && (
-                        <small>Green lines return. Red lines are replaced.</small>
+                        <small>
+                          {selectedDiskVersion
+                            ? "Green lines come from disk. Red lines are your current editor version."
+                            : "Green lines return. Red lines are replaced."}
+                        </small>
                       )}
                     </div>
                     <span>{addedCount} restored</span>
@@ -1047,8 +1158,9 @@ function HistoryPanel({
                       <GitBranch size={22} />
                       <strong>No differences</strong>
                       <p>
-                        This snapshot matches the document you are editing. Choose another
-                        snapshot, or switch to Full file to read the saved copy.
+                        {selectedDiskVersion
+                          ? "The disk version matches the document you are editing."
+                          : "This snapshot matches the document you are editing. Choose another snapshot, or switch to Full file to read the saved copy."}
                       </p>
                     </div>
                   )}
@@ -1424,36 +1536,22 @@ export default function EditorApp({
   const handoffImportRef = React.useRef<(draft: HandoffDraft) => void>(() => undefined);
   const launchFileHandled = React.useRef(false);
   const lastSessionRestoreTried = React.useRef(false);
-  const [markdown, setMarkdown] = React.useState(() => {
-    return initialMarkdown ?? localStorage.getItem(draftKey) ?? defaultMarkdown;
-  });
+  const initialState = React.useMemo(
+    () => getInitialEditorState(surface, initialMarkdown, initialViewMode),
+    [initialMarkdown, initialViewMode, surface],
+  );
+  const [markdown, setMarkdown] = React.useState(initialState.markdown);
   const [filePath, setFilePath] = React.useState<string | null>(null);
-  const [fileName, setFileName] = React.useState(() => {
-    return localStorage.getItem(draftNameKey) ?? "Untitled.md";
-  });
-  const [openTabs, setOpenTabs] = React.useState<DocumentTab[]>(() => {
-    const initialContents = initialMarkdown ?? localStorage.getItem(draftKey) ?? defaultMarkdown;
-    return [
-      {
-        id: "tab-draft",
-        filePath: null,
-        fileName: localStorage.getItem(draftNameKey) ?? "Untitled.md",
-        markdown: initialContents,
-        savedMarkdown: initialContents,
-        viewMode: getInitialViewMode(surface, initialViewMode),
-      },
-    ];
-  });
-  const [activeTabId, setActiveTabId] = React.useState("tab-draft");
+  const [fileName, setFileName] = React.useState(initialState.fileName);
+  const [openTabs, setOpenTabs] = React.useState<DocumentTab[]>(initialState.tabs);
+  const [activeTabId, setActiveTabId] = React.useState(initialState.activeTabId);
   const openTabsRef = React.useRef<DocumentTab[]>(openTabs);
   const [recentFiles, setRecentFiles] = React.useState(getStoredRecentFiles);
-  const [savedMarkdown, setSavedMarkdown] = React.useState(markdown);
+  const [savedMarkdown, setSavedMarkdown] = React.useState(initialState.savedMarkdown);
   const [status, setStatus] = React.useState("Draft restored");
   const [statusToast, setStatusToast] = React.useState("");
   const [launchFilesChecked, setLaunchFilesChecked] = React.useState(false);
-  const [viewMode, setViewMode] = React.useState<ViewMode>(() => {
-    return getInitialViewMode(surface, initialViewMode);
-  });
+  const [viewMode, setViewMode] = React.useState<ViewMode>(initialState.viewMode);
   const [themeMode, setThemeMode] = React.useState<ThemeMode>(getStoredThemeMode);
   const [readingPalette, setReadingPalette] = React.useState<ReadingPalette>(
     getStoredReadingPalette,
@@ -1477,7 +1575,7 @@ export default function EditorApp({
   const [activeHeadingId, setActiveHeadingId] = React.useState<string | null>(null);
   const [desktopPrompt, setDesktopPrompt] = React.useState<string | null>(null);
   const [desktopHandoffUrl, setDesktopHandoffUrl] = React.useState<string | null>(null);
-  const [fileChangeNotice, setFileChangeNotice] = React.useState<string | null>(null);
+  const [fileChangeNotice, setFileChangeNotice] = React.useState<FileChangeNotice | null>(null);
   const [updateNotice, setUpdateNotice] = React.useState<UpdateNotice>({ state: "checking" });
   const [focusMode, setFocusMode] = React.useState(false);
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
@@ -1524,6 +1622,22 @@ export default function EditorApp({
   React.useEffect(() => {
     if (!previewRef.current) return;
     void renderMermaidDiagrams(previewRef.current);
+  }, [rendered]);
+
+  React.useEffect(() => {
+    const preview = previewRef.current;
+    if (!preview) return;
+
+    function markMissingImage(event: Event) {
+      const image = event.target;
+      if (!(image instanceof HTMLImageElement)) return;
+      image.classList.add("image-missing");
+      image.setAttribute("aria-label", "Image could not be loaded");
+      image.setAttribute("title", "Image could not be loaded. Check the relative path.");
+    }
+
+    preview.addEventListener("error", markMissingImage, true);
+    return () => preview.removeEventListener("error", markMissingImage, true);
   }, [rendered]);
   const tableExportStyle = pdfExportStyle.table;
   const exportReadiness = React.useMemo(() => {
@@ -1576,12 +1690,12 @@ export default function EditorApp({
 
   React.useEffect(() => {
     if (!browserMode) return;
-    const snapshots = readBrowserHistory();
+    const snapshots = readBrowserTabHistory(activeTabId);
     setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
     if (browserHistoryBaseline.current === null) {
       browserHistoryBaseline.current = markdown;
     }
-  }, [browserMode, markdown]);
+  }, [activeTabId, browserMode, markdown]);
 
   React.useEffect(() => {
     if (!draftHistoryMode) return;
@@ -1656,6 +1770,24 @@ export default function EditorApp({
   }, [activeTabId, fileName, filePath, markdown, savedMarkdown, viewMode]);
 
   React.useEffect(() => {
+    if (!browserMode) return;
+    const tabs = openTabs.map((tab) => {
+      const nextTab = tab.id === activeTabId
+        ? { ...tab, fileName, markdown, savedMarkdown, viewMode }
+        : tab;
+      return {
+        id: nextTab.id,
+        fileName: nextTab.fileName,
+        markdown: nextTab.markdown,
+        savedMarkdown: nextTab.savedMarkdown,
+        viewMode: nextTab.viewMode,
+      };
+    });
+
+    storeBrowserWorkspace({ activeTabId, tabs });
+  }, [activeTabId, browserMode, fileName, markdown, openTabs, savedMarkdown, viewMode]);
+
+  React.useEffect(() => {
     if (!nativeApi || !desktopSurface) return;
     void refreshHistory(filePath);
   }, [activeTabId, desktopSurface, filePath, nativeApi]);
@@ -1695,7 +1827,7 @@ export default function EditorApp({
       const baseline = browserHistoryBaseline.current;
       if (!baseline || baseline === markdown) return;
 
-      const snapshots = createBrowserHistorySnapshot(fileName, baseline);
+      const snapshots = createBrowserTabHistorySnapshot(activeTabId, fileName, baseline);
       setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
       browserHistoryBaseline.current = markdown;
     }, 1600);
@@ -1705,7 +1837,7 @@ export default function EditorApp({
         window.clearTimeout(browserHistoryTimer.current);
       }
     };
-  }, [browserMode, fileName, markdown]);
+  }, [activeTabId, browserMode, fileName, markdown]);
 
   React.useEffect(() => {
     if (!draftHistoryMode) return;
@@ -1816,9 +1948,11 @@ export default function EditorApp({
           return;
         }
         if (previous && (previous.modifiedAt !== stamp.modifiedAt || previous.size !== stamp.size)) {
-          setFileChangeNotice(
-            `${normalizeDisplayedPath(activeFilePath)} changed on disk. Reload to get the latest content.`,
-          );
+          setFileChangeNotice({
+            path: activeFilePath,
+            stamp,
+            message: `${normalizeDisplayedPath(activeFilePath)} changed on disk. Compare before you save or reload.`,
+          });
         }
       } catch {
         // Ignore transient read failures.
@@ -1869,7 +2003,7 @@ export default function EditorApp({
         window.clearTimeout(autoSaveTimer.current);
       }
     };
-  }, [autoSaveFile, dirty, filePath, markdown, nativeApi]);
+  }, [autoSaveFile, dirty, fileChangeNotice, filePath, markdown, nativeApi]);
 
   React.useEffect(() => {
     function beforeUnload(event: BeforeUnloadEvent) {
@@ -1985,7 +2119,12 @@ export default function EditorApp({
 
     void nativeApi.listenPathDrop((paths) => {
       const [path] = paths;
-      if (path) void openNativePath(path, "Dropped file opened", "Drop open");
+      if (!path) return;
+      if (isImagePath(path)) {
+        insertNativeImageReference(path);
+        return;
+      }
+      void openNativePath(path, "Dropped file opened", "Drop open");
     }).then((cleanup) => {
       unlistenDrop = cleanup;
     });
@@ -2144,6 +2283,9 @@ export default function EditorApp({
     browserHistoryBaseline.current = tab.markdown;
     draftHistoryBaseline.current = tab.markdown;
     setStatus(nextStatus);
+    if (browserMode) {
+      setHistoryEntries(readBrowserTabHistory(tab.id).map((snapshot) => snapshot.entry));
+    }
     if (tab.filePath) void refreshFileStamp(tab.filePath);
   }
 
@@ -2238,6 +2380,49 @@ export default function EditorApp({
     }
   }
 
+  async function compareFileFromDisk() {
+    if (!nativeApi || !filePath) return;
+
+    try {
+      const nextFile = await nativeApi.openRecentMarkdownFile(filePath);
+      const createdAt = fileChangeNotice?.stamp.modifiedAt || Date.now();
+      setSelectedHistory({
+        entry: {
+          id: diskSnapshotId,
+          file_path: nextFile.path || filePath,
+          file_name: nextFile.name,
+          snapshot_path: "disk:current",
+          created_at: createdAt,
+          size: nextFile.contents.length,
+        },
+        contents: nextFile.contents,
+      });
+      setHistoryEntries((entries) => {
+        const diskEntry = {
+          id: diskSnapshotId,
+          file_path: nextFile.path || filePath,
+          file_name: nextFile.name,
+          snapshot_path: "disk:current",
+          created_at: createdAt,
+          size: nextFile.contents.length,
+        };
+        return [diskEntry, ...entries.filter((entry) => entry.id !== diskSnapshotId)];
+      });
+      setHistoryOpen(true);
+      setStatus("Comparing current editor with disk version");
+    } catch (error) {
+      setErrorStatus("Compare disk version", error);
+    }
+  }
+
+  async function keepCurrentFileVersion() {
+    if (fileChangeNotice) {
+      fileStampRef.current = fileChangeNotice.stamp;
+    }
+    setFileChangeNotice(null);
+    setStatus("Keeping current editor version");
+  }
+
   async function importHandoffDraft(draft: HandoffDraft) {
     loadDocument({ path: "", name: draft.name, contents: draft.markdown }, "Imported web draft");
     setHistoryOpen(false);
@@ -2245,7 +2430,7 @@ export default function EditorApp({
 
   async function refreshHistory(path = filePath) {
     if (browserMode) {
-      const snapshots = readBrowserHistory();
+      const snapshots = readBrowserTabHistory(activeTabId);
       setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
       setSelectedHistory((current) => {
         if (!current) return current;
@@ -2374,6 +2559,22 @@ export default function EditorApp({
     return window.confirm(message);
   }
 
+  async function confirmOverwriteDiskChanges() {
+    const message =
+      "The file changed on disk after you opened it. Save anyway and overwrite the disk version?";
+    if (nativeApi) {
+      const dialog = await import("@tauri-apps/plugin-dialog");
+      return dialog.confirm(message, {
+        title: "Overwrite disk changes?",
+        kind: "warning",
+        okLabel: "Overwrite",
+        cancelLabel: "Compare first",
+      });
+    }
+
+    return window.confirm(message);
+  }
+
   async function openFileWithGuard() {
     await openFile();
   }
@@ -2425,6 +2626,17 @@ export default function EditorApp({
     if (!nativeApi) return;
 
     try {
+      if (fileChangeNotice && fileChangeNotice.path === filePath) {
+        if (options?.silent) {
+          setStatus("Autosave paused because the file changed on disk");
+          return;
+        }
+        if (!(await confirmOverwriteDiskChanges())) {
+          setStatus("Save cancelled. Compare the disk version before overwriting.");
+          return;
+        }
+      }
+
       const previous = {
         markdown: savedMarkdown,
         fileName,
@@ -2652,8 +2864,8 @@ export default function EditorApp({
     if (browserMode) {
       const baseline = browserHistoryBaseline.current;
       if (baseline && baseline !== markdown) {
-        const historyWasFull = readBrowserHistory().length >= freeHistorySnapshotLimit;
-        const snapshots = createBrowserHistorySnapshot(fileName, baseline);
+        const historyWasFull = readBrowserTabHistory(activeTabId).length >= freeHistorySnapshotLimit;
+        const snapshots = createBrowserTabHistorySnapshot(activeTabId, fileName, baseline);
         setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
         browserHistoryBaseline.current = markdown;
         setStatus(
@@ -2716,8 +2928,13 @@ export default function EditorApp({
   }
 
   async function restoreHistorySnapshot(id: string) {
+    if (id === diskSnapshotId) {
+      await reloadFileFromDisk();
+      return;
+    }
+
     if (browserMode) {
-      const snapshot = readBrowserHistory().find((item) => item.entry.id === id);
+      const snapshot = readBrowserTabHistory(activeTabId).find((item) => item.entry.id === id);
       if (!snapshot) {
         setStatus("History snapshot not found");
         return;
@@ -2776,8 +2993,14 @@ export default function EditorApp({
   }
 
   async function previewHistorySnapshot(id: string) {
+    if (id === diskSnapshotId) {
+      if (selectedHistory?.entry.id === diskSnapshotId) return;
+      await compareFileFromDisk();
+      return;
+    }
+
     if (browserMode) {
-      const snapshot = readBrowserHistory().find((item) => item.entry.id === id);
+      const snapshot = readBrowserTabHistory(activeTabId).find((item) => item.entry.id === id);
       if (snapshot) {
         setSelectedHistory(snapshot);
       } else {
@@ -2807,9 +3030,16 @@ export default function EditorApp({
   }
 
   async function deleteHistorySnapshot(id: string) {
+    if (id === diskSnapshotId) {
+      setHistoryEntries((entries) => entries.filter((entry) => entry.id !== diskSnapshotId));
+      setSelectedHistory(null);
+      setStatus("Disk comparison dismissed");
+      return;
+    }
+
     if (browserMode) {
-      const snapshots = readBrowserHistory().filter((snapshot) => snapshot.entry.id !== id);
-      writeBrowserHistory(snapshots);
+      const snapshots = readBrowserTabHistory(activeTabId).filter((snapshot) => snapshot.entry.id !== id);
+      writeBrowserTabHistory(activeTabId, snapshots);
       setHistoryEntries(snapshots.map((snapshot) => snapshot.entry));
       if (selectedHistory?.entry.id === id) {
         setSelectedHistory(null);
@@ -2843,10 +3073,43 @@ export default function EditorApp({
     }
   }
 
+  function insertMarkdownBlock(block: string, nextStatus: string) {
+    setMarkdown((current) => {
+      const separator = current.trimEnd() ? "\n\n" : "";
+      return `${current.trimEnd()}${separator}${block}\n`;
+    });
+    setStatus(nextStatus);
+    if (viewMode === "write") {
+      changeViewMode("split");
+    }
+  }
+
+  async function insertBrowserImage(file: File) {
+    if (file.size > browserImageEmbedLimit) {
+      setStatus("Image is too large for browser-local embedding");
+      setDesktopPrompt("Large image attachments are better in Desktop, where files can stay beside your Markdown document.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result ?? "");
+      if (!dataUrl.startsWith("data:image/")) {
+        setStatus("Image paste failed");
+        return;
+      }
+      insertMarkdownBlock(
+        buildBrowserImageMarkdown(file.name || "pasted-image", dataUrl),
+        "Image embedded in browser draft",
+      );
+    };
+    reader.onerror = () => setStatus("Image paste failed");
+    reader.readAsDataURL(file);
+  }
+
   async function loadDroppedFile(file: File) {
     if (file.type.startsWith("image/")) {
-      setStatus("Image attachments are a desktop feature");
-      setDesktopPrompt("Local image attachments need Desktop so VeloWrite can work with files on your computer.");
+      await insertBrowserImage(file);
       return;
     }
 
@@ -2860,8 +3123,39 @@ export default function EditorApp({
     reader.readAsText(file);
   }
 
+  function insertNativeImageReference(path: string) {
+    const imageMarkdown = buildImageMarkdown(path, filePath);
+    insertMarkdownBlock(
+      imageMarkdown,
+      filePath
+        ? "Image reference added with a local path"
+        : "Image reference added. Save the document beside assets for portability.",
+    );
+  }
+
+  async function handlePaste(event: React.ClipboardEvent<HTMLElement>) {
+    if (nativeApi) return;
+    const image = Array.from(event.clipboardData.files).find((file) =>
+      file.type.startsWith("image/"),
+    );
+    if (!image) return;
+
+    event.preventDefault();
+    await insertBrowserImage(image);
+  }
+
   async function openNativePath(path: string, successStatus: string, errorAction: string) {
     if (!nativeApi) return;
+
+    if (isImagePath(path)) {
+      insertNativeImageReference(path);
+      return;
+    }
+
+    if (!isMarkdownPath(path)) {
+      setStatus("Drop a Markdown file or a supported image");
+      return;
+    }
 
     const existing = openTabsRef.current.find(
       (tab) => getDocumentPathKey(tab.filePath) === getDocumentPathKey(path),
@@ -2913,16 +3207,13 @@ export default function EditorApp({
       window.cancelAnimationFrame(previewScrollFrame.current);
     }
 
-    scrollSource.current = "editor";
+    lockScrollSource("editor");
     previewScrollFrame.current = window.requestAnimationFrame(() => {
       const preview = previewRef.current;
       if (!preview) return;
 
       const scrollRange = preview.scrollHeight - preview.clientHeight;
       preview.scrollTop = scrollRange > 0 ? scrollRange * nextRatio : 0;
-      window.setTimeout(() => {
-        if (scrollSource.current === "editor") scrollSource.current = null;
-      }, 120);
     });
   }
 
@@ -2933,11 +3224,15 @@ export default function EditorApp({
       return;
     }
 
-    scrollSource.current = "preview";
+    lockScrollSource("preview");
     setEditorScrollRatio(Math.min(1, Math.max(0, ratio)));
+  }
+
+  function lockScrollSource(source: "editor" | "preview") {
+    scrollSource.current = source;
     window.setTimeout(() => {
-      if (scrollSource.current === "preview") scrollSource.current = null;
-    }, 120);
+      if (scrollSource.current === source) scrollSource.current = null;
+    }, 220);
   }
 
   function scrollEditorToLine(line: number) {
@@ -3009,6 +3304,7 @@ export default function EditorApp({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={(event) => void handleDrop(event)}
+      onPaste={(event) => void handlePaste(event)}
     >
       <input
         ref={fileInput}
@@ -3420,13 +3716,16 @@ export default function EditorApp({
           <aside className="file-change-banner" aria-label="File changed on disk">
             <div>
               <strong>File changed on disk</strong>
-              <span>{fileChangeNotice}</span>
+              <span>{fileChangeNotice.message}</span>
             </div>
             <div className="file-change-actions">
+              <button onClick={() => void compareFileFromDisk()} type="button">
+                Compare
+              </button>
               <button onClick={() => void reloadFileFromDisk()} type="button">
                 Reload
               </button>
-              <button onClick={() => setFileChangeNotice(null)} type="button">
+              <button onClick={() => void keepCurrentFileVersion()} type="button">
                 Keep current
               </button>
             </div>
@@ -3543,7 +3842,7 @@ export default function EditorApp({
             </div>
           </aside>
         )}
-        {dragActive && <div className="drop-overlay">Drop Markdown file to open</div>}
+        {dragActive && <div className="drop-overlay">Drop Markdown or image file</div>}
         {settingsOpen && (
           <SettingsPanel
             themeMode={themeMode}

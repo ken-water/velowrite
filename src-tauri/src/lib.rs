@@ -365,6 +365,28 @@ fn markdown_path_from_arg(arg: &str) -> Option<String> {
     Some(display_path(&canonical_path))
 }
 
+fn menu_command_from_id(id: &str) -> Option<String> {
+    match id {
+        "new_file" => Some("new".to_string()),
+        "open_file" => Some("open".to_string()),
+        "save_file" => Some("save".to_string()),
+        "export_html" => Some("export-html".to_string()),
+        "export_pdf" => Some("export-pdf".to_string()),
+        id if id.strip_prefix("recent_open_").is_some() => {
+            Some(format!("open-recent:{}", id.strip_prefix("recent_open_").unwrap()))
+        }
+        "clear_recent" => Some("clear-recent".to_string()),
+        "recent_files" => None,
+        "show_history" => Some("show-history".to_string()),
+        "view_write" => Some("view-write".to_string()),
+        "view_split" => Some("view-split".to_string()),
+        "view_preview" => Some("view-preview".to_string()),
+        "exit_app" => Some("exit".to_string()),
+        "reload" => None,
+        _ => None,
+    }
+}
+
 #[tauri::command]
 fn create_history_snapshot(
     app: AppHandle,
@@ -646,6 +668,32 @@ mod tests {
     }
 
     #[test]
+    fn menu_ids_map_to_frontend_commands() {
+        let cases = [
+            ("new_file", Some("new")),
+            ("open_file", Some("open")),
+            ("save_file", Some("save")),
+            ("export_html", Some("export-html")),
+            ("export_pdf", Some("export-pdf")),
+            ("recent_open_0", Some("open-recent:0")),
+            ("recent_open_9", Some("open-recent:9")),
+            ("clear_recent", Some("clear-recent")),
+            ("show_history", Some("show-history")),
+            ("view_write", Some("view-write")),
+            ("view_split", Some("view-split")),
+            ("view_preview", Some("view-preview")),
+            ("exit_app", Some("exit")),
+            ("recent_files", None),
+            ("reload", None),
+            ("unknown", None),
+        ];
+
+        for (id, expected) in cases {
+            assert_eq!(menu_command_from_id(id).as_deref(), expected);
+        }
+    }
+
+    #[test]
     fn native_file_helpers_only_accept_expected_extensions_and_sizes() {
         let dir = std::env::temp_dir().join(format!("velowrite-file-test-{}", now_ms()));
         fs::create_dir_all(&dir).expect("create temp directory");
@@ -705,6 +753,45 @@ mod tests {
         assert!(write_pdf_file(
             pdf_path.to_string_lossy().to_string(),
             general_purpose::STANDARD.encode(b"not a pdf"),
+        )
+        .is_err());
+
+        let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn native_file_helpers_read_and_write_expected_file_types() {
+        let dir = std::env::temp_dir().join(format!("velowrite-read-write-test-{}", now_ms()));
+        fs::create_dir_all(&dir).expect("create temp directory");
+        let markdown_path = dir.join("Draft.MDOWN");
+        let nested_path = dir.join("missing").join("notes.md");
+        let html_path = dir.join("export.htm");
+
+        write_markdown_file(
+            markdown_path.to_string_lossy().to_string(),
+            "# Draft\n\nPortable source.".to_string(),
+        )
+        .expect("write markdown file");
+
+        let file = read_markdown_file_from_path(markdown_path.to_string_lossy().to_string())
+            .expect("read markdown file");
+        assert_eq!(file.name, "Draft.MDOWN");
+        assert_eq!(file.contents, "# Draft\n\nPortable source.");
+        assert!(file.path.ends_with("Draft.MDOWN"));
+
+        write_html_file(
+            html_path.to_string_lossy().to_string(),
+            "<main>Export</main>".to_string(),
+        )
+        .expect("write html file");
+        assert_eq!(
+            fs::read_to_string(&html_path).expect("read html file"),
+            "<main>Export</main>"
+        );
+
+        assert!(write_markdown_file(
+            nested_path.to_string_lossy().to_string(),
+            "missing folder".to_string(),
         )
         .is_err());
 
@@ -815,31 +902,13 @@ pub fn run() {
             app.set_menu(menu)?;
             app.on_menu_event(|app, event| {
                 let id = event.id().0.as_str();
-                let command = match id {
-                    "new_file" => Some("new".to_string()),
-                    "open_file" => Some("open".to_string()),
-                    "save_file" => Some("save".to_string()),
-                    "export_html" => Some("export-html".to_string()),
-                    "export_pdf" => Some("export-pdf".to_string()),
-                    id if id.strip_prefix("recent_open_").is_some() => Some(format!(
-                        "open-recent:{}",
-                        id.strip_prefix("recent_open_").unwrap()
-                    )),
-                    "clear_recent" => Some("clear-recent".to_string()),
-                    "recent_files" => None,
-                    "show_history" => Some("show-history".to_string()),
-                    "view_write" => Some("view-write".to_string()),
-                    "view_split" => Some("view-split".to_string()),
-                    "view_preview" => Some("view-preview".to_string()),
-                    "exit_app" => Some("exit".to_string()),
-                    "reload" => {
-                        if let Some(window) = app.get_webview_window("main") {
-                            let _ = window.eval("window.location.reload()");
-                        }
-                        None
+                if id == "reload" {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.eval("window.location.reload()");
                     }
-                    _ => None,
-                };
+                }
+
+                let command = menu_command_from_id(id);
 
                 if let Some(command) = command {
                     let _ = app.emit("velowrite-menu", command);

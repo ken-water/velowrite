@@ -2038,8 +2038,9 @@ export const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog lists what shipped in each preview build and what is still planned. Older releases stay below so you can compare versions.",
-    updated: "August 20, 2026",
+    updated: "August 23, 2026",
     directory: [
+      { label: "0.2.9", href: "#v029" },
       { label: "0.2.8", href: "#v028" },
       { label: "0.2.7", href: "#v027" },
       { label: "0.2.6", href: "#v026" },
@@ -2066,6 +2067,16 @@ export const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v029",
+        title: "0.2.9 preview",
+        body: [
+          "Added browser-local workspace recovery for multiple Web editor tabs, including each tab's content, active view, and saved draft state.",
+          "Added browser-local image embedding for dropped and pasted images, with refresh persistence for supported image sizes.",
+          "Added per-tab browser history so compare and restore actions stay attached to the document being edited.",
+          "Kept native folders, offline file monitoring, and direct local file saving in the desktop workflow while making the Web editor more complete for browser-only work.",
+        ],
+      },
       {
         id: "v028",
         title: "0.2.8 preview",

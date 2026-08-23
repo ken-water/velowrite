@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildFocusedLineDiff,
+  buildBrowserImageMarkdown,
+  buildImageMarkdown,
   buildLineDiff,
   compareSemver,
   createBrowserHistorySnapshot,
+  createBrowserTabHistorySnapshot,
   createDesktopHandoffUrl,
   createDraftHistorySnapshot,
   createLocalHistorySnapshot,
@@ -12,21 +15,28 @@ import {
   getStoredLastLocalFile,
   getStoredEditorFontSize,
   getStoredRecentFiles,
+  getStoredBrowserWorkspace,
   getRecentFileContext,
   getStoredReadingFont,
   getStoredReadingPalette,
   getStoredTableExportStyle,
+  getRelativeAssetPath,
+  isImagePath,
+  isMarkdownPath,
   normalizeDisplayedPath,
   getStoredThemeMode,
   limitHistorySnapshots,
   normalizeMarkdownFileName,
   parseDesktopHandoffUrl,
   readBrowserHistory,
+  readBrowserTabHistory,
   readDraftHistory,
   readLocalHistory,
   storeRecentFiles,
+  storeBrowserWorkspace,
   storeLastLocalFile,
   writeBrowserHistory,
+  writeBrowserTabHistory,
   writeDraftHistory,
   writeLocalHistory,
 } from "./editorCore";
@@ -158,6 +168,63 @@ describe("editor preferences", () => {
     localStorage.setItem("velowrite:reading-font", "invalid");
     expect(getStoredReadingPalette()).toBe("focus");
     expect(getStoredReadingFont()).toBe("system");
+  });
+
+  it("round-trips the browser workspace and keeps only valid tabs", () => {
+    storeBrowserWorkspace({
+      activeTabId: "tab-two",
+      tabs: [
+        {
+          id: "tab-one",
+          fileName: "One.md",
+          markdown: "# One",
+          savedMarkdown: "# One",
+          viewMode: "write",
+        },
+        {
+          id: "tab-two",
+          fileName: "Two.md",
+          markdown: "# Two",
+          savedMarkdown: "# Two",
+          viewMode: "preview",
+        },
+      ],
+    });
+
+    expect(getStoredBrowserWorkspace()).toEqual({
+      activeTabId: "tab-two",
+      tabs: [
+        {
+          id: "tab-one",
+          fileName: "One.md",
+          markdown: "# One",
+          savedMarkdown: "# One",
+          viewMode: "write",
+        },
+        {
+          id: "tab-two",
+          fileName: "Two.md",
+          markdown: "# Two",
+          savedMarkdown: "# Two",
+          viewMode: "preview",
+        },
+      ],
+    });
+
+    localStorage.setItem(
+      "velowrite:browser-workspace",
+      JSON.stringify({
+        activeTabId: "invalid",
+        tabs: [{ id: "bad", fileName: "bad.md", markdown: "# Bad" }],
+      }),
+    );
+    expect(getStoredBrowserWorkspace()).toBeNull();
+  });
+
+  it("builds safe browser-local image Markdown", () => {
+    expect(buildBrowserImageMarkdown("notes[1].png", "data:image/png;base64,abc")).toBe(
+      "![notes-1-.png](data:image/png;base64,abc)",
+    );
   });
 });
 
@@ -307,6 +374,27 @@ describe("free preview history policy", () => {
     expect(readDraftHistory().map((item) => item.contents)).toEqual(["draft"]);
   });
 
+  it("keeps browser history isolated per document tab and migrates the first draft", () => {
+    createBrowserTabHistorySnapshot("tab-one", "One", "one-version");
+    createBrowserTabHistorySnapshot("tab-two", "Two", "two-version");
+
+    expect(readBrowserTabHistory("tab-one").map((item) => item.contents)).toEqual([
+      "one-version",
+    ]);
+    expect(readBrowserTabHistory("tab-two").map((item) => item.contents)).toEqual([
+      "two-version",
+    ]);
+
+    createBrowserHistorySnapshot("Legacy", "legacy-version");
+    expect(readBrowserTabHistory("tab-draft").map((item) => item.contents)).toEqual([
+      "legacy-version",
+    ]);
+
+    writeBrowserTabHistory("tab-two", []);
+    expect(readBrowserTabHistory("tab-one")).toHaveLength(1);
+    expect(readBrowserTabHistory("tab-two")).toEqual([]);
+  });
+
   it("deduplicates non-adjacent local snapshots with matching contents", () => {
     vi.spyOn(Math, "random").mockReturnValue(0.123456);
 
@@ -383,6 +471,33 @@ describe("recent files", () => {
     );
     expect(normalizeDisplayedPath(String.raw`\\?\UNC\server\share\plan.md`)).toBe(
       String.raw`\\server\share\plan.md`,
+    );
+  });
+
+  it("detects Markdown and image paths for native drag and drop", () => {
+    expect(isMarkdownPath("/notes/plan.md")).toBe(true);
+    expect(isMarkdownPath("/notes/plan.markdown")).toBe(true);
+    expect(isMarkdownPath("/notes/photo.png")).toBe(false);
+    expect(isImagePath("/notes/photo.PNG")).toBe(true);
+    expect(isImagePath("/notes/diagram.svg")).toBe(true);
+    expect(isImagePath("/notes/plan.md")).toBe(false);
+  });
+
+  it("builds portable Markdown image references when assets sit beside the document", () => {
+    expect(getRelativeAssetPath("/notes/project/assets/hero image.png", "/notes/project/plan.md")).toBe(
+      "assets/hero image.png",
+    );
+    expect(
+      buildImageMarkdown("/notes/project/assets/hero image.png", "/notes/project/plan.md"),
+    ).toBe("![hero image](assets/hero%20image.png)");
+  });
+
+  it("keeps absolute image paths when an asset is outside the current document folder", () => {
+    expect(getRelativeAssetPath("/shared/image.png", "/notes/project/plan.md")).toBe(
+      "/shared/image.png",
+    );
+    expect(buildImageMarkdown(String.raw`C:\Users\rich\Pictures\cover.jpg`, null)).toBe(
+      "![cover](C:/Users/rich/Pictures/cover.jpg)",
     );
   });
 

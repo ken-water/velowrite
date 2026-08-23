@@ -3591,6 +3591,15 @@ pre,
   margin: 0;
 }
 
+.markdown-body img.image-missing {
+  display: block;
+  min-height: 52px;
+  border: 1px dashed var(--accent-strong);
+  background: color-mix(in srgb, var(--accent-soft) 42%, var(--surface));
+  object-fit: contain;
+  opacity: 0.78;
+}
+
 .markdown-body .code-tabset,
 .code-tabset {
   overflow: hidden;

@@ -272,6 +272,136 @@ test("split mode syncs scrolling in both directions", async ({ page }) => {
     .toBeGreaterThan(0);
 });
 
+test("preview marks an image that fails to load", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=missing_image");
+  await page.evaluate(() => {
+    localStorage.setItem(
+      "velowrite:draft",
+      "# Image check\n\n![Missing asset](/does-not-exist-velowrite.png)",
+    );
+  });
+  await page.reload();
+
+  const image = page.getByLabel("Rendered preview").locator("img").first();
+  await expect(image).toHaveClass(/image-missing/);
+  await expect(image).toHaveAttribute("title", /relative path/);
+});
+
+test("long mixed Markdown stays readable and synchronized in split mode", async ({ page }) => {
+  const sections = Array.from({ length: 72 }, (_, index) => `## Section ${index + 1}
+
+This paragraph is long enough to create a realistic reading surface while the editor and preview remain in split mode.
+
+| Input | Output |
+| --- | --- |
+| Math | $x_${index + 1}$ |
+| Link | [VeloWrite](https://velowrite.app) |
+
+![Missing image ${index + 1}](/missing-long-document-${index + 1}.png)
+
+
+\`\`\`javascript
+const section${index + 1} = ${index + 1};
+\`\`\`
+
+\`\`\`mermaid
+flowchart LR
+  A${index + 1}[Draft] --> B${index + 1}[Review]
+\`\`\`
+`).join("\n");
+
+  await page.goto("/web?utm_source=e2e&utm_medium=long_mixed_markdown");
+  await page.evaluate((markdown) => {
+    localStorage.setItem("velowrite:draft", markdown);
+    localStorage.setItem("velowrite:draft-name", "long-mixed.md");
+  }, sections);
+  await page.reload();
+  await page.getByRole("button", { name: "Split", exact: true }).click();
+
+  await expect(page.locator(".markdown-body h2")).toHaveCount(72);
+  await expect(page.locator(".markdown-body table").first()).toBeVisible();
+  await expect(page.locator(".markdown-body .katex").first()).toBeVisible();
+  await expect(page.locator(".markdown-body .mermaid-rendered svg").first()).toBeVisible();
+  await expect(page.locator(".markdown-body img.image-missing").first()).toBeVisible();
+
+  const editorScroller = page.locator(".cm-scroller").first();
+  const preview = page.locator(".markdown-body").first();
+  await preview.evaluate((element) => {
+    element.scrollTop = element.scrollHeight * 0.72;
+    element.dispatchEvent(new Event("scroll", { bubbles: true }));
+  });
+  await expect
+    .poll(() =>
+      editorScroller.evaluate(
+        (element) => element.scrollTop / (element.scrollHeight - element.clientHeight),
+      ),
+    )
+    .toBeGreaterThan(0.55);
+  await page.waitForTimeout(800);
+  const previewRatioBeforeEditorScroll = await preview.evaluate(
+    (element) => element.scrollTop / (element.scrollHeight - element.clientHeight),
+  );
+  const editorBox = await editorScroller.boundingBox();
+  expect(editorBox).toBeTruthy();
+  await page.mouse.move(
+    (editorBox?.x ?? 0) + (editorBox?.width ?? 0) / 2,
+    (editorBox?.y ?? 0) + (editorBox?.height ?? 0) / 2,
+  );
+  await page.mouse.wheel(0, -5200);
+  await page.mouse.wheel(0, -5200);
+  await page.mouse.wheel(0, -5200);
+  await expect
+    .poll(() =>
+      preview.evaluate(
+        (element) => element.scrollTop / (element.scrollHeight - element.clientHeight),
+      ),
+    )
+    .toBeLessThan(previewRatioBeforeEditorScroll - 0.025);
+});
+
+test("Markdown editing boundaries preserve source and rendered structure", async ({ page }) => {
+  const markdown = `# Boundary Check
+
+**Bold** and *italic* text with a [link](https://velowrite.app).
+
+- Parent
+  - Child
+    - Grandchild
+
+| Name | Value |
+| --- | --- |
+| Alpha | **bold** |
+
+Inline math $a^2 + b^2 = c^2$.
+
+\`\`\`python
+print("hello")
+\`\`\`
+`;
+
+  await page.goto("/web?utm_source=e2e&utm_medium=markdown_boundaries");
+  await page.getByRole("button", { name: "Write", exact: true }).click();
+  const editor = page.locator(".cm-content").first();
+  await editor.click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText(markdown);
+
+  await page.getByRole("button", { name: "Preview", exact: true }).click();
+  const renderedPreview = page.getByLabel("Rendered preview");
+  await expect(renderedPreview.locator("h1")).toHaveText("Boundary Check");
+  await expect(renderedPreview.locator("strong").first()).toHaveText("Bold");
+  await expect(renderedPreview.locator("em")).toContainText("italic");
+  await expect(renderedPreview.locator("a")).toHaveAttribute("href", "https://velowrite.app");
+  await expect(renderedPreview.locator("ul ul ul li")).toContainText("Grandchild");
+  await expect(renderedPreview.locator("table")).toContainText("Alpha");
+  await expect(renderedPreview.locator(".katex")).toBeVisible();
+  await expect(renderedPreview.locator("pre code.language-python")).toContainText('print("hello")');
+
+  await page.getByRole("button", { name: "Write", exact: true }).click();
+  await expect(editor).toContainText("Grandchild");
+  await expect(editor).toContainText("a^2 + b^2 = c^2");
+});
+
 test("web editor brand link returns to the homepage", async ({ page }) => {
   await page.goto("/web?utm_source=e2e&utm_medium=brand");
 
@@ -440,6 +570,53 @@ test("web editor confirms clipboard copy actions", async ({ page }) => {
   await expect
     .poll(() => page.evaluate(() => window.localStorage.getItem("velowrite:e2e-clipboard")))
     .toContain("#");
+});
+
+test("web editor embeds a dropped image and keeps it after refresh", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=browser_image");
+
+  const dataTransfer = await page.evaluateHandle(() => {
+    const bytes = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+    const file = new File([bytes], "diagram.png", { type: "image/png" });
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    return transfer;
+  });
+  await page.locator("main").dispatchEvent("drop", { dataTransfer });
+
+  await expect(page.getByRole("status")).toContainText("Image embedded in browser draft");
+  await expect(page.locator(".markdown-body img").first()).toHaveAttribute(
+    "src",
+    /^data:image\/png;base64,/,
+  );
+
+  await page.reload();
+  await expect(page.locator(".markdown-body img").first()).toHaveAttribute(
+    "src",
+    /^data:image\/png;base64,/,
+  );
+});
+
+test("web editor restores multiple tabs and each tab view mode after refresh", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=browser_workspace");
+  const editor = page.locator(".cm-content").first();
+  await editor.click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText("# First Browser Tab\n\nFirst draft");
+  await page.getByRole("button", { name: "New document tab" }).click();
+  await page.getByRole("button", { name: "Write", exact: true }).click();
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText("# Second Browser Tab\n\nSecond draft");
+  await page.getByRole("button", { name: "Preview", exact: true }).click();
+
+  await page.reload();
+  await expect(page.locator('[role="tab"]')).toHaveCount(2);
+  await expect(page.locator(".editor-grid")).toHaveClass(/mode-preview/);
+  await expect(page.locator(".markdown-body")).toContainText("Second Browser Tab");
+
+  await page.locator('[role="tab"]').first().click();
+  await expect(page.locator(".markdown-body")).toContainText("First Browser Tab");
 });
 
 test("docs index publishes the Markdown history article", async ({ page }) => {
@@ -635,6 +812,21 @@ test("document tabs keep their own writing, split, or preview mode", async ({ pa
   await expect(page.locator(".editor-grid")).toHaveClass(/mode-preview/);
 });
 
+test("switching document tabs keeps the active cursor near its previous position", async ({ page }) => {
+  await page.goto("/app");
+
+  const editor = page.locator(".cm-content").first();
+  await editor.click();
+  await page.keyboard.press("Control+End");
+  await page.getByRole("button", { name: "New document tab" }).click();
+  await page.getByRole("tablist", { name: "Open documents" }).getByRole("tab").first().click();
+  await editor.focus();
+  await page.keyboard.insertText("\nCursor stays here");
+
+  await expect(editor).toContainText("Cursor stays here");
+  await expect(editor).not.toContainText("Cursor stays hereStart Writing");
+});
+
 test("document tabs stay within the viewport on narrow windows", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/app");
@@ -747,6 +939,56 @@ test("web editor keeps browser-local history snapshots", async ({ page }) => {
   await expect(page.getByLabel("Snapshot diff preview")).toBeVisible();
   await expect(page.getByText("Restore preview")).toBeVisible();
   await expect(page.getByRole("button", { name: "Jump to first change" })).toBeVisible();
+});
+
+test("web document tabs keep their browser history isolated", async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem(
+      "velowrite:browser-workspace",
+      JSON.stringify({
+        activeTabId: "tab-one",
+        tabs: [
+          {
+            id: "tab-one",
+            fileName: "One.md",
+            markdown: "# One current",
+            savedMarkdown: "# One current",
+            viewMode: "split",
+          },
+          {
+            id: "tab-two",
+            fileName: "Two.md",
+            markdown: "# Two current",
+            savedMarkdown: "# Two current",
+            viewMode: "split",
+          },
+        ],
+      }),
+    );
+    window.localStorage.setItem(
+      "velowrite:browser-history:tab-one",
+      JSON.stringify([{ id: "one-old", fileName: "One.md", createdAt: 2, contents: "# One old" }]),
+    );
+    window.localStorage.setItem(
+      "velowrite:browser-history:tab-two",
+      JSON.stringify([{ id: "two-old", fileName: "Two.md", createdAt: 1, contents: "# Two old" }]),
+    );
+  });
+
+  await page.goto("/web?utm_source=e2e&utm_medium=tab-history");
+
+  const historyButton = page.getByRole("button", { name: "History" }).first();
+  await historyButton.click();
+  await page.locator(".history-summary").first().click();
+  await expect(page.getByText("# One old")).toBeVisible();
+  await expect(page.getByText("# Two old")).toHaveCount(0);
+  await page.getByRole("dialog", { name: "History" }).getByRole("button", { name: "Close" }).click();
+
+  await page.getByRole("tablist", { name: "Open documents" }).getByRole("tab", { name: "Two.md" }).click();
+  await historyButton.click();
+  await page.locator(".history-summary").first().click();
+  await expect(page.getByText("# Two old")).toBeVisible();
+  await expect(page.getByText("# One old")).toHaveCount(0);
 });
 
 test("web editor history UI explains and enforces the three snapshot preview limit", async ({ page }) => {
@@ -972,7 +1214,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.7_aarch64\.dmg/,
+    /VeloWrite_0\.2\.8_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Included now" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Still preview" })).toBeVisible();

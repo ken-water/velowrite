@@ -1,18 +1,34 @@
-import { describe, expect, it } from "vitest";
+import mermaid from "mermaid";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildHtmlDocument,
   escapeHtml,
   extractHeadings,
   getMetrics,
+  highlightCode,
   renderMarkdown,
+  renderMermaidDiagrams,
   resolveAssetPath,
   slugify,
 } from "./markdown";
 
+vi.mock("mermaid", () => ({
+  default: {
+    initialize: vi.fn(),
+    render: vi.fn(),
+  },
+}));
+
 describe("markdown utilities", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
   it("creates stable heading slugs", () => {
     expect(slugify("Hello VeloWrite!", 0)).toBe("hello-velowrite");
     expect(slugify("   ", 3)).toBe("heading-4");
+    expect(slugify("中文 标题", 0)).toBe("中文-标题");
   });
 
   it("extracts h1-h3 headings and deduplicates ids", () => {
@@ -79,6 +95,29 @@ const answer = 42;
     expect(html).toContain("answer");
   });
 
+  it("normalizes code language aliases before highlighting", () => {
+    const html = renderMarkdown(`\`\`\`py
+print("hello")
+\`\`\`
+
+\`\`\`sh
+echo "hello"
+\`\`\`
+
+\`\`\`ts
+const typed: string = "yes";
+\`\`\``);
+
+    expect(html).toContain("language-python");
+    expect(html).toContain("language-bash");
+    expect(html).toContain("language-typescript");
+  });
+
+  it("escapes code when the language is missing or unsupported", () => {
+    expect(highlightCode("<unsafe>", "")).toBe("&lt;unsafe&gt;");
+    expect(highlightCode("<unsafe>", "unknown-language")).toBe("&lt;unsafe&gt;");
+  });
+
   it("renders Mermaid fences as runtime-rendered diagrams", () => {
     const html = renderMarkdown(`\`\`\`mermaid
 flowchart LR
@@ -104,6 +143,78 @@ sequenceDiagram
     expect(html).toContain("sequenceDiagram");
   });
 
+  it("renders Mermaid placeholders into accessible runtime figures", async () => {
+    const bindFunctions = vi.fn();
+    vi.mocked(mermaid.render).mockResolvedValue({
+      svg: "<svg><text>Diagram</text></svg>",
+      bindFunctions,
+      diagramType: "flowchart-v2",
+    });
+    const figure = {
+      className: "",
+      innerHTML: "",
+      setAttribute: vi.fn(),
+    };
+    vi.stubGlobal("document", {
+      createElement: vi.fn().mockReturnValue(figure),
+    });
+    const element = {
+      dataset: {
+        mermaid: encodeURIComponent("flowchart LR\nA[One] --> B[Two]"),
+      },
+      classList: {
+        add: vi.fn(),
+        remove: vi.fn(),
+      },
+      replaceWith: vi.fn(),
+    };
+    const root = {
+      querySelectorAll: vi.fn().mockReturnValue([element]),
+    } as unknown as ParentNode;
+
+    await renderMermaidDiagrams(root);
+
+    expect(mermaid.initialize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        startOnLoad: false,
+        securityLevel: "strict",
+      }),
+    );
+    expect(mermaid.render).toHaveBeenCalledWith(
+      expect.stringMatching(/^velowrite-mermaid-/),
+      "flowchart LR\nA[One] --> B[Two]",
+    );
+    expect(figure.className).toBe("mermaid-diagram mermaid-rendered");
+    expect(figure.setAttribute).toHaveBeenCalledWith("aria-label", "Rendered Mermaid diagram");
+    expect(figure.innerHTML).toContain("<svg>");
+    expect(element.replaceWith).toHaveBeenCalledWith(figure);
+    expect(bindFunctions).toHaveBeenCalledWith(figure);
+  });
+
+  it("keeps Mermaid source visible when runtime rendering fails", async () => {
+    vi.mocked(mermaid.render).mockRejectedValue(new Error("Parse failed"));
+    const element = {
+      dataset: {
+        mermaid: "%E0%A4%A",
+      },
+      classList: {
+        add: vi.fn(),
+        remove: vi.fn(),
+      },
+      innerHTML: "",
+    };
+    const root = {
+      querySelectorAll: vi.fn().mockReturnValue([element]),
+    } as unknown as ParentNode;
+
+    await renderMermaidDiagrams(root);
+
+    expect(element.classList.remove).toHaveBeenCalledWith("mermaid-rendering");
+    expect(element.classList.add).toHaveBeenCalledWith("mermaid-error");
+    expect(element.innerHTML).toContain("Parse failed");
+    expect(element.innerHTML).toContain("%E0%A4%A");
+  });
+
   it("wraps rendered tables for constrained preview panes", () => {
     const html = renderMarkdown(`| Feature | Notes |
 | --- | --- |
@@ -111,6 +222,14 @@ sequenceDiagram
 
     expect(html).toContain('<div class="markdown-table-scroll"><table>');
     expect(html).toContain("</table></div>");
+  });
+
+  it("offsets heading levels while keeping generated ids", () => {
+    const html = renderMarkdown("# Title\n\n## Section", undefined, 2);
+
+    expect(html).toContain('<h3 id="title">Title</h3>');
+    expect(html).toContain('<h4 id="section">Section</h4>');
+    expect(html).not.toContain("<h7");
   });
 
   it("groups consecutive supported code fences into a tabset", () => {
@@ -201,6 +320,12 @@ puts "<unsafe>"
     expect(resolveAssetPath("https://example.com/a.png", "/Users/rich/notes/")).toBe(
       "https://example.com/a.png",
     );
+    expect(resolveAssetPath("#local-anchor", "/Users/rich/notes/")).toBe("#local-anchor");
+    expect(resolveAssetPath("/already/rooted.png", "/Users/rich/notes/")).toBe("/already/rooted.png");
+    expect(resolveAssetPath("image.png", "notes")).toBe("image.png");
+    expect(resolveAssetPath("image.png", "file:///Users/rich/notes/")).toBe(
+      "file:///Users/rich/notes/image.png",
+    );
   });
 
   it("keeps markdown rendering stable when no base path is provided", () => {
@@ -253,6 +378,14 @@ puts "<unsafe>"
     expect(html).toContain("print-color-adjust: exact");
     expect(html).toContain(".code-tabset-tabs { display: none; }");
     expect(html).not.toContain("cdn.jsdelivr.net");
+  });
+
+  it("escapes exported metadata and does not add Mermaid runtime when diagrams are absent", () => {
+    const html = buildHtmlDocument(`Unsafe "Title" <script>`, "<p>Body</p>");
+
+    expect(html).toContain("<title>Unsafe &quot;Title&quot; &lt;script&gt;</title>");
+    expect(html).toContain("Unsafe &quot;Title&quot; &lt;script&gt;");
+    expect(html).not.toContain("mermaid@11.16.1");
   });
 
   it("adds Mermaid runtime support to standalone HTML exports when needed", () => {
