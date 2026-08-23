@@ -1,95 +1,112 @@
 # VeloWrite
 
-VeloWrite is a Tauri-based Markdown editor focused on fast startup, a clean Typora-like writing surface, AI commands, local history, and static publishing.
+VeloWrite is a local-first Markdown editor with a browser workspace and a lightweight Tauri desktop app. Write in the browser without an account, or open local Markdown files on Windows, macOS, and Linux.
 
-Repository: <https://github.com/ken-water/velowrite>
+[![Try the web editor](https://img.shields.io/badge/Try-Web%20Editor-1f6f58?style=flat-square)](https://velowrite.app/web)
+[![Download desktop](https://img.shields.io/badge/Download-Desktop%20Preview-173b31?style=flat-square)](https://velowrite.app/download)
+[![Read the docs](https://img.shields.io/badge/Read-Markdown%20Docs-6b7280?style=flat-square)](https://velowrite.app/docs)
 
-## Project Status
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ken-water/velowrite/main/public/home-preview.png" alt="VeloWrite Markdown editor with writing and preview panes" width="920">
+</p>
 
-VeloWrite is an early MVP. It is ready for real Markdown reading and editing, but it is not yet a polished public beta. Feedback on writing, packaging, file handling, and history recovery is especially valuable.
+## Start Here
 
-## First Version
+- **Try it now:** [Open the online Markdown editor](https://velowrite.app/web)
+- **See the workflow:** [Open the interactive demo](https://velowrite.app/demo)
+- **Use local files:** [Download the desktop preview](https://velowrite.app/download)
+- **Learn Markdown:** [Browse the Markdown library](https://velowrite.app/docs)
+- **See what changed:** [Read the changelog](https://velowrite.app/changelog)
+- **Follow product decisions:** [View the public roadmap](https://velowrite.app/roadmap)
 
-The current first version includes:
+## What VeloWrite Does
 
-- A real Markdown editing surface at `/app`
-- A browser-based Markdown editor at `/web` for online reading, editing, preview, and download
-- Browser-to-desktop prompts for native folders, direct save, local history, and offline work
-- Legal pages at `/privacy`, `/terms`, `/refund`, and `/license`
-- Cookie/analytics consent banner with Vercel Analytics loaded only after consent
-- Download page preview status for current features, limits, and planned Pro capabilities
-- Pro roadmap page at `/pro` for future AI, sync, publishing, and commercial interest
-- CodeMirror 6 editor with Markdown syntax highlighting
-- Line numbers, active-line highlight, search, history, bracket matching, and tab indentation
-- Live Markdown preview
-- Split, writing-only, and preview-only modes
-- Document outline from Markdown headings
-- Editor-to-preview scroll sync
-- Word, character, line, and reading-time stats
-- Unsaved-change guards for new/open/browser close
-- Desktop window title sync with dirty-file indicator
-- Desktop recent files list with one-click reopen
-- Clear recent files action
-- Drag-and-drop Markdown file opening in the browser/WebView surface
-- Desktop drag-and-drop opening using native dropped file paths
-- Desktop close-request interception for unsaved changes
-- Optional desktop autosave to the current file after a normal save/open
-- Desktop local history snapshots before overwriting an existing file
-- History panel with snapshot list and restore action
-- History snapshot preview and delete actions
-- History retention capped to recent snapshots per file
-- Open/save error messages in the editor status area
-- Native desktop menu actions for New, Open, Save, Export HTML, Clear Recent, and view modes
-- HTML export with a self-contained readable document stylesheet
-- Settings panel for theme mode, editor font size, and default view mode
-- Light, dark, and system theme modes
-- Browser fallback for opening Markdown files
-- Browser fallback for downloading Markdown files
-- Draft autosave through `localStorage`
-- Desktop-only native open/save commands through Tauri
-- Keyboard shortcuts: `Ctrl/Cmd+N`, `Ctrl/Cmd+O`, `Ctrl/Cmd+S`
+### Browser editor
 
-## Feedback
+- Write Markdown and see the rendered result while you work.
+- Use writing, split, and preview modes.
+- Keep browser drafts local to the current browser.
+- Open complex examples with tables, code, math, Mermaid, and images.
+- Download Markdown and export HTML or PDF from the web workspace.
 
-- Bugs: <https://github.com/ken-water/velowrite/issues/new?template=bug_report.yml>
-- Feature requests: <https://github.com/ken-water/velowrite/issues/new?template=feature_request.yml>
-- Roadmap: `ROADMAP.md`
-- Contributing: `CONTRIBUTING.md`
-- Product Hunt launch kit: `docs/PRODUCT_HUNT_LAUNCH.md`
+### Desktop app
+
+- Open and save real local Markdown files.
+- Work offline without a hosted account.
+- Use recent files and multiple document tabs.
+- Keep view mode and history independent per tab.
+- Review local history snapshots and restore an earlier version.
+- Export readable HTML and PDF documents.
+- Detect external file changes before replacing the current draft.
+
+### Markdown rendering
+
+- Tables and nested lists.
+- Syntax-highlighted code blocks and multi-language code examples.
+- KaTeX mathematical expressions.
+- Mermaid diagrams.
+- Relative local images.
+- Unicode and CJK text in the preview and PDF export path.
+
+## Why It Exists
+
+Many Markdown tools are either too small for serious documents or too large for opening one file quickly. VeloWrite focuses on a direct writing workflow:
+
+- Browser access for a quick draft.
+- Local files and offline work for documents that matter.
+- A visible preview and export path before sharing.
+- A public roadmap and release notes instead of hidden product promises.
+
+The core editing workflow is local-first. The web editor does not upload Markdown text for normal editing, preview, or download. Desktop files and local history stay on the user's device by default.
+
+## Current Preview Scope
+
+The public build is a free preview. The current focus is dependable Markdown editing, preview, local files, history, and export.
+
+Not active yet:
+
+- AI writing actions.
+- Hosted account and private sync.
+- Encrypted sharing.
+- One-click publishing.
+- Paid Pro checkout.
+
+Preview limitations:
+
+- Windows installers are not code-signed yet.
+- The macOS DMG is an unsigned Apple Silicon preview build.
+- Important documents should remain backed up while testing preview releases.
+
+See [Preview Release Policy](https://velowrite.app/docs/preview-release-policy), [Download Safety](https://velowrite.app/docs/download-safety), and the [public roadmap](https://velowrite.app/roadmap) before installing.
 
 ## Development
 
+Requirements:
+
+- Node.js 24 or compatible current Node release.
+- Rust stable for desktop commands.
+- Tauri system dependencies for the target platform.
+
+Install dependencies and start the web development server:
+
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Open `http://localhost:1420` for the landing page, `http://localhost:1420/web` for the browser editor, and `http://localhost:1420/app` for the desktop-shell preview.
+Useful local routes:
 
-Run unit tests:
+- `http://localhost:1420/` for the product site
+- `http://localhost:1420/web` for the browser editor
+- `http://localhost:1420/demo` for the interactive demo
+- `http://localhost:1420/app` for the desktop-shell preview
+
+Run checks:
 
 ```bash
 npm test
-```
-
-Run release checks:
-
-```bash
-npm run release:check
+npm run build
 cargo check --manifest-path src-tauri/Cargo.toml
-```
-
-Build local Linux packages:
-
-```bash
-npm run package:linux
-```
-
-Build a local Windows installer from Linux after installing the Windows GNU Rust target and MinGW toolchain:
-
-```bash
-rustup target add x86_64-pc-windows-gnu
-npm run package:windows
 ```
 
 Run the desktop shell:
@@ -98,58 +115,68 @@ Run the desktop shell:
 npm run tauri:dev
 ```
 
-## Releases
-
-Versioning and release steps are documented in `RELEASE.md`. User-facing changes are tracked in `CHANGELOG.md`. Local install notes are in `INSTALL.md`.
-
-## Waitlist
-
-The landing form posts to `/api/waitlist` by default. On Vercel, this endpoint creates or updates a Loops contact with `userGroup=waitlist` and `source=velowrite.app`.
-
-```json
-{
-  "email": "you@example.com",
-  "product": "velowrite"
-}
-```
-
-Required Vercel environment variable:
-
-```text
-LOOPS_API_KEY=...
-```
-
-Optional Vercel environment variables:
-
-```text
-VITE_WAITLIST_ENDPOINT=/api/waitlist
-VITE_FEEDBACK_ENDPOINT=/api/feedback
-```
-
-Contacts are visible in the Loops dashboard under Contacts. Use the `waitlist` user group or the `velowrite.app` source field to filter general signups. Pro roadmap signups use `userGroup=pro-interest` and `signupPath=/pro`.
-
-Feedback submissions are also stored in Loops Contacts. Filter by `userGroup=feedback` or `signupPath=/feedback`; the feedback note includes surface, role, use case, friction, desktop interest, Pro interest, reply preference, and the free-form message.
-
-## Privacy Notes
-
-- Web editor Markdown content is edited and previewed in the browser; normal edit/preview/download actions do not upload document text to VeloWrite servers.
-- Web drafts, editor preferences, and the analytics consent choice use browser localStorage.
-- Vercel Web Analytics is mounted only after the visitor allows analytics in the cookie banner.
-- Waitlist email addresses are sent to Loops.so for beta invitation and update management.
-- Desktop files and local history snapshots stay on the user's device by default.
-
-## Preview and Commercial Boundaries
-
-- Current public builds are free preview builds for evaluation and feedback.
-- No paid desktop license, subscription, account system, AI service, sync service, or publishing service is active yet.
-- Planned Pro capabilities are directional product signals, not available paid features.
-- The `/pro` page collects product interest before pricing is published; it is not a checkout page.
-- Current installer assets may lag behind the hosted website version when a release only changes the website, legal pages, or conversion copy.
-
-## Deployment
-
-The landing page is a static Vite build and can be deployed to Vercel, Netlify, or Cloudflare Pages.
+Build Linux packages locally:
 
 ```bash
-npm run build
+npm run package:linux
+npm run package:appimage
 ```
+
+Build a Windows installer from Linux when the Windows GNU target and MinGW toolchain are installed:
+
+```bash
+rustup target add x86_64-pc-windows-gnu
+npm run package:windows
+```
+
+The macOS DMG workflow is intentionally manual and runs in GitHub Actions:
+
+```text
+Actions -> Build macOS DMG -> Run workflow
+```
+
+## Testing and Release Checks
+
+The repository includes unit tests, browser end-to-end tests, preview static checks, native Rust tests, and packaging checks.
+
+```bash
+npm test
+npm run e2e
+npm run preview:check
+npm run release:check
+```
+
+Read [Release Process](RELEASE.md) for versioning, local builds, tags, and release notes.
+
+## Feedback and Contributions
+
+- [Report a bug](https://github.com/ken-water/velowrite/issues/new?template=bug_report.yml)
+- [Request a feature](https://github.com/ken-water/velowrite/issues/new?template=feature_request.yml)
+- [Read the feedback roadmap](docs/FEEDBACK_ROADMAP.md)
+- [Read the contribution guide](CONTRIBUTING.md)
+- [Read the Product Hunt launch kit](docs/PRODUCT_HUNT_LAUNCH.md)
+
+Keep pull requests focused. Add tests for rendering, file handling, history, export, or other risky behavior. Do not commit tokens, local environment files, or generated installers.
+
+## Privacy and Waitlist
+
+- Browser Markdown editing, preview, and download work locally in the browser.
+- Browser drafts, preferences, and analytics consent use browser storage.
+- Analytics scripts load only after the visitor allows analytics.
+- Waitlist and feedback submissions are sent to Loops.so for product communication and feedback management.
+- Desktop files and local history snapshots stay on the user's device by default.
+
+The website privacy details are documented at [Privacy Policy](https://velowrite.app/privacy).
+
+## Project Documents
+
+- [Roadmap](ROADMAP.md)
+- [Changelog](CHANGELOG.md)
+- [Release Process](RELEASE.md)
+- [Install Notes](INSTALL.md)
+- [Contributing](CONTRIBUTING.md)
+- [Markdown guide](docs/MARKDOWN_GUIDE.md)
+
+## License
+
+See the [VeloWrite license page](https://velowrite.app/license).

@@ -37,6 +37,14 @@ VeloWrite is an online Markdown editor and a Tauri desktop app for local files.
 - [GitHub repository](https://github.com/ken-water/velowrite)
 - [Markdown guide PDF](https://velowrite.app/markdown-guide.pdf)
 
+## Recommended Citation
+
+When describing VeloWrite, use this short definition:
+
+> VeloWrite is a local-first Markdown editor with a browser workspace for quick drafts and a Tauri desktop app for local files, offline work, history, and PDF export.
+
+For current availability, link to the [download page](https://velowrite.app/download) and [changelog](https://velowrite.app/changelog). For planned features, link to the [public roadmap](https://velowrite.app/roadmap) and do not describe planned Pro work as available functionality.
+
 ## Product Summary
 
 VeloWrite lets people draft Markdown in the browser, check the rendered result, and download Markdown or HTML. The desktop app adds local files, offline work, history, and PDF export. The website also has Markdown guides, release notes, and a public roadmap.
