@@ -10,8 +10,13 @@ import {
   createDesktopHandoffUrl,
   createDraftHistorySnapshot,
   createLocalHistorySnapshot,
+  formatMarkdownTables,
   freeHistorySnapshotLimit,
+  getCodeBlockStats,
   getInitialViewMode,
+  getImageAssetSummary,
+  getMarkdownImageReferences,
+  getMarkdownTableDiagnostics,
   getStoredLastLocalFile,
   getStoredEditorFontSize,
   getStoredRecentFiles,
@@ -225,6 +230,116 @@ describe("editor preferences", () => {
     expect(buildBrowserImageMarkdown("notes[1].png", "data:image/png;base64,abc")).toBe(
       "![notes-1-.png](data:image/png;base64,abc)",
     );
+  });
+});
+
+describe("document quality helpers", () => {
+  it("classifies Markdown image references by portability", () => {
+    const references = getMarkdownImageReferences(
+      [
+        "![Local](assets/cover.png)",
+        "![Remote](https://example.com/cover.png)",
+        "![Absolute](/tmp/cover.png)",
+        "![Embedded](data:image/png;base64,abc)",
+      ].join("\n"),
+    );
+
+    expect(references.map((reference) => reference.kind)).toEqual([
+      "relative",
+      "remote",
+      "absolute",
+      "data",
+    ]);
+    expect(references.map((reference) => reference.portable)).toEqual([
+      true,
+      false,
+      false,
+      true,
+    ]);
+  });
+
+  it("summarizes image asset risks for local-first documents", () => {
+    const summary = getImageAssetSummary(
+      "![One](assets/one.png)\n![Two](https://example.com/two.png)\n![Three](C:/tmp/three.png)",
+      "/notes/plan.md",
+    );
+
+    expect(summary).toMatchObject({
+      total: 3,
+      relative: 1,
+      remote: 1,
+      absolute: 1,
+    });
+    expect(summary.notes).toContain(
+      "Use relative paths for images that should move with the document.",
+    );
+    expect(summary.notes).toContain("Remote images can disappear or fail when reading offline.");
+  });
+
+  it("formats simple GFM tables without changing surrounding Markdown", () => {
+    const markdown = [
+      "# Plan",
+      "",
+      "| Name | State |",
+      "|---|---|",
+      "| PDF |done|",
+      "| Longer item |todo|",
+      "",
+      "Done.",
+    ].join("\n");
+
+    expect(formatMarkdownTables(markdown)).toBe(
+      [
+        "# Plan",
+        "",
+        "| Name        | State |",
+        "| ----------- | ----- |",
+        "| PDF         | done  |",
+        "| Longer item | todo  |",
+        "",
+        "Done.",
+      ].join("\n"),
+    );
+  });
+
+  it("reports Markdown table column mismatches", () => {
+    const diagnostics = getMarkdownTableDiagnostics(
+      [
+        "| A | B |",
+        "| --- | --- |",
+        "| 1 | 2 | 3 |",
+        "| 4 | 5 |",
+      ].join("\n"),
+    );
+
+    expect(diagnostics.tables).toBe(1);
+    expect(diagnostics.rows).toBe(3);
+    expect(diagnostics.issues).toEqual([
+      { line: 3, message: "Row has 3 columns; expected 2." },
+    ]);
+  });
+
+  it("counts fenced code blocks and missing language labels", () => {
+    const stats = getCodeBlockStats(
+      [
+        "```python",
+        "print('hi')",
+        "```",
+        "```",
+        "echo hi",
+        "```",
+        "```bash",
+        "npm test",
+        "```",
+      ].join("\n"),
+    );
+
+    expect(stats).toEqual({
+      total: 3,
+      labeled: 2,
+      unlabeled: 1,
+      languages: { python: 1, bash: 1 },
+    });
   });
 });
 

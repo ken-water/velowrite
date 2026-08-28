@@ -13,18 +13,22 @@ This roadmap reflects what is shipped, what still needs preview hardening, and w
 - Markdown download, HTML export, and dedicated PDF export with Unicode fonts, page controls, tables, and watermarks.
 - Desktop external-file change handling with compare, reload, and keep-current choices.
 - Desktop image drag-and-drop can insert Markdown image references for local files.
+- Document quality tools now summarize image path risks, table issues, and code block language coverage.
+- Markdown table insertion and table formatting are available in the editor sidebar.
+- Table formatting now keeps the current editing location instead of jumping to another part of the document.
+- Quick mark lets writers save and jump back to a working line in long documents.
 - Web-to-desktop handoff, update-check status, cross-platform installers, release notes, and public feedback tracking.
 - Browser workspace recovery, browser-local image embedding, and independent browser history per document tab.
 
 ## Next: Preview hardening
 
 - Stabilize continuous editor and preview synchronization for long and structurally uneven documents.
-- Improve cursor preservation and formatting behavior while editing Markdown.
-- Extend image asset management beyond inserted references: paste-to-assets, deduplication, missing-image diagnostics, and safe path repair after moves.
+- Continue improving cursor preservation and formatting behavior while editing Markdown.
+- Extend image asset management beyond inserted references: paste-to-assets, deduplication, deeper missing-file checks, and safe path repair after moves.
 - Improve long-document history review and make changed lines easier to locate.
 - Add export consistency tests across preview, HTML, PDF, math, Mermaid, tables, images, and code blocks.
 - Expand Windows, macOS, and Linux smoke tests for open, edit, save, export, close, and external file changes.
-- Polish find/replace, focus mode, outline navigation, and first-run desktop behavior.
+- Polish find/replace, typewriter-like focus behavior, outline navigation, and first-run desktop behavior.
 
 ## Free product direction
 

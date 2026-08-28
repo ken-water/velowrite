@@ -4,6 +4,23 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
+## [0.2.10] - 2026-08-29
+
+### Added
+
+- Added a new long-form docs article for long Markdown drafts, with practical coverage of shortcuts, tables, images, and marks.
+- Added planned docs topics for daily shortcuts, image handling, table cleanup, and multi-mark navigation.
+- Upgraded quick marks to three per tab so long drafts can keep more than one return point.
+
+### Changed
+
+- Updated the download page and public release metadata to reflect the new preview build.
+- Kept the docs and SEO routing in sync so the new long-draft article is rendered in static output.
+
+### Fixed
+
+- Fixed quick mark actions so the selected slot is preserved when setting or jumping.
+
 ## [0.2.9] - 2026-08-23
 
 ### Added

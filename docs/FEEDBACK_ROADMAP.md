@@ -72,7 +72,8 @@ Signal:
 Decision:
 - Keep relative local image rendering in the free editor.
 - Desktop drag-and-drop now inserts a Markdown image reference for supported local image files.
-- Continue toward document-local assets folders, paste-to-assets, duplicate-safe filenames, missing-image diagnostics, and path repair after moves.
+- The editor now summarizes image portability risks, including absolute local paths and remote images that may fail offline.
+- Continue toward document-local assets folders, paste-to-assets, duplicate-safe filenames, deeper missing-file checks, and path repair after moves.
 
 Version target:
 - Preview / Free: basic image references in `0.2.x`; fuller asset management after more file workflow testing.
@@ -103,12 +104,15 @@ Pro status:
 Signal:
 - The desktop app needs to feel like a dedicated writing tool from the first screen.
 - Too much browser-like chrome, dense controls, or unclear hover behavior can make users doubt the app experience even when the editor works.
+- Long-document writers need a fast way to return to the paragraph they were editing after navigation or document cleanup actions.
 
 Decision:
 - Keep reducing unnecessary interface weight in the desktop shell.
 - Make the default desktop state a calm writing surface, with file actions and structure tools available without dominating the page.
 - Prepare last-session restore so returning desktop users can reopen the most recent local Markdown file without hunting through folders.
-- Improve templates, focus mode, hover affordances, and empty states as part of the free product experience.
+- Improve templates, focus mode, hover affordances, document quality tools, and empty states as part of the free product experience.
+- The current editor includes a tighter fullscreen focus surface and a sidebar tool panel for table formatting, image checks, code block coverage, and quick mark navigation.
+- Table formatting now keeps the current editing location, and each tab can keep its own quick mark.
 
 Version target:
 - Preview / Free: continue in `0.1.x` and `0.2.x`.
@@ -228,7 +232,7 @@ These are the remaining improvements needed before the preview feels solid enoug
 - Focused desktop writing polish for first-run behavior, focus mode, and long-session comfort.
 - Better outline navigation around the shipped read-only structure map.
 - Better local history browsing and diff preview.
-- Image asset management beyond current relative-path rendering.
+- Image asset management beyond current relative-path rendering and portability warnings.
 - Export consistency across the shipped HTML and dedicated PDF paths.
 - Markdown edge-case rendering tests for math, code, tables, and tabs.
 - Cross-platform smoke tests for open, edit, save, export, close, and external file changes.
@@ -245,6 +249,7 @@ These should remain free because they form the basic editor promise:
 - Local history snapshots.
 - Better outline navigation and the shipped basic document structure view.
 - Theme and view-mode settings.
+- Document quality tools for image path risks, table cleanup, and code block language coverage.
 - No-login local-first workflow.
 
 ### Pro Candidates
@@ -280,7 +285,7 @@ Examples:
 
 1. Finish stable continuous sync scrolling for long and structurally uneven documents.
 2. Improve cursor preservation and formatting behavior in the Markdown editor.
-3. Add image asset management, missing-image diagnostics, and safe path repair.
+3. Add image asset management, deeper missing-file diagnostics, and safe path repair.
 4. Improve local history discoverability and long-document diff review.
 5. Add export consistency tests across preview, HTML, PDF, math, Mermaid, tables, images, and code.
 6. Expand cross-platform smoke tests for open, edit, save, export, close, and external file changes.

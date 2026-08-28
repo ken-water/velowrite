@@ -4238,7 +4238,7 @@ dependencies = [
 
 [[package]]
 name = "velowrite"
-version = "0.2.9"
+version = "0.2.10"
 dependencies = [
  "base64 0.23.0",
  "serde",

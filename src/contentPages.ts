@@ -901,6 +901,106 @@ export const contentPages: Record<string, ContentPage> = {
       secondary: { href: "/web?utm_source=code_blocks_cta&utm_medium=cta", label: "Try Editor" },
     },
   },
+  longMarkdownWorkflow: {
+    eyebrow: "Writing workflow",
+    title: "How to Work Faster in Long Markdown Drafts",
+    intro:
+      "Long Markdown files get slow when you need to jump between sections, clean up tables, compare images, or return to a paragraph you edited five minutes ago. The fix is not more decoration. It is better movement, better context, and fewer lost edits.",
+    updated: "August 29, 2026",
+    directory: [
+      { label: "What slows drafts down", href: "#what-slows-drafts-down" },
+      { label: "Keyboard shortcuts", href: "#keyboard-shortcuts" },
+      { label: "Tables and images", href: "#tables-and-images" },
+      { label: "Marks for long files", href: "#marks-for-long-files" },
+      { label: "A practical sequence", href: "#a-practical-sequence" },
+      { label: "What to cover next", href: "#what-to-cover-next" },
+    ],
+    sections: [
+      {
+        id: "what-slows-drafts-down",
+        title: "Long drafts slow down when context disappears",
+        body: [
+          "A short note is easy to hold in your head. A long draft is different. You start in one section, open a table, insert an image, then scroll back to the paragraph you were fixing. If the editor jumps away or loses your place, the document feels heavier than the writing itself.",
+          "That is why VeloWrite keeps source and preview close together, keeps tables and images visible in the rendered view, and keeps recent edits attached to the file instead of a browser tab you might forget to reopen.",
+          "The same problem appears in product specs, scripts, release notes, research notes, and long README files. The content is not difficult because it is Markdown. It is difficult because the author has to keep several locations in mind at the same time.",
+        ],
+        example: {
+          label: "A draft that needs movement",
+          markdown:
+            "# Launch Plan\n\n## Hook\n\nWrite the reader-facing line here.\n\n## Table\n\n| Item | Status |\n| --- | --- |\n| Draft | In progress |\n| Review | Pending |\n\n## Image\n\n![Concept](./assets/concept.png)\n\n## Next pass\n\nReturn to the hook after the table is clean.",
+          note: "The draft is easier to read when the structure is visible and the file stays local.",
+        },
+      },
+      {
+        id: "keyboard-shortcuts",
+        title: "Use shortcuts for actions you repeat every day",
+        body: [
+          "The shortest path is usually the one you do not have to think about. Save, open, switch view mode, toggle focus, and close the current tab should all be one gesture away on every desktop platform.",
+          "In VeloWrite, the common shortcuts follow the platform's normal pattern: Cmd on macOS, Ctrl on Windows and Linux, with the same command mapped in the menu. That means the app behaves like a real desktop tool instead of a web page in a frame.",
+          "The most useful shortcut set is small. A writer should be able to save, switch between write and preview, move between tabs, and return to marked lines without learning a command language first.",
+        ],
+        example: {
+          label: "Common editing shortcuts",
+          markdown:
+            "Use keyboard shortcuts to reduce friction:\n\n- `Ctrl/Cmd + S` saves the file\n- `Ctrl/Cmd + W` closes the current tab\n- `Ctrl/Cmd + 1/2/3` switches the view mode\n- `Alt + 1/2/3` selects a quick mark slot\n- `Alt + M` stores the current slot\n- `Alt + J` jumps back to it",
+          note: "Shortcuts matter most when the file is already long enough to make a mouse trip feel expensive.",
+        },
+      },
+      {
+        id: "tables-and-images",
+        title: "Tables and images should stay close to the text they support",
+        body: [
+          "Tables are useful when readers need a compact comparison, but badly aligned tables waste space and attention. Image paths are useful when they stay portable, but they become a problem when the editor cannot tell whether the file will still work after a move or a sync.",
+          "That is why the document tools panel checks table formatting, image path risk, and code block labels. The goal is not to turn the editor into a validator. The goal is to spot the cases that usually break later.",
+          "A good long-form workflow treats tables and images as part of the document, not as decorations added at the end. If a table is hard to scan or an image path is fragile, the problem should be visible while the author is still editing.",
+        ],
+        example: {
+          label: "A compact comparison",
+          markdown:
+            "| Action | Why it helps |\n| --- | --- |\n| Format tables | Keeps columns readable |\n| Check image paths | Reduces broken previews |\n| Label code blocks | Makes examples easier to scan |",
+          note: "A clean table is faster to review than a larger paragraph full of repeated words.",
+        },
+      },
+      {
+        id: "marks-for-long-files",
+        title: "Marks help when you need to return to a place later",
+        body: [
+          "Long files usually make you move in circles. You check the intro, jump to a table, fix an image caption, then return to the section you were writing. A mark gives you a cheap way to return without searching again.",
+          "VeloWrite now supports multiple quick mark slots per tab. That is enough for the common case: keep one mark near the opening section, one near a table or checklist, and one near the place you are actively revising.",
+          "This works better than a single bookmark because the file itself often has more than one active problem. The slot stays local to the tab, so switching documents does not mix up positions.",
+        ],
+        example: {
+          label: "Three useful marks",
+          markdown:
+            "# Draft\n\n## M1\nUse this near the opening summary.\n\n## M2\nUse this near the table or checklist.\n\n## M3\nUse this near the paragraph you are actively rewriting.",
+          note: "A few slots are usually enough for one long draft session.",
+        },
+      },
+      {
+        id: "a-practical-sequence",
+        title: "A practical sequence for a long drafting session",
+        body: [
+          "Start in the section that matters most. Add the rough text first, then use a mark before you move away. Format the table. Check the image paths. Switch to preview. Return to the saved mark and finish the paragraph.",
+          "This sequence is boring on purpose. Boring is good when the file is important. The editor should preserve your place while you do the actual editing work.",
+          "For a longer pass, set M1 near the top-level thesis, M2 near the table or source material, and M3 near the paragraph you are actively rewriting. After that, use the outline for large jumps and marks for return trips.",
+          "When the draft is ready to share, preview it before export. Tables, code fences, math, Mermaid diagrams, and images should be checked in the same visual context where the reader will see them.",
+        ],
+      },
+      {
+        id: "what-to-cover-next",
+        title: "What we should explain next",
+        body: [
+          "The next useful articles should go deeper on four areas: shortcut habits for desktop editing, image handling for portable documents, table cleanup for readable comparisons, and multi-mark navigation for long drafts.",
+          "Those articles should use real examples rather than feature lists. A shortcut guide should show a writing session. An image guide should show broken and fixed paths. A table guide should show messy and formatted tables. A marks guide should show how to move between several active editing points.",
+          "That gives the docs a clean path: first learn Markdown, then learn how to write faster in long files, then learn the advanced pieces that make the file easier to keep and reuse.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=long_workflow_cta&utm_medium=cta", label: "Open Web Editor" },
+      secondary: { href: "/download?utm_source=long_workflow_cta&utm_medium=cta", label: "Download Desktop" },
+    },
+  },
   localFirstMarkdown: {
     eyebrow: "Local-first workflow",
     title: "Local-First Markdown Editing",

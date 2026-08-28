@@ -413,4 +413,32 @@ sequenceDiagram
     expect(html).toContain("table-borders-light");
     expect(html).toContain("table-color-blue");
   });
+
+  it("keeps preview rendering and standalone HTML export on the same rendered body", () => {
+    const body = renderMarkdown(
+      [
+        "# Export Check",
+        "",
+        "| Item | Status |",
+        "| --- | --- |",
+        "| Math | $E = mc^2$ |",
+        "",
+        "```python",
+        "print('ready')",
+        "```",
+        "",
+        "```mermaid",
+        "flowchart LR",
+        "  A[Draft] --> B[Export]",
+        "```",
+      ].join("\n"),
+    );
+    const html = buildHtmlDocument("Export Check", body);
+
+    expect(html).toContain(body);
+    expect(html).toContain("markdown-table-scroll");
+    expect(html).toContain("katex");
+    expect(html).toContain("language-python");
+    expect(html).toContain("mermaid-pending");
+  });
 });

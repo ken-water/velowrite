@@ -23,9 +23,9 @@ const VercelInsights = React.lazy(async () => {
     },
   };
 });
-const downloadVersion = "0.2.9";
-const downloadReleaseDate = "August 23, 2026";
-const seoDate = "2026-08-23";
+const downloadVersion = "0.2.10";
+const downloadReleaseDate = "August 29, 2026";
+const seoDate = "2026-08-29";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -53,6 +53,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/advanced-markdown": "Advanced Markdown",
   "/docs/markdown-math": "Markdown Math",
   "/docs/markdown-code-blocks": "Markdown Code Blocks",
+  "/docs/long-markdown-workflow": "Long Markdown Workflow",
   "/docs/local-first-markdown": "Local-First Markdown",
   "/docs/typora-alternative": "Typora Alternative",
   "/docs/markdown-to-blog": "Markdown to Blog",
@@ -137,6 +138,7 @@ const docPageRoutes = {
   "/docs/advanced-markdown": "advancedMarkdown",
   "/docs/markdown-math": "markdownMath",
   "/docs/markdown-code-blocks": "markdownCodeBlocks",
+  "/docs/long-markdown-workflow": "longMarkdownWorkflow",
   "/docs/local-first-markdown": "localFirstMarkdown",
   "/docs/typora-alternative": "typoraAlternative",
   "/docs/online-markdown-editor": "onlineMarkdownEditor",
@@ -159,6 +161,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/future-of-markdown",
   "/docs/markdown-basics",
   "/docs/markdown-code-blocks",
+  "/docs/long-markdown-workflow",
   "/docs/markdown-for-developers",
   "/docs/markdown-for-writers",
   "/docs/advanced-markdown",
@@ -222,6 +225,11 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
     title: "Markdown Code Blocks and Tabs - Multi-Language Documentation",
     description:
       "Write better Markdown code examples with fenced code blocks, syntax highlighting, language labels, and tabbed multi-language snippets.",
+  },
+  "/docs/long-markdown-workflow": {
+    title: "How to Work Faster in Long Markdown Drafts",
+    description:
+      "Learn how shortcuts, tables, images, and quick marks help long Markdown files stay readable and easy to revisit.",
   },
   "/docs/local-first-markdown": {
     title: "Local-First Markdown Editing - Private Files and Offline Writing",

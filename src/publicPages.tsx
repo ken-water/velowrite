@@ -29,8 +29,8 @@ const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExamp
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const EditorApp = React.lazy(() => import("./EditorApp"));
 
-const downloadVersion = "0.2.9";
-const downloadReleaseDate = "August 23, 2026";
+const downloadVersion = "0.2.10";
+const downloadReleaseDate = "August 29, 2026";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -48,6 +48,7 @@ const docPageRoutes = {
   "/docs/advanced-markdown": "advancedMarkdown",
   "/docs/markdown-math": "markdownMath",
   "/docs/markdown-code-blocks": "markdownCodeBlocks",
+  "/docs/long-markdown-workflow": "longMarkdownWorkflow",
   "/docs/local-first-markdown": "localFirstMarkdown",
   "/docs/typora-alternative": "typoraAlternative",
   "/docs/online-markdown-editor": "onlineMarkdownEditor",
@@ -70,6 +71,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/future-of-markdown",
   "/docs/markdown-basics",
   "/docs/markdown-code-blocks",
+  "/docs/long-markdown-workflow",
   "/docs/markdown-for-developers",
   "/docs/markdown-for-writers",
   "/docs/advanced-markdown",
@@ -380,6 +382,11 @@ const docGroups = [
     description: "Longer guides for documents with math, code, tables, tabs, and local files.",
     items: [
       { title: "Markdown Code Blocks and Tabs", href: "/docs/markdown-code-blocks", status: "Published" },
+      { title: "How to Work Faster in Long Markdown Drafts", href: "/docs/long-markdown-workflow", status: "Published" },
+      { title: "Markdown Shortcuts for Daily Editing", href: "/docs/markdown-shortcuts", status: "Planned" },
+      { title: "Markdown Image Paths and Assets", href: "/docs/markdown-images", status: "Planned" },
+      { title: "Markdown Tables That Stay Readable", href: "/docs/markdown-tables", status: "Planned" },
+      { title: "Using Marks in Long Markdown Files", href: "/docs/markdown-marks", status: "Planned" },
       { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Published" },
       { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Published" },
       { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Published" },
@@ -1674,12 +1681,12 @@ function DownloadPage() {
             <div className="download-highlights-copy">
               <span>Latest improvements</span>
               <p>
-                Mermaid diagrams and KaTeX math now render in PDF export.
-                Download safety guidance, desktop update status, and external
-                file-change handling are clearer in this build.
+                Browser tabs now recover after refresh, pasted or dropped images
+                can stay inside browser-local drafts, and each web tab keeps its
+                own local history.
               </p>
             </div>
-            <a href="/changelog?utm_source=download_page&utm_medium=resource#v028">
+            <a href="/changelog?utm_source=download_page&utm_medium=resource#v029">
               See changelog details <ChevronRight size={15} />
             </a>
           </div>
@@ -2147,7 +2154,7 @@ function DocsIndexPage() {
           Markdown library
         </div>
         <h1>Markdown articles for VeloWrite users.</h1>
-        <p className="legal-updated">Last updated: August 20, 2026</p>
+        <p className="legal-updated">Last updated: August 29, 2026</p>
         <p className="legal-intro">
           Read practical Markdown guides, product notes, and platform-specific advice.
           Published articles are live. Planned titles are queued for later.

@@ -83,6 +83,41 @@ export type DiffLine = {
   snapshotLine?: number;
 };
 
+export type MarkdownImageReference = {
+  line: number;
+  alt: string;
+  src: string;
+  kind: "data" | "remote" | "absolute" | "relative" | "anchor";
+  portable: boolean;
+};
+
+export type ImageAssetSummary = {
+  total: number;
+  embedded: number;
+  relative: number;
+  remote: number;
+  absolute: number;
+  notes: string[];
+};
+
+export type MarkdownTableDiagnostic = {
+  line: number;
+  message: string;
+};
+
+export type MarkdownTableSummary = {
+  tables: number;
+  rows: number;
+  issues: MarkdownTableDiagnostic[];
+};
+
+export type CodeBlockStats = {
+  total: number;
+  labeled: number;
+  unlabeled: number;
+  languages: Record<string, number>;
+};
+
 export const draftKey = "velowrite:draft";
 export const draftNameKey = "velowrite:draft-name";
 export const recentFilesKey = "velowrite:recent-files";
@@ -587,6 +622,190 @@ export function buildImageMarkdown(path: string, documentPath: string | null) {
   const label = getPathFileName(path).replace(/\.[^.]+$/, "") || "Image";
   const relativePath = getRelativeAssetPath(path, documentPath).replace(/ /g, "%20");
   return `![${label}](${relativePath})`;
+}
+
+function classifyImageReference(src: string): MarkdownImageReference["kind"] {
+  if (/^data:image\//i.test(src)) return "data";
+  if (/^(https?:)?\/\//i.test(src)) return "remote";
+  if (/^#/i.test(src)) return "anchor";
+  if (/^(?:[a-z]:[\\/]|\/|\\\\)/i.test(src)) return "absolute";
+  return "relative";
+}
+
+export function getMarkdownImageReferences(markdown: string): MarkdownImageReference[] {
+  const references: MarkdownImageReference[] = [];
+  const imagePattern = /!\[([^\]]*)\]\(([^)\s]+)(?:\s+["'][^"']*["'])?\)/g;
+
+  markdown.split("\n").forEach((line, index) => {
+    for (const match of line.matchAll(imagePattern)) {
+      const src = match[2].trim();
+      const kind = classifyImageReference(src);
+      references.push({
+        line: index + 1,
+        alt: match[1].trim(),
+        src,
+        kind,
+        portable: kind === "data" || kind === "relative" || kind === "anchor",
+      });
+    }
+  });
+
+  return references;
+}
+
+export function getImageAssetSummary(
+  markdown: string,
+  documentPath: string | null,
+): ImageAssetSummary {
+  const references = getMarkdownImageReferences(markdown);
+  const summary: ImageAssetSummary = {
+    total: references.length,
+    embedded: references.filter((reference) => reference.kind === "data").length,
+    relative: references.filter((reference) => reference.kind === "relative").length,
+    remote: references.filter((reference) => reference.kind === "remote").length,
+    absolute: references.filter((reference) => reference.kind === "absolute").length,
+    notes: [],
+  };
+
+  if (summary.absolute > 0) {
+    summary.notes.push("Use relative paths for images that should move with the document.");
+  }
+
+  if (summary.remote > 0) {
+    summary.notes.push("Remote images can disappear or fail when reading offline.");
+  }
+
+  if (!documentPath && summary.relative > 0) {
+    summary.notes.push("Save the Markdown file before relying on relative image paths.");
+  }
+
+  return summary;
+}
+
+function splitTableRow(line: string) {
+  const trimmed = line.trim();
+  if (!trimmed.includes("|")) return null;
+  const withoutEdges = trimmed.replace(/^\|/, "").replace(/\|$/, "");
+  const cells = withoutEdges.split("|").map((cell) => cell.trim());
+  return cells.length >= 2 ? cells : null;
+}
+
+function isTableSeparator(cells: string[] | null) {
+  if (!cells) return false;
+  return cells.every((cell) => /^:?-{3,}:?$/.test(cell.trim()));
+}
+
+function padTableCell(value: string, width: number) {
+  return `${value}${" ".repeat(Math.max(0, width - value.length))}`;
+}
+
+function formatTableBlock(rows: string[]) {
+  const cells = rows.map((row) => splitTableRow(row) ?? []);
+  const width = Math.max(...cells.map((row) => row.length));
+  const normalized = cells.map((row) => [
+    ...row,
+    ...Array<string>(Math.max(0, width - row.length)).fill(""),
+  ]);
+  const columnWidths = Array.from({ length: width }, (_, column) =>
+    Math.max(3, ...normalized.map((row) => row[column]?.length ?? 0)),
+  );
+
+  return normalized
+    .map((row, index) => {
+      const nextRow = index === 1
+        ? columnWidths.map((columnWidth) => "-".repeat(columnWidth))
+        : row.map((cell, column) => padTableCell(cell, columnWidths[column]));
+      return `| ${nextRow.join(" | ")} |`;
+    })
+    .join("\n");
+}
+
+export function formatMarkdownTables(markdown: string) {
+  const lines = markdown.split("\n");
+  const output: string[] = [];
+  let index = 0;
+
+  while (index < lines.length) {
+    const header = splitTableRow(lines[index]);
+    const separator = splitTableRow(lines[index + 1] ?? "");
+    if (!header || !separator || !isTableSeparator(separator)) {
+      output.push(lines[index]);
+      index += 1;
+      continue;
+    }
+
+    const block: string[] = [lines[index], lines[index + 1]];
+    index += 2;
+    while (index < lines.length && splitTableRow(lines[index])) {
+      block.push(lines[index]);
+      index += 1;
+    }
+    output.push(formatTableBlock(block));
+  }
+
+  return output.join("\n");
+}
+
+export function getMarkdownTableDiagnostics(markdown: string): MarkdownTableSummary {
+  const lines = markdown.split("\n");
+  const issues: MarkdownTableDiagnostic[] = [];
+  let tables = 0;
+  let rows = 0;
+  let index = 0;
+
+  while (index < lines.length) {
+    const header = splitTableRow(lines[index]);
+    const separator = splitTableRow(lines[index + 1] ?? "");
+    if (!header || !separator || !isTableSeparator(separator)) {
+      index += 1;
+      continue;
+    }
+
+    tables += 1;
+    rows += 1;
+    if (separator.length !== header.length) {
+      issues.push({
+        line: index + 2,
+        message: `Separator has ${separator.length} columns; expected ${header.length}.`,
+      });
+    }
+
+    index += 2;
+    while (index < lines.length) {
+      const row = splitTableRow(lines[index]);
+      if (!row) break;
+      rows += 1;
+      if (row.length !== header.length) {
+        issues.push({
+          line: index + 1,
+          message: `Row has ${row.length} columns; expected ${header.length}.`,
+        });
+      }
+      index += 1;
+    }
+  }
+
+  return { tables, rows, issues };
+}
+
+export function getCodeBlockStats(markdown: string): CodeBlockStats {
+  const languages: Record<string, number> = {};
+  let total = 0;
+  let labeled = 0;
+  let unlabeled = 0;
+
+  for (const match of markdown.matchAll(/^```([^\s`]*)[^\n]*\n[\s\S]*?^```/gm)) {
+    total += 1;
+    const language = match[1].trim().toLowerCase();
+    if (language) {
+      labeled += 1;
+      languages[language] = (languages[language] ?? 0) + 1;
+    } else {
+      unlabeled += 1;
+    }
+  }
+
+  return { total, labeled, unlabeled, languages };
 }
 
 export function getStoredLastLocalFile(): RecentFile | null {

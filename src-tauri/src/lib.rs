@@ -370,14 +370,19 @@ fn menu_command_from_id(id: &str) -> Option<String> {
         "new_file" => Some("new".to_string()),
         "open_file" => Some("open".to_string()),
         "save_file" => Some("save".to_string()),
+        "close_tab" => Some("close-tab".to_string()),
         "export_html" => Some("export-html".to_string()),
         "export_pdf" => Some("export-pdf".to_string()),
-        id if id.strip_prefix("recent_open_").is_some() => {
-            Some(format!("open-recent:{}", id.strip_prefix("recent_open_").unwrap()))
-        }
+        id if id.strip_prefix("recent_open_").is_some() => Some(format!(
+            "open-recent:{}",
+            id.strip_prefix("recent_open_").unwrap()
+        )),
         "clear_recent" => Some("clear-recent".to_string()),
         "recent_files" => None,
         "show_history" => Some("show-history".to_string()),
+        "show_settings" => Some("show-settings".to_string()),
+        "toggle_focus" => Some("toggle-focus".to_string()),
+        "toggle_sidebar" => Some("toggle-sidebar".to_string()),
         "view_write" => Some("view-write".to_string()),
         "view_split" => Some("view-split".to_string()),
         "view_preview" => Some("view-preview".to_string()),
@@ -673,12 +678,16 @@ mod tests {
             ("new_file", Some("new")),
             ("open_file", Some("open")),
             ("save_file", Some("save")),
+            ("close_tab", Some("close-tab")),
             ("export_html", Some("export-html")),
             ("export_pdf", Some("export-pdf")),
             ("recent_open_0", Some("open-recent:0")),
             ("recent_open_9", Some("open-recent:9")),
             ("clear_recent", Some("clear-recent")),
             ("show_history", Some("show-history")),
+            ("show_settings", Some("show-settings")),
+            ("toggle_focus", Some("toggle-focus")),
+            ("toggle_sidebar", Some("toggle-sidebar")),
             ("view_write", Some("view-write")),
             ("view_split", Some("view-split")),
             ("view_preview", Some("view-preview")),
@@ -817,6 +826,9 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
     let save_file = MenuItemBuilder::with_id("save_file", "Save")
         .accelerator("CmdOrCtrl+S")
         .build(manager)?;
+    let close_tab = MenuItemBuilder::with_id("close_tab", "Close Tab")
+        .accelerator("CmdOrCtrl+W")
+        .build(manager)?;
     let export_html = MenuItemBuilder::with_id("export_html", "Export HTML...")
         .accelerator("CmdOrCtrl+Shift+E")
         .build(manager)?;
@@ -826,6 +838,9 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
     let recent_files = SubmenuBuilder::with_id(manager, "recent_files", "Recent Files").build()?;
     let show_history = MenuItemBuilder::with_id("show_history", "History...")
         .accelerator("CmdOrCtrl+Shift+H")
+        .build(manager)?;
+    let show_settings = MenuItemBuilder::with_id("show_settings", "Settings...")
+        .accelerator("CmdOrCtrl+,")
         .build(manager)?;
     let exit_app = MenuItemBuilder::with_id("exit_app", "Exit")
         .accelerator("CmdOrCtrl+Q")
@@ -840,17 +855,25 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
     let preview_mode = MenuItemBuilder::with_id("view_preview", "Preview Mode")
         .accelerator("CmdOrCtrl+3")
         .build(manager)?;
+    let toggle_sidebar = MenuItemBuilder::with_id("toggle_sidebar", "Show or Hide Workspace")
+        .accelerator("Alt+S")
+        .build(manager)?;
+    let toggle_focus = MenuItemBuilder::with_id("toggle_focus", "Fullscreen Focus")
+        .accelerator("F11")
+        .build(manager)?;
 
     let file_menu = SubmenuBuilder::with_id(manager, "file_menu", "File")
         .item(&new_file)
         .item(&open_file)
         .item(&save_file)
+        .item(&close_tab)
         .separator()
         .item(&export_html)
         .item(&export_pdf)
         .separator()
         .item(&recent_files)
         .item(&show_history)
+        .item(&show_settings)
         .separator()
         .item(&exit_app)
         .build()?;
@@ -869,6 +892,9 @@ fn build_menu<R: Runtime, M: Manager<R>>(manager: &M) -> tauri::Result<tauri::me
         .item(&write_mode)
         .item(&split_mode)
         .item(&preview_mode)
+        .separator()
+        .item(&toggle_sidebar)
+        .item(&toggle_focus)
         .separator()
         .text("reload", "Reload")
         .build()?;

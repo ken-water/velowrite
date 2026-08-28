@@ -30,6 +30,7 @@ const breadcrumbLabels = new Map([
   ["/docs/markdown-for-developers", "Markdown for Developers"],
   ["/docs/advanced-markdown", "Advanced Markdown"],
   ["/docs/markdown-code-blocks", "Markdown Code Blocks"],
+  ["/docs/long-markdown-workflow", "Long Markdown Workflow"],
   ["/docs/local-first-markdown", "Local-First Markdown"],
   ["/docs/typora-alternative", "Typora Alternative"],
   ["/docs/markdown-math", "Markdown Math"],
@@ -83,6 +84,7 @@ const articleModifiedDates = new Map([
   ["/docs/advanced-markdown", "2026-07-28"],
   ["/docs/markdown-math", "2026-07-26"],
   ["/docs/markdown-code-blocks", "2026-07-24"],
+  ["/docs/long-markdown-workflow", "2026-08-29"],
   ["/docs/local-first-markdown", "2026-07-25"],
   ["/docs/typora-alternative", "2026-07-31"],
   ["/docs/markdown-to-blog", "2026-07-27"],
@@ -297,6 +299,15 @@ const routes = [
     title: "Markdown Code Blocks and Tabs - Multi-Language Documentation",
     description:
       "Write better Markdown code examples with fenced code blocks, syntax highlighting, language labels, and tabbed multi-language snippets.",
+    priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
+    path: "/docs/long-markdown-workflow",
+    title: "How to Work Faster in Long Markdown Drafts",
+    description:
+      "Learn how shortcuts, tables, images, and quick marks help long Markdown files stay readable and easy to revisit.",
     priority: "0.75",
     changefreq: "monthly",
     schema: ["article"],

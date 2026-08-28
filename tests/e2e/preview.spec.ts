@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.8"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.9"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -49,6 +49,18 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
     '<link rel="canonical" href="https://velowrite.app/docs/markdown-history" />',
   );
   expect(markdownHistoryHtml).toContain('"@type": "Article"');
+
+  const workflowHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/long-markdown-workflow/index.html"),
+    "utf8",
+  );
+  expect(workflowHtml).toContain(
+    "<title>How to Work Faster in Long Markdown Drafts</title>",
+  );
+  expect(workflowHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/long-markdown-workflow" />',
+  );
+  expect(workflowHtml).toContain('"@type": "Article"');
 
   const releasePolicyHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/preview-release-policy/index.html"),
@@ -402,6 +414,144 @@ print("hello")
   await expect(editor).toContainText("a^2 + b^2 = c^2");
 });
 
+test("document tools update the editor and preview after outline navigation", async ({ page }) => {
+  const markdown = [
+    "# Tool Check",
+    "",
+    "## Target Section",
+    "",
+    "| Name | State |",
+    "|---|---|",
+    "| PDF |done|",
+    "| Longer item |todo|",
+  ].join("\n");
+
+  await page.goto("/app");
+  await page.evaluate((draft) => {
+    localStorage.setItem("velowrite:draft", draft);
+    localStorage.setItem("velowrite:draft-name", "document-tools.md");
+  }, markdown);
+  await page.reload();
+  await page.getByRole("button", { name: "Show workspace" }).click();
+
+  await page.getByRole("button", { name: "Target Section" }).click();
+  await page.getByRole("button", { name: "Format tables" }).click();
+
+  const editor = page.locator(".cm-content").first();
+  const renderedPreview = page.getByLabel("Rendered preview");
+  await expect(editor).toContainText("| Name        | State |");
+  await expect(editor).toContainText("| Longer item | todo  |");
+  await expect(renderedPreview.locator("table")).toContainText("Longer item");
+  await expect(page.getByRole("status")).toContainText("Formatted 1 Markdown table");
+  await expect(page.locator(".cm-activeLine").first()).toContainText("Target Section");
+
+  await page.getByRole("button", { name: "Insert table" }).click();
+  await expect(editor).toContainText("| Item | Owner | Status |");
+  await expect(renderedPreview.locator("table")).toHaveCount(2);
+});
+
+test("format tables keeps the current editing location in a long document", async ({ page }) => {
+  const markdown = [
+    "# Long Document",
+    "",
+    ...Array.from(
+      { length: 10 },
+      (_, index) => `## Section ${index + 1}\n\nParagraph ${index + 1}.\n`,
+    ),
+    "## X Production Notes and Story Hook",
+    "",
+    "Draft line before formatting.",
+    "",
+    "| Name | State |",
+    "|---|---|",
+    "| Opening hook |draft|",
+    "| Ending beat |review|",
+    "",
+    ...Array.from(
+      { length: 10 },
+      (_, index) => `## Later Section ${index + 1}\n\nLater paragraph ${index + 1}.\n`,
+    ),
+  ].join("\n");
+
+  await page.goto("/app");
+  await page.evaluate((draft) => {
+    localStorage.setItem("velowrite:draft", draft);
+    localStorage.setItem("velowrite:draft-name", "long-format.md");
+  }, markdown);
+  await page.reload();
+  await page.getByRole("button", { name: "Show workspace" }).click();
+
+  await page.getByRole("button", { name: "X Production Notes and Story Hook" }).click();
+  const editor = page.locator(".cm-content").first();
+  await expect(page.locator(".cm-activeLine").first()).toContainText(
+    "X Production Notes and Story Hook",
+  );
+
+  await editor.click();
+  await page.keyboard.press("End");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("Fresh note that should stay in view.");
+  await page.getByRole("button", { name: "Format tables" }).click();
+
+  await expect(editor).toContainText("Fresh note that should stay in view.");
+  await expect(page.locator(".cm-activeLine").first()).toContainText(
+    "Fresh note that should stay in view.",
+  );
+  await expect(page.getByLabel("Rendered preview")).toContainText(
+    "Fresh note that should stay in view.",
+  );
+  await expect(page.getByRole("status")).toContainText("Formatted 1 Markdown table");
+});
+
+test("desktop quick marks keep separate locations per slot", async ({ page }) => {
+  const markdown = [
+    "# Quick Mark Check",
+    "",
+    ...Array.from(
+      { length: 18 },
+      (_, index) => `## Section ${index + 1}\n\nParagraph ${index + 1}.\n`,
+    ),
+  ].join("\n");
+
+  await page.goto("/app");
+  await page.evaluate((draft) => {
+    localStorage.setItem("velowrite:draft", draft);
+    localStorage.setItem("velowrite:draft-name", "quick-mark.md");
+  }, markdown);
+  await page.reload();
+  await page.getByRole("button", { name: "Show workspace" }).click();
+
+  await page.locator(".document-mark-slots button").nth(0).click();
+  await page.getByRole("button", { name: "Section 15" }).click();
+  await expect(page.locator(".cm-activeLine").first()).toContainText("Section 15");
+  await page.getByRole("button", { name: "Set M1" }).click();
+  await expect(page.getByRole("status")).toContainText("Quick mark M1 set at line");
+
+  await page.locator(".document-mark-slots button").nth(1).click();
+  await page.getByRole("button", { name: "Section 8" }).click();
+  await page.getByRole("button", { name: "Set M2" }).click();
+  await expect(page.getByRole("status")).toContainText("Quick mark M2 set at line");
+
+  await page.locator(".document-mark-slots button").nth(2).click();
+  await page.getByRole("button", { name: "Section 3" }).click();
+  await page.getByRole("button", { name: "Set M3" }).click();
+  await expect(page.getByRole("status")).toContainText("Quick mark M3 set at line");
+
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+Home");
+  await expect(page.locator(".cm-activeLine").first()).toContainText("Quick Mark Check");
+  await page.locator(".document-mark-actions button").nth(1).click();
+  await expect(page.locator(".cm-activeLine").first()).toContainText("Section 3");
+
+  await page.locator(".document-mark-slots button").nth(1).click();
+  await page.locator(".document-mark-actions button").nth(1).click();
+  await expect(page.locator(".cm-activeLine").first()).toContainText("Section 8");
+
+  await page.locator(".document-mark-slots button").nth(0).click();
+  await page.locator(".document-mark-actions button").nth(1).click();
+  await expect(page.locator(".cm-activeLine").first()).toContainText("Section 15");
+});
+
 test("web editor brand link returns to the homepage", async ({ page }) => {
   await page.goto("/web?utm_source=e2e&utm_medium=brand");
 
@@ -469,6 +619,7 @@ test("public pages keep compact desktop titles and responsive layouts", async ({
     "/docs/markdown-for-writers",
     "/docs/markdown-for-developers",
     "/docs/markdown-code-blocks",
+    "/docs/long-markdown-workflow",
     "/docs/markdown-math",
     "/docs/local-first-markdown",
     "/docs/markdown-to-blog",
@@ -845,6 +996,35 @@ test("document tabs stay within the viewport on narrow windows", async ({ page }
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
+test("desktop supports common keyboard shortcuts across platforms", async ({ page }) => {
+  await page.goto("/app");
+  await page.getByLabel("VeloWrite editor").click();
+
+  await page.keyboard.press("Control+Comma");
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeHidden();
+
+  await page.keyboard.press("Control+2");
+  await expect(page.locator(".editor-grid")).toHaveClass(/mode-split/);
+  await page.keyboard.press("Control+3");
+  await expect(page.locator(".editor-grid")).toHaveClass(/mode-preview/);
+  await page.keyboard.press("Control+1");
+  await expect(page.locator(".editor-grid")).toHaveClass(/mode-write/);
+
+  await page.getByRole("button", { name: "New document tab" }).click();
+  await expect(page.getByRole("tablist", { name: "Open documents" }).getByRole("tab")).toHaveCount(2);
+  await page.keyboard.press("Control+PageDown");
+  await expect(page.getByRole("tablist", { name: "Open documents" }).getByRole("tab").first()).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+
+  await page.keyboard.press("Control+W");
+  await expect(page.getByRole("tablist", { name: "Open documents" }).getByRole("tab")).toHaveCount(1);
+});
+
 test("desktop about panel shows the installed app version", async ({ page }) => {
   await page.goto("/app");
 
@@ -854,7 +1034,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.8");
+  await expect(aboutDialog).toContainText("0.2.9");
   await expect(aboutDialog).toContainText("Update check");
   await expect(aboutDialog).toContainText("kenwater89@gmail.com");
 });
@@ -1198,14 +1378,14 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
-  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.8");
-  await expect(page.getByLabel("Latest release information")).toContainText("August 20, 2026");
+  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.9");
+  await expect(page.getByLabel("Latest release information")).toContainText("August 23, 2026");
   await expect(page.getByLabel("Latest improvements")).toContainText(
-    "Mermaid diagrams and KaTeX math now render in PDF export.",
+    "Browser tabs now recover after refresh",
   );
   await expect(page.getByLabel("Latest improvements").getByRole("link", { name: "See changelog details" })).toHaveAttribute(
     "href",
-    "/changelog?utm_source=download_page&utm_medium=resource#v028",
+    "/changelog?utm_source=download_page&utm_medium=resource#v029",
   );
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon", exact: true })).toBeVisible();
   await expect(
@@ -1214,7 +1394,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.8_aarch64\.dmg/,
+    /VeloWrite_0\.2\.9_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Included now" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Still preview" })).toBeVisible();

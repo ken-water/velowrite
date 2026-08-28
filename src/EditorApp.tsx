@@ -9,7 +9,7 @@ import {
   syntaxHighlighting,
 } from "@codemirror/language";
 import { search, searchKeymap } from "@codemirror/search";
-import { EditorState, Extension } from "@codemirror/state";
+import { ChangeSet, EditorState, Extension } from "@codemirror/state";
 import {
   drawSelection,
   dropCursor,
@@ -45,6 +45,10 @@ import {
   Maximize2,
   Minimize2,
   Plus,
+  Bookmark,
+  BookmarkCheck,
+  ImageIcon,
+  Table2,
   X,
 } from "lucide-react";
 import {
@@ -73,6 +77,9 @@ import {
   editorFontSizeKey,
   freeHistorySnapshotLimit,
   getInitialViewMode,
+  getCodeBlockStats,
+  getImageAssetSummary,
+  getMarkdownTableDiagnostics,
   getStoredEditorFontSize,
   getStoredBrowserWorkspace,
   getStoredLastLocalFile,
@@ -88,6 +95,7 @@ import {
   readingFontKey,
   readingPaletteKey,
   getStoredThemeMode,
+  formatMarkdownTables,
   parseDesktopHandoffUrl,
   readBrowserTabHistory,
   readDraftHistory,
@@ -158,6 +166,21 @@ type FileChangeNotice = {
   stamp: FileStamp;
 };
 
+type DocumentQualitySummary = {
+  images: ReturnType<typeof getImageAssetSummary>;
+  tables: ReturnType<typeof getMarkdownTableDiagnostics>;
+  code: ReturnType<typeof getCodeBlockStats>;
+};
+
+type MarkdownEditorHandle = {
+  insertTextAtCursor: (block: string) => boolean;
+  getCursorLine: () => number | null;
+};
+
+type QuickMarkSlot = "1" | "2" | "3";
+type QuickMarkMap = Partial<Record<QuickMarkSlot, number>>;
+
+const quickMarkSlots: readonly QuickMarkSlot[] = ["1", "2", "3"];
 const diskSnapshotId = "disk-current";
 
 function FormatIcon({ label }: { label: "HTML" | "PDF" }) {
@@ -346,7 +369,8 @@ function createEditorTheme(fontSize: number) {
     backgroundColor: "var(--selection)",
   },
   "&.cm-focused": {
-    outline: "none",
+    outline: "2px solid color-mix(in srgb, var(--accent) 30%, transparent)",
+    outlineOffset: "-2px",
   },
   });
 }
@@ -517,26 +541,68 @@ function useNativeApi(): NativeApi | null {
   return api;
 }
 
-function MarkdownEditor({
-  value,
-  onChange,
-  onScroll,
-  fontSize,
-  scrollTarget,
-  scrollRatio,
-}: {
+const MarkdownEditor = React.forwardRef<MarkdownEditorHandle, {
   value: string;
   onChange: (value: string) => void;
   onScroll: (ratio: number) => void;
   fontSize: number;
   scrollTarget: { line: number; nonce: number } | null;
   scrollRatio: number | null;
-}) {
+}>(function MarkdownEditor({
+  value,
+  onChange,
+  onScroll,
+  fontSize,
+  scrollTarget,
+  scrollRatio,
+}, ref) {
   const container = React.useRef<HTMLDivElement>(null);
   const view = React.useRef<EditorView | null>(null);
   const onChangeRef = React.useRef(onChange);
   const onScrollRef = React.useRef(onScroll);
   const suppressScrollRef = React.useRef(false);
+
+  React.useImperativeHandle(ref, () => ({
+    insertTextAtCursor(block: string) {
+      const currentView = view.current;
+      if (!currentView) return false;
+
+      const documentText = currentView.state.doc.toString();
+      const cursor = currentView.state.selection.main.head;
+      const before = documentText.slice(0, cursor);
+      const after = documentText.slice(cursor);
+      const prefix = before.length === 0
+        ? ""
+        : before.endsWith("\n\n")
+          ? ""
+          : before.endsWith("\n")
+            ? "\n"
+            : "\n\n";
+      const suffix = after.length === 0
+        ? ""
+        : after.startsWith("\n\n")
+          ? ""
+          : after.startsWith("\n")
+            ? "\n"
+            : "\n\n";
+      const insert = `${prefix}${block}${suffix}`;
+      const from = cursor;
+      const to = cursor;
+
+      currentView.dispatch({
+        changes: { from, to, insert },
+        selection: { anchor: from + insert.length },
+        effects: EditorView.scrollIntoView(from + insert.length, { y: "center" }),
+      });
+      currentView.focus();
+      return true;
+    },
+    getCursorLine() {
+      const currentView = view.current;
+      if (!currentView) return null;
+      return currentView.state.doc.lineAt(currentView.state.selection.main.head).number;
+    },
+  }), []);
 
   React.useEffect(() => {
     onChangeRef.current = onChange;
@@ -602,7 +668,7 @@ function MarkdownEditor({
     if (!currentView) return;
 
     const currentValue = currentView.state.doc.toString();
-    if (currentValue === value || scrollTarget) return;
+    if (currentValue === value) return;
 
     const scrollElement = currentView.scrollDOM;
     const previousScrollRange = scrollElement.scrollHeight - scrollElement.clientHeight;
@@ -610,19 +676,36 @@ function MarkdownEditor({
       ? scrollElement.scrollTop / previousScrollRange
       : 0;
     const previousLength = currentView.state.doc.length;
-    const mapPosition = (position: number) => {
-      if (previousLength === 0) return 0;
-      return Math.min(value.length, Math.round((position / previousLength) * value.length));
-    };
-    const { anchor, head } = currentView.state.selection.main;
+    let changeStart = 0;
+    while (
+      changeStart < previousLength &&
+      changeStart < value.length &&
+      currentValue[changeStart] === value[changeStart]
+    ) {
+      changeStart += 1;
+    }
+
+    let commonEnd = 0;
+    while (
+      commonEnd < previousLength - changeStart &&
+      commonEnd < value.length - changeStart &&
+      currentValue[previousLength - commonEnd - 1] === value[value.length - commonEnd - 1]
+    ) {
+      commonEnd += 1;
+    }
+
+    const changes = ChangeSet.of(
+      [{
+        from: changeStart,
+        to: previousLength - commonEnd,
+        insert: value.slice(changeStart, value.length - commonEnd),
+      }],
+      previousLength,
+    );
 
     currentView.dispatch({
-      changes: {
-        from: 0,
-        to: previousLength,
-        insert: value,
-      },
-      selection: { anchor: mapPosition(anchor), head: mapPosition(head) },
+      changes,
+      selection: currentView.state.selection.map(changes),
     });
     window.requestAnimationFrame(() => {
       const nextScrollRange = scrollElement.scrollHeight - scrollElement.clientHeight;
@@ -648,7 +731,7 @@ function MarkdownEditor({
   }, [scrollTarget]);
 
   return <div ref={container} className="code-editor" aria-label="Markdown content" />;
-}
+});
 
 function SettingsPanel({
   themeMode,
@@ -1399,6 +1482,123 @@ function ExportReadinessPanel({
   );
 }
 
+function DocumentToolsPanel({
+  quality,
+  quickMarkSlot,
+  quickMarkLine,
+  quickMarkValues,
+  onInsertTable,
+  onFormatTables,
+  onCopyCodeBlocks,
+  onSelectQuickMarkSlot,
+  onSetQuickMark,
+  onJumpQuickMark,
+}: {
+  quality: DocumentQualitySummary;
+  quickMarkSlot: QuickMarkSlot;
+  quickMarkLine: number | null;
+  quickMarkValues: QuickMarkMap;
+  onInsertTable: () => void;
+  onFormatTables: () => void;
+  onCopyCodeBlocks: () => void;
+  onSelectQuickMarkSlot: (slot: QuickMarkSlot) => void;
+  onSetQuickMark: () => void;
+  onJumpQuickMark: () => void;
+}) {
+  const codeLanguages = Object.keys(quality.code.languages);
+  const tableIssueLabel = quality.tables.issues.length
+    ? `${quality.tables.issues.length} issue${quality.tables.issues.length > 1 ? "s" : ""}`
+    : "OK";
+  const imageIssueCount = quality.images.absolute + quality.images.remote;
+  const imageStatus = imageIssueCount
+    ? `${imageIssueCount} path risk${imageIssueCount > 1 ? "s" : ""}`
+    : quality.images.total
+      ? "Portable"
+      : "No images";
+  const codeStatus = quality.code.total
+    ? `${quality.code.labeled}/${quality.code.total} labeled`
+    : "No code";
+
+  return (
+    <section className="document-tools-panel" aria-label="Document tools">
+      <div className="outline-title">Document tools</div>
+      <div className="document-quality-grid">
+        <div data-warning={imageIssueCount ? "true" : undefined}>
+          <ImageIcon size={13} />
+          <span>Images</span>
+          <strong>{imageStatus}</strong>
+        </div>
+        <div data-warning={quality.tables.issues.length ? "true" : undefined}>
+          <Table2 size={13} />
+          <span>Tables</span>
+          <strong>{tableIssueLabel}</strong>
+        </div>
+        <div data-warning={quality.code.unlabeled ? "true" : undefined}>
+          <Code2 size={13} />
+          <span>Code</span>
+          <strong>{codeStatus}</strong>
+        </div>
+      </div>
+      {quality.images.notes.length > 0 && (
+        <p className="document-tool-note">{quality.images.notes[0]}</p>
+      )}
+      {quality.tables.issues[0] && (
+        <p className="document-tool-note">
+          Line {quality.tables.issues[0].line}: {quality.tables.issues[0].message}
+        </p>
+      )}
+      {quality.code.unlabeled > 0 && (
+        <p className="document-tool-note">
+          Add language names to fenced code blocks for better highlighting.
+        </p>
+      )}
+      {codeLanguages.length > 0 && (
+        <p className="document-tool-note">Languages: {codeLanguages.slice(0, 4).join(", ")}</p>
+      )}
+      <div className="document-tool-actions" role="group" aria-label="Markdown tools">
+        <button onClick={onInsertTable} type="button">
+          <Table2 size={13} />
+          Insert table
+        </button>
+        <button onClick={onFormatTables} type="button">
+          <Braces size={13} />
+          Format tables
+        </button>
+        <button onClick={onCopyCodeBlocks} type="button">
+          <Copy size={13} />
+          Copy code
+        </button>
+      </div>
+      <div className="document-mark-slots" role="group" aria-label="Quick mark slots">
+        {quickMarkSlots.map((slot) => {
+          const line = quickMarkValues[slot];
+          return (
+            <button
+              key={slot}
+              className={quickMarkSlot === slot ? "active" : ""}
+              onClick={() => onSelectQuickMarkSlot(slot)}
+              type="button"
+            >
+              M{slot}
+              <strong>{line ? `L${line}` : "Empty"}</strong>
+            </button>
+          );
+        })}
+      </div>
+      <div className="document-mark-actions" role="group" aria-label="Quick mark tools">
+        <button onClick={() => onSetQuickMark()} type="button">
+          <Bookmark size={13} />
+          Set M{quickMarkSlot}
+        </button>
+        <button onClick={() => onJumpQuickMark()} disabled={!quickMarkLine} type="button">
+          <BookmarkCheck size={13} />
+          {quickMarkLine ? `Jump M${quickMarkSlot} L${quickMarkLine}` : `Jump M${quickMarkSlot}`}
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function DesktopStartPanel({
   recentFiles,
   historyCount,
@@ -1536,6 +1736,7 @@ export default function EditorApp({
   const handoffImportRef = React.useRef<(draft: HandoffDraft) => void>(() => undefined);
   const launchFileHandled = React.useRef(false);
   const lastSessionRestoreTried = React.useRef(false);
+  const markdownEditorRef = React.useRef<MarkdownEditorHandle | null>(null);
   const initialState = React.useMemo(
     () => getInitialEditorState(surface, initialMarkdown, initialViewMode),
     [initialMarkdown, initialViewMode, surface],
@@ -1578,6 +1779,8 @@ export default function EditorApp({
   const [fileChangeNotice, setFileChangeNotice] = React.useState<FileChangeNotice | null>(null);
   const [updateNotice, setUpdateNotice] = React.useState<UpdateNotice>({ state: "checking" });
   const [focusMode, setFocusMode] = React.useState(false);
+  const [quickMarkSlot, setQuickMarkSlotState] = React.useState<QuickMarkSlot>("1");
+  const [quickMarks, setQuickMarks] = React.useState<Record<string, QuickMarkMap>>({});
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
     return localStorage.getItem(autoSaveFileKey) === "true";
   });
@@ -1615,6 +1818,14 @@ export default function EditorApp({
     };
   }, [headings]);
   const metrics = React.useMemo(() => getMetrics(markdown), [markdown]);
+  const documentQuality = React.useMemo<DocumentQualitySummary>(
+    () => ({
+      images: getImageAssetSummary(markdown, filePath),
+      tables: getMarkdownTableDiagnostics(markdown),
+      code: getCodeBlockStats(markdown),
+    }),
+    [filePath, markdown],
+  );
   const rendered = React.useMemo(
     () => renderMarkdown(markdown, headings, 0, { basePath: getMarkdownBasePath(filePath) }),
     [filePath, headings, markdown],
@@ -1643,8 +1854,12 @@ export default function EditorApp({
   const exportReadiness = React.useMemo(() => {
     const title = headings.find((heading) => heading.level === 1)?.text ?? "";
     const links = (markdown.match(/(?<!!)\[[^\]]+\]\([^)]+\)/g) ?? []).length;
-    const images = (markdown.match(/!\[[^\]]*\]\([^)]+\)/g) ?? []).length;
-    const codeBlocks = Math.floor((markdown.match(/^```/gm) ?? []).length / 2);
+    const images = documentQuality.images.total;
+    const codeBlocks = documentQuality.code.total;
+    const tableReady =
+      documentQuality.tables.tables === 0 || documentQuality.tables.issues.length === 0;
+    const codeReady = codeBlocks === 0 || documentQuality.code.unlabeled === 0;
+    const imageReady = documentQuality.images.absolute === 0;
     const hasStructure = headings.length >= 2;
     const ready = Boolean(title) && hasStructure;
 
@@ -1658,11 +1873,16 @@ export default function EditorApp({
         { label: "H1 title", done: Boolean(title), value: title || "Missing" },
         { label: "Sections", done: hasStructure, value: String(headings.length) },
         { label: "Links", done: links > 0, value: String(links) },
-        { label: "Images", done: images > 0, value: String(images) },
-        { label: "Code blocks", done: codeBlocks > 0, value: String(codeBlocks) },
+        { label: "Images", done: imageReady, value: images ? String(images) : "0" },
+        {
+          label: "Tables",
+          done: tableReady,
+          value: documentQuality.tables.tables ? String(documentQuality.tables.tables) : "0",
+        },
+        { label: "Code", done: codeReady, value: codeBlocks ? String(codeBlocks) : "0" },
       ],
     };
-  }, [headings, markdown]);
+  }, [documentQuality, headings, markdown]);
   const dirty = markdown !== savedMarkdown;
   const hasUnsavedTabs =
     dirty ||
@@ -1679,6 +1899,7 @@ export default function EditorApp({
       : "Unsaved local draft";
   const saveTrustLabel = dirty ? "Unsaved changes" : browserMode ? "Browser draft saved" : "Saved";
   const historyCountLabel = `${Math.min(historyEntries.length, freeHistorySnapshotLimit)} / ${freeHistorySnapshotLimit}`;
+  const quickMarkLine = quickMarks[activeTabId]?.[quickMarkSlot] ?? null;
   const historyTrustLabel = browserMode
     ? `${historyCountLabel} browser snapshots`
     : filePath
@@ -2019,42 +2240,144 @@ export default function EditorApp({
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        if (settingsOpen) {
+          event.preventDefault();
+          setSettingsOpen(false);
+          return;
+        }
+        if (historyOpen) {
+          event.preventDefault();
+          setHistoryOpen(false);
+          return;
+        }
+        if (aboutOpen) {
+          event.preventDefault();
+          setAboutOpen(false);
+          return;
+        }
+        if (focusMode) {
+          event.preventDefault();
+          setFocusMode(false);
+          return;
+        }
+      }
+
+      if (desktopSurface && event.key === "F11") {
+        event.preventDefault();
+        setFocusMode((current) => !current);
+        return;
+      }
+
+      if (desktopSurface && event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+        if (event.key.toLowerCase() === "s") {
+          event.preventDefault();
+          setSidebarOpen((current) => !current);
+          return;
+        }
+      }
+
       const command = event.metaKey || event.ctrlKey;
       if (!command) return;
+
+      const key = event.key.toLowerCase();
+      const macFullscreen = event.metaKey && event.ctrlKey && key === "f";
+      if (desktopSurface && macFullscreen) {
+        event.preventDefault();
+        setFocusMode((current) => !current);
+        return;
+      }
+
+      if (event.ctrlKey && event.key === "Tab") {
+        event.preventDefault();
+        selectDocumentTabByOffset(event.shiftKey ? -1 : 1);
+        return;
+      }
+
+      if (event.key === "PageDown") {
+        event.preventDefault();
+        selectDocumentTabByOffset(1);
+        return;
+      }
+
+      if (event.key === "PageUp") {
+        event.preventDefault();
+        selectDocumentTabByOffset(-1);
+        return;
+      }
+
+      if (event.metaKey && event.shiftKey && event.key === "]") {
+        event.preventDefault();
+        selectDocumentTabByOffset(1);
+        return;
+      }
+
+      if (event.metaKey && event.shiftKey && event.key === "[") {
+        event.preventDefault();
+        selectDocumentTabByOffset(-1);
+        return;
+      }
+
+      if (key === "," || event.code === "Comma") {
+        event.preventDefault();
+        setSettingsOpen(true);
+        return;
+      }
+
+      if (key === "w") {
+        event.preventDefault();
+        if (desktopSurface || openTabsRef.current.length > 1) {
+          void closeDocumentTab(activeTabId);
+        }
+        return;
+      }
+
+      if (event.shiftKey && key === "h") {
+        event.preventDefault();
+        void openHistoryPanel();
+        return;
+      }
 
       if (event.key.toLowerCase() === "s") {
         event.preventDefault();
         void saveFile();
+        return;
       }
 
       if (event.key.toLowerCase() === "o") {
         event.preventDefault();
         void openFileWithGuard();
+        return;
       }
 
       if (event.key.toLowerCase() === "n") {
         event.preventDefault();
         void newFileWithGuard();
+        return;
       }
 
-      if (event.shiftKey && event.key.toLowerCase() === "e") {
+      if (event.shiftKey && key === "e") {
         event.preventDefault();
         void exportHtml();
+        return;
       }
 
-      if (event.shiftKey && event.key.toLowerCase() === "p") {
+      if (event.shiftKey && key === "p") {
         event.preventDefault();
         void printOrSavePdf();
+        return;
       }
 
       if (event.key === "1") {
         event.preventDefault();
         changeViewMode("write");
+        return;
       }
 
       if (event.key === "2") {
         event.preventDefault();
         changeViewMode("split");
+        return;
       }
 
       if (event.key === "3") {
@@ -2071,6 +2394,7 @@ export default function EditorApp({
       if (command === "new") void newFileWithGuard();
       if (command === "open") void openFileWithGuard();
       if (command === "save") void saveFile();
+      if (command === "close-tab") void closeDocumentTab(activeTabId);
       if (command === "export-html") void exportHtml();
       if (command === "export-pdf") void printOrSavePdf();
       if (command === "clear-recent") clearRecentFiles();
@@ -2080,6 +2404,9 @@ export default function EditorApp({
         if (file) void openRecentFile(file.path);
       }
       if (command === "show-history") void openHistoryPanel();
+      if (command === "show-settings") setSettingsOpen(true);
+      if (command === "toggle-focus") setFocusMode((current) => !current);
+      if (command === "toggle-sidebar") setSidebarOpen((current) => !current);
       if (command === "view-write") changeViewMode("write");
       if (command === "view-split") changeViewMode("split");
       if (command === "view-preview") changeViewMode("preview");
@@ -2294,6 +2621,17 @@ export default function EditorApp({
 
     captureActiveTab();
     applyDocumentTab(tab, nextStatus);
+  }
+
+  function selectDocumentTabByOffset(offset: number) {
+    const tabs = openTabsRef.current;
+    if (tabs.length <= 1) return;
+
+    const currentIndex = tabs.findIndex((tab) => tab.id === activeTabId);
+    if (currentIndex < 0) return;
+
+    const nextIndex = (currentIndex + offset + tabs.length) % tabs.length;
+    selectDocumentTab(tabs[nextIndex]);
   }
 
   function replaceOrAddDocumentTab(nextFile: NativeFile, nextStatus = "Opened", force = false) {
@@ -2783,6 +3121,19 @@ export default function EditorApp({
     void copyText("Rendered HTML", rendered);
   }
 
+  function copyCodeBlocks() {
+    const codeBlocks = [...markdown.matchAll(/^```[^\n]*\n([\s\S]*?)^```/gm)]
+      .map((match) => match[1].trimEnd())
+      .filter(Boolean);
+
+    if (!codeBlocks.length) {
+      setStatus("No code blocks to copy");
+      return;
+    }
+
+    void copyText("Code blocks", codeBlocks.join("\n\n"));
+  }
+
   function downloadTextFile(name: string, contents: string, type: string) {
     const blob = new Blob([contents], { type });
     const url = URL.createObjectURL(blob);
@@ -3084,6 +3435,43 @@ export default function EditorApp({
     }
   }
 
+  function insertTableTemplate() {
+    const table = [
+      "| Item | Owner | Status |",
+      "| --- | --- | --- |",
+      "| Draft | You | In progress |",
+      "| Review | Team | Pending |",
+    ].join("\n");
+
+    if (markdownEditorRef.current?.insertTextAtCursor(table)) {
+      setStatus("Table inserted at cursor");
+      if (viewMode === "write") {
+        changeViewMode("split");
+      }
+      return;
+    }
+
+    insertMarkdownBlock(table, "Table inserted");
+  }
+
+  function formatCurrentTables() {
+    const nextMarkdown = formatMarkdownTables(markdown);
+    if (nextMarkdown === markdown) {
+      setStatus("No Markdown tables needed formatting");
+      return;
+    }
+
+    setMarkdown(nextMarkdown);
+    setStatus(
+      `Formatted ${documentQuality.tables.tables} Markdown table${
+        documentQuality.tables.tables === 1 ? "" : "s"
+      }`,
+    );
+    if (viewMode === "write") {
+      changeViewMode("split");
+    }
+  }
+
   async function insertBrowserImage(file: File) {
     if (file.size > browserImageEmbedLimit) {
       setStatus("Image is too large for browser-local embedding");
@@ -3242,6 +3630,42 @@ export default function EditorApp({
     }));
   }
 
+  function selectQuickMarkSlot(slot: QuickMarkSlot) {
+    setQuickMarkSlotState(slot);
+    setStatus(`Quick mark slot M${slot} selected`);
+  }
+
+  function setQuickMarkAtCursor(slot = quickMarkSlot) {
+    const line = markdownEditorRef.current?.getCursorLine();
+    if (!line) {
+      setStatus("Click inside the editor before setting a mark");
+      return;
+    }
+
+    setQuickMarks((current) => ({
+      ...current,
+      [activeTabId]: {
+        ...(current[activeTabId] ?? {}),
+        [slot]: line,
+      },
+    }));
+    setStatus(`Quick mark M${slot} set at line ${line}`);
+  }
+
+  function jumpToQuickMark(slot = quickMarkSlot) {
+    const line = quickMarks[activeTabId]?.[slot];
+    if (!line) {
+      setStatus(`No quick mark M${slot} set for this tab`);
+      return;
+    }
+
+    if (viewMode === "preview") {
+      changeViewMode("split");
+    }
+    scrollEditorToLine(line);
+    setStatus(`Jumped to quick mark M${slot} at line ${line}`);
+  }
+
   function scrollPreviewToHeading(id: string) {
     const preview = previewRef.current;
     const target = preview?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
@@ -3305,6 +3729,21 @@ export default function EditorApp({
       onDragLeave={handleDragLeave}
       onDrop={(event) => void handleDrop(event)}
       onPaste={(event) => void handlePaste(event)}
+      onKeyDown={(event) => {
+        if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+        if (quickMarkSlots.includes(event.key as QuickMarkSlot)) {
+          event.preventDefault();
+          selectQuickMarkSlot(event.key as QuickMarkSlot);
+        }
+        if (event.key.toLowerCase() === "m") {
+          event.preventDefault();
+          setQuickMarkAtCursor();
+        }
+        if (event.key.toLowerCase() === "j") {
+          event.preventDefault();
+          jumpToQuickMark();
+        }
+      }}
     >
       <input
         ref={fileInput}
@@ -3431,6 +3870,19 @@ export default function EditorApp({
             <p>No headings yet</p>
           )}
         </section>
+
+        <DocumentToolsPanel
+          quality={documentQuality}
+          quickMarkSlot={quickMarkSlot}
+          quickMarkLine={quickMarkLine}
+          quickMarkValues={quickMarks[activeTabId] ?? {}}
+          onInsertTable={insertTableTemplate}
+          onFormatTables={formatCurrentTables}
+          onCopyCodeBlocks={copyCodeBlocks}
+          onSelectQuickMarkSlot={selectQuickMarkSlot}
+          onSetQuickMark={setQuickMarkAtCursor}
+          onJumpQuickMark={jumpToQuickMark}
+        />
 
         {!desktopSurface && (
           <>
@@ -3762,6 +4214,7 @@ export default function EditorApp({
               </span>
             </div>
             <MarkdownEditor
+              ref={markdownEditorRef}
               value={markdown}
               onChange={setMarkdown}
               onScroll={syncPreviewScroll}
@@ -3805,6 +4258,9 @@ export default function EditorApp({
           <span>{metrics.characters} chars</span>
           <span>{metrics.lines} lines</span>
           <span>{metrics.readingMinutes} min read</span>
+          <span className="shortcut-hint">
+            Ctrl/Cmd S save · Ctrl/Cmd 1/2/3 views · Ctrl Tab switch · Alt 1/2/3 marks
+          </span>
         </footer>
         {statusToast && (
           <div className="status-toast" role="status" aria-live="polite">

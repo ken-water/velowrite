@@ -945,12 +945,23 @@ p {
 
 .app-shell.writing-focus .editor-grid {
   min-height: 100vh;
+  background: var(--editor-bg);
 }
 
 .app-shell.writing-focus .editor-pane,
 .app-shell.writing-focus .preview-pane {
-  padding-top: 34px;
-  padding-bottom: 34px;
+  border-right: 0;
+  padding: clamp(42px, 7vh, 76px) clamp(22px, 6vw, 88px);
+}
+
+.app-shell.writing-focus .editor-grid.mode-write .editor-pane,
+.app-shell.writing-focus .editor-grid.mode-split .editor-pane {
+  width: min(100%, 980px);
+  margin: 0 auto;
+}
+
+.app-shell.writing-focus .editor-grid.mode-split {
+  grid-template-columns: minmax(420px, 0.92fr) minmax(420px, 1.08fr);
 }
 
 .focus-exit {
@@ -1187,7 +1198,8 @@ p {
   gap: 10px;
   height: 100vh;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   border-right: 1px solid var(--border);
   padding: 12px;
   background: var(--panel-bg);
@@ -1698,6 +1710,146 @@ p {
   margin: 0;
   color: var(--muted);
   font-size: 12px;
+}
+
+.document-tools-panel {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 7px;
+  border-top: 1px solid var(--border);
+  padding: 8px 8px 6px;
+}
+
+.document-quality-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.document-quality-grid div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 5px;
+  min-width: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: 7px;
+  padding: 6px;
+  background: color-mix(in srgb, var(--surface) 58%, transparent);
+}
+
+.document-quality-grid div[data-warning="true"] {
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.document-quality-grid svg {
+  grid-row: span 2;
+  color: var(--accent-strong);
+}
+
+.document-quality-grid span,
+.document-quality-grid strong,
+.document-tool-note {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.document-quality-grid span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.document-quality-grid strong {
+  color: var(--editor-text);
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.document-tool-note {
+  margin: 0;
+  color: var(--muted-strong);
+  font-size: 10px;
+  font-weight: 720;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.document-tool-actions,
+.document-mark-actions,
+.document-mark-slots {
+  display: grid;
+  gap: 5px;
+}
+
+.document-tool-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.document-mark-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.document-mark-slots {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.document-tool-actions button,
+.document-mark-actions button,
+.document-mark-slots button {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0 6px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.document-mark-slots button {
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px 4px;
+  text-transform: uppercase;
+}
+
+.document-mark-slots button strong {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--muted-strong);
+}
+
+.document-tool-actions button:hover,
+.document-tool-actions button:focus-visible,
+.document-mark-actions button:hover:not(:disabled),
+.document-mark-actions button:focus-visible,
+.document-mark-slots button:hover,
+.document-mark-slots button:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--border));
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+
+.document-mark-actions button:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
+.document-mark-slots button.active {
+  border-color: color-mix(in srgb, var(--accent) 54%, var(--border));
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
 }
 
 .export-readiness-panel {
@@ -2271,7 +2423,6 @@ p {
   left: 50%;
   z-index: 40;
   width: max-content;
-  width: max-content;
   max-width: 260px;
   transform: translate(-50%, -2px);
   border: 1px solid var(--border);
@@ -2457,6 +2608,11 @@ kbd,
 
 .code-editor .cm-editor {
   height: 100%;
+}
+
+.code-editor .cm-editor.cm-focused {
+  outline: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  outline-offset: -2px;
 }
 
 .app-shell.desktop-focus .code-editor .cm-line {
@@ -2731,6 +2887,12 @@ pre,
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
+}
+
+.statusbar .shortcut-hint {
+  color: color-mix(in srgb, var(--muted) 72%, transparent);
+  font-size: 11px;
+  white-space: nowrap;
 }
 
 .trust-pill {
