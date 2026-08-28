@@ -40,10 +40,10 @@ Every release must update these together:
 5. Build the desktop app before a public/beta release:
 
    ```bash
-   npm run package:linux
+   npm run release:package
    ```
 
-   Prefer local builds first. Do not add or trigger GitHub Actions release builds unless the maintainer explicitly asks for it.
+   `release:package` runs the local platform packages in parallel where safe, so Windows and Linux packaging do not block each other. Use the macOS GitHub Action separately only when the maintainer explicitly asks for a DMG build.
 
 ## Local Packaging
 
@@ -67,7 +67,13 @@ rustup target add x86_64-pc-windows-gnu
 npm run package:windows
 ```
 
-Do not rely on GitHub Actions for Windows packaging until local build attempts have been exhausted or the maintainer explicitly requests CI packaging.
+For a release gate, prefer:
+
+```bash
+npm run release:package
+```
+
+This keeps the local Windows and Linux packaging in parallel, then leaves macOS DMG to the explicit GitHub Action path.
 
 6. Commit release changes:
 

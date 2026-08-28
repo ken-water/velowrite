@@ -19,6 +19,7 @@
     "guide:pdf": "node scripts/build-markdown-guide-pdf.mjs",
     "launch:video": "node scripts/create-product-hunt-video.mjs",
     "version:sync": "node scripts/sync-version.mjs",
+    "release:package": "node scripts/release-package.mjs",
     "release:check": "npm run version:sync -- --check && npm run client:smoke && npm run client:native-test && npm run client:artifacts && npm test && npm run build && npm run preview:check",
     "release:check:full": "npm run version:sync -- --check && npm run client:smoke && npm run client:native-test && npm run client:artifacts && npm test && npm run build && npm run preview:check && npm run e2e",
     "tauri": "tauri",
