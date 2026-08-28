@@ -2138,8 +2138,9 @@ export const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog lists what shipped in each preview build and what is still planned. Older releases stay below so you can compare versions.",
-    updated: "August 23, 2026",
+    updated: "August 29, 2026",
     directory: [
+      { label: "0.2.10", href: "#v0210" },
       { label: "0.2.9", href: "#v029" },
       { label: "0.2.8", href: "#v028" },
       { label: "0.2.7", href: "#v027" },
@@ -2167,6 +2168,18 @@ export const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v0210",
+        title: "0.2.10 preview",
+        body: [
+          "Added a new long-form docs article for long Markdown drafts, with practical coverage of shortcuts, tables, images, and marks.",
+          "Added planned docs topics for daily shortcuts, image handling, table cleanup, and multi-mark navigation.",
+          "Upgraded quick marks to three per tab so long drafts can keep more than one return point.",
+          "Updated the download page and public release metadata to reflect the new preview build.",
+          "Kept the docs and SEO routing in sync so the new long-draft article is rendered in static output.",
+          "Fixed quick mark actions so the selected slot is preserved when setting or jumping.",
+        ],
+      },
       {
         id: "v029",
         title: "0.2.9 preview",

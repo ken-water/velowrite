@@ -132,7 +132,7 @@ export const pdfExportStyleKey = "velowrite:pdf-export-style";
 export const browserHistoryKey = "velowrite:browser-history";
 export const draftHistoryKey = "velowrite:draft-history";
 export const browserWorkspaceKey = "velowrite:browser-workspace";
-export const appVersion = "0.2.9";
+export const appVersion = "0.2.10";
 export const freeHistorySnapshotLimit = 3;
 export const defaultTableExportStyle: TableExportStyle = {
   header: "tinted",

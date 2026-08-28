@@ -32,7 +32,7 @@ VeloWrite is an online Markdown editor and a Tauri desktop app for local files.
 - [Download Safety article](https://velowrite.app/docs/download-safety)
 - [Markdown Meeting Notes Template article](https://velowrite.app/docs/markdown-meeting-notes)
 - [Markdown guide](https://velowrite.app/guide)
-- [Changelog](https://velowrite.app/changelog), including the version directory for 0.1.0 through 0.2.9.
+- [Changelog](https://velowrite.app/changelog), including the version directory for 0.1.0 through 0.2.10.
 - [FAQ](https://velowrite.app/faq)
 - [GitHub repository](https://github.com/ken-water/velowrite)
 - [Markdown guide PDF](https://velowrite.app/markdown-guide.pdf)
@@ -49,7 +49,7 @@ For current availability, link to the [download page](https://velowrite.app/down
 
 VeloWrite lets people draft Markdown in the browser, check the rendered result, and download Markdown or HTML. The desktop app adds local files, offline work, history, and PDF export. The website also has Markdown guides, release notes, and a public roadmap.
 
-The current public version is v0.2.9, released on August 23, 2026 as a free preview. The web editor supports editing, live preview, multiple browser-local document tabs, per-tab history, browser-local image drafts, Markdown download, and HTML/PDF export. The desktop app adds local open and save, recent files, multiple document tabs, per-tab view modes, three local history snapshots, split scrolling, local relative image previews, PDF export, external file-change prompts, update checks, and release notes. PDF export supports page layout, contents, page numbers, watermarks, table styles, Unicode font handling, Mermaid diagrams, and rendered KaTeX math. Preview installers are available for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux.
+The current public version is v0.2.10, released on August 29, 2026 as a free preview. The web editor supports editing, live preview, multiple browser-local document tabs, per-tab history, browser-local image drafts, Markdown download, and HTML/PDF export. The desktop app adds local open and save, recent files, multiple document tabs, per-tab view modes, three local history snapshots, split scrolling, local relative image previews, PDF export, external file-change prompts, update checks, and release notes. PDF export supports page layout, contents, page numbers, watermarks, table styles, Unicode font handling, Mermaid diagrams, and rendered KaTeX math. Preview installers are available for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux.
 
 ## Positioning
 
