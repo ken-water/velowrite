@@ -58,7 +58,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "The core syntax is small on purpose",
         body: [
           "Most daily Markdown work uses a small set of patterns: headings, paragraphs, lists, links, blockquotes, fenced code blocks, images, and tables. You do not need to memorize everything before writing useful documents.",
-          "The better habit is to learn the few structures you use every day, then add math, code tabs, reference links, and document templates when the document genuinely needs them.",
+          "Learn the structures you use every day first. Add math, code tabs, reference links, and templates only when the document needs them.",
         ],
         example: {
           label: "Small daily syntax set",
@@ -71,14 +71,14 @@ export const contentPages: Record<string, ContentPage> = {
         id: "where-it-fits",
         title: "Where Markdown fits best",
         body: [
-          "Markdown works well for notes, READMEs, specs, changelogs, study guides, knowledge-base articles, product docs, launch copy, and blog drafts. It is strongest when the document needs to stay editable and searchable.",
-          "It also works well when a document may have several destinations. The same source can start as a private note, become a review draft, and later turn into a public article or support document.",
+          "Markdown fits notes, READMEs, specs, changelogs, study guides, knowledge-base articles, product docs, launch copy, and blog drafts. It is strongest when the document needs to stay editable and searchable.",
+          "It also helps when a document may have several destinations. The same source can start as a private note, become a review draft, and later turn into a public article or support document.",
         ],
         example: {
           label: "One source, several outputs",
           markdown:
             "| Source document | Possible output |\n| --- | --- |\n| README draft | GitHub project page |\n| Product note | Help center article |\n| Launch checklist | Internal runbook |\n| Blog outline | Published article |",
-          note: "Markdown is useful when the source needs to outlive one export format.",
+          note: "Markdown helps when the source needs to outlive one export format.",
         },
       },
       {
@@ -86,7 +86,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Know what Markdown does not try to solve",
         body: [
           "Markdown is not a full design system, database, spreadsheet, whiteboard, or collaborative workspace by itself. Some editors add those layers, but the format remains strongest when the plain text file is still understandable.",
-          "This matters when choosing tools. If you need heavy real-time collaboration, complex permissions, or database views, a larger workspace product may fit better. If you need private writing, readable files, preview, export, and local history, Markdown is a lighter and more durable base.",
+          "Tool choice depends on the job. For heavy collaboration, complex permissions, or database views, a larger workspace product may fit better. For private writing, readable files, preview, export, and local history, Markdown is a lighter base.",
         ],
       },
       {
@@ -94,7 +94,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Start in the browser, then move important files local",
         body: [
           "The easiest way to learn Markdown is to write a real document instead of reading syntax charts for an hour. Start with a title, a few headings, and one short list. Then preview the document and adjust the structure.",
-          "VeloWrite's web editor is designed for that first draft. When the document becomes important, the desktop app is the better place for native open and save, offline writing, recent files, and local history snapshots.",
+          "VeloWrite's web editor handles that first draft. When the document becomes important, the desktop app is the better place for native open and save, offline writing, recent files, and local history snapshots.",
         ],
         example: {
           label: "First useful draft",
@@ -153,7 +153,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Aaron Swartz and early feedback",
         body: [
           "Aaron Swartz gave Markdown a lot of the feedback and testing that helped the syntax settle into something practical. Gruber credits Aaron directly in the original Markdown page acknowledgements.",
-          "That matters historically because Markdown was never just a solo syntax design. It was shaped early by real use, discussion, and iteration around how people naturally write in plain text.",
+          "That early feedback is part of why Markdown stayed practical. It grew around the way people were already writing plain text.",
         ],
       },
       {
@@ -176,7 +176,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "what-stayed-useful",
         title: "What stayed useful after all these years",
         body: [
-          "The most durable Markdown idea is not a specific symbol. It is the belief that source text should remain understandable without the editor. That is why Markdown still feels trustworthy for notes, specs, drafts, and long-lived documentation.",
+          "The most durable Markdown idea is simple: the source still makes sense without the editor. That keeps Markdown practical for notes, specs, drafts, and long-lived documentation.",
           "Another durable idea is separation of writing from presentation. You can draft in a clean plain-text structure, then export to HTML, print to PDF, publish to a site, or apply a style later.",
         ],
       },
@@ -185,7 +185,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "What this history means for modern editors",
         body: [
           "A good Markdown editor should not make the file feel trapped. It should make writing faster while preserving plain text ownership. Preview, history recovery, export, and navigation should support the file instead of replacing it.",
-          "VeloWrite follows that direction: quick browser editing for a first draft, a lightweight desktop app for files you keep, and a roadmap that adds AI, export, and publishing only after everyday editing works reliably.",
+          "VeloWrite follows that direction: quick browser editing for a first draft, a lightweight desktop app for files you keep, and a roadmap that puts everyday editing before AI, export, and publishing.",
         ],
       },
     ],
@@ -214,7 +214,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Local files remain the source of truth",
         body: [
           "People trust Markdown because the file is inspectable. You can open it in another editor, store it in Git, copy it to a folder, or keep it in a private vault. Future editors should preserve that trust instead of forcing every note through an account system.",
-          "For VeloWrite, that means desktop local files, recent documents, and local history stay part of the free editor.",
+          "For VeloWrite, desktop local files, recent documents, and local history stay in the free editor.",
         ],
         example: {
           label: "A source file you can reopen",
@@ -228,21 +228,21 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Recovery becomes part of the writing surface",
         body: [
           "Future Markdown editors need more than fast rendering. Long edits also need clear recovery. A local history panel, a readable restore preview, and visible snapshot limits help without forcing every document into a cloud account.",
-          "That is why VeloWrite keeps basic local history in the free preview. Recovery protects the document, so it belongs in the editor rather than behind a paid plan.",
+          "VeloWrite keeps basic local history in the free preview because recovery is part of writing, not an add-on.",
         ],
       },
       {
         id: "ai-inside-writing",
         title: "AI should work inside the document flow",
         body: [
-          "AI is useful when it can polish a paragraph, summarize a section, continue a draft, explain code, or generate Mermaid diagrams from context. It is less useful when it feels like a separate chat window pasted onto the side.",
-          "That is why AI commands are on the VeloWrite Pro roadmap only after the basic editor feels trustworthy.",
+          "AI helps when it can polish a paragraph, summarize a section, continue a draft, explain code, or generate Mermaid diagrams from context. It works less well when it feels like a separate chat window pasted onto the side.",
+          "AI commands stay on the VeloWrite Pro roadmap until the basic editor feels solid.",
         ],
         example: {
           label: "Task-based AI prompt shape",
           markdown:
             "## Draft task\n\nTurn these meeting notes into a short update for the team.\n\n### Source notes\n\n- Decision made\n- Risk still open\n- Follow-up owner assigned\n\n### Output style\n\nConcise, factual, and ready to paste into a project channel.",
-          note: "AI is most useful when the document already contains the task, source, and target style.",
+          note: "AI works best when the document already contains the task, source, and target style.",
         },
       },
       {
@@ -250,21 +250,21 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Editors will explain whether a draft is ready to export",
         body: [
           "Many writers do not need a complex publishing system on day one. They need to know whether the current draft has a title, enough structure, working links, readable code blocks, and the right output path.",
-          "VeloWrite includes export preparation in the free preview: Markdown download, HTML export, dedicated PDF export, and a readiness panel that shows basic document problems before you share the file.",
+          "VeloWrite includes export preparation in the free preview: Markdown download, HTML export, dedicated PDF export, and a readiness panel for common document problems.",
         ],
         example: {
           label: "Export readiness checklist",
           markdown:
             "## Before sharing\n\n- [ ] The document has one clear H1 title\n- [ ] The sections match the reader's path\n- [ ] Links and images have context\n- [ ] Code blocks have language labels\n- [ ] The chosen export format matches the next step",
-          note: "The goal is not to block export. The goal is to make the document state visible before sharing.",
+          note: "Export stays available. The document state remains visible before sharing.",
         },
       },
       {
         id: "publishing",
-        title: "Publishing should become a natural last step",
+        title: "Publishing can become a natural last step",
         body: [
           "Many Markdown documents eventually become blog posts, docs pages, release notes, or knowledge-base articles. The future editor should help export and publish without making the writing surface heavier.",
-          "VeloWrite keeps this as later work: write and preview first, then add publishing once the editor is stable.",
+          "VeloWrite keeps this as later work. First the editor needs to handle writing and preview well.",
         ],
       },
       {
@@ -272,7 +272,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "What should not change",
         body: [
           "Markdown should keep the ordinary advantages that made it durable: readable source, predictable structure, and files that move between tools. New AI, sync, and publishing features should support those advantages instead of replacing them.",
-          "A good future Markdown editor should feel modern without making the user's notes feel captured. That is the line VeloWrite should keep.",
+          "A future Markdown editor can feel modern without making notes feel captured. That is the line VeloWrite should keep.",
         ],
       },
     ],
@@ -321,7 +321,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Paragraph spacing",
           markdown:
             "This is the first paragraph. It can be one sentence or a few short sentences.\n\nThis is the second paragraph. The blank line between them matters.\n\n> A quote also reads better when it is separated from nearby text.",
-          note: "When the source is easy to read, editing later is easier too.",
+          note: "Readable source is easier to edit later.",
         },
       },
       {
@@ -329,7 +329,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Choose the right list",
         body: [
           "Use bullet lists when order does not matter. Use numbered lists when the reader should follow steps in sequence. Avoid deep nesting unless the structure really helps.",
-          "A list is most useful when every item has the same shape. If one item turns into a long paragraph, it may deserve its own section instead.",
+          "A list works best when every item has the same shape. If one item turns into a long paragraph, it may deserve its own section instead.",
         ],
         example: {
           label: "Bullet and numbered lists",
@@ -372,7 +372,7 @@ export const contentPages: Record<string, ContentPage> = {
         body: [
           "Short sections are easier to scan than long paragraphs. Consistent heading levels are easier to follow than visual decoration. If a document needs to be maintained, readable source matters as much as rendered output.",
           "A practical habit is to write a section, check the preview, then continue. This catches broken tables, missing blank lines, awkward links, and code fences that were not closed.",
-          "When a document becomes something you want to keep, move it from a temporary browser draft to a local file. That is where the desktop app is more useful than a tab.",
+          "When a document becomes something you want to keep, move it from a temporary browser draft to a local file. That is where the desktop app is better than a tab.",
         ],
       },
     ],
@@ -401,7 +401,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Write the shape before the style",
         body: [
           "A good draft starts with structure: title, sections, notes, and open questions. Markdown lets you shape that without choosing fonts, margins, or page layout too early.",
-          "This is especially useful for long-form writing because headings and lists make the source easy to scan.",
+          "For long drafts, headings and lists make the source easier to scan.",
         ],
         example: {
           label: "Article skeleton",
@@ -443,7 +443,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Move from rough notes to publishable copy",
         body: [
           "When the draft starts to settle, remove notes that only helped you think. Keep headings, short paragraphs, useful links, and examples that support the reader.",
-          "Markdown works well as a publishing handoff because the same source can become HTML, documentation, a newsletter draft, or a blog post.",
+          "Markdown is a good publishing handoff because the same source can become HTML, documentation, a newsletter draft, or a blog post.",
         ],
         example: {
           label: "Clean publishable section",
@@ -457,14 +457,14 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Move important drafts to desktop",
         body: [
           "The browser editor is useful for quick starts. When a draft becomes important, move to desktop so the file lives locally, can be reopened, and can benefit from local history snapshots.",
-          "This matters for essays, client drafts, product copy, and long articles. A local file is easier to back up, compare, and keep under your own control.",
+          "For essays, client drafts, product copy, and long articles, a local file is easier to back up, compare, and keep under your own control.",
         ],
       },
       {
         id: "writer-habits",
         title: "Keep the writing surface quiet",
         body: [
-          "A quiet writing surface still needs useful tools. The editor gives you headings, preview, export, and recovery without pulling attention away from the draft.",
+          "A quiet writing surface still needs tools. The editor gives you headings, preview, export, and recovery without pulling attention away from the draft.",
           "A practical habit is to write in small sections, preview often, and move stable drafts into local files. That keeps the browser useful for starting and the desktop app useful for finishing.",
         ],
       },
@@ -494,7 +494,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "repeatable-docs",
         title: "Use Markdown for repeatable technical documents",
         body: [
-          "READMEs, architecture notes, API drafts, runbooks, changelogs, release plans, and onboarding guides all benefit from Markdown because the source is readable, diffable, and reviewable.",
+          "READMEs, architecture notes, API drafts, runbooks, changelogs, release plans, and onboarding guides fit Markdown because the source is readable, diffable, and reviewable.",
           "Every document does not need to be formal. It just needs to be easy to start, review, and maintain.",
         ],
         example: {
@@ -512,7 +512,7 @@ export const contentPages: Record<string, ContentPage> = {
           "Add a language label after the opening fence so the preview can highlight syntax. VeloWrite currently highlights common documentation languages including Bash, JavaScript, TypeScript, Python, and Java.",
         ],
         example: {
-          label: "Syntax-highlighted examples",
+          label: "Highlighted code examples",
           markdown:
             "Run the checks before opening the release PR:\n\n```bash\nnpm test\nnpm run build\n```\n\nThen document the changed option:\n\n```ts\ntype ExportMode = \"markdown\" | \"html\";\n\nfunction labelFor(mode: ExportMode) {\n  return mode === \"html\" ? \"Rendered HTML\" : \"Markdown source\";\n}\n```",
           note: "The language name after the opening fence controls syntax highlighting.",
@@ -536,28 +536,28 @@ export const contentPages: Record<string, ContentPage> = {
         id: "technical-decisions",
         title: "Record technical decisions while they are fresh",
         body: [
-          "Small decision notes save time later. They explain why a tradeoff was made, what alternatives were rejected, and what should be revisited when the system changes.",
-          "Markdown works well here because the source can live near code, be reviewed in Git, or stay as a local draft until the decision is ready to share.",
+          "Small decision notes save time later. They explain why a tradeoff was made, what alternatives were rejected, and what to revisit when the system changes.",
+          "Markdown fits this work because the source can live near code, be reviewed in Git, or stay as a local draft until the decision is ready to share.",
         ],
         example: {
           label: "Decision note",
           markdown:
             "## Decision\n\nUse local browser storage for quick web drafts.\n\n## Why\n\n- No account is required for the first trial.\n- Drafts survive a refresh on the same device.\n- Sensitive long-term files still belong on desktop.\n\n## Revisit when\n\nPrivate sync moves from roadmap to implementation.",
-          note: "Decision notes should explain the constraint as well as the final choice.",
+          note: "Decision notes explain the constraint as well as the final choice.",
         },
       },
       {
         id: "runbooks",
         title: "Write runbooks as steps, checks, and rollback notes",
         body: [
-          "A runbook should be boring in a good way. The next person should know what to check, what command to run, and what rollback path exists if something goes wrong.",
-          "Numbered lists are useful for ordered procedures. Tables are useful for short status checks. Keep long explanations outside the emergency path.",
+          "A runbook can be boring in a good way. The next person needs to know what to check, what command to run, and what rollback path exists if something goes wrong.",
+          "Numbered lists fit ordered procedures. Tables fit short status checks. Keep long explanations outside the emergency path.",
         ],
         example: {
           label: "Runbook fragment",
           markdown:
             "## Deploy check\n\n1. Confirm CI is green.\n2. Build the app locally.\n3. Publish the release notes.\n\n| Check | Expected |\n| --- | --- |\n| Tests | Passing |\n| Build | Complete |\n| Rollback | Previous release tag |",
-          note: "Runbooks should favor clarity over clever formatting.",
+          note: "Runbooks favor clarity over clever formatting.",
         },
       },
       {
@@ -565,13 +565,13 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Keep release notes close to real changes",
         body: [
           "Release notes are easier to write when they are updated near the work, not reconstructed at the end. Use short bullets and name the behavior users will notice.",
-          "A changelog does not need to include every internal detail. It should help a user understand what changed, what improved, and what remains preview work.",
+          "A changelog does not need every internal detail. It should tell users what changed, what improved, and what remains preview work.",
         ],
         example: {
           label: "Release note draft",
           markdown:
             "## Added\n\n- Copy Markdown and rendered HTML from the editor toolbar.\n- Open documentation examples directly in the web editor.\n\n## Fixed\n\n- Kept basics content focused on beginner Markdown patterns.",
-          note: "Release notes should be specific enough to help users decide whether to try the update.",
+          note: "Specific release notes help users decide whether to try the update.",
         },
       },
       {
@@ -579,7 +579,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Why local history matters",
         body: [
           "Developers already understand version control, but not every draft belongs in Git immediately. Local history snapshots help recover accidental edits before the document is committed or shared.",
-          "Basic local recovery stays in the free preview because draft safety belongs in the editor, not only in a paid tier.",
+          "Basic local recovery stays in the free preview because draft safety belongs in the editor.",
         ],
       },
     ],
@@ -631,7 +631,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Use reference links when citations repeat",
         body: [
           "Inline URLs make a source file noisy when the same destination appears several times. Reference links keep the paragraph readable and collect destinations at the bottom of the relevant section or document.",
-          "They are useful for engineering proposals, research notes, and onboarding guides where readers need the link but editors need to focus on the words around it.",
+          "They help in engineering proposals, research notes, and onboarding guides where readers need the link but editors still need readable prose.",
         ],
         example: {
           label: "Reference links",
@@ -679,7 +679,7 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Decision record template",
           markdown:
             "# Decision: Store documents as local Markdown\n\n## Context\n\nThe team needs files that remain readable without a specific service.\n\n## Decision\n\nKeep source documents as Markdown in the project folder.\n\n## Consequences\n\nUse a browser editor for quick drafts and desktop files for ongoing work.\n\n## Owner\n\nWriting workflow team",
-          note: "A repeatable structure is often more useful than a more complicated Markdown extension.",
+          note: "A repeatable structure often beats a more complicated Markdown extension.",
         },
       },
       {
@@ -687,7 +687,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Know where portable Markdown ends",
         body: [
           "Headings, paragraphs, lists, links, blockquotes, fenced code, and reference links travel well between Markdown tools. Tables, math, task lists, diagrams, front matter, and custom callouts depend more on the renderer and publishing target.",
-          "VeloWrite supports tables, KaTeX math, syntax-highlighted code, and tabbed previews for adjacent language examples. When a file must move between editors, test it in the destination tool and keep the source understandable even if an extension is unavailable.",
+          "VeloWrite supports tables, KaTeX math, highlighted code, and tabbed previews for adjacent language examples. When a file must move between editors, test it in the destination tool and keep the source understandable even if an extension is unavailable.",
         ],
       },
     ],
@@ -700,7 +700,7 @@ export const contentPages: Record<string, ContentPage> = {
     eyebrow: "Technical writing",
     title: "Markdown Math with KaTeX",
     intro:
-      "Math support makes Markdown useful for study notes, engineering docs, product analysis, and research drafts. VeloWrite renders math with KaTeX in the preview, so formulas can stay beside the plain text that explains them.",
+      "Math support helps with study notes, engineering docs, product analysis, and research drafts. VeloWrite renders math with KaTeX in the preview, so formulas can stay beside the plain text that explains them.",
     updated: "July 26, 2026",
     directory: [
       { label: "Inline math", href: "#inline-math" },
@@ -730,7 +730,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Use block math when the formula is the point",
         body: [
           "Block math should stand on its own. It is better for equations that readers need to inspect, copy, compare, or discuss in a review.",
-          "A useful pattern is: introduce the idea, show the formula, then explain the variables. That keeps the document readable even for someone who is scanning before they study the details.",
+          "A good pattern is simple: introduce the idea, show the formula, then explain the variables. The document stays readable even for someone scanning before reading closely.",
         ],
         example: {
           label: "Block math",
@@ -750,14 +750,14 @@ export const contentPages: Record<string, ContentPage> = {
           label: "Variables beside a formula",
           markdown:
             "We use a weighted score when recent signals matter more than older ones:\n\n$$S = \\sum_{i=1}^{n} w_i x_i$$\n\n| Symbol | Meaning |\n| --- | --- |\n| $S$ | Final score |\n| $w_i$ | Weight for signal $i$ |\n| $x_i$ | Signal value |",
-          note: "A short table is useful when symbols appear more than once.",
+          note: "A short table helps when symbols appear more than once.",
         },
       },
       {
         id: "tables",
         title: "Use tables for small math references",
         body: [
-          "Tables work well for compact reference material: symbol definitions, parameter ranges, model assumptions, or before-and-after values. Keep cells short so the Markdown source remains readable.",
+          "Tables fit compact reference material: symbol definitions, parameter ranges, model assumptions, or before-and-after values. Keep cells short so the Markdown source remains readable.",
           "If a formula, explanation, or derivation becomes long, move it out of the table and into a normal section. Long math inside table cells is hard to edit and easy to break.",
         ],
         example: {
@@ -771,7 +771,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "readable-notes",
         title: "Write math notes for rereading",
         body: [
-          "The best math note is not the one with the most notation. It is the one you can reopen later and understand quickly. Use headings for the problem, assumptions, formula, and conclusion.",
+          "The best math note is the one you can reopen later and understand quickly. Use headings for the problem, assumptions, formula, and conclusion.",
           "For study notes, keep one concept per section. For engineering notes, include the decision that the formula supports. For product analysis, write the conclusion in words before the equation becomes too detailed.",
         ],
         example: {
@@ -805,7 +805,7 @@ export const contentPages: Record<string, ContentPage> = {
     eyebrow: "Technical writing",
     title: "Markdown Code Blocks and Tabs",
     intro:
-      "Code blocks are one of the main reasons Markdown works well for technical writing. A good code example should be easy to copy, easy to compare with the explanation, and short enough that readers do not lose the point.",
+      "Code blocks are one reason Markdown fits technical writing. A good code example is easy to copy, easy to compare with the explanation, and short enough that readers do not lose the point.",
     updated: "July 24, 2026",
     directory: [
       { label: "Fenced blocks", href: "#fenced-blocks" },
@@ -921,7 +921,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Long drafts slow down when context disappears",
         body: [
           "A short note is easy to hold in your head. A long draft is different. You start in one section, open a table, insert an image, then scroll back to the paragraph you were fixing. If the editor jumps away or loses your place, the document feels heavier than the writing itself.",
-          "That is why VeloWrite keeps source and preview close together, keeps tables and images visible in the rendered view, and keeps recent edits attached to the file instead of a browser tab you might forget to reopen.",
+          "VeloWrite keeps source and preview close together, keeps tables and images visible in the rendered view, and keeps recent edits attached to the file instead of a browser tab you might forget to reopen.",
           "The same problem appears in product specs, scripts, release notes, research notes, and long README files. The content is not difficult because it is Markdown. It is difficult because the author has to keep several locations in mind at the same time.",
         ],
         example: {
@@ -937,7 +937,7 @@ export const contentPages: Record<string, ContentPage> = {
         body: [
           "The shortest path is usually the one you do not have to think about. Save, open, switch view mode, toggle focus, and close the current tab should all be one gesture away on every desktop platform.",
           "In VeloWrite, the common shortcuts follow the platform's normal pattern: Cmd on macOS, Ctrl on Windows and Linux, with the same command mapped in the menu. That means the app behaves like a real desktop tool instead of a web page in a frame.",
-          "The most useful shortcut set is small. A writer should be able to save, switch between write and preview, move between tabs, and return to marked lines without learning a command language first.",
+          "The best shortcut set is small. A writer needs to save, switch between write and preview, move between tabs, and return to marked lines without learning a command language first.",
         ],
         example: {
           label: "Common editing shortcuts",
@@ -950,9 +950,9 @@ export const contentPages: Record<string, ContentPage> = {
         id: "tables-and-images",
         title: "Tables and images should stay close to the text they support",
         body: [
-          "Tables are useful when readers need a compact comparison, but badly aligned tables waste space and attention. Image paths are useful when they stay portable, but they become a problem when the editor cannot tell whether the file will still work after a move or a sync.",
-          "That is why the document tools panel checks table formatting, image path risk, and code block labels. The goal is not to turn the editor into a validator. The goal is to spot the cases that usually break later.",
-          "A good long-form workflow treats tables and images as part of the document, not as decorations added at the end. If a table is hard to scan or an image path is fragile, the problem should be visible while the author is still editing.",
+          "Tables help when readers need a compact comparison, but badly aligned tables waste space and attention. Image paths help when they stay portable, but they become a problem when the editor cannot tell whether the file will still work after a move or a sync.",
+          "The document tools panel checks table formatting, image path risk, and code block labels. It is not trying to turn the editor into a validator. It is there to spot cases that usually break later.",
+          "A good long-form workflow treats tables and images as part of the document, not as decorations added at the end. If a table is hard to scan or an image path is fragile, the problem needs to be visible while the author is still editing.",
         ],
         example: {
           label: "A compact comparison",
@@ -983,7 +983,7 @@ export const contentPages: Record<string, ContentPage> = {
           "Start in the section that matters most. Add the rough text first, then use a mark before you move away. Format the table. Check the image paths. Switch to preview. Return to the saved mark and finish the paragraph.",
           "This sequence is boring on purpose. Boring is good when the file is important. The editor should preserve your place while you do the actual editing work.",
           "For a longer pass, set M1 near the top-level thesis, M2 near the table or source material, and M3 near the paragraph you are actively rewriting. After that, use the outline for large jumps and marks for return trips.",
-          "When the draft is ready to share, preview it before export. Tables, code fences, math, Mermaid diagrams, and images should be checked in the same visual context where the reader will see them.",
+          "When the draft is ready to share, preview it before export. Check tables, code fences, math, Mermaid diagrams, and images in the same visual context where the reader will see them.",
         ],
       },
       {
@@ -1034,7 +1034,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "browser-vs-desktop",
         title: "Use the browser for speed, desktop for durable work",
         body: [
-          "The browser is the right place to test an idea quickly. Paste Markdown, check the preview, export HTML, or download a copy without signing in. That low-friction start is useful when the document is still disposable.",
+          "The browser is the right place to test an idea quickly. Paste Markdown, check the preview, export HTML, or download a copy without signing in. That low-friction start fits documents you may not keep.",
           "The desktop app becomes the better home when the draft turns into a real file: a README, a runbook, class notes, meeting notes, a product spec, or a blog draft you will revise more than once. Native open and save, offline access, recent files, and local history are the difference between a quick tool and a daily writing workspace.",
         ],
       },
@@ -1043,8 +1043,8 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Local history is part of document safety",
         body: [
           "Undo is not enough for real writing. A mistake may be saved, the app may be reopened later, or a large paste may change a long document in a way that is hard to inspect. Local history gives the editor a safety net that is closer to how people actually work.",
-          "VeloWrite keeps basic local history in the free preview. Accidental recovery should not be treated as a luxury feature. A Markdown editor is more useful when it helps people avoid losing work.",
-          "The product rule should be understandable before it becomes enforceable. Users should know how many snapshots are kept, what happens when the limit is reached, and how to protect important files outside the app.",
+          "VeloWrite keeps basic local history in the free preview. Accidental recovery should not be treated as a luxury feature.",
+          "The rule needs to be easy to understand: how many snapshots are kept, what happens when the limit is reached, and how to protect important files outside the app.",
         ],
         example: {
           label: "History-friendly revision note",
@@ -1070,7 +1070,7 @@ export const contentPages: Record<string, ContentPage> = {
       },
       {
         id: "recovery-rules",
-        title: "Recovery rules should be visible",
+        title: "Recovery rules need to be visible",
         body: [
           "History and sync overlap. If two devices edit the same file, the editor should help users see which version changed, when it changed, and what can be restored. Silent overwrites are worse than asking the user to make a choice.",
           "Before VeloWrite adds any advanced sync behavior, it should document the basic recovery model: where snapshots live, how restore works, whether deleted snapshots can be recovered, and what users should back up themselves.",
@@ -1118,7 +1118,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "different-path",
         title: "What VeloWrite is trying to improve",
         body: [
-          "The goal is not to copy every mature Typora feature immediately. The early goal is a fast preview editor with a clear path: try it online, download desktop when local files matter, and check the public roadmap before expecting Pro features.",
+          "VeloWrite is not trying to copy every mature Typora feature immediately. The early target is a fast preview editor with a clear path: try it online, download desktop when local files matter, and check the public roadmap before expecting Pro features.",
           "That gives new users a low-risk first step. Paste Markdown into the web editor, check rendering, export or download a file, then decide whether the desktop app belongs in your daily setup.",
         ],
         example: {
@@ -1220,7 +1220,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Preview before export",
         body: [
           "Preview catches broken structure, awkward tables, long code blocks, and math that does not render as expected. Read the document from top to bottom at least once before you export it.",
-          "In VeloWrite, switch to Preview for a clean reading pass, then return to Split when you need to fix the source beside the result. This is especially useful for technical posts with tables, formulas, or multi-language code examples.",
+          "In VeloWrite, switch to Preview for a clean reading pass, then return to Split when you need to fix the source beside the result. This helps most with technical posts that have tables, formulas, or multi-language code examples.",
         ],
         example: {
           label: "A short publishing checklist",
@@ -1267,13 +1267,15 @@ export const contentPages: Record<string, ContentPage> = {
   },
   markdownEditorForWindows: {
     eyebrow: "Platform guide",
-    title: "Markdown Editor for Windows",
+    title: "How to Open, View, and Edit .md Files on Windows",
     intro:
-      "Windows users can try VeloWrite in the browser first, then install the desktop preview for native local files, recent documents, local history, offline writing, and Open with workflows.",
+      "If you need to open a .md file on Windows, view Markdown files, or edit a local document without fighting the file association dialog, this guide shows the fastest path.",
     updated: "July 31, 2026",
     directory: [
-      { label: "Quick test", href: "#quick-test" },
-      { label: "Desktop files", href: "#desktop-files" },
+      { label: "Quick answer", href: "#quick-answer" },
+      { label: "Open a .md file", href: "#open-a-md-file" },
+      { label: "View Markdown files", href: "#view-markdown-files" },
+      { label: "Edit local files", href: "#edit-local-files" },
       { label: "Open with", href: "#open-with" },
       { label: "If it does not appear", href: "#missing-open-with" },
       { label: "Old app cleanup", href: "#old-app-cleanup" },
@@ -1281,26 +1283,42 @@ export const contentPages: Record<string, ContentPage> = {
     ],
     sections: [
       {
-        id: "quick-test",
-        title: "Use the web editor for a quick test",
+        id: "quick-answer",
+        title: "The short answer",
         body: [
-          "If you only need to paste Markdown, preview it, and download a copy, the browser editor is the fastest starting point. No account is required.",
-          "This is useful before installing anything on a work machine. You can confirm the preview style, code blocks, math rendering, and export flow first.",
+          "Use the browser editor if you only need to paste Markdown, preview it, and download a copy. No account is required.",
+          "Install the desktop app if you need to open real local files, use Open with, keep recent files, or recover from local history.",
         ],
       },
       {
-        id: "desktop-files",
-        title: "Use desktop for real files",
+        id: "open-a-md-file",
+        title: "How to open a .md file on Windows",
         body: [
-          "The Windows preview adds native open and save, recent files, HTML export, and local history snapshots. It is better for documents you plan to keep editing.",
-          "Once installed, the app can receive Markdown files from the operating system. Opening a .md file with VeloWrite should load the file directly into the editor instead of showing the marketing website.",
+          "The easiest path is to right-click the file, choose Open with, and select VeloWrite.",
+          "When the association is set, opening a .md file should load it directly into the editor, not the marketing website.",
         ],
         example: {
-          label: "A local Windows note",
+          label: "Windows open check",
           markdown:
-            "# Windows Test Note\n\n## Verify\n\n- Open this file with VeloWrite\n- Edit a line\n- Save the file\n- Reopen it from the recent list\n\n## Expected result\n\nThe file path is visible and the editor shows local history status.",
+            "# Windows Open Test\n\n## Verify\n\n- Open this file with VeloWrite\n- Edit a line\n- Save the file\n- Reopen it from Recent\n\n## Expected result\n\nThe file path is visible and the editor keeps the file open.",
           note: "Use a small test file first so you can verify open, save, recent files, and history without risking important notes.",
         },
+      },
+      {
+        id: "view-markdown-files",
+        title: "How to view .md files on Windows",
+        body: [
+          "If you only want to read Markdown, open the file in VeloWrite and switch to Preview or Split view.",
+          "That gives you a clean rendered view for notes, READMEs, and documentation without leaving the file on disk.",
+        ],
+      },
+      {
+        id: "edit-local-files",
+        title: "How to edit Markdown files locally",
+        body: [
+          "Use the desktop app when the document matters. Native open and save, recent files, and local history snapshots make repeated edits easier to trust.",
+          "That is better than copying the text into a browser tab when you plan to keep the same Markdown file over time.",
+        ],
       },
       {
         id: "open-with",
@@ -1346,6 +1364,81 @@ export const contentPages: Record<string, ContentPage> = {
       secondary: { href: "/web?utm_source=windows_article_cta&utm_medium=cta", label: "Try Web Editor" },
     },
   },
+  openMdFilesOnWindows: {
+    eyebrow: "Windows help",
+    title: "How to Open, View, and Edit .md Files on Windows 11",
+    intro:
+      "If you searched for how to open a .md file on Windows or how to view .md files on Windows, this short guide gives the direct path and shows when the desktop app matters more than the browser.",
+    updated: "August 30, 2026",
+    directory: [
+      { label: "Quick answer", href: "#quick-answer" },
+      { label: "Open a file", href: "#open-a-file" },
+      { label: "View the content", href: "#view-the-content" },
+      { label: "Edit the file", href: "#edit-the-file" },
+      { label: "Troubleshoot Open with", href: "#troubleshoot-open-with" },
+      { label: "Why use desktop", href: "#why-use-desktop" },
+    ],
+    sections: [
+      {
+        id: "quick-answer",
+        title: "The quick answer",
+        body: [
+          "Open the .md file with VeloWrite. If you just need to read it, use Preview or Split mode. If you need to keep editing the same file, use the desktop app so the file stays local.",
+          "You do not need a database or a cloud account to read a Markdown file on Windows.",
+        ],
+      },
+      {
+        id: "open-a-file",
+        title: "How to open a .md file on Windows",
+        body: [
+          "Right-click the file, choose Open with, and select VeloWrite.",
+          "If you want the file to open there again later, keep using the same app for that file type so Windows remembers the association.",
+        ],
+        example: {
+          label: "Simple open test",
+          markdown:
+            "# Open Test\n\n1. Create a file named `note.md`\n2. Right-click it\n3. Choose Open with -> VeloWrite\n4. Confirm the file opens in the editor\n5. Save and reopen it from Recent",
+          note: "Use a tiny test file first so you can check the flow without risking important notes.",
+        },
+      },
+      {
+        id: "view-the-content",
+        title: "How to view .md files on Windows",
+        body: [
+          "Use Preview mode if you want the rendered result. Use Split mode if you want to keep the Markdown source beside the preview.",
+          "That is the easiest way to see headings, lists, tables, code blocks, and math without leaving the editor.",
+        ],
+      },
+      {
+        id: "edit-the-file",
+        title: "How to edit Markdown files without losing the source",
+        body: [
+          "The Markdown source stays readable in the editor, so you can keep the file portable and continue editing it later.",
+          "That makes VeloWrite useful for notes, READMEs, meeting notes, and drafts that should stay in normal folders instead of a browser-only tab.",
+        ],
+      },
+      {
+        id: "troubleshoot-open-with",
+        title: "If Open with does not show VeloWrite",
+        body: [
+          "Choose More apps or Browse for another app, then point Windows at VeloWrite again. Preview builds can take one manual selection before Windows shows the app in the short list.",
+          "If the app still does not show up, reinstall the current preview build and test with a new file. Some work computers also restrict default-app changes.",
+        ],
+      },
+      {
+        id: "why-use-desktop",
+        title: "Why the desktop app is better for real files",
+        body: [
+          "The desktop app adds native open and save, offline work, recent files, and local history snapshots. That is better for a file you plan to keep editing.",
+          "The web editor is still useful for quick drafts, but the desktop path is the right place once the file becomes important.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/download?utm_source=windows_long_tail_cta&utm_medium=cta", label: "Download Windows" },
+      secondary: { href: "/docs/markdown-editor-for-windows?utm_source=windows_long_tail_cta&utm_medium=resource", label: "Windows Guide" },
+    },
+  },
   markdownEditorForMac: {
     eyebrow: "Platform guide",
     title: "Markdown Editor for Mac",
@@ -1387,14 +1480,14 @@ export const contentPages: Record<string, ContentPage> = {
         id: "local-workflow",
         title: "Use desktop when the Markdown file matters",
         body: [
-          "The desktop app is designed for native open and save, recent files, offline work, and local history snapshots. Those features matter more on real documents than on quick browser drafts.",
+          "The desktop app handles native open and save, recent files, offline work, and local history snapshots. Those features matter more on real documents than on quick browser drafts.",
           "A good Mac Markdown workflow should make the file path clear, keep the source text portable, and avoid hiding your notes inside an account-only database. VeloWrite keeps that local-first direction visible in the current preview.",
         ],
         example: {
           label: "Local-first file habit",
           markdown:
             "# Project Notes\n\n## Local file\n\nSave this document as `project-notes.md` inside a folder that is backed up by your normal system.\n\n## Recovery habit\n\nBefore major edits, save once so the previous version becomes available in local history.",
-          note: "The goal is not to replace your backup system. It is to make everyday editing less fragile.",
+          note: "This does not replace your backup system. It makes everyday editing less fragile.",
         },
       },
       {
@@ -1402,7 +1495,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "What Mac testers should check first",
         body: [
           "Start with the practical path: open a Markdown file, edit a paragraph, save it, reopen it from Recent, export HTML, export PDF, and verify local history after a second save.",
-          "Test a longer reading session too. Switch the reading palette and preview font in Settings, then use Preview mode on a longer document. A Markdown editor should stay comfortable after five minutes, not only look good in a screenshot.",
+          "Test a longer reading session too. Switch the reading palette and preview font in Settings, then use Preview mode on a longer document. A Markdown editor needs to stay comfortable after five minutes, beyond the first screenshot.",
         ],
       },
       {
@@ -1467,7 +1560,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "preview-workflow",
         title: "Why Tauri matters on Linux",
         body: [
-          "A Tauri desktop app can keep the package smaller than many Electron-style tools while still offering a modern interface. The goal is a fast Markdown surface without a heavy runtime feel.",
+          "A Tauri desktop app can keep the package smaller than many Electron-style tools while still offering a modern interface. The target is a fast Markdown surface without a heavy runtime feel.",
           "For a writing tool, that matters because the app may stay open beside a terminal, browser, source tree, or PDF viewer for hours. Lower overhead changes whether the tool feels welcome in a daily workspace.",
         ],
       },
@@ -1476,7 +1569,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "Check export before the document matters",
         body: [
           "Before a Markdown file becomes important, test the export path with the kinds of content you actually write: numbered lists, tables, code blocks, links, and long headings.",
-          "VeloWrite's dedicated PDF export is designed to avoid browser print headers. The current preview also keeps wide tables readable and preserves explicit ordered-list numbering.",
+          "VeloWrite's dedicated PDF export avoids browser print headers. The current preview also keeps wide tables readable and preserves explicit ordered-list numbering.",
         ],
         example: {
           label: "Export sanity check",
@@ -1543,7 +1636,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "What does the download page release date mean?",
         body: [
           "The download page release date should describe the public installer assets, not every website edit. If the site receives a wording change today but the installer files were uploaded earlier, the download date should remain tied to the release assets users actually download.",
-          "The changelog has a separate Last updated field because release notes can be clarified after the installer was published. That page update date should be honest about documentation changes, while the download card should be honest about installer age.",
+          "The changelog has a separate Last updated field because release notes can be clarified after the installer was published. That page date tracks documentation changes, while the download card tracks installer age.",
         ],
       },
       {
@@ -1588,7 +1681,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "use-cases",
         title: "What PDF export is for",
         body: [
-          "Markdown works well while a document is still changing. PDF works better when the document needs to be shared, reviewed, archived, or printed with a stable layout.",
+          "Markdown fits a document that is still changing. PDF fits a document that needs to be shared, reviewed, archived, or printed with a stable layout.",
           "The export should keep the document structure intact. Headings, contents, tables, code, page numbers, and mixed-language text all need to survive the move from Markdown source to PDF.",
         ],
       },
@@ -1736,7 +1829,7 @@ export const contentPages: Record<string, ContentPage> = {
         title: "How to test a preview build",
         body: [
           "Use a real sample file, but not your only copy. Open it, edit a few sections, jump through the outline, switch view modes, save, export, close, reopen, and check whether recent files and history behave as expected.",
-          "If something feels wrong, report the platform, VeloWrite version, file type, what you clicked, what you expected, and what happened instead. A short reproducible report is more useful than a broad complaint.",
+          "If something feels wrong, report the platform, VeloWrite version, file type, what you clicked, what you expected, and what happened instead. A short reproducible report helps more than a broad complaint.",
         ],
         example: {
           label: "Useful feedback format",
@@ -1881,7 +1974,7 @@ export const contentPages: Record<string, ContentPage> = {
         id: "downloads-and-exports",
         title: "Download the source before you share the result",
         body: [
-          "Markdown download preserves the editable source. HTML export is useful when another tool needs rendered markup, and PDF export is useful for a fixed review copy. Each output serves a different purpose.",
+          "Markdown download preserves the editable source. HTML export helps when another tool needs rendered markup, and PDF export gives you a fixed review copy. Each output serves a different purpose.",
           "For an important document, keep the `.md` source beside any HTML or PDF export. If the export needs correction later, the source is the file you can edit instead of trying to recover text from a finished PDF.",
         ],
         example: {
@@ -2138,8 +2231,9 @@ export const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog lists what shipped in each preview build and what is still planned. Older releases stay below so you can compare versions.",
-    updated: "August 29, 2026",
+    updated: "August 30, 2026",
     directory: [
+      { label: "0.2.11", href: "#v0211" },
       { label: "0.2.10", href: "#v0210" },
       { label: "0.2.9", href: "#v029" },
       { label: "0.2.8", href: "#v028" },
@@ -2168,6 +2262,17 @@ export const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v0211",
+        title: "0.2.11 preview",
+        body: [
+          "Added a Windows search-focused guide for opening, viewing, and editing .md files on Windows 11.",
+          "Improved the Windows editor page and download page so users can see local files, Open with, recent files, history, and platform support more quickly.",
+          "Kept docs, FAQ, llms.txt, sitemap, and static SEO snapshots aligned with the new Windows .md file workflow.",
+          "Included recent desktop preview work for multiple document tabs, recent files, quick marks, local history, export readiness, image handling, and long-document editing polish.",
+          "Expanded automated coverage around desktop tabs, recent files, PDF export behavior, docs routing, and preview acceptance checks.",
+        ],
+      },
       {
         id: "v0210",
         title: "0.2.10 preview",

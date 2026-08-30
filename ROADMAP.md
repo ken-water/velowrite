@@ -1,15 +1,15 @@
 # VeloWrite Roadmap
 
-This roadmap reflects what is shipped, what still needs preview hardening, and what may become Pro later. VeloWrite should be dependable for daily Markdown work before it grows into AI publishing workflows.
+This roadmap shows what is shipped, what still needs preview hardening, and what may become Pro later. VeloWrite needs to feel dependable for daily Markdown work before it grows into AI publishing workflows.
 
-## Shipped: 0.2.9 preview
+## Shipped: 0.2.11 preview
 
 - Markdown editing and live preview.
 - Desktop local file open/save, file associations, recent files, and multiple document tabs.
 - Independent Write, Split, and Preview modes per document tab.
 - Local history snapshots with compare and restore flows.
 - Outline navigation and a read-only H1/H2/H3 structure map.
-- Tables, syntax-highlighted code, tabbed code examples, KaTeX math, Mermaid diagrams, and relative local images.
+- Tables, highlighted code, tabbed code examples, KaTeX math, Mermaid diagrams, and relative local images.
 - Markdown download, HTML export, and dedicated PDF export with Unicode fonts, page controls, tables, and watermarks.
 - Desktop external-file change handling with compare, reload, and keep-current choices.
 - Desktop image drag-and-drop can insert Markdown image references for local files.
@@ -19,6 +19,7 @@ This roadmap reflects what is shipped, what still needs preview hardening, and w
 - Quick mark lets writers save and jump back to a working line in long documents.
 - Web-to-desktop handoff, update-check status, cross-platform installers, release notes, and public feedback tracking.
 - Browser workspace recovery, browser-local image embedding, and independent browser history per document tab.
+- Windows-focused guidance for opening, viewing, and editing .md files, plus matching SEO, FAQ, llms.txt, and sitemap updates.
 
 ## Next: Preview hardening
 

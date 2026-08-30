@@ -149,6 +149,13 @@ type NativeApi = {
   setWindowTitle: (title: string) => Promise<void>;
 };
 
+type HistoryDiffSection = {
+  title: string;
+  lineIndexes: number[];
+  changeCount: number;
+  hasChange: boolean;
+};
+
 type FileStamp = {
   modifiedAt: number;
   size: number;
@@ -182,6 +189,33 @@ type QuickMarkMap = Partial<Record<QuickMarkSlot, number>>;
 
 const quickMarkSlots: readonly QuickMarkSlot[] = ["1", "2", "3"];
 const diskSnapshotId = "disk-current";
+
+function groupHistoryDiffSections(lines: DiffLine[]): HistoryDiffSection[] {
+  const sections: HistoryDiffSection[] = [];
+  let current: HistoryDiffSection | null = null;
+
+  function startSection(title: string) {
+    current = { title, lineIndexes: [], changeCount: 0, hasChange: false };
+    sections.push(current);
+  }
+
+  for (const [index, line] of lines.entries()) {
+    const heading = line.type !== "separator" ? /^(#{1,6})\s+(.+)$/.exec(line.text) : null;
+    if (heading) {
+      startSection(heading[2].trim() || "Section");
+    } else if (!current) {
+      startSection("Introduction");
+    }
+
+    current!.lineIndexes.push(index);
+    if (line.type === "added" || line.type === "removed") {
+      current!.hasChange = true;
+      current!.changeCount += 1;
+    }
+  }
+
+  return sections;
+}
 
 function FormatIcon({ label }: { label: "HTML" | "PDF" }) {
   return (
@@ -703,9 +737,11 @@ const MarkdownEditor = React.forwardRef<MarkdownEditorHandle, {
       previousLength,
     );
 
+    const mappedSelection = currentView.state.selection.map(changes);
     currentView.dispatch({
       changes,
-      selection: currentView.state.selection.map(changes),
+      selection: mappedSelection,
+      effects: EditorView.scrollIntoView(mappedSelection.main.head, { y: "nearest" }),
     });
     window.requestAnimationFrame(() => {
       const nextScrollRange = scrollElement.scrollHeight - scrollElement.clientHeight;
@@ -1099,21 +1135,133 @@ function HistoryPanel({
   onClose: () => void;
 }) {
   const [diffMode, setDiffMode] = React.useState<"focused" | "full">("focused");
-  const firstChangeRef = React.useRef<HTMLDivElement | null>(null);
-  const diff = selectedSnapshot
-    ? buildLineDiff(currentMarkdown, selectedSnapshot.contents)
-    : [];
-  const selectedDiskVersion = selectedSnapshot?.entry.id === diskSnapshotId;
-  const addedCount = diff.filter((line) => line.type === "added").length;
-  const removedCount = diff.filter((line) => line.type === "removed").length;
-  const changeCount = addedCount + removedCount;
-  const visibleDiff = diffMode === "focused" ? buildFocusedLineDiff(diff) : diff;
-  const firstVisibleChangeIndex = visibleDiff.findIndex(
-    (line) => line.type === "added" || line.type === "removed",
+  const lineRefs = React.useRef<(HTMLDivElement | null)[]>([]);
+  const [activeChangeIndex, setActiveChangeIndex] = React.useState(0);
+  const [expandedSections, setExpandedSections] = React.useState<number[]>([]);
+  const [pendingScrollLineIndex, setPendingScrollLineIndex] = React.useState<number | null>(null);
+  const diff = React.useMemo(
+    () => (selectedSnapshot ? buildLineDiff(currentMarkdown, selectedSnapshot.contents) : []),
+    [currentMarkdown, selectedSnapshot?.contents],
   );
+  const selectedDiskVersion = selectedSnapshot?.entry.id === diskSnapshotId;
+  const addedCount = React.useMemo(() => diff.filter((line) => line.type === "added").length, [diff]);
+  const removedCount = React.useMemo(() => diff.filter((line) => line.type === "removed").length, [diff]);
+  const changeCount = addedCount + removedCount;
+  const visibleDiff = React.useMemo(
+    () => (diffMode === "focused" ? buildFocusedLineDiff(diff) : diff),
+    [diff, diffMode],
+  );
+  const changeIndexes = React.useMemo(
+    () =>
+      visibleDiff
+        .map((line, index) => (line.type === "added" || line.type === "removed" ? index : -1))
+        .filter((index) => index >= 0),
+    [visibleDiff],
+  );
+  const firstVisibleChangeIndex = changeIndexes[0] ?? -1;
+  const activeVisibleChangeIndex = changeIndexes[activeChangeIndex] ?? firstVisibleChangeIndex;
+  const activeChangeCount = changeIndexes.length;
+  const sectionGroups = React.useMemo(() => groupHistoryDiffSections(visibleDiff), [visibleDiff]);
+  const sectionAnchors = React.useMemo(
+    () =>
+      sectionGroups.map((section, index) => ({
+        index,
+        title: section.title,
+        hasChange: section.hasChange,
+        changeCount: section.changeCount,
+      })),
+    [sectionGroups],
+  );
+  const sectionByLineIndex = React.useMemo(() => {
+    const map = new Map<number, number>();
+    sectionGroups.forEach((section, sectionIndex) => {
+      section.lineIndexes.forEach((lineIndex) => {
+        map.set(lineIndex, sectionIndex);
+      });
+    });
+    return map;
+  }, [sectionGroups]);
+
+  React.useEffect(() => {
+    setActiveChangeIndex(0);
+    lineRefs.current = [];
+    setPendingScrollLineIndex(null);
+  }, [selectedSnapshot?.entry.id, diffMode]);
+
+  React.useEffect(() => {
+    setExpandedSections(
+      sectionGroups.map((section, index) => (section.hasChange || index === 0 ? index : -1)).filter(
+        (index) => index >= 0,
+      ),
+    );
+  }, [sectionGroups, diffMode, selectedSnapshot?.entry.id]);
+
+  React.useEffect(() => {
+    if (!selectedSnapshot || activeVisibleChangeIndex < 0) return;
+    setPendingScrollLineIndex(activeVisibleChangeIndex);
+  }, [activeVisibleChangeIndex, selectedSnapshot?.entry.id, diffMode]);
+
+  React.useEffect(() => {
+    if (pendingScrollLineIndex === null) return;
+    const sectionIndex = sectionByLineIndex.get(pendingScrollLineIndex);
+    if (sectionIndex !== undefined) {
+      setExpandedSections((current) =>
+        current.includes(sectionIndex)
+          ? current
+          : [...current, sectionIndex].sort((left, right) => left - right),
+      );
+    }
+    const frame = window.requestAnimationFrame(() => {
+      lineRefs.current[pendingScrollLineIndex]?.scrollIntoView({ block: "center" });
+      setPendingScrollLineIndex(null);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [pendingScrollLineIndex, sectionByLineIndex]);
 
   function jumpToFirstChange() {
-    firstChangeRef.current?.scrollIntoView({ block: "center" });
+    setActiveChangeIndex(0);
+    setPendingScrollLineIndex(firstVisibleChangeIndex);
+  }
+
+  function jumpToLine(index: number) {
+    const sectionIndex = sectionByLineIndex.get(index);
+    if (sectionIndex !== undefined) {
+      setExpandedSections((current) =>
+        current.includes(sectionIndex)
+          ? current
+          : [...current, sectionIndex].sort((left, right) => left - right),
+      );
+    }
+    setPendingScrollLineIndex(index);
+  }
+
+  function moveChange(offset: number) {
+    if (!activeChangeCount) return;
+    setActiveChangeIndex((current) => {
+      const next = Math.min(Math.max(current + offset, 0), activeChangeCount - 1);
+      return next;
+    });
+  }
+
+  React.useEffect(() => {
+    if (!activeChangeCount) return;
+    setPendingScrollLineIndex(changeIndexes[activeChangeIndex] ?? firstVisibleChangeIndex);
+  }, [activeChangeIndex, activeChangeCount, changeIndexes, firstVisibleChangeIndex]);
+
+  function toggleSection(sectionIndex: number) {
+    setExpandedSections((current) =>
+      current.includes(sectionIndex)
+        ? current.filter((index) => index !== sectionIndex)
+        : [...current, sectionIndex].sort((left, right) => left - right),
+    );
+  }
+
+  function expandAllSections() {
+    setExpandedSections(sectionGroups.map((_, index) => index));
+  }
+
+  function collapseAllSections() {
+    setExpandedSections([]);
   }
 
   return (
@@ -1190,11 +1338,6 @@ function HistoryPanel({
                     </div>
                     <span>{addedCount} restored</span>
                     <span>{removedCount} replaced</span>
-                    {changeCount > 0 && (
-                      <button className="history-jump-button" onClick={jumpToFirstChange}>
-                        Jump to first change
-                      </button>
-                    )}
                     <div className="history-diff-toggle" aria-label="Diff view mode">
                       <button
                         className={diffMode === "focused" ? "active" : ""}
@@ -1209,32 +1352,122 @@ function HistoryPanel({
                         Full file
                       </button>
                     </div>
+                    {changeCount > 0 && (
+                      <div className="history-change-nav" aria-label="Change navigation">
+                        <button type="button" onClick={() => moveChange(-1)} disabled={activeChangeIndex <= 0}>
+                          Prev
+                        </button>
+                        <span>
+                          {activeChangeCount > 0 ? `${activeChangeIndex + 1} / ${activeChangeCount}` : "0 / 0"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => moveChange(1)}
+                          disabled={activeChangeIndex >= activeChangeCount - 1}
+                        >
+                          Next
+                        </button>
+                        <button className="history-jump-button" onClick={jumpToFirstChange} type="button">
+                          First change
+                        </button>
+                      </div>
+                    )}
+                    {sectionAnchors.length > 1 && (
+                      <div className="history-outline" aria-label="Snapshot outline">
+                        <span>Sections</span>
+                        <button onClick={expandAllSections} type="button">
+                          Expand all
+                        </button>
+                        <button onClick={collapseAllSections} type="button">
+                          Collapse all
+                        </button>
+                        {sectionAnchors.map((anchor) => (
+                          <button
+                            key={`${anchor.index}-${anchor.title}`}
+                            onClick={() => jumpToLine(anchor.index)}
+                            type="button"
+                          >
+                            {anchor.title}
+                            {anchor.hasChange ? ` · ${anchor.changeCount}` : ""}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    {sectionAnchors.some((anchor) => anchor.hasChange) && (
+                      <div className="history-outline changed" aria-label="Changed sections">
+                        <span>Changed</span>
+                        {sectionAnchors
+                          .filter((anchor) => anchor.hasChange)
+                          .map((anchor) => (
+                            <button
+                              key={`changed-${anchor.index}-${anchor.title}`}
+                              onClick={() => jumpToLine(anchor.index)}
+                              type="button"
+                            >
+                              {anchor.title}
+                              {anchor.changeCount ? ` · ${anchor.changeCount}` : ""}
+                            </button>
+                          ))}
+                      </div>
+                    )}
                   </div>
                   {visibleDiff.length > 0 ? (
-                    <div className="history-diff-lines" aria-label="Snapshot diff preview">
-                      {visibleDiff.map((line, index) =>
-                        line.type === "separator" ? (
-                          <div className="history-diff-separator" key={`${line.type}-${index}`}>
-                            {line.text}
-                          </div>
-                        ) : (
-                          <div
-                            ref={index === firstVisibleChangeIndex ? firstChangeRef : undefined}
-                            className={`history-diff-line ${line.type}`}
-                            key={`${line.type}-${index}`}
+                    <div className="history-diff-sections" aria-label="Snapshot diff preview">
+                      {sectionGroups.map((section, sectionIndex) => {
+                        const open = expandedSections.includes(sectionIndex);
+                        return (
+                          <section
+                            className={
+                              section.hasChange
+                                ? "history-diff-section changed"
+                                : "history-diff-section stable"
+                            }
+                            key={`${sectionIndex}-${section.title}`}
                           >
-                            <span className="history-diff-sign">
-                              {line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}
-                            </span>
-                            <span className="history-diff-line-number">
-                              {line.type === "added"
-                                ? line.snapshotLine
-                                : line.currentLine ?? line.snapshotLine}
-                            </span>
-                            <code>{line.text || " "}</code>
-                          </div>
-                        ),
-                      )}
+                            <button
+                              className="history-diff-section-summary"
+                              onClick={() => toggleSection(sectionIndex)}
+                              type="button"
+                            >
+                              <strong>{section.title}</strong>
+                              <span>{section.hasChange ? `${section.changeCount} change(s)` : "No changes"}</span>
+                              <small>{open ? "Expanded" : "Collapsed"}</small>
+                            </button>
+                            {open && (
+                              <div className="history-diff-lines">
+                                {section.lineIndexes.map((lineIndex) => {
+                                  const line = visibleDiff[lineIndex];
+                                  return line.type === "separator" ? (
+                                    <div className="history-diff-separator" key={`${line.type}-${lineIndex}`}>
+                                      {line.text}
+                                    </div>
+                                  ) : (
+                                    <div
+                                      ref={(node) => {
+                                        lineRefs.current[lineIndex] = node;
+                                      }}
+                                      className={`history-diff-line ${line.type}`}
+                                      key={`${line.type}-${lineIndex}`}
+                                    >
+                                      <span className="history-diff-sign">
+                                        {line.type === "added" ? "+" : line.type === "removed" ? "-" : " "}
+                                      </span>
+                                      <span className="history-diff-line-number">
+                                        {line.type === "added"
+                                          ? `S${line.snapshotLine}`
+                                          : line.type === "removed"
+                                            ? `C${line.currentLine}`
+                                            : line.currentLine ?? line.snapshotLine}
+                                      </span>
+                                      <code>{line.text || " "}</code>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </section>
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="history-diff-empty" aria-label="Snapshot diff preview">
@@ -1487,23 +1720,27 @@ function DocumentToolsPanel({
   quickMarkSlot,
   quickMarkLine,
   quickMarkValues,
+  browserMode,
   onInsertTable,
   onFormatTables,
   onCopyCodeBlocks,
   onSelectQuickMarkSlot,
   onSetQuickMark,
   onJumpQuickMark,
+  onOpenDesktop,
 }: {
   quality: DocumentQualitySummary;
   quickMarkSlot: QuickMarkSlot;
   quickMarkLine: number | null;
   quickMarkValues: QuickMarkMap;
+  browserMode: boolean;
   onInsertTable: () => void;
   onFormatTables: () => void;
   onCopyCodeBlocks: () => void;
   onSelectQuickMarkSlot: (slot: QuickMarkSlot) => void;
   onSetQuickMark: () => void;
   onJumpQuickMark: () => void;
+  onOpenDesktop: () => void;
 }) {
   const codeLanguages = Object.keys(quality.code.languages);
   const tableIssueLabel = quality.tables.issues.length
@@ -1551,6 +1788,14 @@ function DocumentToolsPanel({
         <p className="document-tool-note">
           Add language names to fenced code blocks for better highlighting.
         </p>
+      )}
+      {browserMode && imageIssueCount > 0 && (
+        <div className="document-tool-actions" role="group" aria-label="Image file actions">
+          <button onClick={onOpenDesktop} type="button">
+            <MonitorDown size={13} />
+            Use Desktop for assets
+          </button>
+        </div>
       )}
       {codeLanguages.length > 0 && (
         <p className="document-tool-note">Languages: {codeLanguages.slice(0, 4).join(", ")}</p>
@@ -1722,6 +1967,8 @@ export default function EditorApp({
   const previewRef = React.useRef<HTMLElement>(null);
   const previewScrollFrame = React.useRef<number | null>(null);
   const suppressPreviewSync = React.useRef(false);
+  const lastPreviewScrollRatio = React.useRef<number | null>(null);
+  const lastEditorScrollRatio = React.useRef<number | null>(null);
   const scrollSource = React.useRef<"editor" | "preview" | null>(null);
   const suppressBeforeUnload = React.useRef(false);
   const fileStampRef = React.useRef<FileStamp | null>(null);
@@ -3455,6 +3702,7 @@ export default function EditorApp({
   }
 
   function formatCurrentTables() {
+    const cursorLine = markdownEditorRef.current?.getCursorLine();
     const nextMarkdown = formatMarkdownTables(markdown);
     if (nextMarkdown === markdown) {
       setStatus("No Markdown tables needed formatting");
@@ -3467,6 +3715,9 @@ export default function EditorApp({
         documentQuality.tables.tables === 1 ? "" : "s"
       }`,
     );
+    if (cursorLine) {
+      scrollEditorToLine(cursorLine);
+    }
     if (viewMode === "write") {
       changeViewMode("split");
     }
@@ -3591,6 +3842,10 @@ export default function EditorApp({
     }
 
     const nextRatio = Math.min(1, Math.max(0, ratio));
+    if (lastPreviewScrollRatio.current !== null && Math.abs(lastPreviewScrollRatio.current - nextRatio) < 0.01) {
+      return;
+    }
+    lastPreviewScrollRatio.current = nextRatio;
     if (previewScrollFrame.current) {
       window.cancelAnimationFrame(previewScrollFrame.current);
     }
@@ -3612,8 +3867,13 @@ export default function EditorApp({
       return;
     }
 
+    const nextRatio = Math.min(1, Math.max(0, ratio));
+    if (lastEditorScrollRatio.current !== null && Math.abs(lastEditorScrollRatio.current - nextRatio) < 0.01) {
+      return;
+    }
+    lastEditorScrollRatio.current = nextRatio;
     lockScrollSource("preview");
-    setEditorScrollRatio(Math.min(1, Math.max(0, ratio)));
+    setEditorScrollRatio(nextRatio);
   }
 
   function lockScrollSource(source: "editor" | "preview") {
@@ -3689,16 +3949,11 @@ export default function EditorApp({
 
       if (line) {
         scrollEditorToLine(line);
-        window.setTimeout(() => scrollEditorToLine(line), 80);
-        window.setTimeout(() => {
-          scrollEditorToLine(line);
-          scrollPreviewToHeading(id);
-        }, 220);
       }
 
       window.setTimeout(() => {
         suppressPreviewSync.current = false;
-      }, 360);
+      }, 120);
     });
   }
 
@@ -3876,12 +4131,14 @@ export default function EditorApp({
           quickMarkSlot={quickMarkSlot}
           quickMarkLine={quickMarkLine}
           quickMarkValues={quickMarks[activeTabId] ?? {}}
+          browserMode={browserMode}
           onInsertTable={insertTableTemplate}
           onFormatTables={formatCurrentTables}
           onCopyCodeBlocks={copyCodeBlocks}
           onSelectQuickMarkSlot={selectQuickMarkSlot}
           onSetQuickMark={setQuickMarkAtCursor}
           onJumpQuickMark={jumpToQuickMark}
+          onOpenDesktop={handoffToDesktop}
         />
 
         {!desktopSurface && (

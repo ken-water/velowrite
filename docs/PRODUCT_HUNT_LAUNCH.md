@@ -4,7 +4,7 @@ This document prepares copy, assets, and launch workflow for introducing VeloWri
 
 ## Positioning
 
-VeloWrite is a fast, privacy-minded Markdown editor with an instantly usable web editor and a lightweight Tauri desktop preview for local-first writing.
+VeloWrite is a Markdown editor with a web workspace for quick drafts and a lightweight Tauri desktop app for local files.
 
 The Product Hunt launch should not position VeloWrite as a finished paid product yet. Lead with what users can try today:
 
@@ -33,7 +33,7 @@ Alternatives:
 
 ### Short Description
 
-VeloWrite is a lightweight Markdown editor that starts in the browser and grows into a local-first desktop workflow. Use the free web editor to write, preview, import, and download Markdown instantly. Download the Tauri desktop preview when you need native file access, offline work, recent files, and local history snapshots.
+VeloWrite starts in the browser and moves to desktop when the file needs a real folder. Use the free web editor to write, preview, import, and download Markdown. Download the Tauri desktop preview when you need native file access, offline work, recent files, and local history snapshots.
 
 ### Product URL
 
@@ -80,18 +80,18 @@ Use only the topics Product Hunt currently exposes in the submission form.
 
 Hi Product Hunt,
 
-I am building VeloWrite, a lightweight Markdown editor for people who want a fast writing surface without the heavy editor feel.
+I am building VeloWrite, a Markdown editor for people who want a fast writing surface without the heavy editor feel.
 
 The first preview has two parts:
 
 1. A free web editor you can use immediately for Markdown editing, live preview, import, download, and HTML export.
 2. A Tauri desktop preview for native file open/save, offline writing, recent files, and local history snapshots.
 
-The goal is simple: let casual users try Markdown editing in the browser, then give serious writers a local-first desktop app when privacy, file access, and offline work matter.
+The browser editor is for quick trials. The desktop app is for important files, privacy, native file access, and offline work.
 
-VeloWrite is still early. AI commands, private sync, and one-click publishing are on the roadmap, but they are not active paid features yet. I am launching early to learn which workflow matters most: faster local editing, browser-based temporary writing, AI-native Markdown, sync, or publishing.
+VeloWrite is still early. AI commands, private sync, and one-click publishing are on the roadmap, but they are not active paid features yet. I am launching early to learn which workflow matters most: faster local editing, browser drafts, AI, sync, or publishing.
 
-What I would love feedback on:
+What I would like feedback on:
 
 - Would you use a browser Markdown editor if it felt fast and private?
 - What would make you download the desktop app instead of staying in the browser?
@@ -108,16 +108,16 @@ Use this as a public follow-up after early comments start shaping the product:
 ```text
 Quick update from today's feedback:
 
-I turned the most useful comments here into a public roadmap so people can see what has been recorded instead of sending feedback into a black box:
+I turned the most useful comments here into a public roadmap so people can see what was recorded:
 
 https://velowrite.app/roadmap?utm_source=producthunt&utm_medium=comment
 
 The strongest signals so far:
 
-- Sync scrolling between editor and preview should be part of the free core editor, not a Pro feature.
-- Local history is valuable when a paste mistake or rewrite damages a draft, so basic recovery should stay free.
+- Sync scrolling between editor and preview belongs in the free core editor, not a Pro feature.
+- Local history helps when a paste mistake or rewrite damages a draft, so basic recovery stays free.
 - Browser-to-desktop handoff matters: people want to start quickly online, then move serious files into the desktop app.
-- Sync should be private-first. I do not want to rush into a heavy account system just because sync is on the roadmap.
+- Sync needs a private-first design. I do not want to rush into a heavy account system just because sync is on the roadmap.
 - AI, managed private sync, publishing automation, advanced export, and commercial workflows are better Pro candidates after the preview editor feels solid.
 
 Thanks to everyone who left specific feedback. When a request ships, I plan to follow up with the people who asked for it.
@@ -130,7 +130,7 @@ I turned today's Product Hunt feedback into a public roadmap:
 
 https://velowrite.app/roadmap?utm_source=producthunt&utm_medium=comment
 
-The main decision: core editing quality stays free. Sync scroll, basic local history, and browser-to-desktop handoff are preview/free work. AI, managed private sync, publishing automation, advanced export, and commercial workflows are future Pro candidates.
+The main decision: core editing quality stays free. Sync scroll, basic local history, and browser-to-desktop handoff are preview work. AI, managed private sync, publishing automation, advanced export, and commercial workflows are future Pro candidates.
 
 Thanks for the specific suggestions. When a request ships, I will follow up with the people who asked for it.
 ```
@@ -250,7 +250,7 @@ The current public preview is free. The web editor is available without signup. 
 
 ### Is this another Electron Markdown editor?
 
-No. The desktop app is built with Tauri and Rust. The goal is a smaller, faster local-first editor with a clean web-to-desktop adoption path.
+No. The desktop app is built with Tauri and Rust. VeloWrite is a smaller local-first editor with a clear path from browser drafts to desktop files.
 
 ### Does VeloWrite upload my Markdown?
 
@@ -338,7 +338,7 @@ Thanks for testing an early build.
 
 - Publish Product Hunt post.
 - Post maker first comment immediately.
-- Share direct demo link, not just homepage.
+- Share the direct demo link instead of sending everyone to the homepage.
 - Reply to every serious comment with specific details.
 - Track traffic, download clicks, waitlist signups, and Pro interest signups.
 
@@ -363,4 +363,4 @@ Thanks for testing an early build.
 
 Use this wording when asked whether VeloWrite is production-ready:
 
-VeloWrite is an early public preview. The browser editor is usable today for lightweight Markdown writing and preview. The desktop app is ready for dogfooding local Markdown workflows, but it is not yet a polished production release. Signing, notarization, sync, AI commands, and publishing workflows are still planned.
+VeloWrite is an early public preview. The browser editor is usable today for lightweight Markdown writing and preview. The desktop app is ready for local Markdown workflows, but it is not yet a polished production release. Signing, notarization, sync, AI commands, and publishing workflows are still planned.

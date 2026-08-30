@@ -23,9 +23,9 @@ const VercelInsights = React.lazy(async () => {
     },
   };
 });
-const downloadVersion = "0.2.10";
-const downloadReleaseDate = "August 29, 2026";
-const seoDate = "2026-08-29";
+const downloadVersion = "0.2.11";
+const downloadReleaseDate = "August 30, 2026";
+const seoDate = "2026-08-30";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -58,6 +58,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/typora-alternative": "Typora Alternative",
   "/docs/markdown-to-blog": "Markdown to Blog",
   "/docs/markdown-editor-for-windows": "Markdown Editor for Windows",
+  "/docs/open-md-files-on-windows": "Open MD Files on Windows",
   "/docs/markdown-editor-for-mac": "Markdown Editor for Mac",
   "/docs/markdown-editor-for-linux": "Markdown Editor for Linux",
   "/docs/preview-release-policy": "Preview Release Policy",
@@ -80,6 +81,11 @@ const faqItems: readonly FaqItem[] = [
   {
     question: "What is VeloWrite?",
     answer: "VeloWrite is a Markdown editor with a browser editor for quick drafts and a desktop app for local files, PDF export, and history.",
+  },
+  {
+    question: "How do I open a .md file on Windows?",
+    answer:
+      "Right-click the .md file, choose Open with, and select VeloWrite. The desktop app opens local Markdown files directly in the editor.",
   },
   {
     question: "What is the difference between web and desktop?",
@@ -144,6 +150,7 @@ const docPageRoutes = {
   "/docs/online-markdown-editor": "onlineMarkdownEditor",
   "/docs/markdown-to-blog": "markdownToBlog",
   "/docs/markdown-editor-for-windows": "markdownEditorForWindows",
+  "/docs/open-md-files-on-windows": "openMdFilesOnWindows",
   "/docs/markdown-editor-for-mac": "markdownEditorForMac",
   "/docs/markdown-editor-for-linux": "markdownEditorForLinux",
   "/docs/preview-release-policy": "previewReleasePolicy",
@@ -170,6 +177,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/online-markdown-editor",
   "/docs/typora-alternative",
   "/docs/markdown-editor-for-windows",
+  "/docs/open-md-files-on-windows",
   "/docs/markdown-editor-for-mac",
   "/docs/markdown-editor-for-linux",
   "/docs/preview-release-policy",
@@ -252,9 +260,14 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
       "Draft blog posts in Markdown, preview the structure, export HTML, and keep the source file ready for later publishing.",
   },
   "/docs/markdown-editor-for-windows": {
-    title: "Markdown Editor for Windows - VeloWrite Desktop Preview",
+    title: "Markdown Editor for Windows - Open, View, and Edit .md Files",
     description:
       "Try VeloWrite on Windows for Markdown editing, local files, recent documents, local history, Open with support, and installer notes.",
+  },
+  "/docs/open-md-files-on-windows": {
+    title: "How to Open, View, and Edit .md Files on Windows 11",
+    description:
+      "Learn the quickest way to open a .md file on Windows, view Markdown content, edit local files, and troubleshoot Open with behavior.",
   },
   "/docs/markdown-editor-for-mac": {
     title: "Markdown Editor for Mac - Local-First Markdown Writing",
@@ -322,9 +335,9 @@ function routeSeo(pathname: string): SeoConfig {
 
   if (matchesRoute(pathname, "/download")) {
     return {
-      title: "Download VeloWrite - Windows, macOS, and Linux Markdown App",
+      title: "Download VeloWrite - Markdown Editor for Windows, macOS, and Linux",
       description:
-        "Download the VeloWrite desktop preview for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux.",
+        "Download the VeloWrite desktop preview for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux. Open .md files, edit local folders, and keep recent work on your device.",
       canonicalPath: "/download",
     };
   }
@@ -353,6 +366,15 @@ function routeSeo(pathname: string): SeoConfig {
       description:
         "Use VeloWrite as a free online Markdown editor for quick drafts, live preview, Markdown download, HTML export, and a desktop path for local files.",
       canonicalPath: "/docs/online-markdown-editor",
+    };
+  }
+
+  if (matchesRoute(pathname, "/docs/open-md-files-on-windows")) {
+    return {
+      title: "How to Open, View, and Edit .md Files on Windows 11",
+      description:
+        "Learn the quickest way to open a .md file on Windows, view Markdown content, edit local files, and troubleshoot Open with behavior.",
+      canonicalPath: "/docs/open-md-files-on-windows",
     };
   }
 

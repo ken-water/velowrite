@@ -1,6 +1,6 @@
 # VeloWrite
 
-VeloWrite is a local-first Markdown editor with a browser workspace and a lightweight Tauri desktop app. Write in the browser without an account, or open local Markdown files on Windows, macOS, and Linux.
+VeloWrite is a local-first Markdown editor with a browser workspace and a lightweight Tauri desktop app. Use the browser for quick drafts, or open local Markdown files on Windows, macOS, and Linux.
 
 [![Try the web editor](https://img.shields.io/badge/Try-Web%20Editor-1f6f58?style=flat-square)](https://velowrite.app/web)
 [![Download desktop](https://img.shields.io/badge/Download-Desktop%20Preview-173b31?style=flat-square)](https://velowrite.app/download)
@@ -10,16 +10,16 @@ VeloWrite is a local-first Markdown editor with a browser workspace and a lightw
   <img src="https://raw.githubusercontent.com/ken-water/velowrite/main/public/home-preview.png" alt="VeloWrite Markdown editor with writing and preview panes" width="920">
 </p>
 
-## Start Here
+## Start here
 
-- **Try it now:** [Open the online Markdown editor](https://velowrite.app/web)
-- **See the workflow:** [Open the interactive demo](https://velowrite.app/demo)
-- **Use local files:** [Download the desktop preview](https://velowrite.app/download)
-- **Learn Markdown:** [Browse the Markdown library](https://velowrite.app/docs)
-- **See what changed:** [Read the changelog](https://velowrite.app/changelog)
-- **Follow product decisions:** [View the public roadmap](https://velowrite.app/roadmap)
+- Try the browser editor: [Open the online Markdown editor](https://velowrite.app/web)
+- See the workflow: [Open the interactive demo](https://velowrite.app/demo)
+- Use local files: [Download the desktop preview](https://velowrite.app/download)
+- Learn Markdown: [Browse the Markdown library](https://velowrite.app/docs)
+- Check releases: [Read the changelog](https://velowrite.app/changelog)
+- Follow product decisions: [View the public roadmap](https://velowrite.app/roadmap)
 
-## What VeloWrite Does
+## What VeloWrite does
 
 ### Browser editor
 
@@ -42,13 +42,13 @@ VeloWrite is a local-first Markdown editor with a browser workspace and a lightw
 ### Markdown rendering
 
 - Tables and nested lists.
-- Syntax-highlighted code blocks and multi-language code examples.
+- Highlighted code blocks and multi-language code examples.
 - KaTeX mathematical expressions.
 - Mermaid diagrams.
 - Relative local images.
 - Unicode and CJK text in the preview and PDF export path.
 
-## Why It Exists
+## Why it exists
 
 Many Markdown tools are either too small for serious documents or too large for opening one file quickly. VeloWrite focuses on a direct writing workflow:
 
@@ -59,9 +59,9 @@ Many Markdown tools are either too small for serious documents or too large for 
 
 The core editing workflow is local-first. The web editor does not upload Markdown text for normal editing, preview, or download. Desktop files and local history stay on the user's device by default.
 
-## Current Preview Scope
+## Current preview scope
 
-The public build is a free preview. The current focus is dependable Markdown editing, preview, local files, history, and export.
+The public build is a free preview. The current focus is Markdown editing, preview, local files, history, and export.
 
 Not active yet:
 
@@ -75,7 +75,7 @@ Preview limitations:
 
 - Windows installers are not code-signed yet.
 - The macOS DMG is an unsigned Apple Silicon preview build.
-- Important documents should remain backed up while testing preview releases.
+- Keep important documents backed up while testing preview releases.
 
 See [Preview Release Policy](https://velowrite.app/docs/preview-release-policy), [Download Safety](https://velowrite.app/docs/download-safety), and the [public roadmap](https://velowrite.app/roadmap) before installing.
 

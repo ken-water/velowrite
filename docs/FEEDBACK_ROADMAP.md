@@ -1,13 +1,13 @@
 # VeloWrite Feedback Roadmap
 
-This document turns early user feedback into product decisions. It is separate from the content plan: content pages help discovery, while this file tracks what we should build, defer, or reserve for Pro.
+This document turns early user feedback into product decisions. It is separate from the content plan: content pages help discovery, while this file tracks what we should build, defer, or save for Pro.
 
 ## Product Principles
 
 - Preview should make core Markdown editing feel trustworthy.
 - Free features should remove friction and build daily-use habits.
 - Pro features should add high-value workflows, not lock basic writing behind a paywall.
-- Sync and AI should be designed private-first instead of rushed into a generic account system.
+- Sync and AI need a private-first design, not a rushed generic account system.
 
 ## Current Feedback Signals
 
@@ -124,7 +124,7 @@ Pro status:
 
 Signal:
 - Long-form writers need to understand document structure before polishing the final draft.
-- Headings already give Markdown a natural outline, but the current outline should become more useful than a simple jump list.
+- Headings already give Markdown a natural outline. The current outline can do more than jump between sections.
 
 Decision:
 - Improve the outline panel with active-section clarity, folding, and better long-document navigation.
@@ -138,7 +138,7 @@ Version target:
 - Advanced visual and AI-assisted structure workflows: `0.3.x+`.
 
 Pro status:
-- Better outline navigation and a basic read-only structure map should be free.
+- Better outline navigation and a basic read-only structure map stay free.
 - AI-assisted outline expansion, advanced visual editing, and exportable visual maps can be Pro candidates later.
 
 ### Web to desktop draft handoff
@@ -160,7 +160,7 @@ Version target:
 - Pro candidate: automatic cross-device sync after the local-first workflow is proven.
 
 Pro status:
-- Manual draft handoff should be free.
+- Manual draft handoff stays free.
 - Account-based or managed private sync can be Pro.
 
 ### Private, no-account sync
@@ -186,7 +186,7 @@ Pro status:
 
 Signal:
 - Users appreciate trying the editor without installing another app.
-- Web should be useful immediately but should naturally lead to desktop for offline and local-file work.
+- Web needs to be useful immediately and still point serious offline or local-file work toward desktop.
 
 Decision:
 - Keep the web editor free and fast.

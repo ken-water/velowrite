@@ -1121,6 +1121,78 @@ test("web editor keeps browser-local history snapshots", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Jump to first change" })).toBeVisible();
 });
 
+test("history panel exposes section shortcuts for longer diffs", async ({ page }) => {
+  const makeSection = (title: string, marker: string, count: number) => {
+    const lines = Array.from({ length: count }, (_, index) => `${marker} line ${index + 1}.`).join("\n");
+    return `## ${title}\n${lines}`;
+  };
+
+  const oldMarkdown = [
+    "# Roadmap",
+    "",
+    makeSection("Alpha", "Alpha", 3),
+    "",
+    makeSection("Beta", "Beta", 3),
+    "",
+    makeSection("Gamma", "Gamma", 24),
+  ].join("\n");
+
+  const currentMarkdown = [
+    "# Roadmap",
+    "",
+    makeSection("Alpha", "Alpha", 3),
+    "",
+    makeSection("Beta", "Beta", 3),
+    "",
+    `## Gamma\n${Array.from({ length: 24 }, (_, index) => `Gamma line ${index + 1}${index === 10 ? " updated" : "."}`).join("\n")}`,
+  ].join("\n");
+
+  await page.addInitScript((contents) => {
+    window.localStorage.setItem(
+      "velowrite:browser-history",
+      JSON.stringify([
+        {
+          id: "browser-old",
+          fileName: "Sections.md",
+          createdAt: 1,
+          contents,
+        },
+      ]),
+    );
+  }, oldMarkdown);
+
+  await page.goto("/web?utm_source=e2e&utm_medium=history_sections");
+
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText(currentMarkdown);
+
+  await page.getByRole("button", { name: "History" }).first().click();
+  await page.locator(".history-summary").first().click();
+  await page.getByRole("button", { name: "Full file" }).click();
+
+  const outline = page.getByLabel("Snapshot outline");
+  await expect(outline).toBeVisible();
+  await expect(outline.getByRole("button", { name: "Expand all" })).toBeVisible();
+  await expect(outline.getByRole("button", { name: "Collapse all" })).toBeVisible();
+  await expect(outline.getByRole("button", { name: "Alpha" })).toBeVisible();
+  await expect(outline.getByRole("button", { name: "Beta" })).toBeVisible();
+  await expect(outline.getByRole("button", { name: "Gamma" })).toBeVisible();
+
+  await outline.getByRole("button", { name: "Collapse all" }).click();
+  await expect(page.locator(".history-diff-line")).toHaveCount(0);
+  await outline.getByRole("button", { name: "Expand all" }).click();
+  await expect(page.locator(".history-diff-line").first()).toBeVisible();
+
+  const changedOutline = page.getByLabel("Changed sections");
+  await expect(changedOutline).toBeVisible();
+  await expect(changedOutline.getByRole("button", { name: /Gamma/ })).toBeVisible();
+  await outline.getByRole("button", { name: "Collapse all" }).click();
+  await expect(page.locator(".history-diff-line")).toHaveCount(0);
+  await changedOutline.getByRole("button").first().click();
+  await expect(page.locator(".history-diff-line").first()).toBeVisible();
+});
+
 test("web document tabs keep their browser history isolated", async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem(

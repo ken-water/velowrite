@@ -325,6 +325,46 @@ The export should still be valid without preview marks or page numbers.`,
     expect(text).not.toContain("tauri.localhost");
   });
 
+  it("exports a mixed document with tables, math, code, and Mermaid in one pass", async () => {
+    stubPdfRenderingDom();
+    vi.mocked(mermaid.render).mockResolvedValue({
+      svg: '<svg viewBox="0 0 240 120"><rect width="240" height="120"/></svg>',
+      bindFunctions: vi.fn(),
+      diagramType: "flowchart",
+    });
+
+    const bytes = await createMarkdownPdf({
+      markdown: `# Mixed Export
+
+| Item | State |
+| --- | --- |
+| Math | $a^2 + b^2 = c^2$ |
+
+\`\`\`python
+print("ready")
+\`\`\`
+
+\`\`\`mermaid
+sequenceDiagram
+  Alice->>Bob: Review ready
+\`\`\``,
+      title: "Mixed Export",
+      exportStyle: pdfStyle({
+        table: {
+          ...defaultTableExportStyle,
+          color: "gray",
+        },
+      }),
+    });
+
+    expect(bytes.length).toBeGreaterThan(1000);
+    expect(mermaid.render).toHaveBeenCalledWith(
+      expect.stringMatching(/^velowrite-pdf-mermaid-/),
+      "sequenceDiagram\n  Alice->>Bob: Review ready",
+    );
+    expect(new TextDecoder("latin1").decode(bytes.slice(0, 5))).toBe("%PDF-");
+  });
+
   it("renders wide tables through the card-style PDF layout branch", async () => {
     const bytes = await createMarkdownPdf({
       markdown: `# Wide Table
