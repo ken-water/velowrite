@@ -29,8 +29,8 @@ const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExamp
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const EditorApp = React.lazy(() => import("./EditorApp"));
 
-const downloadVersion = "0.2.11";
-const downloadReleaseDate = "August 30, 2026";
+const downloadVersion = "0.2.12";
+const downloadReleaseDate = "September 1, 2026";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -47,6 +47,7 @@ const docPageRoutes = {
   "/docs/markdown-for-developers": "markdownForDevelopers",
   "/docs/advanced-markdown": "advancedMarkdown",
   "/docs/markdown-math": "markdownMath",
+  "/docs/write-math-in-markdown": "writeMathInMarkdown",
   "/docs/markdown-code-blocks": "markdownCodeBlocks",
   "/docs/long-markdown-workflow": "longMarkdownWorkflow",
   "/docs/local-first-markdown": "localFirstMarkdown",
@@ -77,6 +78,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-for-writers",
   "/docs/advanced-markdown",
   "/docs/markdown-math",
+  "/docs/write-math-in-markdown",
   "/docs/markdown-to-blog",
   "/docs/online-markdown-editor",
   "/docs/typora-alternative",
@@ -392,6 +394,7 @@ const docGroups = [
       { title: "Local-First Markdown Editing", href: "/docs/local-first-markdown", status: "Published" },
       { title: "Advanced Markdown", href: "/docs/advanced-markdown", status: "Published" },
       { title: "Markdown Math with KaTeX", href: "/docs/markdown-math", status: "Published" },
+      { title: "How to Write Math in Markdown", href: "/docs/write-math-in-markdown", status: "Published" },
     ],
   },
   {
@@ -1697,13 +1700,11 @@ function DownloadPage() {
             <div className="download-highlights-copy">
               <span>Latest improvements</span>
               <p>
-                Browser tabs now recover after refresh, pasted or dropped images
-                can stay inside browser-local drafts, and each web tab keeps its
-                own local history. Desktop adds local files, recent documents,
-                and history snapshots for longer work.
+                Math formulas now render with full KaTeX styling, the editor can insert a reusable math template,
+                and Document tools can warn about unmatched math delimiters before export.
               </p>
             </div>
-            <a href="/changelog?utm_source=download_page&utm_medium=resource#v0211">
+            <a href="/changelog?utm_source=download_page&utm_medium=resource#v0212">
               See changelog details <ChevronRight size={15} />
             </a>
           </div>

@@ -801,6 +801,112 @@ export const contentPages: Record<string, ContentPage> = {
       secondary: { href: "/docs/advanced-markdown?utm_source=markdown_math_cta&utm_medium=resource", label: "Advanced Markdown" },
     },
   },
+  writeMathInMarkdown: {
+    eyebrow: "Technical writing",
+    title: "How to Write Math in Markdown",
+    intro:
+      "Markdown can handle useful math notes when the formula, explanation, and preview stay close together. This guide shows a practical way to write equations for study notes, engineering drafts, product analysis, and technical docs.",
+    updated: "September 1, 2026",
+    directory: [
+      { label: "Quick answer", href: "#quick-answer" },
+      { label: "Inline or block", href: "#inline-or-block" },
+      { label: "Explain variables", href: "#explain-variables" },
+      { label: "Common mistakes", href: "#common-mistakes" },
+      { label: "Use preview", href: "#use-preview" },
+      { label: "How VeloWrite helps", href: "#how-velowrite-helps" },
+    ],
+    sections: [
+      {
+        id: "quick-answer",
+        title: "The quick answer",
+        body: [
+          "Use inline math when the expression belongs inside a sentence. Use block math when the equation needs its own line and should be checked carefully.",
+          "In VeloWrite, write inline formulas with single dollar signs and block formulas with double dollar signs. The preview renders formulas with KaTeX, a fast TeX-compatible math renderer. KaTeX documents its supported functions and symbols in its official support table, so unsupported LaTeX commands should be simplified before sharing.",
+        ],
+        example: {
+          label: "Inline and block math",
+          markdown:
+            "The energy relation $E = mc^2$ is short enough for one sentence.\n\nA longer equation is easier to review as a block:\n\n$$a^2 + b^2 = c^2$$",
+          note: "Use inline math for small expressions and block math when the equation needs attention.",
+        },
+      },
+      {
+        id: "inline-or-block",
+        title: "Choose inline or block math by reading flow",
+        body: [
+          "The choice is not only visual. Inline math keeps a small expression attached to the sentence. Block math tells the reader to stop and inspect the formula.",
+          "A useful rule: if you need to explain the formula after writing it, give it a block. If it only names a variable, unit, or short relationship, inline is usually enough.",
+        ],
+        example: {
+          label: "Reading flow",
+          markdown:
+            "Use $r$ for the monthly growth rate.\n\nThe projected value after $t$ periods is:\n\n$$P_t = P_0(1+r)^t$$\n\nThis works when growth is compounded at the same rate each period.",
+          note: "The source stays readable, and the preview gives the equation room.",
+        },
+      },
+      {
+        id: "explain-variables",
+        title: "Explain variables near the equation",
+        body: [
+          "Most formula-heavy notes fail because the symbols are not explained where readers need them. Keep a short variable list close to the equation instead of assuming people will remember earlier definitions.",
+          "For classroom notes, define the variables before the example. For engineering notes, define the variables before the decision. For product analysis, define the variables before the conclusion.",
+        ],
+        example: {
+          label: "Variable list",
+          markdown:
+            "We estimate activated users from visitors and activation rate:\n\n$$A = V \\times r$$\n\n| Symbol | Meaning |\n| --- | --- |\n| $A$ | Activated users |\n| $V$ | Visitors |\n| $r$ | Activation rate |",
+          note: "A small table is easier to reread than a paragraph full of repeated definitions.",
+        },
+      },
+      {
+        id: "common-mistakes",
+        title: "Watch for the mistakes that break math preview",
+        body: [
+          "Most rendering problems come from small syntax mistakes: one missing closing dollar sign, an unclosed brace, a command that KaTeX does not support, or a dollar sign used for currency inside a normal sentence.",
+          "If a document mixes prices and formulas, write currency in words or escape the dollar sign when needed. Keep long formulas out of table cells unless the table is only a compact symbol reference.",
+        ],
+        example: {
+          label: "Safer currency text",
+          markdown:
+            "The price is USD 29 per year, not a math expression.\n\nThe annual revenue estimate is:\n\n$$ARR = customers \\times price$$",
+          note: "Clear prose around formulas prevents accidental math parsing.",
+        },
+      },
+      {
+        id: "use-preview",
+        title: "Use preview as a formula checker",
+        body: [
+          "Math preview is useful because it catches errors while you still see the source. Split view is the fastest mode for this: the left side keeps the Markdown, and the right side shows whether the formula, table, and surrounding explanation render correctly.",
+          "Before exporting or sharing a technical document, scan every block formula, every variable table, and every paragraph that uses inline math. A rendered formula should support the sentence, not hide a missing explanation.",
+        ],
+        example: {
+          label: "Review checklist",
+          markdown:
+            "## Math review\n\n- [ ] Inline math is short\n- [ ] Block formulas render correctly\n- [ ] Variables are explained nearby\n- [ ] Currency is not parsed as math\n- [ ] The conclusion is written in plain language",
+          note: "A small review checklist catches the most common math-document mistakes.",
+        },
+      },
+      {
+        id: "how-velowrite-helps",
+        title: "How VeloWrite can help someone writing formulas",
+        body: [
+          "Today, VeloWrite helps by keeping the source and rendered result together. The web editor is useful for a quick formula check, while the desktop app is better for local study notes, research drafts, engineering docs, and documents that need history snapshots.",
+          "The next useful helpers are practical, not flashy: a math snippet menu for common expressions, a visible warning when a delimiter is unclosed, a small variable-table template, and export checks that compare the preview with PDF and HTML output.",
+          "Those helpers fit the preview direction because they improve normal Markdown writing. More advanced AI formula explanation or automatic derivation cleanup can wait for the Pro roadmap after the basic editing experience stays reliable.",
+        ],
+        example: {
+          label: "Reusable math-note template",
+          markdown:
+            "# Math Note\n\n## Problem\n\nState the problem in plain language.\n\n## Formula\n\n$$y = mx + b$$\n\n## Variables\n\n| Symbol | Meaning |\n| --- | --- |\n| $m$ | Slope |\n| $b$ | Intercept |\n\n## Conclusion\n\nWrite what the formula means for this document.",
+          note: "A template is often more helpful than a longer syntax chart.",
+        },
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=write_math_markdown_cta&utm_medium=cta", label: "Try Math Preview" },
+      secondary: { href: "/docs/markdown-math?utm_source=write_math_markdown_cta&utm_medium=resource", label: "Read KaTeX Guide" },
+    },
+  },
   markdownCodeBlocks: {
     eyebrow: "Technical writing",
     title: "Markdown Code Blocks and Tabs",
@@ -2231,8 +2337,9 @@ export const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog lists what shipped in each preview build and what is still planned. Older releases stay below so you can compare versions.",
-    updated: "August 30, 2026",
+    updated: "September 1, 2026",
     directory: [
+      { label: "0.2.12", href: "#v0212" },
       { label: "0.2.11", href: "#v0211" },
       { label: "0.2.10", href: "#v0210" },
       { label: "0.2.9", href: "#v029" },
@@ -2262,6 +2369,17 @@ export const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v0212",
+        title: "0.2.12 preview",
+        body: [
+          "Added a practical guide for writing math in Markdown, with inline formulas, block formulas, variable tables, and review checks.",
+          "Fixed live preview math styling so expressions such as a^2 + b^2 = c^2 render with visible superscripts instead of flattened text.",
+          "Added an Insert math tool that places a reusable formula and variable-table template at the current cursor.",
+          "Added Document tools math diagnostics for unmatched inline dollar signs and unclosed block math delimiters.",
+          "Expanded automated coverage for math rendering, visible superscripts, formula templates, and math warning states.",
+        ],
+      },
       {
         id: "v0211",
         title: "0.2.11 preview",

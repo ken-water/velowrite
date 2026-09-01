@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.9"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.2.12"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -134,10 +134,20 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
     path.join(process.cwd(), "dist/docs/markdown-editor-for-windows/index.html"),
     "utf8",
   );
-  expect(windowsHtml).toContain("<title>Markdown Editor for Windows - VeloWrite Desktop Preview</title>");
+  expect(windowsHtml).toContain("<title>Markdown Editor for Windows - Open, View, and Edit .md Files</title>");
   expect(windowsHtml).toContain(
     '<link rel="canonical" href="https://velowrite.app/docs/markdown-editor-for-windows" />',
   );
+
+  const writeMathHtml = fs.readFileSync(
+    path.join(process.cwd(), "dist/docs/write-math-in-markdown/index.html"),
+    "utf8",
+  );
+  expect(writeMathHtml).toContain("<title>How to Write Math in Markdown - Formulas, Notes, and Preview</title>");
+  expect(writeMathHtml).toContain(
+    '<link rel="canonical" href="https://velowrite.app/docs/write-math-in-markdown" />',
+  );
+  expect(writeMathHtml).toContain('"dateModified": "2026-09-01"');
 });
 
 test("static deployment includes a friendly 404 without SPA catch-all rewrites", async ({ page }) => {
@@ -224,7 +234,7 @@ test("roadmap shows recommended next priorities", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Make long-document recovery easier to read" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Help users catch export problems" })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "What should be reliable before Pro becomes the main focus." }),
+    page.getByRole("heading", { name: "What needs to be reliable before Pro becomes the main focus." }),
   ).toBeVisible();
   await expect(page.getByLabel("Preview acceptance checklist")).toContainText(
     "Open directly into the editor without a marketing-style first screen.",
@@ -406,7 +416,7 @@ print("hello")
   await expect(renderedPreview.locator("a")).toHaveAttribute("href", "https://velowrite.app");
   await expect(renderedPreview.locator("ul ul ul li")).toContainText("Grandchild");
   await expect(renderedPreview.locator("table")).toContainText("Alpha");
-  await expect(renderedPreview.locator(".katex")).toBeVisible();
+  await expect(renderedPreview.locator(".katex").first()).toBeVisible();
   await expect(renderedPreview.locator("pre code.language-python")).toContainText('print("hello")');
 
   await page.getByRole("button", { name: "Write", exact: true }).click();
@@ -448,6 +458,46 @@ test("document tools update the editor and preview after outline navigation", as
   await page.getByRole("button", { name: "Insert table" }).click();
   await expect(editor).toContainText("| Item | Owner | Status |");
   await expect(renderedPreview.locator("table")).toHaveCount(2);
+});
+
+test("document tools insert a math template at the current cursor", async ({ page }) => {
+  await page.goto("/app");
+  await page.evaluate(() => {
+    localStorage.setItem("velowrite:draft", "# Math Draft\n\n## Formula\n\n");
+    localStorage.setItem("velowrite:draft-name", "math-draft.md");
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Show workspace" }).click();
+  await page.getByRole("button", { name: "Formula" }).click();
+
+  await page.getByRole("button", { name: "Insert math" }).click();
+
+  const editor = page.locator(".cm-content").first();
+  const renderedPreview = page.getByLabel("Rendered preview");
+  await expect(editor).toContainText("$$y = mx + b$$");
+  await expect(editor).toContainText("| Symbol | Meaning |");
+  await expect(renderedPreview.locator(".katex").first()).toBeVisible();
+  await expect(renderedPreview.locator("table")).toContainText("Intercept");
+  await expect(page.getByRole("status")).toContainText("Math template inserted at cursor");
+});
+
+test("document tools warn about unmatched math delimiters", async ({ page }) => {
+  await page.goto("/app");
+  await page.evaluate(() => {
+    localStorage.setItem(
+      "velowrite:draft",
+      "# Math Check\n\nThis line has $unclosed inline math.\n\n```js\nconst price = '$29';\n```",
+    );
+    localStorage.setItem("velowrite:draft-name", "math-warning.md");
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Show workspace" }).click();
+
+  await expect(page.getByLabel("Document tools")).toContainText("Math");
+  await expect(page.getByLabel("Document tools")).toContainText("1 issue");
+  await expect(page.getByLabel("Document tools")).toContainText(
+    "Line 3: Inline math has an unmatched dollar sign.",
+  );
 });
 
 test("format tables keeps the current editing location in a long document", async ({ page }) => {
@@ -1034,7 +1084,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.9");
+  await expect(aboutDialog).toContainText("0.2.12");
   await expect(aboutDialog).toContainText("Update check");
   await expect(aboutDialog).toContainText("kenwater89@gmail.com");
 });
@@ -1118,7 +1168,7 @@ test("web editor keeps browser-local history snapshots", async ({ page }) => {
   await page.locator(".history-summary").first().click();
   await expect(page.getByLabel("Snapshot diff preview")).toBeVisible();
   await expect(page.getByText("Restore preview")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Jump to first change" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Jump to first change" })).toHaveCount(0);
 });
 
 test("history panel exposes section shortcuts for longer diffs", async ({ page }) => {
@@ -1450,14 +1500,14 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
-  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.9");
-  await expect(page.getByLabel("Latest release information")).toContainText("August 23, 2026");
+  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.12");
+  await expect(page.getByLabel("Latest release information")).toContainText("September 1, 2026");
   await expect(page.getByLabel("Latest improvements")).toContainText(
-    "Browser tabs now recover after refresh",
+    "Math formulas now render with full KaTeX styling",
   );
   await expect(page.getByLabel("Latest improvements").getByRole("link", { name: "See changelog details" })).toHaveAttribute(
     "href",
-    "/changelog?utm_source=download_page&utm_medium=resource#v029",
+    "/changelog?utm_source=download_page&utm_medium=resource#v0212",
   );
   await expect(page.getByRole("heading", { name: "macOS Apple Silicon", exact: true })).toBeVisible();
   await expect(
@@ -1466,7 +1516,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.9_aarch64\.dmg/,
+    /VeloWrite_0\.2\.12_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Included now" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Still preview" })).toBeVisible();
@@ -1720,7 +1770,7 @@ test("docs publishes comparison and Windows installer guidance", async ({ page }
   await expect(page.locator(".markdown-body table").first()).toBeVisible();
 
   await page.goto("/docs/markdown-editor-for-windows");
-  await expect(page.getByRole("heading", { name: "Markdown Editor for Windows" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "How to Open, View, and Edit .md Files on Windows" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Open with" })).toHaveAttribute("href", "#open-with");
   await expect(page.getByRole("heading", { name: "If VeloWrite does not appear in Open with" })).toBeVisible();
   await expect(page.getByText("old VeloMD shortcuts")).toBeVisible();
@@ -1779,11 +1829,35 @@ test("docs publishes the Markdown math article with rendered KaTeX examples", as
     "#preview-workflow",
   );
   await expect(page.locator(".markdown-body .katex").first()).toBeVisible();
+  await expect(page.locator(".markdown-body .msupsub").first()).toBeVisible();
   await expect(page.locator(".markdown-body table").first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Try Math Preview" })).toHaveAttribute(
     "href",
     /\/web/,
   );
+});
+
+test("rendered Markdown formulas keep visible superscripts", async ({ page }) => {
+  await page.goto("/web?utm_source=e2e&utm_medium=math_superscript");
+  await page.locator(".cm-content").first().click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.insertText("$$a^2 + b^2 = c^2$$");
+
+  const formula = page.getByLabel("Rendered preview").locator(".katex").first();
+  await expect(formula).toBeVisible();
+  await expect(formula.locator(".msupsub").first()).toBeVisible();
+
+  const positions = await formula.evaluate((element) => {
+    const base = Array.from(element.querySelectorAll(".mord.mathnormal"))
+      .find((node) => node.textContent === "a");
+    const exponent = Array.from(element.querySelectorAll(".msupsub .mord"))
+      .find((node) => node.textContent === "2");
+    return {
+      baseTop: base?.getBoundingClientRect().top ?? 0,
+      exponentTop: exponent?.getBoundingClientRect().top ?? 0,
+    };
+  });
+  expect(positions.exponentTop).toBeLessThan(positions.baseTop);
 });
 
 test("docs publishes advanced Markdown guidance with practical rendered examples", async ({ page }) => {

@@ -35,6 +35,7 @@ import {
   Save,
   Search,
   Settings,
+  Sigma,
   Info,
   Trash2,
   UploadCloud,
@@ -80,6 +81,7 @@ import {
   getCodeBlockStats,
   getImageAssetSummary,
   getMarkdownTableDiagnostics,
+  getMathDiagnostics,
   getStoredEditorFontSize,
   getStoredBrowserWorkspace,
   getStoredLastLocalFile,
@@ -177,6 +179,7 @@ type DocumentQualitySummary = {
   images: ReturnType<typeof getImageAssetSummary>;
   tables: ReturnType<typeof getMarkdownTableDiagnostics>;
   code: ReturnType<typeof getCodeBlockStats>;
+  math: ReturnType<typeof getMathDiagnostics>;
 };
 
 type MarkdownEditorHandle = {
@@ -1722,6 +1725,7 @@ function DocumentToolsPanel({
   quickMarkValues,
   browserMode,
   onInsertTable,
+  onInsertMathBlock,
   onFormatTables,
   onCopyCodeBlocks,
   onSelectQuickMarkSlot,
@@ -1735,6 +1739,7 @@ function DocumentToolsPanel({
   quickMarkValues: QuickMarkMap;
   browserMode: boolean;
   onInsertTable: () => void;
+  onInsertMathBlock: () => void;
   onFormatTables: () => void;
   onCopyCodeBlocks: () => void;
   onSelectQuickMarkSlot: (slot: QuickMarkSlot) => void;
@@ -1755,6 +1760,12 @@ function DocumentToolsPanel({
   const codeStatus = quality.code.total
     ? `${quality.code.labeled}/${quality.code.total} labeled`
     : "No code";
+  const mathCount = quality.math.inline + quality.math.block;
+  const mathStatus = quality.math.issues.length
+    ? `${quality.math.issues.length} issue${quality.math.issues.length > 1 ? "s" : ""}`
+    : mathCount
+      ? `${mathCount} formula${mathCount === 1 ? "" : "s"}`
+      : "No math";
 
   return (
     <section className="document-tools-panel" aria-label="Document tools">
@@ -1775,6 +1786,11 @@ function DocumentToolsPanel({
           <span>Code</span>
           <strong>{codeStatus}</strong>
         </div>
+        <div data-warning={quality.math.issues.length ? "true" : undefined}>
+          <Sigma size={13} />
+          <span>Math</span>
+          <strong>{mathStatus}</strong>
+        </div>
       </div>
       {quality.images.notes.length > 0 && (
         <p className="document-tool-note">{quality.images.notes[0]}</p>
@@ -1787,6 +1803,11 @@ function DocumentToolsPanel({
       {quality.code.unlabeled > 0 && (
         <p className="document-tool-note">
           Add language names to fenced code blocks for better highlighting.
+        </p>
+      )}
+      {quality.math.issues[0] && (
+        <p className="document-tool-note">
+          Line {quality.math.issues[0].line}: {quality.math.issues[0].message}
         </p>
       )}
       {browserMode && imageIssueCount > 0 && (
@@ -1804,6 +1825,10 @@ function DocumentToolsPanel({
         <button onClick={onInsertTable} type="button">
           <Table2 size={13} />
           Insert table
+        </button>
+        <button onClick={onInsertMathBlock} type="button">
+          <Sigma size={13} />
+          Insert math
         </button>
         <button onClick={onFormatTables} type="button">
           <Braces size={13} />
@@ -2070,6 +2095,7 @@ export default function EditorApp({
       images: getImageAssetSummary(markdown, filePath),
       tables: getMarkdownTableDiagnostics(markdown),
       code: getCodeBlockStats(markdown),
+      math: getMathDiagnostics(markdown),
     }),
     [filePath, markdown],
   );
@@ -3701,6 +3727,31 @@ export default function EditorApp({
     insertMarkdownBlock(table, "Table inserted");
   }
 
+  function insertMathTemplate() {
+    const mathBlock = [
+      "The relationship is:",
+      "",
+      "$$y = mx + b$$",
+      "",
+      "Where:",
+      "",
+      "| Symbol | Meaning |",
+      "| --- | --- |",
+      "| $m$ | Slope |",
+      "| $b$ | Intercept |",
+    ].join("\n");
+
+    if (markdownEditorRef.current?.insertTextAtCursor(mathBlock)) {
+      setStatus("Math template inserted at cursor");
+      if (viewMode === "write") {
+        changeViewMode("split");
+      }
+      return;
+    }
+
+    insertMarkdownBlock(mathBlock, "Math template inserted");
+  }
+
   function formatCurrentTables() {
     const cursorLine = markdownEditorRef.current?.getCursorLine();
     const nextMarkdown = formatMarkdownTables(markdown);
@@ -4133,6 +4184,7 @@ export default function EditorApp({
           quickMarkValues={quickMarks[activeTabId] ?? {}}
           browserMode={browserMode}
           onInsertTable={insertTableTemplate}
+          onInsertMathBlock={insertMathTemplate}
           onFormatTables={formatCurrentTables}
           onCopyCodeBlocks={copyCodeBlocks}
           onSelectQuickMarkSlot={selectQuickMarkSlot}

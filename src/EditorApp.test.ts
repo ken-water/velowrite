@@ -15,6 +15,7 @@ import {
   getCodeBlockStats,
   getInitialViewMode,
   getImageAssetSummary,
+  getMathDiagnostics,
   getMarkdownImageReferences,
   getMarkdownTableDiagnostics,
   getStoredLastLocalFile,
@@ -340,6 +341,33 @@ describe("document quality helpers", () => {
       unlabeled: 1,
       languages: { python: 1, bash: 1 },
     });
+  });
+
+  it("reports simple Markdown math delimiter issues without reading code fences", () => {
+    const summary = getMathDiagnostics(
+      [
+        "Inline math $E = mc^2$ renders.",
+        "This line has $unclosed inline math.",
+        "",
+        "$$",
+        "a^2 + b^2 = c^2",
+        "$$",
+        "",
+        "$$",
+        "missing close",
+        "",
+        "```js",
+        "const price = '$29';",
+        "```",
+      ].join("\n"),
+    );
+
+    expect(summary.inline).toBe(1);
+    expect(summary.block).toBe(1);
+    expect(summary.issues).toEqual([
+      { line: 2, message: "Inline math has an unmatched dollar sign." },
+      { line: 8, message: "Block math starts here but is missing a closing $$ delimiter." },
+    ]);
   });
 });
 

@@ -23,8 +23,8 @@ const VercelInsights = React.lazy(async () => {
     },
   };
 });
-const downloadVersion = "0.2.11";
-const downloadReleaseDate = "August 30, 2026";
+const downloadVersion = "0.2.12";
+const downloadReleaseDate = "September 1, 2026";
 const seoDate = "2026-08-30";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
@@ -52,6 +52,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/markdown-for-developers": "Markdown for Developers",
   "/docs/advanced-markdown": "Advanced Markdown",
   "/docs/markdown-math": "Markdown Math",
+  "/docs/write-math-in-markdown": "Write Math in Markdown",
   "/docs/markdown-code-blocks": "Markdown Code Blocks",
   "/docs/long-markdown-workflow": "Long Markdown Workflow",
   "/docs/local-first-markdown": "Local-First Markdown",
@@ -143,6 +144,7 @@ const docPageRoutes = {
   "/docs/markdown-for-developers": "markdownForDevelopers",
   "/docs/advanced-markdown": "advancedMarkdown",
   "/docs/markdown-math": "markdownMath",
+  "/docs/write-math-in-markdown": "writeMathInMarkdown",
   "/docs/markdown-code-blocks": "markdownCodeBlocks",
   "/docs/long-markdown-workflow": "longMarkdownWorkflow",
   "/docs/local-first-markdown": "localFirstMarkdown",
@@ -173,6 +175,7 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
   "/docs/markdown-for-writers",
   "/docs/advanced-markdown",
   "/docs/markdown-math",
+  "/docs/write-math-in-markdown",
   "/docs/markdown-to-blog",
   "/docs/online-markdown-editor",
   "/docs/typora-alternative",
@@ -228,6 +231,11 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
     title: "Markdown Math with KaTeX - Inline and Block Formula Examples",
     description:
       "Use Markdown math with KaTeX for inline formulas, block equations, technical notes, study guides, and engineering documentation.",
+  },
+  "/docs/write-math-in-markdown": {
+    title: "How to Write Math in Markdown - Formulas, Notes, and Preview",
+    description:
+      "Learn how to write inline and block math in Markdown, explain variables, avoid formula mistakes, and preview equations before export.",
   },
   "/docs/markdown-code-blocks": {
     title: "Markdown Code Blocks and Tabs - Multi-Language Documentation",

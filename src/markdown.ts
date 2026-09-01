@@ -1,4 +1,5 @@
 import { katex } from "@mdit/plugin-katex";
+import "katex/dist/katex.min.css";
 import katexStyles from "katex/dist/katex.min.css?inline";
 import hljs from "highlight.js/lib/core";
 import highlightStyles from "highlight.js/styles/github.min.css?inline";

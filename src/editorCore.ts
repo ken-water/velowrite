@@ -118,6 +118,17 @@ export type CodeBlockStats = {
   languages: Record<string, number>;
 };
 
+export type MathDiagnostic = {
+  line: number;
+  message: string;
+};
+
+export type MathSummary = {
+  inline: number;
+  block: number;
+  issues: MathDiagnostic[];
+};
+
 export const draftKey = "velowrite:draft";
 export const draftNameKey = "velowrite:draft-name";
 export const recentFilesKey = "velowrite:recent-files";
@@ -132,7 +143,7 @@ export const pdfExportStyleKey = "velowrite:pdf-export-style";
 export const browserHistoryKey = "velowrite:browser-history";
 export const draftHistoryKey = "velowrite:draft-history";
 export const browserWorkspaceKey = "velowrite:browser-workspace";
-export const appVersion = "0.2.11";
+export const appVersion = "0.2.12";
 export const freeHistorySnapshotLimit = 3;
 export const defaultTableExportStyle: TableExportStyle = {
   header: "tinted",
@@ -806,6 +817,77 @@ export function getCodeBlockStats(markdown: string): CodeBlockStats {
   }
 
   return { total, labeled, unlabeled, languages };
+}
+
+function stripCodeFences(markdown: string) {
+  return markdown.replace(/^```[\s\S]*?^```/gm, (block) =>
+    block
+      .split("\n")
+      .map(() => "")
+      .join("\n"),
+  );
+}
+
+export function getMathDiagnostics(markdown: string): MathSummary {
+  const source = stripCodeFences(markdown);
+  const lines = source.split("\n");
+  const issues: MathDiagnostic[] = [];
+  let inline = 0;
+  let block = 0;
+  let inBlock = false;
+  let blockStartLine = 0;
+
+  lines.forEach((line, index) => {
+    let cursor = 0;
+    let inlineDelimiters = 0;
+
+    while (cursor < line.length) {
+      if (line[cursor] === "\\" && cursor + 1 < line.length) {
+        cursor += 2;
+        continue;
+      }
+
+      if (line.startsWith("$$", cursor)) {
+        if (inBlock) {
+          block += 1;
+          inBlock = false;
+          blockStartLine = 0;
+        } else {
+          inBlock = true;
+          blockStartLine = index + 1;
+        }
+        cursor += 2;
+        continue;
+      }
+
+      if (line[cursor] === "$" && !inBlock) {
+        const after = cursor + 1 < line.length ? line[cursor + 1] : "";
+        const looksLikeCurrency = /\d/.test(after);
+        if (!looksLikeCurrency) {
+          inlineDelimiters += 1;
+        }
+      }
+
+      cursor += 1;
+    }
+
+    inline += Math.floor(inlineDelimiters / 2);
+    if (inlineDelimiters % 2 !== 0) {
+      issues.push({
+        line: index + 1,
+        message: "Inline math has an unmatched dollar sign.",
+      });
+    }
+  });
+
+  if (inBlock) {
+    issues.push({
+      line: blockStartLine,
+      message: "Block math starts here but is missing a closing $$ delimiter.",
+    });
+  }
+
+  return { inline, block, issues };
 }
 
 export function getStoredLastLocalFile(): RecentFile | null {
