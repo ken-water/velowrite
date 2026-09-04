@@ -29,8 +29,8 @@ const RenderedMarkdownExample = React.lazy(() => import("./RenderedMarkdownExamp
 const DemoCodeTabs = React.lazy(() => import("./DemoCodeTabs"));
 const EditorApp = React.lazy(() => import("./EditorApp"));
 
-const downloadVersion = "0.2.12";
-const downloadReleaseDate = "September 1, 2026";
+const downloadVersion = "0.2.13";
+const downloadReleaseDate = "September 4, 2026";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -1704,7 +1704,7 @@ function DownloadPage() {
                 and Document tools can warn about unmatched math delimiters before export.
               </p>
             </div>
-            <a href="/changelog?utm_source=download_page&utm_medium=resource#v0212">
+            <a href="/changelog?utm_source=download_page&utm_medium=resource#v0213">
               See changelog details <ChevronRight size={15} />
             </a>
           </div>

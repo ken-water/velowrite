@@ -2085,7 +2085,7 @@ p {
   display: flex;
   min-width: 0;
   align-items: stretch;
-  gap: 4px;
+  gap: 7px;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -2103,8 +2103,15 @@ p {
   border: 1px solid var(--border-soft);
   border-bottom: 0;
   border-radius: 8px 8px 0 0;
-  background: color-mix(in srgb, var(--panel-bg) 76%, var(--surface));
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--surface) 75%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface) 85%, var(--panel-bg)),
+      color-mix(in srgb, var(--panel-bg) 82%, var(--surface))
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--surface) 78%, transparent),
+    0 -1px 0 color-mix(in srgb, var(--surface) 82%, transparent);
 }
 
 .document-tab.active {
@@ -2133,7 +2140,7 @@ p {
   min-height: 36px;
   align-items: center;
   gap: 7px;
-  padding: 0 7px 0 10px;
+  padding: 0 10px 0 10px;
   font-size: 12px;
   font-weight: 760;
   text-align: left;
@@ -2169,6 +2176,7 @@ p {
   min-height: 30px;
   margin: 3px 3px 0 0;
   border-radius: 6px;
+  align-self: start;
 }
 
 .document-tab-close:hover,
@@ -2191,6 +2199,14 @@ p {
   border: 1px solid var(--border);
   border-radius: 7px;
   background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.document-tab[data-dirty="true"] .document-tab-main i {
+  color: var(--accent-strong);
+}
+
+.document-tab[data-dirty="true"] .document-tab-main {
+  font-weight: 820;
 }
 
 .app-shell.writing-focus .document-tabs {

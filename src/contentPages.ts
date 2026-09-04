@@ -806,7 +806,7 @@ export const contentPages: Record<string, ContentPage> = {
     title: "How to Write Math in Markdown",
     intro:
       "Markdown can handle useful math notes when the formula, explanation, and preview stay close together. This guide shows a practical way to write equations for study notes, engineering drafts, product analysis, and technical docs.",
-    updated: "September 1, 2026",
+    updated: "September 4, 2026",
     directory: [
       { label: "Quick answer", href: "#quick-answer" },
       { label: "Inline or block", href: "#inline-or-block" },
@@ -2337,8 +2337,9 @@ export const contentPages: Record<string, ContentPage> = {
     title: "VeloWrite Changelog",
     intro:
       "This changelog lists what shipped in each preview build and what is still planned. Older releases stay below so you can compare versions.",
-    updated: "September 1, 2026",
+    updated: "September 4, 2026",
     directory: [
+      { label: "0.2.13", href: "#v0213" },
       { label: "0.2.12", href: "#v0212" },
       { label: "0.2.11", href: "#v0211" },
       { label: "0.2.10", href: "#v0210" },
@@ -2369,6 +2370,16 @@ export const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v0213",
+        title: "0.2.13 preview",
+        body: [
+          "Unified the release version across the site, download page, and desktop about panel so the current preview clearly shows v0.2.13.",
+          "Improved the download page and changelog links so users can move from the latest release card directly to the matching release notes.",
+          "Kept the preview release flow aligned with local Windows and Linux packaging, plus the GitHub Actions macOS DMG path.",
+          "Expanded release validation coverage to check current version strings, changelog anchors, and download metadata.",
+        ],
+      },
       {
         id: "v0212",
         title: "0.2.12 preview",

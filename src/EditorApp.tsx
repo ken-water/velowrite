@@ -1877,7 +1877,6 @@ function DesktopStartPanel({
   onNew,
   onContinue,
   onTemplate,
-  onRecent,
   onHistory,
 }: {
   recentFiles: RecentFile[];
@@ -1887,17 +1886,18 @@ function DesktopStartPanel({
   onNew: () => void;
   onContinue: () => void;
   onTemplate: (template: EditorTemplate) => void;
-  onRecent: (path: string) => void;
   onHistory: () => void;
 }) {
   const historyLabel = `${Math.min(historyCount, freeHistorySnapshotLimit)} / ${freeHistorySnapshotLimit}`;
+  const recentLabel = recentFiles.length > 0 ? `${recentFiles.length} recent files` : "No recent files yet";
 
   return (
     <section className="desktop-start-panel" aria-label="Desktop start">
       <div className="desktop-start-copy">
         <span>Continue writing</span>
-        <strong>Resume this draft, open a recent file, or start from a template.</strong>
+        <strong>Resume this draft or open a recent file.</strong>
         <small>{currentDraftName} · {historyLabel} recovery snapshots</small>
+        <small>{recentLabel} · File &gt; Recent Files holds the full list.</small>
       </div>
       <div className="desktop-start-actions">
         <button onClick={onContinue} type="button">
@@ -1917,23 +1917,17 @@ function DesktopStartPanel({
           History ({historyLabel})
         </button>
       </div>
-      <div className="desktop-start-grid">
-        {recentFiles.slice(0, 3).map((file) => (
-          <button key={file.path} title={file.path} onClick={() => onRecent(file.path)} type="button">
-            <FileText size={14} />
-            <span>{file.name}</span>
-            <small>Recent file</small>
-          </button>
-        ))}
-        {recentFiles.length === 0 &&
-          editorTemplates.slice(0, 3).map((template) => (
+      {recentFiles.length === 0 && (
+        <div className="desktop-start-grid">
+          {editorTemplates.slice(0, 3).map((template) => (
             <button key={template.label} onClick={() => onTemplate(template)} type="button">
               <FileText size={14} />
               <span>{template.label}</span>
               <small>{template.description}</small>
             </button>
           ))}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

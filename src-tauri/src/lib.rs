@@ -63,6 +63,27 @@ fn normalize_display_path_string(value: &str) -> String {
         .unwrap_or_else(|| value.to_string())
 }
 
+fn file_name_from_display_path(path: &str) -> &str {
+    path.rsplit(|ch| ch == '/' || ch == '\\').next().unwrap_or(path)
+}
+
+fn parent_folder_from_display_path(path: &str) -> &str {
+    let mut segments = path.rsplit(|ch| ch == '/' || ch == '\\');
+    let _ = segments.next();
+    segments.next().unwrap_or("Folder")
+}
+
+fn recent_menu_label(path: &str, duplicate_name: bool) -> String {
+    let display_path = normalize_display_path_string(path);
+    let file_name = file_name_from_display_path(&display_path);
+    if !duplicate_name {
+        return file_name.to_string();
+    }
+
+    let folder = parent_folder_from_display_path(&display_path);
+    format!("{file_name} · {folder}")
+}
+
 #[tauri::command]
 fn app_ready() -> &'static str {
     "velowrite-ready"
@@ -93,6 +114,12 @@ fn sync_recent_menu(
         .iter()
         .map(|file| file.path.clone())
         .collect::<Vec<_>>();
+    let mut duplicate_counts = std::collections::HashMap::new();
+    for file in &files {
+        let normalized = normalize_display_path_string(&file.path);
+        let file_name = file_name_from_display_path(&normalized).to_string();
+        *duplicate_counts.entry(file_name).or_insert(0usize) += 1;
+    }
     *state
         .0
         .lock()
@@ -121,7 +148,7 @@ fn sync_recent_menu(
     }
 
     if files.is_empty() {
-        let empty = MenuItemBuilder::with_id("recent_empty", "No recent files")
+        let empty = MenuItemBuilder::with_id("recent_empty", "No recent files yet")
             .enabled(false)
             .build(&app)
             .map_err(|error| error.to_string())?;
@@ -129,10 +156,23 @@ fn sync_recent_menu(
             .append(&empty)
             .map_err(|error| error.to_string())?;
     } else {
+        let hint = MenuItemBuilder::with_id("recent_hint", "Choose a file to reopen it")
+            .enabled(false)
+            .build(&app)
+            .map_err(|error| error.to_string())?;
+        recent_menu
+            .append(&hint)
+            .map_err(|error| error.to_string())?;
+        let separator = PredefinedMenuItem::separator(&app).map_err(|error| error.to_string())?;
+        recent_menu
+            .append(&separator)
+            .map_err(|error| error.to_string())?;
         for (index, file) in files.iter().enumerate() {
+            let normalized = normalize_display_path_string(&file.path);
+            let file_name = file_name_from_display_path(&normalized).to_string();
             let item = MenuItemBuilder::with_id(
                 format!("recent_open_{index}"),
-                normalize_display_path_string(&file.path),
+                recent_menu_label(&file.path, duplicate_counts.get(&file_name).copied().unwrap_or(0) > 1),
             )
             .build(&app)
             .map_err(|error| error.to_string())?;
@@ -591,6 +631,22 @@ mod tests {
         assert_eq!(
             normalize_display_path_string("/home/rich/Notes/plan.md"),
             "/home/rich/Notes/plan.md"
+        );
+    }
+
+    #[test]
+    fn recent_menu_labels_prefer_file_name_and_add_context_for_duplicates() {
+        assert_eq!(
+            recent_menu_label("/home/rich/Notes/plan.md", false),
+            "plan.md"
+        );
+        assert_eq!(
+            recent_menu_label("/home/rich/Work/archive/plan.md", true),
+            "plan.md · archive"
+        );
+        assert_eq!(
+            recent_menu_label(r"\\?\C:\Users\dell\Downloads\plan.md", true),
+            "plan.md · Downloads"
         );
     }
 

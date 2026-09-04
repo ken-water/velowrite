@@ -23,8 +23,8 @@ const VercelInsights = React.lazy(async () => {
     },
   };
 });
-const downloadVersion = "0.2.12";
-const downloadReleaseDate = "September 1, 2026";
+const downloadVersion = "0.2.13";
+const downloadReleaseDate = "September 4, 2026";
 const seoDate = "2026-08-30";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
