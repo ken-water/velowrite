@@ -23,6 +23,7 @@ export type Heading = {
   id: string;
   level: number;
   text: string;
+  line: number;
 };
 
 export type EditorMetrics = {
@@ -69,6 +70,7 @@ export function extractHeadings(markdown: string): Heading[] {
         id: count > 0 ? `${baseId}-${count + 1}` : baseId,
         level: match[1].length,
         text,
+        line: index + 1,
       };
     })
     .filter((heading): heading is Heading => Boolean(heading));
@@ -134,6 +136,7 @@ export function renderMarkdown(
     headingIndex += 1;
     if (heading) {
       tokens[index].attrSet("id", heading.id);
+      tokens[index].attrSet("data-source-line", String(heading.line));
     }
     return self.renderToken(tokens, index, options);
   };

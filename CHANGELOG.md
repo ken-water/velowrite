@@ -4,6 +4,25 @@ All notable changes to VeloWrite are documented here.
 
 This project follows semantic versioning while it is pre-1.0. During `0.x`, minor versions may still reshape product scope, but user data compatibility must be called out explicitly.
 
+## [0.3.0] - 2026-09-05
+
+### Added
+
+- Added a tighter native-first desktop presentation with a quieter toolbar, clearer tab separation, and stronger workspace hierarchy.
+- Added a calmer reading and preview surface with more deliberate contrast between editor, preview, and status areas.
+- Added responsive polish for desktop, tablet, and mobile layouts so the product reads more like a finished tool on every screen.
+
+### Changed
+
+- Unified the public release version across the site, download page, desktop app, and release metadata.
+- Simplified the analytics consent banner so it stays present without competing with the primary interface.
+- Refined the sidebar and status bar density to reduce visual noise in the desktop app.
+
+### Fixed
+
+- Fixed release-version mismatches across the web app, desktop app, and SEO output.
+- Fixed the public preview tests to match the current release version and release date.
+
 ## [0.2.10] - 2026-08-29
 
 ### Added

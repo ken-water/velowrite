@@ -59,6 +59,7 @@ import {
   renderMermaidDiagrams,
   renderMarkdown,
   slugify,
+  type Heading,
 } from "./markdown";
 import { complexDemoMarkdown } from "./sampleMarkdown";
 import {
@@ -1966,6 +1967,19 @@ function findHeadingLine(markdown: string, id: string) {
   return null;
 }
 
+function findHeadingForLine(headings: Heading[], line: number) {
+  let candidate: Heading | null = null;
+  for (const heading of headings) {
+    if (heading.line > line) break;
+    candidate = heading;
+  }
+  return candidate;
+}
+
+function findHeadingById(headings: Heading[], id: string) {
+  return headings.find((heading) => heading.id === id) ?? null;
+}
+
 function afterNextPaint(callback: () => void) {
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(callback);
@@ -1986,6 +2000,7 @@ export default function EditorApp({
   const previewRef = React.useRef<HTMLElement>(null);
   const previewScrollFrame = React.useRef<number | null>(null);
   const suppressPreviewSync = React.useRef(false);
+  const suppressEditorSync = React.useRef(false);
   const lastPreviewScrollRatio = React.useRef<number | null>(null);
   const lastEditorScrollRatio = React.useRef<number | null>(null);
   const scrollSource = React.useRef<"editor" | "preview" | null>(null);
@@ -2044,7 +2059,7 @@ export default function EditorApp({
   const [desktopHandoffUrl, setDesktopHandoffUrl] = React.useState<string | null>(null);
   const [fileChangeNotice, setFileChangeNotice] = React.useState<FileChangeNotice | null>(null);
   const [updateNotice, setUpdateNotice] = React.useState<UpdateNotice>({ state: "checking" });
-  const [focusMode, setFocusMode] = React.useState(false);
+  const [focusMode, setFocusMode] = React.useState(() => surface === "desktop");
   const [quickMarkSlot, setQuickMarkSlotState] = React.useState<QuickMarkSlot>("1");
   const [quickMarks, setQuickMarks] = React.useState<Record<string, QuickMarkMap>>({});
   const [autoSaveFile, setAutoSaveFile] = React.useState(() => {
@@ -3907,6 +3922,7 @@ export default function EditorApp({
 
   function syncEditorScroll(ratio: number) {
     if (viewMode !== "split") return;
+    if (suppressEditorSync.current) return;
     if (scrollSource.current === "editor") {
       scrollSource.current = null;
       return;
@@ -3933,6 +3949,22 @@ export default function EditorApp({
       line,
       nonce: (current?.nonce ?? 0) + 1,
     }));
+  }
+
+  function scrollPreviewToLine(line: number) {
+    const preview = previewRef.current;
+    if (!preview) return;
+
+    const target = preview.querySelector<HTMLElement>(`[data-source-line="${line}"]`);
+    if (target) {
+      preview.scrollTop = Math.max(0, target.offsetTop - 12);
+      return;
+    }
+
+    const lineCount = Math.max(1, markdown.split("\n").length);
+    const ratio = Math.min(1, Math.max(0, (line - 1) / Math.max(1, lineCount - 1)));
+    const scrollRange = preview.scrollHeight - preview.clientHeight;
+    preview.scrollTop = scrollRange > 0 ? scrollRange * ratio : 0;
   }
 
   function selectQuickMarkSlot(slot: QuickMarkSlot) {
@@ -3967,7 +3999,16 @@ export default function EditorApp({
     if (viewMode === "preview") {
       changeViewMode("split");
     }
+    suppressPreviewSync.current = true;
+    suppressEditorSync.current = true;
     scrollEditorToLine(line);
+    afterNextPaint(() => {
+      scrollPreviewToLine(line);
+      window.setTimeout(() => {
+        suppressPreviewSync.current = false;
+        suppressEditorSync.current = false;
+      }, 120);
+    });
     setStatus(`Jumped to quick mark M${slot} at line ${line}`);
   }
 
@@ -3976,15 +4017,15 @@ export default function EditorApp({
     const target = preview?.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
     if (!preview || !target) return;
 
-    const previewRect = preview.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    preview.scrollTop = Math.max(0, preview.scrollTop + targetRect.top - previewRect.top);
+    preview.scrollTop = Math.max(0, target.offsetTop - 12);
   }
 
   function scrollToHeading(id: string) {
-    const line = findHeadingLine(markdown, id);
+    const heading = findHeadingById(headings, id);
+    const line = heading?.line ?? findHeadingLine(markdown, id);
     setActiveHeadingId(id);
     suppressPreviewSync.current = true;
+    suppressEditorSync.current = true;
     if (viewMode !== "split") {
       changeViewMode("split");
     }
@@ -3998,6 +4039,7 @@ export default function EditorApp({
 
       window.setTimeout(() => {
         suppressPreviewSync.current = false;
+        suppressEditorSync.current = false;
       }, 120);
     });
   }
@@ -4263,17 +4305,10 @@ export default function EditorApp({
                 {focusMode ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
               </button>
             )}
-            <div className="traffic" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </div>
           </div>
-          <div className="search">
+          <div className="search" aria-label="Current document">
             <Search size={15} />
-            <span>
-              {filePath ? desktopPathLabel : fileName}
-            </span>
+            <span>{filePath ? desktopPathLabel : fileName}</span>
           </div>
           <div className="actions">
             {browserMode && (

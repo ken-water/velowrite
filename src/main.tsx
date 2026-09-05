@@ -23,9 +23,9 @@ const VercelInsights = React.lazy(async () => {
     },
   };
 });
-const downloadVersion = "0.2.13";
-const downloadReleaseDate = "September 4, 2026";
-const seoDate = "2026-08-30";
+const downloadVersion = "0.3.0";
+const downloadReleaseDate = "September 5, 2026";
+const seoDate = "2026-09-05";
 const releaseBaseUrl = `https://github.com/ken-water/velowrite/releases/download/v${downloadVersion}`;
 const releaseTagUrl = `https://github.com/ken-water/velowrite/releases/tag/v${downloadVersion}`;
 const webEditorHref = "/web?utm_source=landing&utm_medium=cta";
@@ -33,15 +33,15 @@ const downloadHref = "/download?utm_source=landing&utm_medium=cta";
 const analyticsConsentKey = "velowrite:analytics-consent";
 const exampleMarkdownKey = "velowrite:example-markdown";
 const siteUrl = "https://velowrite.app";
-const defaultSeoTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
+const defaultSeoTitle = "VeloWrite - Markdown Editor for Web and Desktop";
 const defaultSeoDescription =
-  "VeloWrite is a free online Markdown editor and desktop app for private drafts, live preview, PDF export, local files, and history recovery.";
+  "VeloWrite is a Markdown editor for browser drafts and local files, with preview, export, and history recovery.";
 const breadcrumbLabels: Record<string, string> = {
   "/web": "Web Editor",
   "/download": "Download",
   "/demo": "Demo",
-  "/pro": "Pro Roadmap",
-  "/roadmap": "Feedback Roadmap",
+  "/pro": "Pro",
+  "/roadmap": "Roadmap",
   "/docs": "Markdown Library",
   "/docs/markdown": "What Is Markdown",
   "/docs/markdown-history": "Markdown History",
@@ -55,6 +55,7 @@ const breadcrumbLabels: Record<string, string> = {
   "/docs/write-math-in-markdown": "Write Math in Markdown",
   "/docs/markdown-code-blocks": "Markdown Code Blocks",
   "/docs/long-markdown-workflow": "Long Markdown Workflow",
+  "/docs/markdown-shortcuts": "Markdown Shortcuts",
   "/docs/local-first-markdown": "Local-First Markdown",
   "/docs/typora-alternative": "Typora Alternative",
   "/docs/markdown-to-blog": "Markdown to Blog",
@@ -81,7 +82,7 @@ const breadcrumbLabels: Record<string, string> = {
 const faqItems: readonly FaqItem[] = [
   {
     question: "What is VeloWrite?",
-    answer: "VeloWrite is a Markdown editor with a browser editor for quick drafts and a desktop app for local files, PDF export, and history.",
+    answer: "VeloWrite is a Markdown editor with a browser editor for drafts and a desktop app for local files, PDF export, and history.",
   },
   {
     question: "How do I open a .md file on Windows?",
@@ -90,19 +91,19 @@ const faqItems: readonly FaqItem[] = [
   },
   {
     question: "What is the difference between web and desktop?",
-    answer: "Use the web editor for quick drafts, preview, Markdown download, and HTML export. Use desktop for local files, direct save, offline work, recent files, PDF export, and history snapshots.",
+    answer: "Use the web editor for drafts, preview, Markdown download, and HTML export. Use desktop for local files, direct save, offline work, recent files, PDF export, and history snapshots.",
   },
   {
     question: "Is VeloWrite free to use today?",
-    answer: "Yes. The current public build is a free preview. AI writing, advanced export, and deeper recovery are planned for Pro.",
+    answer: "Yes. The current build is a free preview. AI writing, advanced export, and deeper recovery are planned for Pro.",
   },
   {
     question: "Can I edit Markdown online without uploading files?",
-    answer: "Yes. Normal VeloWrite web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage on the same device.",
+    answer: "Yes. Normal VeloWrite web editing and preview keep Markdown content in your browser.",
   },
   {
     question: "Does VeloWrite work offline?",
-    answer: "The desktop preview is the offline path for real local files. Use the web editor for quick drafts, Markdown download, and HTML export.",
+    answer: "The desktop app handles real local files offline. Use the web editor for drafts, Markdown download, and HTML export.",
   },
 ];
 
@@ -147,6 +148,7 @@ const docPageRoutes = {
   "/docs/write-math-in-markdown": "writeMathInMarkdown",
   "/docs/markdown-code-blocks": "markdownCodeBlocks",
   "/docs/long-markdown-workflow": "longMarkdownWorkflow",
+  "/docs/markdown-shortcuts": "markdownShortcuts",
   "/docs/local-first-markdown": "localFirstMarkdown",
   "/docs/typora-alternative": "typoraAlternative",
   "/docs/online-markdown-editor": "onlineMarkdownEditor",
@@ -193,107 +195,112 @@ const publishedDocPageRoutes = new Set<keyof typeof docPageRoutes>([
 
 const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; description: string }> = {
   "/docs/markdown": {
-    title: "What Is Markdown? Plain Text Writing for Notes, Docs, and Blogs",
+    title: "What Is Markdown? Plain Text for Notes and Docs",
     description:
-      "Learn what Markdown is, how it compares with rich text and HTML, where it works best, and how to start writing portable Markdown documents.",
+      "Learn what Markdown is, how it compares with rich text and HTML, and where it fits best.",
   },
   "/docs/markdown-history": {
-    title: "A Short History of Markdown - 2004, Aaron Swartz, and CommonMark",
+    title: "A Short History of Markdown - 2004 to CommonMark",
     description:
       "A short history of Markdown's 2004 origin, its first Perl converter, Aaron Swartz's influence, and why CommonMark later became necessary.",
   },
   "/docs/future-of-markdown": {
-    title: "The Future of Markdown Writing - Local Files, AI, and Export Readiness",
+    title: "The Future of Markdown Writing - Local Files and AI",
     description:
       "Read how Markdown writing is changing around local files, safer recovery, AI inside the document, export checks, and publishing.",
   },
   "/docs/markdown-basics": {
-    title: "Markdown Basics - Headings, Lists, Links, Tables, Code, and Math",
+    title: "Markdown Basics - Headings, Lists, Links, and Images",
     description:
-      "A plain Markdown basics guide for headings, lists, links, images, tables, code fences, math blocks, and simple document structure.",
+      "A Markdown basics guide for headings, lists, links, images, and document structure.",
   },
   "/docs/markdown-for-writers": {
-    title: "Markdown for Writers - Clean Drafts Without Formatting Drag",
+    title: "Markdown for Writers - Clean Drafts Without Drag",
     description:
       "How writers can use Markdown for essays, articles, notes, outlines, and publishable drafts without fighting a heavy word processor.",
   },
   "/docs/markdown-for-developers": {
-    title: "Markdown for Developers - READMEs, Specs, Docs, and Release Notes",
+    title: "Markdown for Developers - READMEs, Specs, and Docs",
     description:
       "A Markdown guide for README files, technical specs, API notes, code examples, changelogs, and documentation.",
   },
   "/docs/advanced-markdown": {
-    title: "Advanced Markdown - Portable, Reviewable, Maintainable Documents",
+    title: "Advanced Markdown - Portable and Maintainable",
     description:
       "Advanced Markdown practices for portable, reviewable documents: semantic line breaks, reference links, escaped text, stable anchors, and reusable templates.",
   },
   "/docs/markdown-math": {
-    title: "Markdown Math with KaTeX - Inline and Block Formula Examples",
+    title: "Markdown Math with KaTeX - Inline and Block Examples",
     description:
       "Use Markdown math with KaTeX for inline formulas, block equations, technical notes, study guides, and engineering documentation.",
   },
   "/docs/write-math-in-markdown": {
-    title: "How to Write Math in Markdown - Formulas, Notes, and Preview",
+    title: "How to Write Math in Markdown - Formulas and Preview",
     description:
       "Learn how to write inline and block math in Markdown, explain variables, avoid formula mistakes, and preview equations before export.",
   },
   "/docs/markdown-code-blocks": {
-    title: "Markdown Code Blocks and Tabs - Multi-Language Documentation",
+    title: "Markdown Code Blocks and Tabs - Multi-Language Docs",
     description:
       "Write better Markdown code examples with fenced code blocks, syntax highlighting, language labels, and tabbed multi-language snippets.",
   },
   "/docs/long-markdown-workflow": {
     title: "How to Work Faster in Long Markdown Drafts",
     description:
-      "Learn how shortcuts, tables, images, and quick marks help long Markdown files stay readable and easy to revisit.",
+      "Learn how shortcuts, tables, images, and quick marks help long Markdown files stay readable.",
+  },
+  "/docs/markdown-shortcuts": {
+    title: "Markdown Shortcuts for Daily Editing",
+    description:
+      "Markdown editing shortcuts, platform key combos, and quick marks for long drafts.",
   },
   "/docs/local-first-markdown": {
-    title: "Local-First Markdown Editing - Private Files and Offline Writing",
+    title: "Local-First Markdown Editing - Private Files and Offline",
     description:
       "Understand local-first Markdown editing, why user-owned files matter, and when to move from a browser editor to a desktop app.",
   },
   "/docs/typora-alternative": {
-    title: "Typora Alternative - Lightweight Local-First Markdown Editing",
+    title: "Typora Alternative - Lightweight Local-First Markdown",
     description:
-      "Compare VeloWrite with Typora for browser drafts, lightweight Tauri desktop builds, local files, recovery history, and a public roadmap.",
+      "Compare VeloWrite with Typora for browser drafts, Tauri desktop builds, local files, recovery history, and a public roadmap.",
   },
   "/docs/online-markdown-editor": {
-    title: "Online Markdown Editor - Write, Preview, and Download Markdown",
+    title: "Online Markdown Editor - Write, Preview, Download",
     description:
-      "Use VeloWrite as a free online Markdown editor for quick drafts, live preview, Markdown download, HTML export, and a desktop path for local files.",
+      "Use VeloWrite as an online Markdown editor for quick drafts, live preview, download, HTML export, and a desktop path for local files.",
   },
   "/docs/markdown-to-blog": {
-    title: "Markdown to Blog - Draft Locally, Preview Clearly, Publish Later",
+    title: "Markdown to Blog - Draft, Preview, Publish",
     description:
-      "Draft blog posts in Markdown, preview the structure, export HTML, and keep the source file ready for later publishing.",
+      "Draft blog posts in Markdown, preview the structure, export HTML, and keep the source file ready for publishing.",
   },
   "/docs/markdown-editor-for-windows": {
-    title: "Markdown Editor for Windows - Open, View, and Edit .md Files",
+    title: "Markdown Editor for Windows - Open and Edit .md Files",
     description:
       "Try VeloWrite on Windows for Markdown editing, local files, recent documents, local history, Open with support, and installer notes.",
   },
   "/docs/open-md-files-on-windows": {
-    title: "How to Open, View, and Edit .md Files on Windows 11",
+    title: "How to Open .md Files on Windows 11",
     description:
       "Learn the quickest way to open a .md file on Windows, view Markdown content, edit local files, and troubleshoot Open with behavior.",
   },
   "/docs/markdown-editor-for-mac": {
-    title: "Markdown Editor for Mac - Local-First Markdown Writing",
+    title: "Markdown Editor for Mac - Local-First Markdown",
     description:
       "What Mac users should expect from VeloWrite, including Apple Silicon DMG status, local files, preview limits, and future signing plans.",
   },
   "/docs/markdown-editor-for-linux": {
-    title: "Markdown Editor for Linux - AppImage, DEB, RPM, and Local Files",
+    title: "Markdown Editor for Linux - AppImage, DEB, and RPM",
     description:
       "Use VeloWrite on Linux with AppImage, DEB, RPM, browser editing, local files, and a lightweight Tauri desktop app.",
   },
   "/docs/preview-release-policy": {
-    title: "How VeloWrite Preview Releases Work - Versions, Downloads, and Changelog",
+    title: "How VeloWrite Preview Releases Work",
     description:
       "Understand how VeloWrite preview versions, GitHub Releases, installer assets, changelog entries, and download page dates fit together.",
   },
   "/docs/pdf-export-notes": {
-    title: "Markdown to PDF Export Notes - Tables, Chinese Text, and Preview Limits",
+    title: "Markdown to PDF Export Notes - Tables and Chinese Text",
     description:
       "Understand VeloWrite PDF export for Markdown documents, including cover pages, contents, tables, Chinese text, page settings, watermarks, and preview limits.",
   },
@@ -303,7 +310,7 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
       "See what the current VeloWrite preview can do, what still needs work, and what to check before relying on a build.",
   },
   "/docs/private-online-markdown-editor": {
-    title: "Private Online Markdown Editor - Browser Drafts, Consent, and Local Files",
+    title: "Private Online Markdown Editor - Browser Drafts and Consent",
     description:
       "Understand what stays in your browser when you use a private online Markdown editor, how analytics consent works, and when to move important files to desktop.",
   },
@@ -313,7 +320,7 @@ const docArticleSeo: Record<keyof typeof docPageRoutes, { title: string; descrip
       "Check official VeloWrite download sources, version matching, unsigned installer warnings, first-run testing, and how to report suspicious files.",
   },
   "/docs/markdown-meeting-notes": {
-    title: "Markdown Meeting Notes Template - Decisions, Actions, and Follow-up",
+    title: "Markdown Meeting Notes Template - Decisions and Actions",
     description:
       "Use a reusable Markdown meeting notes template for decisions, action items, open questions, project context, and follow-up work.",
   },
@@ -334,43 +341,43 @@ function routeSeo(pathname: string): SeoConfig {
 
   if (matchesRoute(pathname, "/web")) {
     return {
-      title: "VeloWrite Web Editor - Private Online Markdown Editing",
+      title: "VeloWrite Web Editor - Markdown Drafts and Preview",
       description:
-        "Open VeloWrite in the browser to write Markdown, preview rendered output, export HTML, and download .md files without creating an account.",
+        "Open VeloWrite in the browser to write Markdown, preview the result, export HTML, and download .md files without an account.",
       canonicalPath: "/web",
     };
   }
 
   if (matchesRoute(pathname, "/download")) {
     return {
-      title: "Download VeloWrite - Markdown Editor for Windows, macOS, and Linux",
+      title: "Download VeloWrite - Windows, macOS, and Linux",
       description:
-        "Download the VeloWrite desktop preview for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux. Open .md files, edit local folders, and keep recent work on your device.",
+        "Download the VeloWrite desktop app for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux. Open .md files, edit local folders, and keep recent work on your device.",
       canonicalPath: "/download",
     };
   }
 
   if (matchesRoute(pathname, "/demo")) {
     return {
-      title: "VeloWrite Demo - Markdown Editing, Preview, Math, and Code Tabs",
+      title: "VeloWrite Demo - Markdown Editing, Math, and Code Tabs",
       description:
-        "Try the VeloWrite interactive demo with complex Markdown, live preview, math rendering, tables, and multi-language code tabs.",
+        "Try the VeloWrite demo with complex Markdown, live preview, math rendering, tables, and multi-language code tabs.",
       canonicalPath: "/demo",
     };
   }
 
   if (matchesRoute(pathname, "/pro")) {
     return {
-      title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
+      title: "VeloWrite Pro - AI, Sync, and Publishing",
       description:
-        "See VeloWrite Pro plans for pricing, AI writing commands, advanced exports, recovery controls, sync, and publishing.",
+        "See Pro pricing, AI writing commands, advanced exports, recovery controls, sync, and publishing.",
       canonicalPath: "/pro",
     };
   }
 
   if (matchesRoute(pathname, "/docs/online-markdown-editor")) {
     return {
-      title: "Online Markdown Editor - Write, Preview, and Download Markdown",
+      title: "Online Markdown Editor - Write, Preview, Download",
       description:
         "Use VeloWrite as a free online Markdown editor for quick drafts, live preview, Markdown download, HTML export, and a desktop path for local files.",
       canonicalPath: "/docs/online-markdown-editor",
@@ -379,7 +386,7 @@ function routeSeo(pathname: string): SeoConfig {
 
   if (matchesRoute(pathname, "/docs/open-md-files-on-windows")) {
     return {
-      title: "How to Open, View, and Edit .md Files on Windows 11",
+      title: "How to Open .md Files on Windows 11",
       description:
         "Learn the quickest way to open a .md file on Windows, view Markdown content, edit local files, and troubleshoot Open with behavior.",
       canonicalPath: "/docs/open-md-files-on-windows",
@@ -388,25 +395,25 @@ function routeSeo(pathname: string): SeoConfig {
 
   if (normalizedPath === "/docs") {
     return {
-      title: "VeloWrite Markdown Library - Guides, Workflows, and Advanced Markdown",
+      title: "VeloWrite Markdown Library - Basics, Guides, and Workflows",
       description:
-        "Read Markdown articles about basics, history, writing, code blocks, math, local files, and editor comparisons.",
+        "Read Markdown articles about basics, history, writing, code blocks, math, local files, editor comparisons, and platform guides.",
       canonicalPath: "/docs",
     };
   }
 
   if (matchesRoute(pathname, "/roadmap")) {
     return {
-      title: "VeloWrite Public Roadmap - User Feedback and Planned Improvements",
+      title: "VeloWrite Roadmap - Feedback and Planned Improvements",
       description:
-        "See recorded user requests, shipped preview fixes, and the editor improvements being planned next.",
+        "See what shipped, what is improving, and what is still under research.",
       canonicalPath: "/roadmap",
     };
   }
 
   if (matchesRoute(pathname, "/guide")) {
     return {
-      title: "VeloWrite Markdown Guide - Practical Writing Examples",
+      title: "VeloWrite Markdown Guide - Practical Examples",
       description:
         "A Markdown guide with examples for headings, lists, tables, math, code tabs, and desktop use.",
       canonicalPath: "/guide",
@@ -417,7 +424,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Changelog - Release Notes and Preview Updates",
       description:
-        "Read preview release notes, UI fixes, SEO changes, guide updates, and roadmap notes.",
+        "Read release notes, UI fixes, SEO changes, guide updates, and roadmap notes.",
       canonicalPath: "/changelog",
     };
   }
@@ -471,7 +478,7 @@ function routeSeo(pathname: string): SeoConfig {
     return {
       title: "VeloWrite Feedback",
       description:
-        "Send feedback about the web editor, desktop preview builds, Markdown editing, installers, and planned Pro features.",
+        "Send feedback about the web editor, desktop builds, Markdown editing, installers, and planned Pro features.",
       canonicalPath: "/feedback",
       robots: "noindex, follow",
     };
@@ -487,7 +494,7 @@ function routeSeo(pathname: string): SeoConfig {
   }
 
   if (pathname !== "/" && pathname !== "") {
-    return {
+  return {
       title: "Page Not Found - VeloWrite",
       description:
         "This VeloWrite page could not be found. Open the web editor, download the desktop preview, read the Markdown library, or send feedback.",

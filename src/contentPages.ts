@@ -1107,6 +1107,101 @@ export const contentPages: Record<string, ContentPage> = {
       secondary: { href: "/download?utm_source=long_workflow_cta&utm_medium=cta", label: "Download Desktop" },
     },
   },
+  markdownShortcuts: {
+    eyebrow: "Writing workflow",
+    title: "Markdown Shortcuts for Daily Editing",
+    intro:
+      "Long Markdown files are easier to manage when the editor gets out of the way. A small shortcut set saves time, and a few marks make it much easier to jump back to the place you were editing.",
+    updated: "September 4, 2026",
+    directory: [
+      { label: "Why shortcuts matter", href: "#why-shortcuts-matter" },
+      { label: "Platform combos", href: "#platform-combos" },
+      { label: "Marks that help", href: "#marks-that-help" },
+      { label: "Tables and images", href: "#tables-and-images" },
+      { label: "A daily loop", href: "#a-daily-loop" },
+      { label: "Keep it consistent", href: "#keep-it-consistent" },
+    ],
+    sections: [
+      {
+        id: "why-shortcuts-matter",
+        title: "Shortcuts matter because long files punish friction",
+        body: [
+          "A long draft turns small delays into real interruptions. If every save, view change, tab switch, or jump back to a section needs a mouse trip, the file feels harder than the writing itself.",
+          "Shortcuts are not there to look advanced. They are there to keep the document moving while your attention stays on the text, the table, or the section you are revising.",
+        ],
+        example: {
+          label: "A simple shortcut set",
+          markdown:
+            "- `Ctrl/Cmd + S` saves the file\n- `Ctrl/Cmd + W` closes the current tab\n- `Ctrl/Cmd + 1` switches to writing\n- `Ctrl/Cmd + 2` switches to split view\n- `Ctrl/Cmd + 3` switches to preview",
+          note: "A few reliable shortcuts are easier to remember than a long list nobody uses.",
+        },
+      },
+      {
+        id: "platform-combos",
+        title: "Keep the common combinations predictable",
+        body: [
+          "The desktop app should follow the normal platform habit: Ctrl on Windows and Linux, Cmd on macOS. That is more useful than inventing a custom scheme for every action.",
+          "A writer should be able to save, close, switch views, and move between open files without first remembering which app they are in. Predictable keys make the app feel native instead of framed.",
+        ],
+        example: {
+          label: "Cross-platform consistency",
+          markdown:
+            "The same workflow should work on every platform:\n\n1. Save the draft\n2. Switch to split view\n3. Check the preview\n4. Return to writing\n5. Close the tab when done",
+          note: "The key labels change by platform, but the behavior should not.",
+        },
+      },
+      {
+        id: "marks-that-help",
+        title: "Marks help when a document has more than one important place",
+        body: [
+          "Long notes rarely have one place you need to return to. You may want one mark near the main idea, one near a table or example, and one near the paragraph you are still fixing.",
+          "That is why VeloWrite supports several quick mark slots per tab. One mark is easy to forget. A few marks are enough to cover the useful places in a writing session.",
+          "The point is not to build a miniature navigation language. The point is to make a return trip cheap when you move away from the current section.",
+        ],
+        example: {
+          label: "Three marks in one draft",
+          markdown:
+            "# Draft\n\n## M1\nUse this near the opening summary.\n\n## M2\nUse this near the table or checklist.\n\n## M3\nUse this near the paragraph you are still revising.",
+          note: "Marks are best when they stay local to the tab and feel invisible until you need them.",
+        },
+      },
+      {
+        id: "tables-and-images",
+        title: "Use shortcuts together with tables and images",
+        body: [
+          "Tables and images are where long drafts often slow down. A table may need formatting after a paste. An image path may need checking after a move. If the document jumps to a different place while you fix them, the editor has made the work harder than it needed to be.",
+          "A good editing flow is simple: set a mark near the section, fix the table or image, then jump back to the mark and continue. That keeps the page readable and reduces the chance of losing the thought you were writing.",
+        ],
+        example: {
+          label: "A tidy table check",
+          markdown:
+            "| Action | Use it for |\n| --- | --- |\n| Format tables | Keep comparisons readable |\n| Check image paths | Reduce broken previews |\n| Jump to marks | Return to the section you were editing |",
+          note: "The table should help the draft, not become the draft.",
+        },
+      },
+      {
+        id: "a-daily-loop",
+        title: "A daily editing loop that stays fast",
+        body: [
+          "Start in write mode, add the rough text, then switch to split view when you want to confirm the result beside the source. If the file is long, set one mark before you move to another section.",
+          "If the document has several active areas, use more than one mark slot. One can point to the introduction, one to the table, and one to the last place you were editing. That is enough for most daily work.",
+          "The goal is a short loop: write, check, jump back, continue. Anything that makes that loop harder should be treated as friction, not power.",
+        ],
+      },
+      {
+        id: "keep-it-consistent",
+        title: "What to keep consistent across the app",
+        body: [
+          "Keep shortcut labels visible in menus, keep mark behavior the same in write, split, and preview modes, and keep the active tab isolated so one document does not change another.",
+          "That consistency matters more than adding more commands. If the app behaves the same way every time, users will trust the shortcuts and marks enough to use them without thinking.",
+        ],
+      },
+    ],
+    cta: {
+      primary: { href: "/web?utm_source=markdown_shortcuts_cta&utm_medium=cta", label: "Try the Editor" },
+      secondary: { href: "/docs/long-markdown-workflow?utm_source=markdown_shortcuts_cta&utm_medium=resource", label: "Read Long Draft Guide" },
+    },
+  },
   localFirstMarkdown: {
     eyebrow: "Local-first workflow",
     title: "Local-First Markdown Editing",
@@ -1472,7 +1567,7 @@ export const contentPages: Record<string, ContentPage> = {
   },
   openMdFilesOnWindows: {
     eyebrow: "Windows help",
-    title: "How to Open, View, and Edit .md Files on Windows 11",
+    title: "How to Open .md Files on Windows 11",
     intro:
       "If you searched for how to open a .md file on Windows or how to view .md files on Windows, this short guide gives the direct path and shows when the desktop app matters more than the browser.",
     updated: "August 30, 2026",
@@ -2339,6 +2434,7 @@ export const contentPages: Record<string, ContentPage> = {
       "This changelog lists what shipped in each preview build and what is still planned. Older releases stay below so you can compare versions.",
     updated: "September 4, 2026",
     directory: [
+      { label: "0.3.0", href: "#v030" },
       { label: "0.2.13", href: "#v0213" },
       { label: "0.2.12", href: "#v0212" },
       { label: "0.2.11", href: "#v0211" },
@@ -2370,6 +2466,16 @@ export const contentPages: Record<string, ContentPage> = {
       { label: "0.1.0", href: "#v010" },
     ],
     sections: [
+      {
+        id: "v030",
+        title: "0.3.0 preview",
+        body: [
+          "Unified the current release around a single paid product path with free trial access, so the website, desktop app, and download page now speak the same version language.",
+          "Aligned the download workflow, release metadata, and public changelog so the newest build can be validated without version drift.",
+          "Kept the desktop packaging path split by platform: local Windows and Linux builds, plus a GitHub Actions macOS DMG release path.",
+          "Expanded release checks to look for current version strings, changelog anchors, and download metadata before publishing.",
+        ],
+      },
       {
         id: "v0213",
         title: "0.2.13 preview",

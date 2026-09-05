@@ -1,8 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
 :root {
   color: #17201c;
   background: #f4f1eb;
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -908,7 +910,7 @@ p {
 }
 
 .app-shell.desktop-surface {
-  grid-template-columns: 320px minmax(0, 1fr);
+  grid-template-columns: 286px minmax(0, 1fr);
 }
 
 .app-shell.desktop-focus {
@@ -1195,14 +1197,15 @@ p {
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   height: 100vh;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
   border-right: 1px solid var(--border);
-  padding: 12px;
-  background: var(--panel-bg);
+  padding: 10px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--panel-bg) 92%, var(--surface)), var(--panel-bg));
 }
 
 .brand strong {
@@ -1320,15 +1323,16 @@ p {
 .desktop-start-panel {
   display: grid;
   grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
-  gap: 10px 18px;
+  gap: 8px 14px;
   border-bottom: 1px solid var(--border);
-  padding: 12px 24px;
+  padding: 10px 14px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--surface) 70%, var(--app-bg));
 }
 
 .desktop-start-copy {
   display: grid;
-  gap: 5px;
+  gap: 4px;
   align-content: center;
 }
 
@@ -1341,13 +1345,13 @@ p {
 
 .desktop-start-copy strong {
   color: var(--text);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.35;
 }
 
 .desktop-start-copy small {
   color: var(--muted-strong);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 760;
 }
 
@@ -1384,7 +1388,7 @@ p {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
-  gap: 9px;
+  gap: 8px;
 }
 
 .desktop-start-grid button {
@@ -1393,8 +1397,8 @@ p {
   align-content: start;
   gap: 3px 8px;
   min-width: 0;
-  min-height: 58px;
-  padding: 9px 10px;
+  min-height: 54px;
+  padding: 8px 9px;
   text-align: left;
 }
 
@@ -1520,7 +1524,7 @@ p {
   justify-content: space-between;
   margin-bottom: 6px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -1578,7 +1582,7 @@ p {
 .recent-list {
   display: grid;
   gap: 3px;
-  max-height: 84px;
+  max-height: 76px;
   overflow: auto;
 }
 
@@ -1588,14 +1592,14 @@ p {
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 6px;
-  min-height: 25px;
+  min-height: 24px;
   border: 0;
   border-radius: 7px;
   padding: 0 7px;
   background: transparent;
   color: var(--muted-strong);
   cursor: pointer;
-  font-size: 11px;
+  font-size: 10.5px;
   text-align: left;
 }
 
@@ -2059,12 +2063,12 @@ p {
 
 .topbar {
   display: grid;
-  grid-template-columns: auto minmax(180px, 380px) auto;
-  gap: 16px;
+  grid-template-columns: auto minmax(220px, 1fr) auto;
+  gap: 12px;
   align-items: center;
   min-height: 58px;
   border-bottom: 1px solid var(--border);
-  padding: 0 18px;
+  padding: 0 16px;
   background: color-mix(in srgb, var(--surface) 82%, transparent);
   backdrop-filter: blur(18px);
 }
@@ -2072,11 +2076,11 @@ p {
 .document-tabs {
   display: flex;
   min-width: 0;
-  min-height: 42px;
+  min-height: 44px;
   align-items: stretch;
-  gap: 6px;
+  gap: 8px;
   border-bottom: 1px solid var(--border);
-  padding: 5px 12px 0;
+  padding: 5px 14px 0;
   background: color-mix(in srgb, var(--panel-bg) 82%, var(--surface));
   overflow: hidden;
 }
@@ -2098,7 +2102,7 @@ p {
 .document-tab {
   display: flex;
   min-width: 0;
-  max-width: min(280px, 38vw);
+  max-width: min(300px, 34vw);
   align-items: stretch;
   border: 1px solid var(--border-soft);
   border-bottom: 0;
@@ -2139,10 +2143,10 @@ p {
   min-width: 0;
   min-height: 36px;
   align-items: center;
-  gap: 7px;
-  padding: 0 10px 0 10px;
-  font-size: 12px;
-  font-weight: 760;
+  gap: 8px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  font-weight: 780;
   text-align: left;
 }
 
@@ -2172,10 +2176,10 @@ p {
 }
 
 .document-tab-close {
-  width: 30px;
-  min-height: 30px;
-  margin: 3px 3px 0 0;
-  border-radius: 6px;
+  width: 32px;
+  min-height: 32px;
+  margin: 2px 3px 0 0;
+  border-radius: 7px;
   align-self: start;
 }
 
@@ -2216,15 +2220,15 @@ p {
 .topbar-start {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
 .sidebar-toggle {
   position: relative;
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -2262,15 +2266,16 @@ p {
 .search {
   display: flex;
   min-width: 0;
-  min-height: 34px;
+  min-height: 36px;
   align-items: center;
   gap: 8px;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0 10px;
   background: color-mix(in srgb, var(--surface) 82%, transparent);
-  color: var(--muted);
+  color: var(--muted-strong);
   font-size: 13px;
+  font-weight: 700;
 }
 
 .search span {
@@ -2281,10 +2286,10 @@ p {
 
 .desktop-file-state {
   display: grid;
-  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 2fr) minmax(150px, 0.9fr) minmax(110px, 0.7fr);
+  grid-template-columns: minmax(120px, 0.78fr) minmax(0, 2fr) minmax(140px, 0.86fr) minmax(110px, 0.68fr);
   gap: 8px;
   border-bottom: 1px solid var(--border);
-  padding: 8px 18px;
+  padding: 8px 14px;
   background: color-mix(in srgb, var(--surface) 70%, var(--surface-soft));
 }
 
@@ -2292,7 +2297,7 @@ p {
   min-width: 0;
   border: 1px solid var(--border-soft);
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 7px 9px;
   background: color-mix(in srgb, var(--surface) 72%, transparent);
 }
 
@@ -2300,7 +2305,7 @@ p {
   display: block;
   margin-bottom: 3px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 850;
   text-transform: uppercase;
 }
@@ -2309,8 +2314,8 @@ p {
   display: block;
   overflow: hidden;
   color: var(--editor-text);
-  font-size: 12px;
-  font-weight: 780;
+  font-size: 11.5px;
+  font-weight: 760;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2396,7 +2401,7 @@ p {
 .action-group {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   min-height: 38px;
   border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
   border-radius: 9px;
@@ -2407,8 +2412,8 @@ p {
 .action-group > button {
   position: relative;
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   place-items: center;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -2500,7 +2505,7 @@ p {
 .mode-toggle {
   display: inline-grid;
   grid-template-columns: repeat(3, auto);
-  min-height: 38px;
+  min-height: 40px;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 4px;
@@ -2508,8 +2513,8 @@ p {
 }
 
 .mode-toggle button {
-  min-width: 58px;
-  min-height: 30px;
+  min-width: 62px;
+  min-height: 32px;
   border: 0;
   border-radius: 6px;
   padding: 0 8px;
@@ -2580,7 +2585,7 @@ p {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: 22px 24px;
+  padding: 24px;
 }
 
 .editor-pane {
@@ -2588,16 +2593,22 @@ p {
   background: var(--editor-bg);
 }
 
+.preview-pane {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 68%, var(--preview-bg)), var(--preview-bg));
+}
+
 .pane-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 28px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 11.5px;
+  font-weight: 850;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 kbd,
@@ -2895,10 +2906,10 @@ pre,
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 14px;
+  gap: 10px;
   min-height: 32px;
   border-top: 1px solid var(--border);
-  padding: 0 18px;
+  padding: 0 14px;
   background: color-mix(in srgb, var(--surface) 75%, transparent);
   color: var(--muted);
   font-size: 12px;
@@ -2918,8 +2929,8 @@ pre,
   gap: 6px;
   border: 1px solid var(--border-soft);
   border-radius: 999px;
-  padding: 0 10px;
-  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  padding: 0 9px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
   color: var(--muted-strong);
   font: inherit;
 }
@@ -6262,13 +6273,13 @@ pre,
   bottom: 18px;
   z-index: 80;
   display: grid;
-  gap: 12px;
-  width: min(360px, calc(100% - 36px));
+  gap: 10px;
+  width: min(340px, calc(100% - 28px));
   border: 1px solid rgba(21, 54, 45, 0.18);
   border-radius: 8px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 16px 42px rgba(30, 42, 37, 0.16);
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 30px rgba(30, 42, 37, 0.14);
   color: #17201c;
 }
 
@@ -6287,26 +6298,26 @@ pre,
 .cookie-copy p {
   margin: 0;
   color: #45564f;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .cookie-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   justify-content: flex-end;
 }
 
 .cookie-actions a,
 .cookie-actions button {
   display: inline-flex;
-  min-height: 38px;
+  min-height: 34px;
   align-items: center;
   justify-content: center;
   border-radius: 7px;
-  padding: 0 12px;
-  font-size: 13px;
+  padding: 0 10px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -6857,8 +6868,8 @@ pre,
     right: 10px;
     bottom: 10px;
     width: auto;
-    gap: 10px;
-    padding: 10px;
+    gap: 8px;
+    padding: 9px;
   }
 
   .cookie-copy {
@@ -6878,7 +6889,7 @@ pre,
   .cookie-actions {
     display: grid;
     grid-template-columns: auto 1fr 1fr;
-    gap: 8px;
+    gap: 6px;
   }
 
   .cookie-actions a {
@@ -6887,8 +6898,8 @@ pre,
 
   .cookie-actions a,
   .cookie-actions button {
-    min-height: 36px;
-    padding: 0 9px;
+    min-height: 34px;
+    padding: 0 8px;
     font-size: 12px;
   }
 
@@ -6897,13 +6908,16 @@ pre,
   }
 
   .statusbar {
-    gap: 7px;
+    gap: 6px;
     overflow-x: auto;
     justify-content: flex-start;
+    padding: 0 10px;
   }
 
   .trust-pill {
     flex: 0 0 auto;
+    min-height: 28px;
+    padding: 0 8px;
   }
 
   .desktop-prompt {
@@ -6954,7 +6968,7 @@ pre,
   .topbar {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
-    min-height: 96px;
+    min-height: 92px;
     padding: 8px 10px;
   }
 
@@ -6971,7 +6985,7 @@ pre,
   }
 
   .document-tabs {
-    min-height: 40px;
+    min-height: 42px;
     padding: 4px 8px 0;
   }
 
@@ -7021,8 +7035,8 @@ pre,
 
   .actions > button:not(.desktop-cta),
   .sidebar-toggle {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
   }
 
   .editor-grid.mode-split {

@@ -39,10 +39,10 @@ describe("markdown utilities", () => {
 #### Ignored
 ## Details`),
     ).toEqual([
-      { id: "intro", level: 1, text: "Intro" },
-      { id: "details", level: 2, text: "Details" },
-      { id: "details-2", level: 3, text: "Details" },
-      { id: "details-3", level: 2, text: "Details" },
+      { id: "intro", level: 1, text: "Intro", line: 1 },
+      { id: "details", level: 2, text: "Details", line: 2 },
+      { id: "details-2", level: 3, text: "Details", line: 3 },
+      { id: "details-3", level: 2, text: "Details", line: 5 },
     ]);
   });
 
@@ -51,7 +51,7 @@ describe("markdown utilities", () => {
 
 <script>alert("x")</script>`);
 
-    expect(html).toContain('<h1 id="title">Title</h1>');
+    expect(html).toContain('<h1 id="title" data-source-line="1">Title</h1>');
     expect(html).toContain("&lt;script&gt;");
     expect(html).not.toContain("<script>");
   });
@@ -227,8 +227,8 @@ sequenceDiagram
   it("offsets heading levels while keeping generated ids", () => {
     const html = renderMarkdown("# Title\n\n## Section", undefined, 2);
 
-    expect(html).toContain('<h3 id="title">Title</h3>');
-    expect(html).toContain('<h4 id="section">Section</h4>');
+    expect(html).toContain('<h3 id="title" data-source-line="1">Title</h3>');
+    expect(html).toContain('<h4 id="section" data-source-line="3">Section</h4>');
     expect(html).not.toContain("<h7");
   });
 

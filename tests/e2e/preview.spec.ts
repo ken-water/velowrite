@@ -13,7 +13,7 @@ test("static SEO HTML exposes route-specific metadata before JavaScript runs", a
 
   expect(downloadHtml).toContain("<title>Download VeloWrite - Windows, macOS, and Linux Markdown App</title>");
   expect(downloadHtml).toContain('<link rel="canonical" href="https://velowrite.app/download" />');
-  expect(downloadHtml).toContain('"softwareVersion": "0.2.13"');
+  expect(downloadHtml).toContain('"softwareVersion": "0.3.0"');
 
   const articleHtml = fs.readFileSync(
     path.join(process.cwd(), "dist/docs/online-markdown-editor/index.html"),
@@ -178,10 +178,8 @@ test("landing page drives users to web editor and desktop download", async ({ pa
     "href",
     /\/download/,
   );
-  await expect(page.getByRole("heading", { name: /Start in the browser/i })).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: /See what stays local/i }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start in the browser", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "See what stays local.", exact: true })).toBeVisible();
   await expect(page.getByText("Private by default")).toBeVisible();
   await expect(page.getByLabel("VeloWrite product video")).toBeVisible();
   await expect(page.locator(".product-frame .landing-editor-image")).toBeVisible();
@@ -1084,7 +1082,7 @@ test("desktop about panel shows the installed app version", async ({ page }) => 
   const aboutDialog = page.getByRole("dialog", { name: "VeloWrite" });
   await expect(aboutDialog).toBeVisible();
   await expect(aboutDialog).toContainText("Version");
-  await expect(aboutDialog).toContainText("0.2.13");
+  await expect(aboutDialog).toContainText("0.3.0");
   await expect(aboutDialog).toContainText("Update check");
   await expect(aboutDialog).toContainText("kenwater89@gmail.com");
 });
@@ -1500,8 +1498,8 @@ test("download page presents user-facing preview information", async ({ page }) 
   await page.goto("/download");
 
   await expect(page.getByRole("heading", { name: "Download VeloWrite" })).toBeVisible();
-  await expect(page.getByLabel("Latest release information")).toContainText("v0.2.13");
-  await expect(page.getByLabel("Latest release information")).toContainText("September 4, 2026");
+  await expect(page.getByLabel("Latest release information")).toContainText("v0.3.0");
+  await expect(page.getByLabel("Latest release information")).toContainText("September 5, 2026");
   await expect(page.getByLabel("Latest improvements")).toContainText(
     "Math formulas now render with full KaTeX styling",
   );
@@ -1516,7 +1514,7 @@ test("download page presents user-facing preview information", async ({ page }) 
     }),
   ).toHaveAttribute(
     "href",
-    /VeloWrite_0\.2\.13_aarch64\.dmg/,
+    /VeloWrite_0\.3\.0_aarch64\.dmg/,
   );
   await expect(page.getByRole("heading", { name: "Included now" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Still preview" })).toBeVisible();

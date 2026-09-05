@@ -9,15 +9,15 @@ const version = JSON.parse(fs.readFileSync(path.join(repoRoot, "package.json"), 
 const siteUrl = "https://velowrite.app";
 const today = new Date().toISOString().slice(0, 10);
 
-const defaultTitle = "VeloWrite - Online Markdown Editor and Lightweight Desktop App";
+const defaultTitle = "VeloWrite - Markdown Editor for Web and Desktop";
 const defaultDescription =
-  "VeloWrite is a free online Markdown editor and lightweight desktop app for private drafts, live preview, PDF export, local files, and history recovery.";
+  "VeloWrite is a Markdown editor for browser drafts and local files, with preview, export, and history recovery.";
 
 const breadcrumbLabels = new Map([
   ["/web", "Web Editor"],
   ["/download", "Download"],
   ["/demo", "Demo"],
-  ["/pro", "Pro Roadmap"],
+  ["/pro", "Pro"],
   ["/roadmap", "Roadmap"],
   ["/guide", "Markdown Guide"],
   ["/docs", "Markdown Library"],
@@ -31,6 +31,7 @@ const breadcrumbLabels = new Map([
   ["/docs/advanced-markdown", "Advanced Markdown"],
   ["/docs/markdown-code-blocks", "Markdown Code Blocks"],
   ["/docs/long-markdown-workflow", "Long Markdown Workflow"],
+  ["/docs/markdown-shortcuts", "Markdown Shortcuts"],
   ["/docs/local-first-markdown", "Local-First Markdown"],
   ["/docs/typora-alternative", "Typora Alternative"],
   ["/docs/markdown-math", "Markdown Math"],
@@ -90,6 +91,7 @@ const articleModifiedDates = new Map([
   ["/docs/write-math-in-markdown", "2026-09-01"],
   ["/docs/markdown-code-blocks", "2026-07-24"],
   ["/docs/long-markdown-workflow", "2026-08-29"],
+  ["/docs/markdown-shortcuts", "2026-09-05"],
   ["/docs/local-first-markdown", "2026-07-25"],
   ["/docs/typora-alternative", "2026-07-31"],
   ["/docs/markdown-to-blog", "2026-07-27"],
@@ -111,12 +113,12 @@ const faqItems = [
   {
     question: "What is VeloWrite?",
     answer:
-      "VeloWrite is a Markdown editor with a browser version for quick drafts and a lightweight Tauri desktop app for local files, PDF export, and history.",
+      "VeloWrite is a Markdown editor with a browser version for drafts and a desktop app for local files, PDF export, and history.",
   },
   {
     question: "What is the best lightweight Markdown editor for Windows?",
     answer:
-      "VeloWrite is a lightweight Windows Markdown editor with browser preview, desktop files, recent documents, local history snapshots, and export.",
+      "VeloWrite is a Windows Markdown editor with browser preview, desktop files, recent documents, local history snapshots, and export.",
   },
   {
     question: "How do I open a .md file on Windows?",
@@ -126,17 +128,17 @@ const faqItems = [
   {
     question: "Can I edit Markdown online without uploading files?",
     answer:
-      "Yes. Normal VeloWrite web editing and preview do not upload Markdown document content to VeloWrite servers. Browser drafts stay in localStorage on the same device.",
+      "Yes. Normal VeloWrite web editing and preview keep Markdown content in your browser.",
   },
   {
     question: "How is VeloWrite different from Typora?",
     answer:
-      "VeloWrite has a Typora-style writing surface plus a browser editor, lightweight Tauri desktop builds, local files, visible preview limits, and a public roadmap.",
+      "VeloWrite has a Typora-style writing surface plus a browser editor, desktop builds, local files, preview limits, and a public roadmap.",
   },
   {
     question: "Does VeloWrite work offline?",
     answer:
-      "The desktop preview is the offline path for real local files. The web editor is better for quick drafts, Markdown download, and HTML export while the browser is available.",
+      "The desktop app handles real local files offline. The web editor is better for drafts, Markdown download, and HTML export while the browser is available.",
   },
   {
     question: "Is VeloWrite safe for private notes?",
@@ -156,51 +158,51 @@ const routes = [
   },
   {
     path: "/web",
-    title: "VeloWrite Web Editor - Private Online Markdown Editing",
+    title: "VeloWrite Web Editor - Markdown Drafts and Preview",
     description:
-      "Open VeloWrite in the browser to write Markdown, preview rendered output, export HTML, and download .md files without creating an account.",
+      "Open VeloWrite in the browser to write Markdown, preview the result, export HTML, and download .md files without an account.",
     priority: "0.9",
     changefreq: "weekly",
     schema: ["software"],
   },
   {
     path: "/download",
-    title: "Download VeloWrite - Windows, macOS, and Linux Markdown App",
+    title: "Download VeloWrite - Windows, macOS, and Linux",
     description:
-      "Download the VeloWrite desktop preview for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux.",
+      "Download the VeloWrite desktop app for Windows, macOS Apple Silicon, AppImage, Debian, and RPM Linux.",
     priority: "0.9",
     changefreq: "weekly",
     schema: ["software"],
   },
   {
     path: "/demo",
-    title: "VeloWrite Demo - Markdown Editing, Preview, Math, and Code Tabs",
+    title: "VeloWrite Demo - Markdown Editing, Math, and Code Tabs",
     description:
-      "Try the VeloWrite interactive demo with complex Markdown, live preview, math rendering, tables, and multi-language code tabs.",
+      "Try the VeloWrite demo with complex Markdown, live preview, math rendering, tables, and multi-language code tabs.",
     priority: "0.8",
     changefreq: "monthly",
     schema: ["software"],
   },
   {
     path: "/pro",
-    title: "VeloWrite Pro Roadmap - AI, Sync, and Publishing Workflows",
+    title: "VeloWrite Pro - AI, Sync, and Publishing",
     description:
-      "See VeloWrite Pro plans for early pricing, AI writing commands, advanced export, recovery controls, sync, and publishing.",
+      "See Pro pricing, AI writing commands, advanced export, recovery controls, sync, and publishing.",
     priority: "0.7",
     changefreq: "monthly",
   },
   {
     path: "/roadmap",
-    title: "VeloWrite Public Roadmap - User Feedback and Planned Improvements",
+    title: "VeloWrite Roadmap - Feedback and Planned Improvements",
     description:
-      "See recorded VeloWrite user requests, shipped preview fixes, and the local-file editor improvements being researched next.",
+      "See what shipped, what is improving, and what is still under research.",
     priority: "0.7",
     changefreq: "weekly",
     schema: ["article"],
   },
   {
     path: "/guide",
-    title: "VeloWrite Markdown Guide - Practical Writing Examples",
+    title: "VeloWrite Markdown Guide - Practical Examples",
     description:
       "A Markdown guide with headings, lists, tables, math, code tabs, and desktop use for VeloWrite users.",
     priority: "0.8",
@@ -209,15 +211,15 @@ const routes = [
   },
   {
     path: "/docs",
-    title: "VeloWrite Markdown Library - Guides, Workflows, and Advanced Markdown",
+    title: "VeloWrite Markdown Library - Basics, Guides, and Workflows",
     description:
-      "Read VeloWrite Markdown articles about basics, history, writing, code blocks, math, local files, and editor comparisons.",
+      "Read VeloWrite Markdown articles about basics, history, writing, code blocks, math, local files, editor comparisons, and platform guides.",
     priority: "0.8",
     changefreq: "weekly",
   },
   {
     path: "/docs/markdown",
-    title: "What Is Markdown? Plain Text Writing for Notes, Docs, and Blogs",
+    title: "What Is Markdown? Plain Text for Notes and Docs",
     description:
       "Learn what Markdown is, how it compares with rich text and HTML, where it works best, and how to start writing portable Markdown documents.",
     priority: "0.75",
@@ -226,7 +228,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-history",
-    title: "A Short History of Markdown - 2004, Aaron Swartz, and CommonMark",
+    title: "A Short History of Markdown - 2004 to CommonMark",
     description:
       "A short history of Markdown's 2004 origin, its first Perl converter, Aaron Swartz's influence, and why CommonMark later became necessary.",
     priority: "0.75",
@@ -235,7 +237,7 @@ const routes = [
   },
   {
     path: "/docs/future-of-markdown",
-    title: "The Future of Markdown Writing - Local Files, AI, and Export Readiness",
+    title: "The Future of Markdown Writing - Local Files and AI",
     description:
       "Read how Markdown writing is changing around local files, safer recovery, AI inside the document, export checks, and publishing.",
     priority: "0.75",
@@ -244,7 +246,7 @@ const routes = [
   },
   {
     path: "/docs/online-markdown-editor",
-    title: "Online Markdown Editor - Write, Preview, and Download Markdown",
+    title: "Online Markdown Editor - Write, Preview, Download",
     description:
       "Use VeloWrite as a free online Markdown editor for quick drafts, live preview, Markdown download, HTML export, and a desktop path for local files.",
     priority: "0.75",
@@ -253,7 +255,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-basics",
-    title: "Markdown Basics - Headings, Lists, Links, Images, and Documents",
+    title: "Markdown Basics - Headings, Lists, Links, and Images",
     description:
       "A plain Markdown basics guide for headings, lists, links, images, simple document structure, and what the rendered result looks like.",
     priority: "0.75",
@@ -262,7 +264,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-for-writers",
-    title: "Markdown for Writers - Clean Drafts Without Formatting Drag",
+    title: "Markdown for Writers - Clean Drafts Without Drag",
     description:
       "How writers can use Markdown for essays, articles, notes, outlines, and publishable drafts without fighting a heavy word processor.",
     priority: "0.75",
@@ -271,7 +273,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-for-developers",
-    title: "Markdown for Developers - READMEs, Specs, Docs, and Release Notes",
+    title: "Markdown for Developers - READMEs, Specs, and Docs",
     description:
       "A Markdown guide for README files, technical specs, API notes, code examples, changelogs, and documentation.",
     priority: "0.75",
@@ -280,7 +282,7 @@ const routes = [
   },
   {
     path: "/docs/advanced-markdown",
-    title: "Advanced Markdown - Portable, Reviewable, Maintainable Documents",
+    title: "Advanced Markdown - Portable and Maintainable",
     description:
       "Advanced Markdown practices for portable, reviewable documents: semantic line breaks, reference links, escaped text, stable anchors, and reusable templates.",
     priority: "0.75",
@@ -289,7 +291,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-math",
-    title: "Markdown Math with KaTeX - Inline and Block Formula Examples",
+    title: "Markdown Math with KaTeX - Inline and Block Examples",
     description:
       "Use Markdown math with KaTeX for inline formulas, block equations, technical notes, study guides, and engineering documentation.",
     priority: "0.75",
@@ -298,7 +300,7 @@ const routes = [
   },
   {
     path: "/docs/write-math-in-markdown",
-    title: "How to Write Math in Markdown - Formulas, Notes, and Preview",
+    title: "How to Write Math in Markdown - Formulas and Preview",
     description:
       "Learn how to write inline and block math in Markdown, explain variables, avoid formula mistakes, and preview equations before export.",
     priority: "0.75",
@@ -307,7 +309,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-to-blog",
-    title: "Markdown to Blog - Draft Locally, Preview Clearly, Publish Later",
+    title: "Markdown to Blog - Draft, Preview, Publish",
     description:
       "Draft blog posts in Markdown, preview the structure, export HTML, and keep the source file ready for later publishing.",
     priority: "0.75",
@@ -316,7 +318,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-code-blocks",
-    title: "Markdown Code Blocks and Tabs - Multi-Language Documentation",
+    title: "Markdown Code Blocks and Tabs - Multi-Language Docs",
     description:
       "Write better Markdown code examples with fenced code blocks, syntax highlighting, language labels, and tabbed multi-language snippets.",
     priority: "0.75",
@@ -333,8 +335,17 @@ const routes = [
     schema: ["article"],
   },
   {
+    path: "/docs/markdown-shortcuts",
+    title: "Markdown Shortcuts for Daily Editing",
+    description:
+      "Learn practical Markdown editing shortcuts, platform key combos, and quick marks that help long drafts stay easy to manage.",
+    priority: "0.75",
+    changefreq: "monthly",
+    schema: ["article"],
+  },
+  {
     path: "/docs/local-first-markdown",
-    title: "Local-First Markdown Editing - Private Files and Offline Writing",
+    title: "Local-First Markdown Editing - Private Files and Offline",
     description:
       "Understand local-first Markdown editing, why user-owned files matter, and when to move from a browser editor to a desktop app.",
     priority: "0.75",
@@ -343,7 +354,7 @@ const routes = [
   },
   {
     path: "/docs/typora-alternative",
-    title: "Typora Alternative - Lightweight Local-First Markdown Editing",
+    title: "Typora Alternative - Lightweight Local-First Markdown",
     description:
       "Compare VeloWrite with Typora for browser drafts, lightweight Tauri desktop builds, local files, recovery history, and a public roadmap.",
     priority: "0.75",
@@ -352,7 +363,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-editor-for-windows",
-    title: "Markdown Editor for Windows - Open, View, and Edit .md Files",
+    title: "Markdown Editor for Windows - Open and Edit .md Files",
     description:
       "Try VeloWrite on Windows for Markdown editing, local files, recent documents, local history, Open with support, and installer notes.",
     priority: "0.75",
@@ -361,7 +372,7 @@ const routes = [
   },
   {
     path: "/docs/open-md-files-on-windows",
-    title: "How to Open, View, and Edit .md Files on Windows 11",
+    title: "How to Open .md Files on Windows 11",
     description:
       "Learn the quickest way to open a .md file on Windows, view Markdown content, edit local files, and troubleshoot Open with behavior.",
     priority: "0.78",
@@ -370,7 +381,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-editor-for-mac",
-    title: "Markdown Editor for Mac - Local-First Markdown Writing",
+    title: "Markdown Editor for Mac - Local-First Markdown",
     description:
       "Evaluate VeloWrite on macOS with browser-first Markdown editing, Apple Silicon DMG preview notes, local files, history, export checks, and update visibility.",
     priority: "0.75",
@@ -379,7 +390,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-editor-for-linux",
-    title: "Markdown Editor for Linux - AppImage, DEB, RPM, and Local Files",
+    title: "Markdown Editor for Linux - AppImage, DEB, and RPM",
     description:
       "Use VeloWrite on Linux with AppImage, DEB, RPM, browser editing, local files, export checks, and a lightweight Tauri desktop app.",
     priority: "0.75",
@@ -388,7 +399,7 @@ const routes = [
   },
   {
     path: "/docs/preview-release-policy",
-    title: "How VeloWrite Preview Releases Work - Versions, Downloads, and Changelog",
+    title: "How VeloWrite Preview Releases Work",
     description:
       "Understand how VeloWrite preview versions, GitHub Releases, installer assets, changelog entries, and download page dates fit together.",
     priority: "0.72",
@@ -397,7 +408,7 @@ const routes = [
   },
   {
     path: "/docs/pdf-export-notes",
-    title: "Markdown to PDF Export Notes - Tables, Chinese Text, and Preview Limits",
+    title: "Markdown to PDF Export Notes - Tables and Chinese Text",
     description:
       "Understand VeloWrite PDF export for Markdown documents, including cover pages, contents, tables, Chinese text, page settings, watermarks, and preview limits.",
     priority: "0.72",
@@ -415,7 +426,7 @@ const routes = [
   },
   {
     path: "/docs/private-online-markdown-editor",
-    title: "Private Online Markdown Editor - Browser Drafts, Consent, and Local Files",
+    title: "Private Online Markdown Editor - Browser Drafts and Consent",
     description:
       "Understand what stays in your browser when you use a private online Markdown editor, how analytics consent works, and when to move important files to desktop.",
     priority: "0.72",
@@ -433,7 +444,7 @@ const routes = [
   },
   {
     path: "/docs/markdown-meeting-notes",
-    title: "Markdown Meeting Notes Template - Decisions, Actions, and Follow-up",
+    title: "Markdown Meeting Notes Template - Decisions and Actions",
     description:
       "Use a reusable Markdown meeting notes template for decisions, action items, open questions, project context, and follow-up work.",
     priority: "0.72",
@@ -549,6 +560,20 @@ function softwareSchema() {
   };
 }
 
+function webPageSchema(route) {
+  const canonical = `${siteUrl}${route.path === "/" ? "/" : route.path}`;
+  return {
+    "@type": "WebPage",
+    "@id": `${canonical}#webpage`,
+    name: route.title,
+    url: canonical,
+    description: route.description,
+    isPartOf: { "@id": `${siteUrl}/#website` },
+    about: route.schema?.includes("software") ? { "@id": `${siteUrl}/#software` } : { "@id": `${siteUrl}/#organization` },
+    inLanguage: "en",
+  };
+}
+
 function baseGraph() {
   return [
     {
@@ -572,6 +597,7 @@ function baseGraph() {
 
 function schemaFor(route) {
   const graph = baseGraph();
+  graph.push(webPageSchema(route));
   if (route.schema?.includes("software")) graph.push(softwareSchema());
   if (route.schema?.includes("article")) {
     graph.push({
@@ -689,9 +715,9 @@ function routeHighlights(route) {
   }
   if (route.path === "/docs") {
     return [
-      "Learn Markdown basics, history, writer workflows, developer docs, code blocks, math, PDF export, and local-first editing.",
-      "Use the library as a practical route from learning Markdown to trying VeloWrite in the browser.",
-      "Follow platform-specific articles for Windows, macOS, and Linux preview expectations.",
+      "Start with basics, history, and the online editor guide.",
+      "Move into writer workflows, developer notes, code blocks, math, and local-first editing.",
+      "Use platform articles for Windows, macOS, and Linux before deciding whether to install.",
     ];
   }
   if (route.path.startsWith("/docs/")) {
@@ -703,16 +729,16 @@ function routeHighlights(route) {
   }
   if (route.path === "/roadmap") {
     return [
-      "See shipped preview work, active free-preview improvements, researched items, and future Pro candidates.",
-      "Track which user requests have been recorded and which workflows are being hardened next.",
-      "Use feedback links to tell the team what should improve before paid workflows expand.",
+      "See what shipped, what is improving, and what is still under research.",
+      "Track which user requests are recorded and which ones belong to the free preview.",
+      "Use feedback links to tell the team what should improve before paid work expands.",
     ];
   }
   if (route.path === "/pro") {
     return [
-      "Future Pro work is expected to focus on AI writing, advanced export, recovery controls, sync, and publishing.",
-      "The preview remains free while core editing, privacy, file handling, and recovery are hardened.",
-      "Pricing is introduced early so users can judge whether future paid work feels fair.",
+      "Pro is planned for AI writing, advanced export, deeper recovery, sync, and publishing.",
+      "The preview stays free for editing, preview, local files, and basic recovery.",
+      "Pricing is shown early so users can judge whether the paid work feels fair.",
     ];
   }
   if (route.path === "/demo") {

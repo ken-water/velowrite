@@ -27,35 +27,35 @@ const downloadHref = "/download?utm_source=landing&utm_medium=cta";
 const landingFaqs = [
   {
     question: "What is VeloWrite?",
-    answer: "VeloWrite is a Markdown editor with a browser editor for quick drafts and a desktop app for local files, PDF export, and history.",
+    answer: "VeloWrite is a Markdown editor for browser drafts and local files.",
   },
   {
     question: "Is VeloWrite free to use today?",
-    answer: "Yes. The current public build is a free preview. AI writing, advanced export, and deeper recovery are planned for Pro.",
+    answer: "Yes. The current build is a free preview. AI writing, advanced export, and deeper recovery are planned for Pro.",
   },
   {
     question: "Is VeloWrite a Typora alternative?",
-    answer: "It is a focused Markdown editor with a browser editor, desktop builds, local files, and a public roadmap.",
+    answer: "It is a Markdown editor with a browser editor, desktop builds, local files, and a public roadmap.",
   },
   {
     question: "Can I edit Markdown online without uploading files?",
-    answer: "Yes. Normal web editing and preview keep document content in the browser rather than uploading it to VeloWrite servers.",
+    answer: "Yes. Normal web editing and preview keep document content in the browser.",
   },
   {
     question: "Does VeloWrite upload my Markdown documents?",
-    answer: "Normal web editing and preview do not upload Markdown document content. Browser drafts stay in local storage.",
+    answer: "Normal web editing and preview keep Markdown content in your browser.",
   },
   {
     question: "Can I try VeloWrite without installing anything?",
-    answer: "Yes. Open the web editor and start writing in your browser.",
+    answer: "Yes. Open the web editor and start writing.",
   },
   {
     question: "Does VeloWrite work offline?",
-    answer: "The desktop preview is the offline path for real local files. The web editor is for browser-based drafts and exports.",
+    answer: "The desktop app handles local files offline. The web editor is for browser drafts and exports.",
   },
   {
     question: "What is the difference between the web editor and desktop app?",
-    answer: "The web editor is for quick drafts and exports. Desktop adds native files, offline work, recent documents, PDF export, and history.",
+    answer: "Use the web editor for drafts and exports. Use desktop for native files, offline work, recent documents, PDF export, and history.",
   },
   {
     question: "Does VeloWrite handle math, tables, and code highlighting?",
@@ -63,7 +63,7 @@ const landingFaqs = [
   },
   {
     question: "Will the desktop installer trigger a warning?",
-    answer: "Preview installers are currently unsigned, so Windows SmartScreen or macOS Gatekeeper may require manual approval.",
+    answer: "Preview installers are unsigned, so Windows SmartScreen or macOS Gatekeeper may ask for approval.",
   },
 ] as const;
 
@@ -148,13 +148,13 @@ function LandingPage() {
         <div className="hero-copy">
           <div className="eyebrow">
             <Zap size={16} />
-            Start writing in the browser
+            Start in the browser
           </div>
           <h1>Write Markdown. Keep files.</h1>
           <p>
-            Start in the browser to read, edit, preview, and export Markdown.
-            Move to the desktop app when the document needs a real folder,
-            direct save, offline access, or local history.
+            Write, preview, and export Markdown in the browser. Move to desktop
+            when the document needs a real folder, direct save, offline access,
+            or local history.
           </p>
           <div className="hero-actions">
             <a className="primary-link" href={webEditorHref}>
@@ -170,7 +170,7 @@ function LandingPage() {
           <div className="proof-row" aria-label="Product promises">
             <span>
               <Clock3 size={15} />
-              No install needed
+              Browser first
             </span>
             <span>
               <HardDrive size={15} />
@@ -178,7 +178,7 @@ function LandingPage() {
             </span>
             <span>
               <PanelLeft size={15} />
-              Clean split preview
+              Split view
             </span>
           </div>
           <div className="hero-trust" aria-label="Privacy and workflow notes">
@@ -206,7 +206,7 @@ function LandingPage() {
       <section className="mode-compare" aria-label="Web and desktop comparison">
         <div className="section-heading">
           <span>Choose the right workspace</span>
-          <h2>Start in the browser. Keep important files on your computer.</h2>
+          <h2>Start in the browser. Keep the files you care about on your computer.</h2>
         </div>
         <div className="compare-grid">
           <article className="compare-card">
@@ -214,7 +214,7 @@ function LandingPage() {
               <Code2 size={20} />
             </div>
             <h3>Online editor</h3>
-            <p>Open a draft, check the rendered result, and download the source when it is ready.</p>
+            <p>Open a draft, check the rendered result, and download the file when you are done.</p>
             <ul>
               <li>Runs directly in the browser</li>
               <li>Drafts autosave locally in this browser</li>
@@ -230,7 +230,7 @@ function LandingPage() {
               <FolderOpen size={20} />
             </div>
             <h3>Desktop app</h3>
-            <p>Use it for documents that live on your computer and need to be opened again later.</p>
+            <p>Use it for files that live on your computer and need to be opened again later.</p>
             <ul>
               <li>Open and save real files directly</li>
               <li>Work offline with files on your device</li>
@@ -247,13 +247,13 @@ function LandingPage() {
       <section className="trust-band" aria-label="Why people can trust VeloWrite">
         <div className="section-heading">
           <span>What to expect</span>
-          <h2>See what stays local and what the preview can do.</h2>
+          <h2>See what stays local.</h2>
         </div>
         <div className="trust-grid">
           <article>
             <ShieldCheck size={20} />
             <h3>Private by default</h3>
-            <p>Browser drafts stay in local browser storage. Desktop files stay on your own disk unless you choose to export or share them.</p>
+            <p>Browser drafts stay in local browser storage. Desktop files stay on your disk unless you export or share them.</p>
           </article>
           <article>
             <GitBranch size={20} />
@@ -283,11 +283,8 @@ function LandingPage() {
             <div className="compare-icon">
               <PlayCircle size={20} />
             </div>
-            <h3>From browser draft to desktop app</h3>
-            <p>
-              This short demo follows a draft through the web editor, preview,
-              export, and the move to local files.
-            </p>
+            <h3>From browser draft to desktop file</h3>
+            <p>This short demo follows a draft through the web editor, preview, export, and the move to local files.</p>
             <div className="hero-actions">
               <a className="primary-link" href="/web?utm_source=homepage_video&utm_medium=cta">
                 Try Web Editor <ChevronRight size={17} />
@@ -308,8 +305,8 @@ function LandingPage() {
       <section className="feature-band" aria-label="Core features">
         <div>
           <Sparkles size={21} />
-          <h2>Start quickly</h2>
-          <p>Start in the browser. Use the desktop app for files you keep locally.</p>
+          <h2>Start in the browser</h2>
+          <p>Use the desktop app for files you keep locally.</p>
         </div>
         <div>
           <GitBranch size={21} />
@@ -346,13 +343,13 @@ function LandingPage() {
       <section className="resource-band" aria-label="Guides and release notes">
         <div className="section-heading">
           <span>Resources</span>
-          <h2>Learn Markdown and see what changed.</h2>
+          <h2>Learn Markdown and track what changed.</h2>
         </div>
         <div className="resource-grid">
           <article className="resource-card">
             <FileText size={21} />
-          <h3>Markdown Library</h3>
-            <p>Read practical guides on syntax, meeting notes, long documents, editor choices, and local files.</p>
+            <h3>Markdown Library</h3>
+            <p>Read guides on syntax, meeting notes, long documents, editor choices, and local files.</p>
             <a className="text-link" href="/docs?utm_source=homepage_resources&utm_medium=resource">
               Open library <ChevronRight size={15} />
             </a>
@@ -368,14 +365,14 @@ function LandingPage() {
           <article className="resource-card">
             <GitBranch size={21} />
             <h3>Release Notes</h3>
-            <p>See what changed in the current preview and what is still being considered for Pro.</p>
+            <p>See what changed in the current preview and what is still under consideration for Pro.</p>
             <a className="text-link" href="/changelog?utm_source=homepage_resources&utm_medium=resource">
               Read changelog <ChevronRight size={15} />
             </a>
           </article>
           <article className="resource-card">
             <ListChecks size={21} />
-            <h3>Public Roadmap</h3>
+            <h3>Roadmap</h3>
             <p>See user requests, what stays free, and which features may become Pro later.</p>
             <a className="text-link" href="/roadmap?utm_source=homepage_resources&utm_medium=resource">
               View roadmap <ChevronRight size={15} />
@@ -385,8 +382,8 @@ function LandingPage() {
       </section>
 
       <section className="landing-waitlist" aria-label="Private beta signup">
-          <div>
-            <span>Desktop beta updates</span>
+        <div>
+          <span>Desktop updates</span>
           <h2>Get an email when the next build is ready.</h2>
         </div>
         <WaitlistForm />
